@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   app.setWindowIcon(QIcon(":/icons/CustusX.png"));
   app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
-  cx::ApplicationComponentPtr mainwindow(new cx::MainWindowApplicationComponent<cx::FraxinusMainWindow>());
+  cx::ApplicationComponentPtr mainwindow(new cx::MainWindowApplicationComponent<cx::MainWindow>());
   cx::LogicManager::initialize(mainwindow);
 
   int retVal = app.exec();
