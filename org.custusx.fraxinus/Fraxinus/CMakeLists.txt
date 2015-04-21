@@ -4,7 +4,15 @@
 ##
 ###########################################################
 
+cx_add_class_qt_moc(SOURCES
+    cxFraxinusMainWindow
+)
+
+#cx_add_class(SOURCES
+#)
+
 set(SOURCES
+    ${SOURCES}
     cxMain.cpp
 )
 
@@ -35,11 +43,16 @@ endif(APPLE)
 
 target_link_libraries(Fraxinus
     PRIVATE
-    cxGui
+    cxResource
     cxLogicManager
+    cxResourceWidgets
+    cxResourceVisualization
     cxGUIExtenderService
     cxPluginUtilities
-    ${SSC_GCOV_LIBRARY}
+    cxResourceFilter
+    cxGui
+    cxLogicManager
+    ${SSC_GCOV_LIBRARY} #for coverage testing
 )
 
 #------------------------------------------------------------------------------

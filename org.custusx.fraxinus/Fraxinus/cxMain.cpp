@@ -31,7 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include <iostream>
-#include "cxMainWindow.h"
+#include "cxFraxinusMainWindow.h"
 #include "cxMainWindowApplicationComponent.h"
 #include "cxLogicManager.h"
 #include "cxApplication.h"
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   app.setWindowIcon(QIcon(":/icons/CustusX.png"));
   app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
-  cx::ApplicationComponentPtr mainwindow(new cx::MainWindowApplicationComponent<cx::MainWindow>());
+  cx::ApplicationComponentPtr mainwindow(new cx::MainWindowApplicationComponent<cx::FraxinusMainWindow>());
   cx::LogicManager::initialize(mainwindow);
 
   int retVal = app.exec();
