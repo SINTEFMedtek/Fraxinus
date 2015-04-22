@@ -11,16 +11,26 @@ cx_add_class_qt_moc(SOURCES
 #cx_add_class(SOURCES
 #)
 
+
+qt5_add_resources(fraxinus_resources
+    cxfraxinus.qrc
+)
+
 set(SOURCES
     ${SOURCES}
     cxMain.cpp
 )
 
 if(APPLE)
-	# For Apple set the icns file containing icons
-	set_source_files_properties(${CustusX_SOURCE_DIR}/source/gui/icons/application.icns
-                                    PROPERTIES MACOSX_PACKAGE_LOCATION Resources)  # set where in the bundle to put the icns file
-	set(SOURCES ${SOURCES} ${CustusX_SOURCE_DIR}/source/gui/icons/application.icns)  # include the icns file in the target
+    # For Apple set the icns file containing icons
+    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/icons/Fraxinus.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)  # set where in the bundle to put the icns file
+
+    # include the icns file in the target
+    set(SOURCES ${SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/icons/Fraxinus.icns)
+
+    # NOTE: Don't include the path in MACOSX_BUNDLE_ICON_FILE -- this is
+    # the property added to Info.plist
+    set(MACOSX_BUNDLE_ICON_FILE "Fraxinus.icns")
 endif(APPLE)
 
 #------------------------------------------------------------------------------

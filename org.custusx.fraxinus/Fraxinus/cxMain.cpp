@@ -46,10 +46,10 @@ int main(int argc, char *argv[])
 #endif
 
   cx::Application app(argc, argv);
-  app.setOrganizationName("SINTEF");
-  app.setOrganizationDomain("www.sintef.no");
+  app.setOrganizationName("Fraxinus");
+  app.setOrganizationDomain("www.custusx.org");
   app.setApplicationName("Fraxinus");
-  app.setWindowIcon(QIcon(":/icons/CustusX.png"));
+  app.setWindowIcon(QIcon(":/icons/icons/Fraxinus.png"));
   app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
   cx::ApplicationComponentPtr mainwindow(new cx::MainWindowApplicationComponent<cx::MainWindow>());
