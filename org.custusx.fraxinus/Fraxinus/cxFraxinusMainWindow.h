@@ -65,14 +65,11 @@ typedef boost::shared_ptr<class ProcessWrapper> ProcessWrapperPtr;
 
 /**
  * \class MainWindow
- * \ingroup cx_gui
  *
- * \brief This is the main gui class which controls the workflow.
+ * \brief This is the main gui class which sets up the mainwindow.
  *
- * \date Jan 20, 2009
+ * \date Apr 22, 2015
  * \author Janne Beate Bakeng, SINTEF
- * \author Ole Vegard Solberg, SINTEF
- * \author Christian Askeland, SINTEF
  */
 class cxGui_EXPORT MainWindow: public QMainWindow
 {
@@ -132,8 +129,8 @@ private:
 
     //menus
     QMenu* mFileMenu; ///< Menu for file operations (ex: save/load)
-    QMenu* mWorkflowMenu; ///< menu for choosing workflow
-    QMenu* mToolMenu; ///< menu for interacting with the navigation system
+    //QMenu* mWorkflowMenu; ///< menu for choosing workflow
+    //QMenu* mToolMenu; ///< menu for interacting with the navigation system
     QMenu* mLayoutMenu; ///< menu for changing view layouts
     QMenu* mNavigationMenu; ///< menu for navigation and interaction
     QMenu* mHelpMenu;
@@ -145,8 +142,8 @@ private:
     QAction* mFullScreenAction;
     QAction* mQuitAction;
 
-    QAction* mShowControlPanelAction;
-    QAction* mSecondaryViewLayoutWindowAction;
+    //QAction* mShowControlPanelAction;
+    //QAction* mSecondaryViewLayoutWindowAction;
 
     QActionGroup* mStandard3DViewActions; ///< actions for setting camera in fixed direction.
 
@@ -159,13 +156,13 @@ private:
 
     //toolbars
     QToolBar* mDataToolBar; ///< toolbar for data actions
-    QToolBar* mToolToolBar; ///< toolbar for tracking system actions
+    //QToolBar* mToolToolBar; ///< toolbar for tracking system actions
     QToolBar* mNavigationToolBar; ///< toolbar for navigation actions
     QToolBar* mInteractorStyleToolBar; ///< toolbar for camera interaction styles
     QToolBar* mWorkflowToolBar; ///< toolbar for workflow actions
     QToolBar* mDesktopToolBar; ///< toolbar for desktop actions
     QToolBar* mHelpToolBar; ///< toolbar for entering help mode
-    QToolBar* mScreenshotToolBar;
+    //QToolBar* mScreenshotToolBar;
 
     boost::shared_ptr<ServiceTrackerListener<GUIExtenderService> > mServiceListener;
 

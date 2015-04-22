@@ -93,37 +93,39 @@ MainWindow::MainWindow() :
 
     this->createActions();
     this->createMenus();
-    this->createToolBars();
+//    this->createToolBars();
     this->setStatusBar(new StatusBar());
 
     reporter()->setAudioSource(AudioPtr(new AudioImpl()));
 
-    connect(stateService().get(), &StateService::applicationStateChanged, this, &MainWindow::onApplicationStateChangedSlot);
-    connect(stateService().get(), &StateService::workflowStateChanged, this, &MainWindow::onWorkflowStateChangedSlot);
-    connect(stateService().get(), &StateService::workflowStateAboutToChange, this, &MainWindow::saveDesktopSlot);
+//    connect(stateService().get(), &StateService::applicationStateChanged, this, &MainWindow::onApplicationStateChangedSlot);
+//    connect(stateService().get(), &StateService::workflowStateChanged, this, &MainWindow::onWorkflowStateChangedSlot);
+//    connect(stateService().get(), &StateService::workflowStateAboutToChange, this, &MainWindow::saveDesktopSlot);
 
     this->updateWindowTitle();
 
     this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
 
-    this->addAsDockWidget(new PlaybackWidget(this), "Browsing");
-    this->addAsDockWidget(new VideoConnectionWidget(mServices, this), "Utility");
-    this->addAsDockWidget(new EraserWidget(this), "Properties");
+
+    //this->addAsDockWidget(new PlaybackWidget(this), "Browsing");
+    //this->addAsDockWidget(new VideoConnectionWidget(mServices, this), "Utility");
+    //this->addAsDockWidget(new EraserWidget(this), "Properties");
     this->addAsDockWidget(new MetricWidget(mServices->visualizationService, mServices->patientModelService, this), "Utility");
     this->addAsDockWidget(new SlicePropertiesWidget(mServices->patientModelService, mServices->visualizationService, this), "Properties");
     this->addAsDockWidget(new VolumePropertiesWidget(mServices->patientModelService, mServices->visualizationService, this), "Properties");
-    this->addAsDockWidget(new MeshInfoWidget(mServices->patientModelService, mServices->visualizationService, this), "Properties");
-    this->addAsDockWidget(new StreamPropertiesWidget(mServices->patientModelService, mServices->visualizationService, this), "Properties");
-    this->addAsDockWidget(new TrackPadWidget(this), "Utility");
-    this->addAsDockWidget(new ToolPropertiesWidget(this), "Properties");
-    this->addAsDockWidget(new NavigationWidget(this), "Properties");
+    //this->addAsDockWidget(new MeshInfoWidget(mServices->patientModelService, mServices->visualizationService, this), "Properties");
+    //this->addAsDockWidget(new StreamPropertiesWidget(mServices->patientModelService, mServices->visualizationService, this), "Properties");
+    //this->addAsDockWidget(new TrackPadWidget(this), "Utility");
+    //this->addAsDockWidget(new ToolPropertiesWidget(this), "Properties");
+    //this->addAsDockWidget(new NavigationWidget(this), "Properties");
     this->addAsDockWidget(new ConsoleWidget(this, "ConsoleWidget", "Console"), "Utility");
-    this->addAsDockWidget(new ConsoleWidget(this, "ConsoleWidget2", "Extra Console"), "Utility");
+    //this->addAsDockWidget(new ConsoleWidget(this, "ConsoleWidget2", "Extra Console"), "Utility");
 //	this->addAsDockWidget(new ConsoleWidgetCollection(this, "ConsoleWidgets", "Consoles"), "Utility");
-    this->addAsDockWidget(new FrameTreeWidget(mServices->patientModelService, this), "Browsing");
-    this->addAsDockWidget(new ToolManagerWidget(this), "Debugging");
-    this->addAsDockWidget(new PluginFrameworkWidget(this), "Browsing");
-    this->addAsDockWidget(new AllFiltersWidget(VisServices::create(logicManager()->getPluginContext()), this), "Algorithms");
+    //this->addAsDockWidget(new FrameTreeWidget(mServices->patientModelService, this), "Browsing");
+    //this->addAsDockWidget(new ToolManagerWidget(this), "Debugging");
+    //this->addAsDockWidget(new PluginFrameworkWidget(this), "Browsing");
+    //this->addAsDockWidget(new AllFiltersWidget(VisServices::create(logicManager()->getPluginContext()), this), "Algorithms");
+
 
     connect(patientService().get(), &PatientModelService::patientChanged, this, &MainWindow::patientChangedSlot);
     connect(qApp, &QApplication::focusChanged, this, &MainWindow::focusChanged);
@@ -174,16 +176,31 @@ void MainWindow::setupGUIExtenders()
 
 void MainWindow::onGUIExtenderServiceAdded(GUIExtenderService* service)
 {
+    QStringList widgetsToAdd;
+    widgetsToAdd << "DicomWidget";
+    widgetsToAdd << "HelpWidget";
+
     std::vector<GUIExtenderService::CategorizedWidget> widgets = service->createWidgets();
     for (unsigned j = 0; j < widgets.size(); ++j)
     {
-        mDockWidgets->addAsDockWidget(widgets[j].mWidget, widgets[j].mCategory, service);
+        if(widgetsToAdd.contains(widgets[j].mWidget->objectName()))
+        {
+            std::cout << "adding widget named: " << widgets[j].mWidget->objectName() << std::endl;
+            std::cout << "...from category: " << widgets[j].mCategory << std::endl;
+            mDockWidgets->addAsDockWidget(widgets[j].mWidget, widgets[j].mCategory, service);
+        }
     }
+
+    QStringList toolbarsToAdd; //dont add any toolbars atm
 
     std::vector<QToolBar*> toolBars = service->createToolBars();
     for(unsigned j = 0; j < toolBars.size(); ++j)
     {
-        mDockWidgets->registerToolBar(toolBars[j]);
+        if(toolbarsToAdd.contains(toolBars[j]->objectName()))
+        {
+            std::cout << "adding toolbar named: " << toolBars[j]->objectName() << std::endl;
+            mDockWidgets->registerToolBar(toolBars[j]);
+        }
     }
 }
 
@@ -261,10 +278,12 @@ void MainWindow::createActions()
                                                   "Context-sensitive help", this);
     connect(mShowContextSensitiveHelpAction, &QAction::triggered, this, &MainWindow::onShowContextSentitiveHelp);
 
-    mShowControlPanelAction = new QAction("Show Control Panel", this);
-    connect(mShowControlPanelAction, &QAction::triggered, this, &MainWindow::showControlPanelActionSlot);
-    mSecondaryViewLayoutWindowAction = new QAction("Show Secondary View Layout Window", this);
-    connect(mSecondaryViewLayoutWindowAction, &QAction::triggered, this, &MainWindow::showSecondaryViewLayoutWindowActionSlot);
+
+    //mShowControlPanelAction = new QAction("Show Control Panel", this);
+    //connect(mShowControlPanelAction, &QAction::triggered, this, &MainWindow::showControlPanelActionSlot);
+
+    //mSecondaryViewLayoutWindowAction = new QAction("Show Secondary View Layout Window", this);
+    //connect(mSecondaryViewLayoutWindowAction, &QAction::triggered, this, &MainWindow::showSecondaryViewLayoutWindowActionSlot);
 
     // Application
     mAboutAction = new QAction(tr("About"), this);
@@ -420,8 +439,8 @@ void MainWindow::createMenus()
     this->menuBar()->setNativeMenuBar(false);
 #endif
     mFileMenu = new QMenu(tr("File"), this);
-    mWorkflowMenu = new QMenu(tr("Workflow"), this);
-    mToolMenu = new QMenu(tr("Tracking"), this);
+    //mWorkflowMenu = new QMenu(tr("Workflow"), this);
+    //mToolMenu = new QMenu(tr("Tracking"), this);
     mLayoutMenu = new QMenu(tr("Layouts"), this);
     mNavigationMenu = new QMenu(tr("Navigation"), this);
     mHelpMenu = new QMenu(tr("Help"), this);
@@ -444,12 +463,13 @@ void MainWindow::createMenus()
     mFileMenu->addAction(mActions->getAction("ShootWindow"));
     mFileMenu->addAction(mActions->getAction("RecordFullscreen"));
     mFileMenu->addSeparator();
-    mFileMenu->addAction(mShowControlPanelAction);
-    mFileMenu->addAction(mSecondaryViewLayoutWindowAction);
+    //mFileMenu->addAction(mShowControlPanelAction);
+    //mFileMenu->addAction(mSecondaryViewLayoutWindowAction);
 
     mFileMenu->addAction(mQuitAction);
 
     //workflow
+    /*
     this->menuBar()->addMenu(mWorkflowMenu);
     QList<QAction*> actions = stateService()->getWorkflowActions()->actions();
     for (int i=0; i<actions.size(); ++i)
@@ -460,8 +480,10 @@ void MainWindow::createMenus()
     mWorkflowMenu->addSeparator();
     mWorkflowMenu->addAction(mSaveDesktopAction);
     mWorkflowMenu->addAction(mResetDesktopAction);
+    */
 
     //tool
+    /*
     this->menuBar()->addMenu(mToolMenu);
     mToolMenu->addAction(mActions->getAction("ConfigureTools"));
     mToolMenu->addAction(mActions->getAction("InitializeTools"));
@@ -469,6 +491,7 @@ void MainWindow::createMenus()
     mToolMenu->addSeparator();
     mToolMenu->addAction(mActions->getAction("StartStreaming"));
     mToolMenu->addSeparator();
+    */
 
     //layout
     this->menuBar()->addMenu(mLayoutMenu);
@@ -500,9 +523,11 @@ void MainWindow::createToolBars()
     mDataToolBar->addAction(mActions->getAction("SaveFile"));
     mDataToolBar->addAction(mActions->getAction("ImportData"));
 
+    /*
     mToolToolBar = this->registerToolBar("Tools");
     mToolToolBar->addAction(mActions->getAction("TrackingTools"));
     mToolToolBar->addAction(mActions->getAction("StartStreaming"));
+    */
 
     mNavigationToolBar = this->registerToolBar("Navigation");
     mNavigationToolBar->addAction(mActions->getAction("CenterToImageCenter"));
@@ -516,8 +541,10 @@ void MainWindow::createToolBars()
     mDesktopToolBar->addAction(mSaveDesktopAction);
     mDesktopToolBar->addAction(mResetDesktopAction);
 
+    /*
     mScreenshotToolBar = this->registerToolBar("Screenshot");
     mScreenshotToolBar->addAction(mActions->getAction("ShootScreen"));
+    */
 
     QToolBar* camera3DViewToolBar = this->registerToolBar("Camera 3D Views");
     camera3DViewToolBar->addActions(mStandard3DViewActions->actions());
