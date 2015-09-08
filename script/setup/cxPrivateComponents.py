@@ -34,3 +34,61 @@ class Fraxinus(cx.build.cxComponents.CppComponent):
         add('CX_APP_CustusX:BOOL', 'OFF');
         add('CX_APP_Fraxinus:BOOL', 'ON');
         add('CX_OPTIONAL_CONFIG_ROOT:PATH', '%s/config'%self.sourcePath());
+
+# ---------------------------------------------------------
+
+class org_custusx_virtualbronchoscopy(cx.build.cxComponents.CppComponent):
+
+    def name(self):
+        return "org.custusx.virtualbronchoscopy"
+    def help(self):
+        return 'Plugin virtualbronchoscopy'
+    def path(self):
+        custusx = self._createSibling(cx.build.cxComponents.CustusX)
+        return '%s/%s/source/plugins' % (custusx.path(), custusx.sourceFolder())
+    def sourceFolder(self):
+        return 'org.custusx.virtualbronchoscopy'
+    def _rawCheckout(self):
+        self._getBuilder().gitClone(self.gitRepository(), self.sourceFolder())
+    def update(self):
+        self._getBuilder().gitCheckoutBranch('feature/Virtual_Bronchoscopy')
+    def configure(self):
+        pass
+    def build(self):
+        pass
+    def gitRepository(self):
+        base = self.controlData.gitrepo_open_site_base
+        return '%s/org.custusx.virtualbronchoscopy.git' % base
+    def makeClean(self):
+        pass
+    def pluginPath(self):
+        return '%s' % self.sourcePath()
+
+# ---------------------------------------------------------
+
+class org_custusx_bronchoscopynavigation(cx.build.cxComponents.CppComponent):
+
+    def name(self):
+        return "org.custusx.bronchoscopynavigation"
+    def help(self):
+        return 'Plugin bronchoscopynavigation'
+    def path(self):
+        custusx = self._createSibling(cx.build.cxComponents.CustusX)
+        return '%s/%s/source/plugins' % (custusx.path(), custusx.sourceFolder())
+    def sourceFolder(self):
+        return 'org.custusx.bronchoscopynavigation'
+    def _rawCheckout(self):
+        self._getBuilder().gitClone(self.gitRepository(), self.sourceFolder())
+    def update(self):
+        self._getBuilder().gitCheckoutDefaultBranch()
+    def configure(self):
+        pass
+    def build(self):
+        pass
+    def gitRepository(self):
+        base = self.controlData.gitrepo_open_site_base
+        return '%s/org.custusx.bronchoscopynavigation.git' % base
+    def makeClean(self):
+        pass
+    def pluginPath(self):
+        return '%s' % self.sourcePath()
