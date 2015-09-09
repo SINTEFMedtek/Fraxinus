@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<!-- Tool -->
+<!-- ==== -->
+<tool>
+  <type>usprobe</type>
+  <id>VividE9_11L</id>
+  <name>VividE9 11L Ortho</name>
+  <description>Vivid E9 linear probe with Polaris tracking</description>
+  <manufacturer>SINTEF</manufacturer>
+  <clinical_app>Laboratory Neurology</clinical_app>
+  <geo_file>11L-Probe.stl</geo_file>
+  <pic_file>11L-Probe_VividE9_POLARIS.png</pic_file>
+  <doc_file></doc_file>  
+
+  <!-- Instrument -->
+  <instrument>
+    <type>usprobe</type>
+    <id>11L</id>
+    <name>11L</name>
+    <manufacturer>Ge Healthcare</manufacturer>
+    <scannerid>Vivid E9</scannerid>
+    <description></description>
+  </instrument>
+
+  <!-- Sensor -->
+  <sensor>
+    <type>Polaris</type>
+    <id>Polaris_32-105-0289</id>
+    <name>Polaris_32-105-0289</name>
+    <wireless>yes</wireless>
+    <DOF></DOF>
+    <portnumber></portnumber>
+    <channelnumber></channelnumber>
+    <manufacturer>SonoWand</manufacturer>
+    <description></description>
+    <rom_file>32-105-0289-ortho.rom</rom_file>
+  </sensor>
+
+  <!-- Calibration -->
+  <calibration>
+    <cal_file>Vivid_E9_11L.cal</cal_file>    
+  </calibration>
+</tool>

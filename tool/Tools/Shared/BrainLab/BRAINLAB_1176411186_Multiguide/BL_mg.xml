@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<!-- Tool -->
+<!-- ==== -->
+<tool>
+  <type>pointer</type>
+  <id>1176411186_41799</id>
+  <name>Multiguide Brainlab</name>
+  <description>Multiguide</description>
+  <manufacturer>NDI</manufacturer>
+  <clinical_app>Laboratory Neurology</clinical_app>
+  <geo_file>Multiguide_Small.stl</geo_file>
+  <pic_file>multiguide.JPG</pic_file>
+  <doc_file></doc_file>  
+
+  <!-- Instrument -->
+  <instrument>
+    <type>pointer</type>
+    <id></id>
+    <name></name>
+    <manufacturer>NDI</manufacturer>
+    <description></description>
+  </instrument>
+
+  <!-- Sensor -->
+  <sensor>
+    <type>Polaris</type>
+    <id>BRAINLAB_1176411186_41799</id>
+    <name>BRAINLAB_1176411186_41799</name>
+    <wireless>yes</wireless>
+    <DOF></DOF>
+    <portnumber></portnumber>
+    <channelnumber></channelnumber>
+    <manufacturer>NDI</manufacturer>
+    <description></description>
+    <rom_file>BRAINLAB_1176411186_41799.rom</rom_file>
+  </sensor>
+
+  <!-- Calibration -->
+  <calibration>
+    <cal_file>BRAINLAB_1176411186_41799.cal</cal_file>
+  </calibration>
+</tool>

@@ -111,7 +111,7 @@ MainWindow::MainWindow() :
     //this->addAsDockWidget(new VideoConnectionWidget(mServices, this), "Utility");
     //this->addAsDockWidget(new EraserWidget(this), "Properties");
     this->addAsDockWidget(new MetricWidget(mServices->visualizationService, mServices->patientModelService, this), "Utility");
-    this->addAsDockWidget(new SlicePropertiesWidget(mServices->patientModelService, mServices->visualizationService, this), "Properties");
+    //this->addAsDockWidget(new SlicePropertiesWidget(mServices->patientModelService, mServices->visualizationService, this), "Properties");
     this->addAsDockWidget(new VolumePropertiesWidget(mServices->patientModelService, mServices->visualizationService, this), "Properties");
     //this->addAsDockWidget(new MeshInfoWidget(mServices->patientModelService, mServices->visualizationService, this), "Properties");
     //this->addAsDockWidget(new StreamPropertiesWidget(mServices->patientModelService, mServices->visualizationService, this), "Properties");

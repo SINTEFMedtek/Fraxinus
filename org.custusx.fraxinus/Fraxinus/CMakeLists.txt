@@ -4,9 +4,9 @@
 ##
 ###########################################################
 
-cx_add_class_qt_moc(SOURCES
-    cxFraxinusMainWindow
-)
+#cx_add_class_qt_moc(SOURCES
+#    cxFraxinusMainWindow
+#)
 
 #cx_add_class(SOURCES
 #)

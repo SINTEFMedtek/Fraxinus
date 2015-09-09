@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<!-- Tool -->
+<!-- ==== -->
+<tool>
+  <type>usprobe</type>
+  <id>Ultrasonix_L14-5</id>
+  <name>Ultrasonix L14-5</name>
+  <description>Ultrasonix linear probe with Polaris tracking</description>
+  <manufacturer>SINTEF</manufacturer>
+  <clinical_app>Laboratory Neurology</clinical_app>
+  <geo_file>Ultrasonix_L14-5.stl</geo_file>
+  <pic_file>L14-5-Probe-32series_Ultrasonix_POLARIS.png</pic_file>
+  <doc_file></doc_file>  
+
+  <!-- Instrument -->
+  <instrument>
+    <type>usprobe</type>
+    <id>L14-5</id>
+    <name>L14-5</name>
+    <manufacturer>Ultrasonix</manufacturer>
+    <scannerid>Ultrasonix</scannerid>
+    <description></description>
+  </instrument>
+
+  <!-- Sensor -->
+  <sensor>
+    <type>Polaris</type>
+    <id>Polaris_32-105-0289</id>
+    <name>Polaris_32-105-0289</name>
+    <wireless>yes</wireless>
+    <DOF></DOF>
+    <portnumber></portnumber>
+    <channelnumber></channelnumber>
+    <manufacturer>NDI</manufacturer>
+    <description></description>
+    <rom_file>32-105-0289-ortho.rom</rom_file>
+  </sensor>
+
+  <!-- Calibration -->
+  <calibration>
+    <cal_file>Ultrasonix_L14-5.cal</cal_file>    
+  </calibration>
+</tool>

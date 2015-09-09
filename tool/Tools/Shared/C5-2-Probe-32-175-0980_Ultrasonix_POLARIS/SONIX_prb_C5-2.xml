@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<!-- Tool -->
+<!-- ==== -->
+<tool>
+  <type>usprobe</type>
+  <id>Ultrasonix_C5-2</id>
+  <name>Ultrasonix C5-2</name>
+  <description>Ultrasonix curvilinear probe with Polaris tracking</description>
+  <manufacturer>SINTEF</manufacturer>
+  <clinical_app>Laboratory Neurology</clinical_app>
+  <geo_file>Ultrasonix_L14-5.stl</geo_file>
+  <pic_file>C5-2-Probe-32-175-0980_Ultrasonix_POLARIS.png</pic_file>
+  <doc_file></doc_file>  
+
+  <!-- Instrument -->
+  <instrument>
+    <type>usprobe</type>
+    <id>C5-2</id>
+    <name>C5-2</name>
+    <manufacturer>Ultrasonix</manufacturer>
+    <scannerid>Ultrasonix</scannerid>
+    <description></description>
+  </instrument>
+
+  <!-- Sensor -->
+  <sensor>
+    <type>Polaris</type>
+    <id>Polaris_32-175-0980</id>
+    <name>Polaris_32-175-0980</name>
+    <wireless>yes</wireless>
+    <DOF></DOF>
+    <portnumber></portnumber>
+    <channelnumber></channelnumber>
+    <manufacturer>NDI</manufacturer>
+    <description></description>
+    <rom_file>32-175-0980_SW_USProbe10MHz_02.rom</rom_file>
+  </sensor>
+
+  <!-- Calibration -->
+  <calibration>
+    <cal_file>Ultrasonix_C5-2__20131108T105210.cal</cal_file>    
+  </calibration>
+</tool>

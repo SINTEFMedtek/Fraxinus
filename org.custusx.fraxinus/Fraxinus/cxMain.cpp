@@ -31,7 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include <iostream>
-#include "cxFraxinusMainWindow.h"
+//#include "cxFraxinusMainWindow.h"
+#include "cxMainWindow.h"
 #include "cxMainWindowApplicationComponent.h"
 #include "cxLogicManager.h"
 #include "cxApplication.h"

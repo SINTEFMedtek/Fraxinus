@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<!-- Tool -->
+<!-- ==== -->
+<tool>
+  <type>reference</type>
+  <id>BRAINLAB_1224812182_41877A</id>
+  <name>BrainLab Reference Frame</name>
+  <description>Reference frame</description>
+  <manufacturer>NDI</manufacturer>
+  <clinical_app>Laboratory Neurology</clinical_app>
+  <geo_file></geo_file>
+  <pic_file>brainlab_headband.JPG</pic_file>
+  <doc_file></doc_file>  
+
+  <!-- Instrument -->
+  <instrument>
+    <type></type>
+    <id></id>
+    <name></name>
+    <manufacturer></manufacturer>
+    <description></description>
+  </instrument>
+
+  <!-- Sensor -->
+  <sensor>
+    <type>Polaris</type>
+    <id>BRAINLAB_1224812182_41877A</id>
+    <name>BRAINLAB_1224812182_41877A</name>
+    <wireless>yes</wireless>
+    <DOF></DOF>
+    <portnumber></portnumber>
+    <channelnumber></channelnumber>
+    <manufacturer>NDI</manufacturer>
+    <description></description>
+    <rom_file>BRAINLAB_1224812182_41877A.rom</rom_file>
+  </sensor>
+
+  <!-- Calibration -->
+  <calibration>
+    <cal_file></cal_file>
+  </calibration>
+</tool>
