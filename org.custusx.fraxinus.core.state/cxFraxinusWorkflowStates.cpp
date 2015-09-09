@@ -43,13 +43,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cx
 {
 
+ImportWorkflowState::ImportWorkflowState(QState* parent, StateServiceBackendPtr backend) :
+    WorkflowState(parent, "ImportUid", "Import", backend)
+{}
+
+ImportWorkflowState::~ImportWorkflowState()
+{}
+
+QIcon ImportWorkflowState::getIcon() const
+{
+    return QIcon("://icons/preset_save.png");
+}
+
+bool ImportWorkflowState::canEnter() const
+{
+    return true;
+}
+
 // --------------------------------------------------------
 // --------------------------------------------------------
 
 ProcessWorkflowState::ProcessWorkflowState(QState* parent, StateServiceBackendPtr backend) :
-                WorkflowState(parent, "ProcessnUid", "Process", backend)
+    WorkflowState(parent, "ProcessnUid", "Process", backend)
 {
 	connect(mBackend->getPatientService().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+}
+
+ProcessWorkflowState::~ProcessWorkflowState()
+{}
+
+QIcon ProcessWorkflowState::getIcon() const
+{
+    return QIcon("://icons/preset_save.png");
 }
 
 void ProcessWorkflowState::onEntry(QEvent * event)
@@ -69,11 +94,16 @@ bool ProcessWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 PinpointWorkflowState::PinpointWorkflowState(QState* parent, StateServiceBackendPtr backend) :
-                WorkflowState(parent, "PinpointUid", "Pinpoint", backend)
+    WorkflowState(parent, "PinpointUid", "Pinpoint", backend)
 {
 	connect(mBackend->getPatientService().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
-;
+PinpointWorkflowState::~PinpointWorkflowState()
+{}
+QIcon PinpointWorkflowState::getIcon() const
+{
+    return QIcon("://icons/preset_save.png");
+}
 
 bool PinpointWorkflowState::canEnter() const
 {
@@ -81,7 +111,6 @@ bool PinpointWorkflowState::canEnter() const
 // running and us acq. Thus we need access to the reg mode.
 	return mBackend->getPatientService()->isPatientValid();
 }
-;
 
 // --------------------------------------------------------
 // --------------------------------------------------------
@@ -90,9 +119,17 @@ bool PinpointWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 RouteToTargetWorkflowState::RouteToTargetWorkflowState(QState* parent, StateServiceBackendPtr backend) :
-                WorkflowState(parent, "RouteToTargetUid", "Route To Target", backend)
+    WorkflowState(parent, "RouteToTargetUid", "Route To Target", backend)
 {
 	connect(mBackend->getPatientService().get(), SIGNAL(dataAddedOrRemoved()), this, SLOT(canEnterSlot()));
+}
+
+RouteToTargetWorkflowState::~RouteToTargetWorkflowState()
+{}
+
+QIcon RouteToTargetWorkflowState::getIcon() const
+{
+    return QIcon("://icons/preset_save.png");
 }
 
 bool RouteToTargetWorkflowState::canEnter() const
@@ -107,9 +144,17 @@ bool RouteToTargetWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 VirtualBronchoscopyWorkflowState::VirtualBronchoscopyWorkflowState(QState* parent, StateServiceBackendPtr backend) :
-                WorkflowState(parent, "VirtualBronchoscopyUid", "Virtual Bronchoscopy", backend)
+    WorkflowState(parent, "VirtualBronchoscopyUid", "Virtual Bronchoscopy", backend)
 {
 	connect(mBackend->getPatientService().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+}
+
+VirtualBronchoscopyWorkflowState::~VirtualBronchoscopyWorkflowState()
+{}
+
+QIcon VirtualBronchoscopyWorkflowState::getIcon() const
+{
+    return QIcon("://icons/preset_save.png");
 }
 
 void VirtualBronchoscopyWorkflowState::onEntry(QEvent * event)
@@ -122,6 +167,5 @@ bool VirtualBronchoscopyWorkflowState::canEnter() const
 	return mBackend->getPatientService()->isPatientValid();
 }
 
-
-}
+} //namespace cx
 

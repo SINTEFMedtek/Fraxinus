@@ -55,13 +55,10 @@ class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public Workflo
 Q_OBJECT
 
 public:
-    ImportWorkflowState(QState* parent, StateServiceBackendPtr backend) :
-                    WorkflowState(parent, "ImportUid", "Import", backend)
-	{}
-    virtual ~ImportWorkflowState() {}
-    virtual QIcon getIcon() const { return QIcon("://icons/preset_save.png"); }
-
-	virtual bool canEnter() const { return true; }
+    ImportWorkflowState(QState* parent, StateServiceBackendPtr backend);
+    virtual ~ImportWorkflowState();
+    virtual QIcon getIcon() const;
+    virtual bool canEnter() const;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public WorkflowState
@@ -70,11 +67,8 @@ Q_OBJECT
 
 public:
     ProcessWorkflowState(QState* parent, StateServiceBackendPtr backend);
-    virtual ~ProcessWorkflowState() {}
-	virtual QIcon getIcon() const
-	{
-        return QIcon("://icons/preset_save.png");
-	}
+    virtual ~ProcessWorkflowState();
+    virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
 	virtual bool canEnter() const;
 };
@@ -85,13 +79,8 @@ Q_OBJECT
 
 public:
     PinpointWorkflowState(QState* parent, StateServiceBackendPtr backend);
-
-    virtual ~PinpointWorkflowState() {}
-	virtual QIcon getIcon() const
-	{
-        return QIcon("://icons/preset_save.png");
-	}
-
+    virtual ~PinpointWorkflowState();
+    virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
 };
 
@@ -101,14 +90,8 @@ Q_OBJECT
 
 public:
     RouteToTargetWorkflowState(QState* parent, StateServiceBackendPtr backend);
-
-    virtual ~RouteToTargetWorkflowState()
-	{}
-	virtual QIcon getIcon() const
-	{
-        return QIcon("://icons/preset_save.png");
-	}
-
+    virtual ~RouteToTargetWorkflowState();
+    virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
 };
 
@@ -118,13 +101,8 @@ Q_OBJECT
 
 public:
     VirtualBronchoscopyWorkflowState(QState* parent, StateServiceBackendPtr backend);
-    virtual ~VirtualBronchoscopyWorkflowState()
-	{}
-	virtual QIcon getIcon() const
-	{
-        return QIcon("://icons/preset_save.png");
-	}
-
+    virtual ~VirtualBronchoscopyWorkflowState();
+    virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
 	virtual bool canEnter() const;
 };
