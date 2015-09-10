@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
   app.setOrganizationName("Fraxinus");
   app.setOrganizationDomain("www.custusx.org");
   app.setApplicationName("Fraxinus");
-  app.setWindowIcon(QIcon(":/icons/icons/Fraxinus.png"));
+  app.setWindowIcon(QIcon(":/icons/icons/Fraxinus2.icns"));
   app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
   cx::ApplicationComponentPtr mainwindow(new cx::MainWindowApplicationComponent<cx::MainWindow>());

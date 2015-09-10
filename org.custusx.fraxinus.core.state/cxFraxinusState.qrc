@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/import.png</file>
+        <file>icons/pinpoint.png</file>
+        <file>icons/process.png</file>
+        <file>icons/routetotarget.png</file>
+        <file>icons/virtualbronchoscopy.png</file>
+    </qresource>
+</RCC>

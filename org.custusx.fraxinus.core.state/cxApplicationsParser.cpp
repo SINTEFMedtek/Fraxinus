@@ -57,93 +57,66 @@ namespace cx
 
 ApplicationsParser::ApplicationsParser()
 {
-//	mXmlFile = profile()->getXmlSettings().descend("applications");
 
-	QString fullState =
-			"AAAA/wAAAAD9AAAAAgAAAAAAAAGEAAADlvwCAAAACvsAAAAiAEMAbwBuAHQAZQB4AHQARABvAGMAawBXAGkAZABnAGUAdAEAAAMgAAAAWgAAAAAAAAAA+wAAADIASQBtAGEAZwBlAFAAcgBvAHAAZQByAHQAaQBlAHMARABvAGMAawBXAGkAZABnAGUAdAEAAAM0AAAAuwAAAAAAAAAA/AAAAEEAAAI7AAACAwEAAB36AAAAAAEAAAAV+wAAAEAAVgBvAGwAdQBtAGUAUAByAG8AcABlAHIAdABpAGUAcwBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AQAAAAD/////AAABGQD////7AAAAPABNAGUAcwBoAFAAcgBvAHAAZQByAHQAaQBlAHMAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAEAAAAA/////wAAAP4A////+wAAADoAUABvAGkAbgB0AFMAYQBtAHAAbABpAG4AZwBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAAAD/////AAAAAAAAAAD7AAAAOgBDAGEAbQBlAHIAYQBDAG8AbgB0AHIAbwBsAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQAAAAAAP////8AAAAAAAAAAPsAAAAuAEkARwBUAEwAaQBuAGsAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAUEA////+wAAADgAVQBTAEEAYwBxAHUAcwBpAHQAaQBvAG4AVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAANQA////+wAAAEIAVAByAGEAYwBrAGUAZABDAGUAbgB0AGUAcgBsAGkAbgBlAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQAAAAAAP////8AAADDAP////sAAAA0AE4AYQB2AGkAZwBhAHQAaQBvAG4AVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAMEA////+wAAADIARgByAGEAbQBlAFQAcgBlAGUAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAGYA////+wAAADwAVABvAG8AbABQAHIAbwBwAGUAcgB0AGkAZQBzAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQBAAAAAP////8AAAGEAP////sAAABGAFIAZQBnAGkAcwB0AHIAYQB0AGkAbwBuAEgAaQBzAHQAbwByAHkAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAQIA////+wAAAEQAQwBhAGwAaQBiAHIAYQB0AGkAbwBuAE0AZQB0AGgAbwBkAHMAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAZMA////+wAAAEgAVgBpAHMAdQBhAGwAaQB6AGEAdABpAG8AbgBNAGUAdABoAG8AZABzAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQAAAAAAP////8AAAFMAP////sAAABGAFMAZQBnAG0AZQBuAHQAYQB0AGkAbwBuAE0AZQB0AGgAbwBkAHMAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAPEA////+wAAAEYAUgBlAGcAaQBzAHQAcgBhAHQAaQBvAG4ATQBlAHQAaABvAGQAcwBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAAAD/////AAABYgD////7AAAAPgBJAG0AYQBnAGUAUAByAG8AcABlAHIAdABpAGUAcwBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AQAAAAD/////AAAA8AD////7AAAAFABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAAAAAAAGBAAABSgD////7AAAALABNAGUAdAByAGkAYwBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAAAD/////AAAAZgD////7AAAALABFAHIAYQBzAGUAcgBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAAAD/////AAAA2wD////7AAAAMABUAHIAYQBjAGsAUABhAGQAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAHQA////+wAAADYAVwBpAHIAZQBQAGgAYQBuAHQAbwBtAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQAAAAAAP////8AAADyAP////wAAAKCAAABVQAAAL4BAAAd+gAAAAEBAAAAAvsAAAAuAEMAbwBuAHMAbwBsAGUAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAEAAAAA/////wAAAFQA////+wAAAC4AQgByAG8AdwBzAGUAcgBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AQAAAAAAAAFvAAAAiAD////8AAADKAAAAMsAAAAAAP////oAAAAAAQAAAAH7AAAAQABUAHIAYQBuAHMAZgBlAHIARgB1AG4AYwB0AGkAbwBuAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQBAAAAAP////8AAAAAAAAAAPsAAAA+AFMAaABpAGYAdABDAG8AcgByAGUAYwB0AGkAbwBuAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQAAAAAAP////8AAAAAAAAAAPsAAABCAEkAbQBhAGcAZQBSAGUAZwBpAHMAdAByAGEAdABpAG8AbgBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAACwAAAS0AAAAAAAAAAD7AAAARgBQAGEAdABpAGUAbgB0AFIAZQBnAGkAcwB0AHIAYQB0AGkAbwBuAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQAAAAAAP////8AAAAAAAAAAPwAAAJdAAABQAAAAAAA////+gAAAAABAAAAAfsAAAAUAEQAbwBjAGsAVwBpAGQAZwBlAHQBAAAAAP////8AAAAAAAAAAPsAAAA2AFQAbwBvAGwATQBhAG4AYQBnAGUAcgBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAAAD/////AAAAiAD///8AAAADAAAAAAAAAAD8AQAAAAH7AAAAMABQAGwAYQB5AGIAYQBjAGsAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAVMA////AAAF9gAAA5YAAAAEAAAABAAAAAgAAAAI/AAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAACQAAAB4AVwBvAHIAawBmAGwAbwB3AFQAbwBvAGwAQgBhAHIBAAAAAP////8AAAAAAAAAAAAAABYARABhAHQAYQBUAG8AbwBsAEIAYQByAQAAAOX/////AAAAAAAAAAAAAAAiAE4AYQB2AGkAZwBhAHQAaQBvAG4AVABvAG8AbABCAGEAcgEAAAGC/////wAAAAAAAAAAAAAAJgBDAGEAbQBlAHIAYQAzAEQAVgBpAGUAdwBUAG8AbwBsAEIAYQByAQAAAfv/////AAAAAAAAAAAAAAAWAFQAbwBvAGwAVABvAG8AbABCAGEAcgEAAAME/////wAAAAAAAAAAAAAAIgBTAGMAcgBlAGUAbgBzAGgAbwB0AFQAbwBvAGwAQgBhAHIBAAADWf////8AAAAAAAAAAAAAABwARABlAHMAawB0AG8AcABUAG8AbwBsAEIAYQByAQAAA4r/////AAAAAAAAAAAAAAAsAEkAbgB0AGUAcgBhAGMAdABvAHIAUwB0AHkAbABlAFQAbwBvAGwAQgBhAHIAAAAD3/////8AAAAAAAAAAAAAABYASABlAGwAcABUAG8AbwBsAEIAYQByAQAAA98AAAF4AAAAAAAAAAA=";
-
-//	this->addDefaultDesktops(
-//				"PatientDataUid",
-//				"LAYOUT_3D_ACS",
-//				"");
+    QString fullState = "AAAA/wAAAAD9AAAAAgAAAAAAAAGEAAADlvwCAAAACvsAAAAiAEMAbwBuAHQAZQB4AHQARABvAGMAawBXAGkAZABnAGUAdAEAAAMgAAAAWgAAAAAAAAAA+wAAADIASQBtAGEAZwBlAFAAcgBvAHAAZQByAHQAaQBlAHMARABvAGMAawBXAGkAZABnAGUAdAEAAAM0AAAAuwAAAAAAAAAA/AAAAEEAAAI7AAACAwEAAB36AAAAAAEAAAAV+wAAAEAAVgBvAGwAdQBtAGUAUAByAG8AcABlAHIAdABpAGUAcwBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AQAAAAD/////AAABGQD////7AAAAPABNAGUAcwBoAFAAcgBvAHAAZQByAHQAaQBlAHMAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAEAAAAA/////wAAAP4A////+wAAADoAUABvAGkAbgB0AFMAYQBtAHAAbABpAG4AZwBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAAAD/////AAAAAAAAAAD7AAAAOgBDAGEAbQBlAHIAYQBDAG8AbgB0AHIAbwBsAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQAAAAAAP////8AAAAAAAAAAPsAAAAuAEkARwBUAEwAaQBuAGsAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAUEA////+wAAADgAVQBTAEEAYwBxAHUAcwBpAHQAaQBvAG4AVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAANQA////+wAAAEIAVAByAGEAYwBrAGUAZABDAGUAbgB0AGUAcgBsAGkAbgBlAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQAAAAAAP////8AAADDAP////sAAAA0AE4AYQB2AGkAZwBhAHQAaQBvAG4AVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAMEA////+wAAADIARgByAGEAbQBlAFQAcgBlAGUAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAGYA////+wAAADwAVABvAG8AbABQAHIAbwBwAGUAcgB0AGkAZQBzAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQBAAAAAP////8AAAGEAP////sAAABGAFIAZQBnAGkAcwB0AHIAYQB0AGkAbwBuAEgAaQBzAHQAbwByAHkAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAQIA////+wAAAEQAQwBhAGwAaQBiAHIAYQB0AGkAbwBuAE0AZQB0AGgAbwBkAHMAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAZMA////+wAAAEgAVgBpAHMAdQBhAGwAaQB6AGEAdABpAG8AbgBNAGUAdABoAG8AZABzAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQAAAAAAP////8AAAFMAP////sAAABGAFMAZQBnAG0AZQBuAHQAYQB0AGkAbwBuAE0AZQB0AGgAbwBkAHMAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAPEA////+wAAAEYAUgBlAGcAaQBzAHQAcgBhAHQAaQBvAG4ATQBlAHQAaABvAGQAcwBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAAAD/////AAABYgD////7AAAAPgBJAG0AYQBnAGUAUAByAG8AcABlAHIAdABpAGUAcwBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AQAAAAD/////AAAA8AD////7AAAAFABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAAAAAAAGBAAABSgD////7AAAALABNAGUAdAByAGkAYwBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAAAD/////AAAAZgD////7AAAALABFAHIAYQBzAGUAcgBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAAAD/////AAAA2wD////7AAAAMABUAHIAYQBjAGsAUABhAGQAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAHQA////+wAAADYAVwBpAHIAZQBQAGgAYQBuAHQAbwBtAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQAAAAAAP////8AAADyAP////wAAAKCAAABVQAAAL4BAAAd+gAAAAEBAAAAAvsAAAAuAEMAbwBuAHMAbwBsAGUAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAEAAAAA/////wAAAFQA////+wAAAC4AQgByAG8AdwBzAGUAcgBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AQAAAAAAAAFvAAAAiAD////8AAADKAAAAMsAAAAAAP////oAAAAAAQAAAAH7AAAAQABUAHIAYQBuAHMAZgBlAHIARgB1AG4AYwB0AGkAbwBuAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQBAAAAAP////8AAAAAAAAAAPsAAAA+AFMAaABpAGYAdABDAG8AcgByAGUAYwB0AGkAbwBuAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQAAAAAAP////8AAAAAAAAAAPsAAABCAEkAbQBhAGcAZQBSAGUAZwBpAHMAdAByAGEAdABpAG8AbgBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAACwAAAS0AAAAAAAAAAD7AAAARgBQAGEAdABpAGUAbgB0AFIAZQBnAGkAcwB0AHIAYQB0AGkAbwBuAFcAaQBkAGcAZQB0AEQAbwBjAGsAVwBpAGQAZwBlAHQAAAAAAP////8AAAAAAAAAAPwAAAJdAAABQAAAAAAA////+gAAAAABAAAAAfsAAAAUAEQAbwBjAGsAVwBpAGQAZwBlAHQBAAAAAP////8AAAAAAAAAAPsAAAA2AFQAbwBvAGwATQBhAG4AYQBnAGUAcgBXAGkAZABnAGUAdABEAG8AYwBrAFcAaQBkAGcAZQB0AAAAAAD/////AAAAiAD///8AAAADAAAAAAAAAAD8AQAAAAH7AAAAMABQAGwAYQB5AGIAYQBjAGsAVwBpAGQAZwBlAHQARABvAGMAawBXAGkAZABnAGUAdAAAAAAA/////wAAAVMA////AAAF9gAAA5YAAAAEAAAABAAAAAgAAAAI/AAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAACQAAAB4AVwBvAHIAawBmAGwAbwB3AFQAbwBvAGwAQgBhAHIBAAAAAP////8AAAAAAAAAAAAAABYARABhAHQAYQBUAG8AbwBsAEIAYQByAQAAAOX/////AAAAAAAAAAAAAAAiAE4AYQB2AGkAZwBhAHQAaQBvAG4AVABvAG8AbABCAGEAcgEAAAGC/////wAAAAAAAAAAAAAAJgBDAGEAbQBlAHIAYQAzAEQAVgBpAGUAdwBUAG8AbwBsAEIAYQByAQAAAfv/////AAAAAAAAAAAAAAAWAFQAbwBvAGwAVABvAG8AbABCAGEAcgEAAAME/////wAAAAAAAAAAAAAAIgBTAGMAcgBlAGUAbgBzAGgAbwB0AFQAbwBvAGwAQgBhAHIBAAADWf////8AAAAAAAAAAAAAABwARABlAHMAawB0AG8AcABUAG8AbwBsAEIAYQByAQAAA4r/////AAAAAAAAAAAAAAAsAEkAbgB0AGUAcgBhAGMAdABvAHIAUwB0AHkAbABlAFQAbwBvAGwAQgBhAHIAAAAD3/////8AAAAAAAAAAAAAABYASABlAGwAcABUAG8AbwBsAEIAYQByAQAAA98AAAF4AAAAAAAAAAA=";
 
 	Desktop desktop;
 
 	QStringList standardToolbars;
-	standardToolbars << "Workflow" << "Navigation" << "Tools" << "Screenshot" << "Desktop";
+    standardToolbars << "Workflow" << "Navigation";
 
 
 	//-----------------------------------------------------
+    // IMPORT
 	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
 	QStringList toolbars;
-	toolbars << standardToolbars << "Data" << "Help";
-	this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset("MeshInfoWidget", Qt::LeftDockWidgetArea, true);
+    toolbars << standardToolbars << "Data" << "Help";
+    this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset("VolumePropertiesWidget", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("SlicePropertiesWidget", Qt::LeftDockWidgetArea, true);
 	desktop.addPreset("DicomWidget", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("ConsoleWidget", Qt::LeftDockWidgetArea, false);
-	desktop.addPreset("HelpWidget", Qt::RightDockWidgetArea, false);
     mWorkflowDefaultDesktops["ImportUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
-	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+    // PROCESS
+    desktop = Desktop("LAYOUT_3D", QByteArray::fromBase64(""));
 	toolbars.clear();
-	toolbars << standardToolbars << "RegistrationHistory" << "Help";
-	this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset("ConsoleWidget", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("org_custusx_registration_gui_widget", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("RegistrationHistoryWidget", Qt::LeftDockWidgetArea, false);
+    toolbars << standardToolbars << "Help";
+    this->addToolbarsToDesktop(desktop, toolbars);
+    desktop.addPreset("algorithm_widgets_configurable_filter", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["ProcessUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
-	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+    // PINPOINT
+    desktop = Desktop("LAYOUT_A_3DCS", QByteArray::fromBase64(""));
 	toolbars.clear();
-	toolbars << standardToolbars << "Camera3DViews" << "Sampler" << "Help";
-	this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset("MeshInfoWidget", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("VolumePropertiesWidget", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("SlicePropertiesWidget", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("ConsoleWidget", Qt::LeftDockWidgetArea, false);
+    toolbars << standardToolbars << "Help";
+    this->addToolbarsToDesktop(desktop, toolbars);
+    desktop.addPreset("MetricWidget", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["PinpointUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
-	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+    // ROUTE TO TARGET
+    desktop = Desktop("LAYOUT_3D", QByteArray::fromBase64(""));
 	toolbars.clear();
-	toolbars << standardToolbars << "InteractorStyle" << "ToolOffset" << "Help";
-	this->addToolbarsToDesktop(desktop, toolbars);
+    toolbars << standardToolbars << "Help";
+    this->addToolbarsToDesktop(desktop, toolbars);
+    desktop.addPreset("algorithm_widgets_configurable_filter", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["RouteToTargetUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
-	desktop = Desktop("LAYOUT_US_Acquisition", QByteArray::fromBase64(""));
+    // VIRTUAL BRONCHOSCOPY
+    desktop = Desktop("LAYOUT_3D_3DAC", QByteArray::fromBase64(""));
 	toolbars.clear();
 	toolbars << standardToolbars << "Help";
-	this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset("IGTLinkWidget", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("USReconstruction", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("org_custusx_acquisition_widgets_acquisition", Qt::LeftDockWidgetArea, true);
+    this->addToolbarsToDesktop(desktop, toolbars);
+    desktop.addPreset("Virtual Bronchoscopy Widget", Qt::BottomDockWidgetArea, false);
     mWorkflowDefaultDesktops["VirtualBronchoscopyUid"] = desktop;
 	//-----------------------------------------------------
 
-	//-----------------------------------------------------
-    /*
-	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
-	toolbars.clear();
-	toolbars << standardToolbars << "Sampler" << "Help";
-	this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset("MeshInfoWidget", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("VolumePropertiesWidget", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("SlicePropertiesWidget", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("MetricWidget", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("ConsoleWidget", Qt::LeftDockWidgetArea, false);
-	desktop.addPreset("PlaybackWidget", Qt::BottomDockWidgetArea, false);
-	mWorkflowDefaultDesktops["PostOpControllUid"] = desktop;
-    */
-	//-----------------------------------------------------
 }
 
 void ApplicationsParser::addToolbarsToDesktop(Desktop& desktop, QStringList toolbars)
@@ -193,8 +166,7 @@ void ApplicationsParser::setDesktop(QString workflowName, Desktop desktop)
 {
 	XmlOptionFile file = this->getSettings();
 	QDomElement desktopElement = file.descend(workflowName).descend("custom").getElement();
-//	QDomElement desktopElement =
-//			mXmlFile.descend(applicationName).descend("workflows").descend(workflowName).descend("custom").getElement();
+//	QDomElement desktopElement = mXmlFile.descend(applicationName).descend("workflows").descend(workflowName).descend("custom").getElement();
 	desktopElement.setAttribute("mainwindowstate", QString(desktop.mMainWindowState.toBase64()));
 	desktopElement.setAttribute("layoutuid", desktop.mLayoutUid);
 	desktopElement.setAttribute("secondarylayoutuid", desktop.mSecondaryLayoutUid);

@@ -143,20 +143,19 @@ void StateServiceImpl::fillDefault(QString name, T value)
  */
 void StateServiceImpl::fillDefaultSettings()
 {
-	this->fillDefault("Automation/autoStartTracking", true);
-	this->fillDefault("Automation/autoStartStreaming", true);
-	this->fillDefault("Automation/autoReconstruct", true);
+    this->fillDefault("Automation/autoStartTracking", false);
+    this->fillDefault("Automation/autoStartStreaming", false);
+    this->fillDefault("Automation/autoReconstruct", false);
 	this->fillDefault("Automation/autoSelectActiveTool", true);
 	this->fillDefault("Automation/autoSave", true);
 	this->fillDefault("Automation/autoLoadRecentPatient", true);
 	this->fillDefault("Automation/autoLoadRecentPatientWithinHours", 8);
-	this->fillDefault("Automation/autoShowNewData", false);
+    this->fillDefault("Automation/autoShowNewData", true);
 
 	this->fillDefault("TrackingPositionFilter/enabled", false);
 
 	this->fillDefault("renderingInterval", 33);
-//	this->fillDefault("backgroundColor", QColor("black"));
-	this->fillDefault("backgroundColor", QColor(30,60,70)); // a dark, grey-blue hue
+    this->fillDefault("backgroundColor", QColor("black"));
 	this->fillDefault("vlcPath", vlc()->getVLCPath());
 	this->fillDefault("globalPatientNumber", 1);
 	this->fillDefault("Ultrasound/acquisitionName", "US-Acq");
@@ -176,7 +175,7 @@ void StateServiceImpl::fillDefaultSettings()
 	this->fillDefault("View/showLabels", true);
 	this->fillDefault("View/showMetricNamesInCorner", false);
 	this->fillDefault("View3D/annotationModelSize", 0.2);
-	this->fillDefault("View3D/annotationModel", "woman.stl");
+    this->fillDefault("View3D/annotationModel", "man.stl");
 	this->fillDefault("View3D/depthPeeling", false);
 	this->fillDefault("View3D/ImageRender3DVisualizer", "vtkGPUVolumeRayCastMapper");
 	this->fillDefault("View3D/maxRenderSize", 10 * pow(10.0,6));

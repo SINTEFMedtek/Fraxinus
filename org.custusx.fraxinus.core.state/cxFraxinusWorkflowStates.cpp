@@ -52,7 +52,7 @@ ImportWorkflowState::~ImportWorkflowState()
 
 QIcon ImportWorkflowState::getIcon() const
 {
-    return QIcon("://icons/preset_save.png");
+    return QIcon(":/icons/icons/import.png");
 }
 
 bool ImportWorkflowState::canEnter() const
@@ -64,7 +64,7 @@ bool ImportWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 ProcessWorkflowState::ProcessWorkflowState(QState* parent, StateServiceBackendPtr backend) :
-    WorkflowState(parent, "ProcessnUid", "Process", backend)
+    WorkflowState(parent, "ProcessUid", "Process", backend)
 {
 	connect(mBackend->getPatientService().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
@@ -74,7 +74,7 @@ ProcessWorkflowState::~ProcessWorkflowState()
 
 QIcon ProcessWorkflowState::getIcon() const
 {
-    return QIcon("://icons/preset_save.png");
+    return QIcon(":/icons/icons/process.png");
 }
 
 void ProcessWorkflowState::onEntry(QEvent * event)
@@ -84,7 +84,8 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 
 bool ProcessWorkflowState::canEnter() const
 {
-	return mBackend->getPatientService()->isPatientValid();
+    //return mBackend->getPatientService()->isPatientValid();
+    return true;
 }
 
 // --------------------------------------------------------
@@ -102,14 +103,15 @@ PinpointWorkflowState::~PinpointWorkflowState()
 {}
 QIcon PinpointWorkflowState::getIcon() const
 {
-    return QIcon("://icons/preset_save.png");
+    return QIcon(":/icons/icons/pinpoint.png");
 }
 
 bool PinpointWorkflowState::canEnter() const
 {
 // We need to perform patient orientation prior to
 // running and us acq. Thus we need access to the reg mode.
-	return mBackend->getPatientService()->isPatientValid();
+    //return mBackend->getPatientService()->isPatientValid();
+    return true;
 }
 
 // --------------------------------------------------------
@@ -129,12 +131,13 @@ RouteToTargetWorkflowState::~RouteToTargetWorkflowState()
 
 QIcon RouteToTargetWorkflowState::getIcon() const
 {
-    return QIcon("://icons/preset_save.png");
+    return QIcon(":/icons/icons/routetotarget.png");
 }
 
 bool RouteToTargetWorkflowState::canEnter() const
 {
-	return !mBackend->getPatientService()->getData().empty();
+    //return !mBackend->getPatientService()->getData().empty();
+    return true;
 }
 
 // --------------------------------------------------------
@@ -154,17 +157,18 @@ VirtualBronchoscopyWorkflowState::~VirtualBronchoscopyWorkflowState()
 
 QIcon VirtualBronchoscopyWorkflowState::getIcon() const
 {
-    return QIcon("://icons/preset_save.png");
+    return QIcon(":/icons/icons/virtualbronchoscopy.png");
 }
 
 void VirtualBronchoscopyWorkflowState::onEntry(QEvent * event)
 {
-	this->autoStartHardware();
+    //this->autoStartHardware();
 }
 
 bool VirtualBronchoscopyWorkflowState::canEnter() const
 {
-	return mBackend->getPatientService()->isPatientValid();
+    //return mBackend->getPatientService()->isPatientValid();
+    return true;
 }
 
 } //namespace cx
