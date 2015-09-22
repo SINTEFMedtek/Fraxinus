@@ -37,6 +37,7 @@ class Fraxinus(cx.build.cxComponents.CppComponent):
         '''Replacing the default state plugin from CustusX with Fraxinus specific setup'''
         add('CX_PLUGIN_org.custusx.core.state', 'OFF')
         add('CX_EXTERNAL_PLUGIN_org_custusx_fraxinus_core_state', '%s/org.custusx.fraxinus.core.state' % self.sourcePath())
+        add('CX_EXTERNAL_PLUGIN_org_custusx_fraxinus_widgets', '%s/org.custusx.fraxinus.widgets' % self.sourcePath())
 
 # ---------------------------------------------------------
 
