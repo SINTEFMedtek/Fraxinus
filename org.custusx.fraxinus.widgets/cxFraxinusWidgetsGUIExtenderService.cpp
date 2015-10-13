@@ -32,8 +32,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cxFraxinusWidgetsGUIExtenderService.h"
 #include "ctkPluginContext.h"
-#include "cxLungsRTTWidget.h"
-#include "cxLungsTSFWidget.h"
+#include "cxFiltersWidget.h"
+#include "cxVisServices.h"
 
 namespace cx
 {
@@ -45,10 +45,11 @@ FraxinusWidgetsGUIExtenderService::FraxinusWidgetsGUIExtenderService(ctkPluginCo
 
 std::vector<GUIExtenderService::CategorizedWidget> FraxinusWidgetsGUIExtenderService::createWidgets() const
 {
-	std::vector<CategorizedWidget> retval;
+    VisServicesPtr services = VisServices::create(mContext);
 
-    retval.push_back(GUIExtenderService::CategorizedWidget(new LungsRTTWidget(),"Fraxinus"));
-    retval.push_back(GUIExtenderService::CategorizedWidget(new LungsTSFWidget(),"Fraxinus"));
+	std::vector<CategorizedWidget> retval;
+    retval.push_back(GUIExtenderService::CategorizedWidget(new FiltersWidget(services, NULL, QStringList("Route to target"), "fraxinus_routetotargetwidget"),"Fraxinus"));
+    retval.push_back(GUIExtenderService::CategorizedWidget(new FiltersWidget(services, NULL, QStringList("Tube-Segmentation Filter"), "fraxinus_tsfwidget"),"Fraxinus"));
 
 	return retval;
 }

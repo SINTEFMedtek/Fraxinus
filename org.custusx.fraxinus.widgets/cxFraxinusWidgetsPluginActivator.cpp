@@ -43,7 +43,6 @@ namespace cx
 
 FraxinusWidgetsPluginActivator::FraxinusWidgetsPluginActivator()
 {
-    std::cout << "Created FraxinusWidgetsPluginActivator" << std::endl;
 }
 
 FraxinusWidgetsPluginActivator::~FraxinusWidgetsPluginActivator()

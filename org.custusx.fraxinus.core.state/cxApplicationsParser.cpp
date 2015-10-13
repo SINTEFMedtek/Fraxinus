@@ -83,7 +83,7 @@ ApplicationsParser::ApplicationsParser()
 	toolbars.clear();
     toolbars << standardToolbars << "Help";
     this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset("algorithm_widgets_configurable_filter", Qt::LeftDockWidgetArea, true);
+    desktop.addPreset("Route to target Widget", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["ProcessUid"] = desktop;
 	//-----------------------------------------------------
 
@@ -103,7 +103,7 @@ ApplicationsParser::ApplicationsParser()
 	toolbars.clear();
     toolbars << standardToolbars << "Help";
     this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset("algorithm_widgets_configurable_filter", Qt::LeftDockWidgetArea, true);
+    desktop.addPreset("Tube-Segmentation Filter Widget", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["RouteToTargetUid"] = desktop;
 	//-----------------------------------------------------
 

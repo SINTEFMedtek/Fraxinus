@@ -5,16 +5,12 @@ set(PLUGIN_export_directive "${PROJECT_NAME}_EXPORT")
 set(PLUGIN_SRCS
   cxFraxinusWidgetsPluginActivator.cpp
   cxFraxinusWidgetsGUIExtenderService.cpp
-  cxLungsRTTWidget.cpp
-  cxLungsTSFWidget.cpp
 )
 
 # Files which should be processed by Qts moc
 set(PLUGIN_MOC_SRCS
   cxFraxinusWidgetsPluginActivator.h
   cxFraxinusWidgetsGUIExtenderService.h
-  cxLungsRTTWidget.h
-  cxLungsTSFWidget.h
 )
 
 # Qt Designer files which should be processed by Qts uic
@@ -33,6 +29,11 @@ set(PLUGIN_target_libraries
     cxGUIExtenderService
     cxPluginUtilities
     Qt5::Widgets
+    cxResourceVisualization #todo: remove (for VisServices, for FilterSetupWidget)
+    cxGui #todo: remove (for FilterSetupWidget)
+    cxResourceWidgets #todo: remove? (for cxGui, for FilterSetupWidget)
+    cxResource #todo: remove?
+    cxResourceFilter
     org_custusx_filter_routetotarget
     org_custusx_filter_tubesegmentation
     )

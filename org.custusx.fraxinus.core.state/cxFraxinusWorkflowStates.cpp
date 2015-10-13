@@ -66,7 +66,7 @@ bool ImportWorkflowState::canEnter() const
 ProcessWorkflowState::ProcessWorkflowState(QState* parent, StateServiceBackendPtr backend) :
     WorkflowState(parent, "ProcessUid", "Process", backend)
 {
-	connect(mBackend->getPatientService().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+    connect(mBackend->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
 
 ProcessWorkflowState::~ProcessWorkflowState()
@@ -97,7 +97,7 @@ bool ProcessWorkflowState::canEnter() const
 PinpointWorkflowState::PinpointWorkflowState(QState* parent, StateServiceBackendPtr backend) :
     WorkflowState(parent, "PinpointUid", "Pinpoint", backend)
 {
-	connect(mBackend->getPatientService().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+    connect(mBackend->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
 PinpointWorkflowState::~PinpointWorkflowState()
 {}
@@ -123,7 +123,7 @@ bool PinpointWorkflowState::canEnter() const
 RouteToTargetWorkflowState::RouteToTargetWorkflowState(QState* parent, StateServiceBackendPtr backend) :
     WorkflowState(parent, "RouteToTargetUid", "Route To Target", backend)
 {
-	connect(mBackend->getPatientService().get(), SIGNAL(dataAddedOrRemoved()), this, SLOT(canEnterSlot()));
+    connect(mBackend->patient().get(), SIGNAL(dataAddedOrRemoved()), this, SLOT(canEnterSlot()));
 }
 
 RouteToTargetWorkflowState::~RouteToTargetWorkflowState()
@@ -149,7 +149,7 @@ bool RouteToTargetWorkflowState::canEnter() const
 VirtualBronchoscopyWorkflowState::VirtualBronchoscopyWorkflowState(QState* parent, StateServiceBackendPtr backend) :
     WorkflowState(parent, "VirtualBronchoscopyUid", "Virtual Bronchoscopy", backend)
 {
-	connect(mBackend->getPatientService().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+    connect(mBackend->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
 
 VirtualBronchoscopyWorkflowState::~VirtualBronchoscopyWorkflowState()
