@@ -12,6 +12,7 @@ class PrivateControlData(cx.build.cxInstallData.Common):
     def __init__(self):
         super(PrivateControlData, self).__init__()
         
+        self.main_branch = "develop"
         self.system_base_name = "Fraxinus"
 
 class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
