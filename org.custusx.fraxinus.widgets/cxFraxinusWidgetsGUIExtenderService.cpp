@@ -49,7 +49,7 @@ std::vector<GUIExtenderService::CategorizedWidget> FraxinusWidgetsGUIExtenderSer
 
 	std::vector<CategorizedWidget> retval;
     retval.push_back(GUIExtenderService::CategorizedWidget(new FiltersWidget(services, NULL, QStringList("Route to target"), "fraxinus_routetotargetwidget"),"Fraxinus"));
-    retval.push_back(GUIExtenderService::CategorizedWidget(new FiltersWidget(services, NULL, QStringList("Tube-Segmentation Filter"), "fraxinus_tsfwidget"),"Fraxinus"));
+    retval.push_back(GUIExtenderService::CategorizedWidget(new FiltersWidget(services, NULL, QStringList("Airway Segmentation Filter"), "fraxinus_airwaysegmentationwidget"),"Fraxinus"));
 
 	return retval;
 }
