@@ -13,6 +13,14 @@ class PrivateControlData(cx.build.cxInstallData.Common):
         super(PrivateControlData, self).__init__()
         
         self.main_branch = "develop"
+        user = "custusx"
+        server = "sintefweb07.sintef.no"
+        self.publish_release_target                 = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/releases", user)
+        self.publish_developer_documentation_target = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/developer_doc", user)
+        self.publish_user_documentation_target      = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/user_doc", user)
+        self.publish_coverage_info_target           = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/gcov", user)
+        self.gitrepo_internal_site_base = "ssh://mtwiki.sintef.no/storage/mtwiki/git"
+
         self.system_base_name = "Fraxinus"
 
 class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
