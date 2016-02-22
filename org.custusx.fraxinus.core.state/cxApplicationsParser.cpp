@@ -40,7 +40,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxXmlOptionItem.h"
 
 #include "cxSettings.h"
-#include "cxDataLocations.h"
 #include "cxWorkflowStateMachine.h"
 #include "cxDataLocations.h"
 #include "cxConfig.h"

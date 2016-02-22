@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   cx::Application app(argc, argv);
   app.setOrganizationName("Fraxinus");
   app.setOrganizationDomain("www.custusx.org");
-  app.setApplicationName("Fraxinus");
+  app.setApplicationName(CX_SYSTEM_BASE_NAME);
   app.setWindowIcon(QIcon(":/icons/icons/Fraxinus2.png"));
   app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
