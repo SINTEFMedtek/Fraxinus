@@ -88,6 +88,7 @@ bool StateServiceImpl::isNull()
 void StateServiceImpl::initialize(StateServiceBackendPtr backend)
 {
 	mBackend = backend;
+	this->changeDefaultSettings();
 	this->fillDefaultSettings();
 
 	ProfileManager::initialize();
@@ -131,77 +132,23 @@ void StateServiceImpl::setWorkFlowState(QString uid)
 	mWorkflowStateMachine->setActiveState(uid);
 }
 
-template<class T>
-void StateServiceImpl::fillDefault(QString name, T value)
-{
-	settings()->fillDefault(name, value);
-}
-
 /**Enter all default Settings here.
  *
  */
-void StateServiceImpl::fillDefaultSettings()
+void StateServiceImpl::changeDefaultSettings()
 {
-    this->fillDefault("Automation/autoStartTracking", false);
-    this->fillDefault("Automation/autoStartStreaming", false);
-    this->fillDefault("Automation/autoReconstruct", false);
+	this->fillDefault("Automation/autoStartTracking", false);
+	this->fillDefault("Automation/autoStartStreaming", false);
+	this->fillDefault("Automation/autoReconstruct", false);
 	this->fillDefault("Automation/autoSelectActiveTool", true);
 	this->fillDefault("Automation/autoSave", true);
 	this->fillDefault("Automation/autoLoadRecentPatient", true);
 	this->fillDefault("Automation/autoLoadRecentPatientWithinHours", 8);
-    this->fillDefault("Automation/autoShowNewData", true);
+	this->fillDefault("Automation/autoShowNewData", true);
 
 	this->fillDefault("TrackingPositionFilter/enabled", false);
-
-	this->fillDefault("renderingInterval", 33);
-    this->fillDefault("backgroundColor", QColor("black"));
-	this->fillDefault("vlcPath", vlc()->getVLCPath());
-	this->fillDefault("globalPatientNumber", 1);
-	this->fillDefault("Ultrasound/acquisitionName", "US-Acq");
-	this->fillDefault("Ultrasound/8bitAcquisitionData", false);
-	this->fillDefault("Ultrasound/CompressAcquisition", true);
-	this->fillDefault("View3D/sphereRadius", 1.0);
-	this->fillDefault("View3D/labelSize", 2.5);
-	this->fillDefault("View/showOrientationAnnotation", true);
-	this->fillDefault("Navigation/anyplaneViewOffset", 0.25);
-	this->fillDefault("Navigation/followTooltip", true);
-	this->fillDefault("Navigation/followTooltipBoundary", 0.1);
-
-	this->fillDefault("showSectorInRTView", true);
-	this->fillDefault("View3D/stereoType", stFRAME_SEQUENTIAL);
-	this->fillDefault("View3D/eyeAngle", 4.0);
-	this->fillDefault("View/showDataText", true);
-	this->fillDefault("View/showLabels", true);
-	this->fillDefault("View/showMetricNamesInCorner", false);
-	this->fillDefault("View3D/annotationModelSize", 0.2);
-    this->fillDefault("View3D/annotationModel", "man.stl");
-	this->fillDefault("View3D/depthPeeling", false);
-	this->fillDefault("View3D/ImageRender3DVisualizer", "vtkGPUVolumeRayCastMapper");
-	this->fillDefault("View3D/maxRenderSize", 10 * pow(10.0,6));
+	this->fillDefault("backgroundColor", QColor("black"));
 	this->fillDefault("View/shadingOn", false);
-
-	this->fillDefault("stillUpdateRate", 0.001);
-
-#ifdef __APPLE__
-	this->fillDefault("useGPU2DRendering", true);
-#elif WIN32
-	this->fillDefault("useGPU2DRendering", false);
-#else
-	this->fillDefault("useGPU2DRendering", true);
-#endif
-
-	this->fillDefault("optimizedViews", true);
-	this->fillDefault("smartRender", true);
-
-	this->fillDefault("IGSTKDebugLogging", false);
-	this->fillDefault("giveManualToolPhysicalProperties", false);
-	this->fillDefault("renderSpeedLogging", false);
-
-	this->fillDefault("applyTransferFunctionPresetsToAll", false);
-
-	this->fillDefault("USsimulation/type", "Original data");
-	this->fillDefault("USsimulation/volume", "");
-	this->fillDefault("USsimulation/gain", 0.70);
 }
 
 
