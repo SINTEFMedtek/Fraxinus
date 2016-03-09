@@ -145,7 +145,13 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("Automation/autoLoadRecentPatient", true);
 	this->fillDefault("Automation/autoLoadRecentPatientWithinHours", 8);
 	this->fillDefault("Automation/autoShowNewData", true);
-	this->fillDefault("Automation/autoResetCameraToSuperiorViewWhenShowingNewData", true);
+	this->fillDefault("Automation/autoShowNewDataInViewGroup0", true);
+	this->fillDefault("Automation/autoShowNewDataInViewGroup1", true);
+	this->fillDefault("Automation/autoShowNewDataInViewGroup3", false);
+	this->fillDefault("Automation/autoShowNewDataInViewGroup2", false);
+	this->fillDefault("Automation/autoShowNewDataInViewGroup4", false);
+	this->fillDefault("Automation/autoResetCameraToSuperiorViewWhenAutoShowingNewData", true);
+	this->fillDefault("Automation/autoCenterToImageCenterViewWhenAutoShowingNewData", true);
 
 	this->fillDefault("TrackingPositionFilter/enabled", false);
 	this->fillDefault("backgroundColor", QColor("black"));
