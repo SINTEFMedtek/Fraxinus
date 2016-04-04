@@ -146,30 +146,57 @@ bool RouteToTargetWorkflowState::canEnter() const
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-VirtualBronchoscopyWorkflowState::VirtualBronchoscopyWorkflowState(QState* parent, StateServiceBackendPtr backend) :
-    WorkflowState(parent, "VirtualBronchoscopyUid", "Virtual Bronchoscopy", backend)
+VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, StateServiceBackendPtr backend) :
+	WorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", backend)
 {
     connect(mBackend->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
 
-VirtualBronchoscopyWorkflowState::~VirtualBronchoscopyWorkflowState()
+VirtualBronchoscopyFlyThroughWorkflowState::~VirtualBronchoscopyFlyThroughWorkflowState()
 {}
 
-QIcon VirtualBronchoscopyWorkflowState::getIcon() const
+QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 {
     return QIcon(":/icons/icons/virtualbronchoscopy.png");
 }
 
-void VirtualBronchoscopyWorkflowState::onEntry(QEvent * event)
+void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
     //this->autoStartHardware();
 }
 
-bool VirtualBronchoscopyWorkflowState::canEnter() const
+bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 {
     //return mBackend->getPatientService()->isPatientValid();
     return true;
 }
 
+// --------------------------------------------------------
+// --------------------------------------------------------
+
+VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, StateServiceBackendPtr backend) :
+	WorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", backend)
+{
+	connect(mBackend->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+}
+
+VirtualBronchoscopyCutPlanesWorkflowState::~VirtualBronchoscopyCutPlanesWorkflowState()
+{}
+
+QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
+{
+	return QIcon(":/icons/icons/virtualbronchoscopy.png");
+}
+
+void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
+{
+	//this->autoStartHardware();
+}
+
+bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
+{
+	//return mBackend->getPatientService()->isPatientValid();
+	return true;
+}
 } //namespace cx
 

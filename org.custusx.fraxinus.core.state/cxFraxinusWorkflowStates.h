@@ -95,14 +95,26 @@ public:
 	virtual bool canEnter() const;
 };
 
-class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyWorkflowState: public WorkflowState
+class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkflowState: public WorkflowState
 {
 Q_OBJECT
 
 public:
-    VirtualBronchoscopyWorkflowState(QState* parent, StateServiceBackendPtr backend);
-    virtual ~VirtualBronchoscopyWorkflowState();
+	VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, StateServiceBackendPtr backend);
+	virtual ~VirtualBronchoscopyFlyThroughWorkflowState();
     virtual QIcon getIcon() const;
+	virtual void onEntry(QEvent* event);
+	virtual bool canEnter() const;
+};
+
+class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyCutPlanesWorkflowState: public WorkflowState
+{
+Q_OBJECT
+
+public:
+	VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, StateServiceBackendPtr backend);
+	virtual ~VirtualBronchoscopyCutPlanesWorkflowState();
+	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
 	virtual bool canEnter() const;
 };
