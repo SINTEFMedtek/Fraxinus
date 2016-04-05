@@ -36,15 +36,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxTrackingService.h"
 #include "cxTool.h"
 #include "cxVideoService.h"
-#include "cxStateServiceBackend.h"
 #include "cxPatientModelService.h"
 #include "cxLogger.h"
+#include "cxCoreServices.h"
 
 namespace cx
 {
 
-ImportWorkflowState::ImportWorkflowState(QState* parent, StateServiceBackendPtr backend) :
-    WorkflowState(parent, "ImportUid", "Import", backend)
+ImportWorkflowState::ImportWorkflowState(QState* parent, CoreServicesPtr services) :
+	WorkflowState(parent, "ImportUid", "Import", services)
 {}
 
 ImportWorkflowState::~ImportWorkflowState()
@@ -63,10 +63,10 @@ bool ImportWorkflowState::canEnter() const
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-ProcessWorkflowState::ProcessWorkflowState(QState* parent, StateServiceBackendPtr backend) :
-    WorkflowState(parent, "ProcessUid", "Process", backend)
+ProcessWorkflowState::ProcessWorkflowState(QState* parent, CoreServicesPtr services) :
+	WorkflowState(parent, "ProcessUid", "Process", services)
 {
-    connect(mBackend->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
 
 ProcessWorkflowState::~ProcessWorkflowState()
@@ -94,10 +94,10 @@ bool ProcessWorkflowState::canEnter() const
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-PinpointWorkflowState::PinpointWorkflowState(QState* parent, StateServiceBackendPtr backend) :
-    WorkflowState(parent, "PinpointUid", "Pinpoint", backend)
+PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr services) :
+	WorkflowState(parent, "PinpointUid", "Pinpoint", services)
 {
-    connect(mBackend->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
 PinpointWorkflowState::~PinpointWorkflowState()
 {}
@@ -120,10 +120,10 @@ bool PinpointWorkflowState::canEnter() const
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-RouteToTargetWorkflowState::RouteToTargetWorkflowState(QState* parent, StateServiceBackendPtr backend) :
-    WorkflowState(parent, "RouteToTargetUid", "Route To Target", backend)
+RouteToTargetWorkflowState::RouteToTargetWorkflowState(QState* parent, CoreServicesPtr services) :
+	WorkflowState(parent, "RouteToTargetUid", "Route To Target", services)
 {
-    connect(mBackend->patient().get(), SIGNAL(dataAddedOrRemoved()), this, SLOT(canEnterSlot()));
+	connect(mServices->patient().get(), SIGNAL(dataAddedOrRemoved()), this, SLOT(canEnterSlot()));
 }
 
 RouteToTargetWorkflowState::~RouteToTargetWorkflowState()
@@ -146,10 +146,10 @@ bool RouteToTargetWorkflowState::canEnter() const
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, StateServiceBackendPtr backend) :
-	WorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", backend)
+VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services) :
+	WorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services)
 {
-    connect(mBackend->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
 
 VirtualBronchoscopyFlyThroughWorkflowState::~VirtualBronchoscopyFlyThroughWorkflowState()
@@ -174,10 +174,10 @@ bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, StateServiceBackendPtr backend) :
-	WorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", backend)
+VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, CoreServicesPtr services) :
+	WorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services)
 {
-	connect(mBackend->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
 
 VirtualBronchoscopyCutPlanesWorkflowState::~VirtualBronchoscopyCutPlanesWorkflowState()
@@ -191,6 +191,7 @@ QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
 void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
 	//this->autoStartHardware();
+
 }
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const

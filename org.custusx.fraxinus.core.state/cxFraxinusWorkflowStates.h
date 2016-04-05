@@ -55,7 +55,7 @@ class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public Workflo
 Q_OBJECT
 
 public:
-    ImportWorkflowState(QState* parent, StateServiceBackendPtr backend);
+    ImportWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~ImportWorkflowState();
     virtual QIcon getIcon() const;
     virtual bool canEnter() const;
@@ -66,7 +66,7 @@ class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public Workfl
 Q_OBJECT
 
 public:
-    ProcessWorkflowState(QState* parent, StateServiceBackendPtr backend);
+    ProcessWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~ProcessWorkflowState();
     virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
@@ -78,7 +78,7 @@ class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public Workf
 Q_OBJECT
 
 public:
-    PinpointWorkflowState(QState* parent, StateServiceBackendPtr backend);
+    PinpointWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~PinpointWorkflowState();
     virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
@@ -89,7 +89,7 @@ class org_custusx_fraxinus_core_state_EXPORT RouteToTargetWorkflowState: public 
 Q_OBJECT
 
 public:
-    RouteToTargetWorkflowState(QState* parent, StateServiceBackendPtr backend);
+    RouteToTargetWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~RouteToTargetWorkflowState();
     virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
@@ -100,7 +100,7 @@ class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkfl
 Q_OBJECT
 
 public:
-	VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, StateServiceBackendPtr backend);
+	VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services);
 	virtual ~VirtualBronchoscopyFlyThroughWorkflowState();
     virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
@@ -112,7 +112,7 @@ class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyCutPlanesWorkflo
 Q_OBJECT
 
 public:
-	VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, StateServiceBackendPtr backend);
+	VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, CoreServicesPtr services);
 	virtual ~VirtualBronchoscopyCutPlanesWorkflowState();
 	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
