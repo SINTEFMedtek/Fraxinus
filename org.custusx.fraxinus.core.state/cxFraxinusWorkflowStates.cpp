@@ -43,8 +43,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cx
 {
 
+FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services) :
+	WorkflowState(parent, uid, name, services)
+{}
+
+void FraxinusWorkflowState::setCameraStyleInGroup0(CAMERA_STYLE_TYPE style)
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	if(services)
+		services->view()->setCameraStyle(style, 0);
+}
+
+void FraxinusWorkflowState::onEntry(QEvent * event)
+{
+	this->setCameraStyleInGroup0(cstDEFAULT_STYLE);
+}
+
 ImportWorkflowState::ImportWorkflowState(QState* parent, CoreServicesPtr services) :
-	WorkflowState(parent, "ImportUid", "Import", services)
+	FraxinusWorkflowState(parent, "ImportUid", "Import", services)
 {}
 
 ImportWorkflowState::~ImportWorkflowState()
@@ -64,7 +80,7 @@ bool ImportWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 ProcessWorkflowState::ProcessWorkflowState(QState* parent, CoreServicesPtr services) :
-	WorkflowState(parent, "ProcessUid", "Process", services)
+	FraxinusWorkflowState(parent, "ProcessUid", "Process", services)
 {
 	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
@@ -79,6 +95,7 @@ QIcon ProcessWorkflowState::getIcon() const
 
 void ProcessWorkflowState::onEntry(QEvent * event)
 {
+	this->setCameraStyleInGroup0(cstDEFAULT_STYLE);
 	this->autoStartHardware();
 }
 
@@ -95,7 +112,7 @@ bool ProcessWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr services) :
-	WorkflowState(parent, "PinpointUid", "Pinpoint", services)
+	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services)
 {
 	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
@@ -121,7 +138,7 @@ bool PinpointWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 RouteToTargetWorkflowState::RouteToTargetWorkflowState(QState* parent, CoreServicesPtr services) :
-	WorkflowState(parent, "RouteToTargetUid", "Route To Target", services)
+	FraxinusWorkflowState(parent, "RouteToTargetUid", "Route To Target", services)
 {
 	connect(mServices->patient().get(), SIGNAL(dataAddedOrRemoved()), this, SLOT(canEnterSlot()));
 }
@@ -147,7 +164,7 @@ bool RouteToTargetWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services) :
-	WorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services)
+	FraxinusWorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services)
 {
 	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
@@ -162,7 +179,7 @@ QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
-    //this->autoStartHardware();
+	this->setCameraStyleInGroup0(cstANGLED_TOOL_STYLE);
 }
 
 bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
@@ -175,7 +192,7 @@ bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, VisServicesPtr services) :
-	WorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services)
+	FraxinusWorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services)
 {
 	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
@@ -190,8 +207,7 @@ QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
-	//this->autoStartHardware();
-
+	this->setCameraStyleInGroup0(cstTOOL_STYLE);
 }
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
@@ -199,5 +215,6 @@ bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
 	//return mBackend->getPatientService()->isPatientValid();
 	return true;
 }
+
 } //namespace cx
 
