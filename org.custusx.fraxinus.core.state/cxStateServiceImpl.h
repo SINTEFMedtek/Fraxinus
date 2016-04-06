@@ -74,7 +74,7 @@ private:
 	void changeDefaultSettings();
 
 	WorkflowStateMachinePtr mWorkflowStateMachine;
-	CoreServicesPtr mServices;
+	VisServicesPtr mServices;
 };
 
 }

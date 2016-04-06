@@ -55,7 +55,7 @@ class org_custusx_fraxinus_core_state_EXPORT CustusXWorkflowStateMachine : publi
 {
 Q_OBJECT
 public:
-        CustusXWorkflowStateMachine(CoreServicesPtr services);
+		CustusXWorkflowStateMachine(VisServicesPtr services);
         virtual ~CustusXWorkflowStateMachine();
 
 };

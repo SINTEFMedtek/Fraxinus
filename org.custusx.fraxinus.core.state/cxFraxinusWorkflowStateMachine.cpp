@@ -32,19 +32,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cxFraxinusWorkflowStateMachine.h"
 #include "cxFraxinusWorkflowStates.h"
+#include "cxVisServices.h"
 
 namespace cx
 {
 
-CustusXWorkflowStateMachine::CustusXWorkflowStateMachine(CoreServicesPtr services) :
+CustusXWorkflowStateMachine::CustusXWorkflowStateMachine(VisServicesPtr services) :
 	WorkflowStateMachine(services)
 {
-	WorkflowState* importWorkflowState = this->newState(new ImportWorkflowState(mParentState, mServices));
-	this->newState(new ProcessWorkflowState(mParentState, mServices));
-	this->newState(new PinpointWorkflowState(mParentState, mServices));
-	this->newState(new RouteToTargetWorkflowState(mParentState, mServices));
-	this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, mServices));
-	this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, mServices));
+	WorkflowState* importWorkflowState = this->newState(new ImportWorkflowState(mParentState, services));
+	this->newState(new ProcessWorkflowState(mParentState, services));
+	this->newState(new PinpointWorkflowState(mParentState, services));
+	this->newState(new RouteToTargetWorkflowState(mParentState, services));
+	this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
+	this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
 
 	//set initial state on all levels
 	this->setInitialState(mParentState);

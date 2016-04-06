@@ -112,7 +112,7 @@ class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyCutPlanesWorkflo
 Q_OBJECT
 
 public:
-	VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, CoreServicesPtr services);
+	VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, VisServicesPtr services);
 	virtual ~VirtualBronchoscopyCutPlanesWorkflowState();
 	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
