@@ -145,7 +145,7 @@ class CustusXFinder:
             if not branch or branch=="":
                 branch = self.runShell('git rev-parse --abbrev-ref HEAD', cxsetup_path)
             if branch=="HEAD": # jenkins always checkout a SHA, thus the repo always start out detached
-                print "CustusXSetup repo is detached, guess branch=master as we have no more info"
+                print "Fraxinus repo is detached, guess branch=master as we have no more info"
                 branch = 'master'
 
             print 'Checking out/pulling CustusX to same branch=%s as Fraxinus' % branch
