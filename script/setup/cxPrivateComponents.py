@@ -21,7 +21,7 @@ class Fraxinus(cx.build.cxComponents.CppComponent):
     def build(self):
         pass
     def repository(self):
-        base = self.controlData.gitrepo_open_site_base
+	base = self.controlData.gitrepo_main_site_base
 	return '%s/fraxinus.git' % base
     def makeClean(self):
         pass
