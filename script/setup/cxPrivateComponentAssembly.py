@@ -19,10 +19,10 @@ class PrivateControlData(cx.build.cxInstallData.Common):
         self.publish_developer_documentation_target = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/developer_doc", user)
         self.publish_user_documentation_target      = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/user_doc", user)
         self.publish_coverage_info_target           = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/gcov", user)
-	self.gitrepo_internal_site_base = "ssh://git@git.code.sintef.no/mt"
-	self.gitrepo_main_site_base = "ssh://git@git.code.sintef.no/mt"
+        self.gitrepo_internal_site_base = "ssh://git@git.code.sintef.no/mt"
+        self.gitrepo_main_site_base = "ssh://git@git.code.sintef.no/mt"
 
-	self.system_base_name = "Fraxinus"
+        self.system_base_name = "Fraxinus"
 
 class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
     '''
