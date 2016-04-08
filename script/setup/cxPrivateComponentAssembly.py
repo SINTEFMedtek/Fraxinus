@@ -10,11 +10,11 @@ import cx.utils.cxSSH
 
 class PrivateControlData(cx.build.cxInstallData.Common):
     def __init__(self):
-	super(PrivateControlData, self).__init__()
+        super(PrivateControlData, self).__init__()
 
-	self.main_branch = "master"
-	user = "custusx"
-	server = "sintefweb07.sintef.no"
+        self.main_branch = "master"
+        user = "custusx"
+        server = "sintefweb07.sintef.no"
         self.publish_release_target                 = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/releases", user)
         self.publish_developer_documentation_target = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/developer_doc", user)
         self.publish_user_documentation_target      = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/user_doc", user)
