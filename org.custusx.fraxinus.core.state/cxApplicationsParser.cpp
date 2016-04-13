@@ -43,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxWorkflowStateMachine.h"
 #include "cxDataLocations.h"
 #include "cxConfig.h"
-#include "cxStateServiceBackend.h"
 
 #include "cxTrackingServiceProxy.h"
 #include "cxPatientModelServiceProxy.h"
