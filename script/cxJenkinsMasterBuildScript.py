@@ -10,9 +10,9 @@
 #
 #####################################################
 
-import setup.cxUpdateToLatestCustusX
+import cxsetup.cxUpdateToLatestCustusX
 
-import setup.cxPrivateComponentAssembly
+import cxsetup.cxPrivateComponentAssembly
 import cx.script.cxJenkinsMasterBuildScript
 
 class Controller(cx.script.cxJenkinsMasterBuildScript.Controller):

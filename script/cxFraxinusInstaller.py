@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
-import setup.cxFindCustusX
+import cxsetup.cxFindCustusX
 
 import cx.script.cxInstallScript
-import setup.cxPrivateComponentAssembly
+import cxsetup.cxPrivateComponentAssembly
 
 class Controller(cx.script.cxInstallScript.Controller):
     def __init__(self, assembly=None):
         ''                
-        assembly = setup.cxPrivateComponentAssembly.LibraryAssembly()
+        assembly = cxsetup.cxPrivateComponentAssembly.LibraryAssembly()
         super(Controller, self).__init__(assembly)
 
 if __name__ == '__main__':

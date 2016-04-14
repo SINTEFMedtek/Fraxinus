@@ -44,75 +44,85 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxRequestEnterStateTransition.h"
 #include "cxWorkflowState.h"
 #include "boost/shared_ptr.hpp"
+#include "cxViewService.h"
 
 
 namespace cx
 {
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 
-class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public WorkflowState
+class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public WorkflowState
+{
+	Q_OBJECT
+public:
+	FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services);
+	virtual void setCameraStyleInGroup0(CAMERA_STYLE_TYPE style);
+	virtual void onEntry(QEvent* event);
+};
+
+class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public FraxinusWorkflowState
 {
 Q_OBJECT
 
 public:
-    ImportWorkflowState(QState* parent, StateServiceBackendPtr backend);
+    ImportWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~ImportWorkflowState();
     virtual QIcon getIcon() const;
     virtual bool canEnter() const;
 };
 
-class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public WorkflowState
+class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public FraxinusWorkflowState
 {
 Q_OBJECT
 
 public:
-    ProcessWorkflowState(QState* parent, StateServiceBackendPtr backend);
+    ProcessWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~ProcessWorkflowState();
     virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
 	virtual bool canEnter() const;
 };
 
-class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public WorkflowState
+class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public FraxinusWorkflowState
 {
 Q_OBJECT
 
 public:
-    PinpointWorkflowState(QState* parent, StateServiceBackendPtr backend);
+    PinpointWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~PinpointWorkflowState();
     virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
 };
 
-class org_custusx_fraxinus_core_state_EXPORT RouteToTargetWorkflowState: public WorkflowState
+class org_custusx_fraxinus_core_state_EXPORT RouteToTargetWorkflowState: public FraxinusWorkflowState
 {
 Q_OBJECT
 
 public:
-    RouteToTargetWorkflowState(QState* parent, StateServiceBackendPtr backend);
+    RouteToTargetWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~RouteToTargetWorkflowState();
     virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
 };
 
-class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkflowState: public WorkflowState
+class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkflowState: public FraxinusWorkflowState
 {
 Q_OBJECT
 
 public:
-	VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, StateServiceBackendPtr backend);
+	VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services);
 	virtual ~VirtualBronchoscopyFlyThroughWorkflowState();
     virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
 	virtual bool canEnter() const;
 };
 
-class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyCutPlanesWorkflowState: public WorkflowState
+class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyCutPlanesWorkflowState: public FraxinusWorkflowState
 {
 Q_OBJECT
 
 public:
-	VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, StateServiceBackendPtr backend);
+	VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, VisServicesPtr services);
 	virtual ~VirtualBronchoscopyCutPlanesWorkflowState();
 	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
