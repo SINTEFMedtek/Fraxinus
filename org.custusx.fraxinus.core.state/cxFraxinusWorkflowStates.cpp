@@ -47,16 +47,16 @@ FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QStrin
 	WorkflowState(parent, uid, name, services)
 {}
 
-void FraxinusWorkflowState::setCameraStyleInGroup0(CAMERA_STYLE_TYPE style)
+void FraxinusWorkflowState::setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx)
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	if(services)
-		services->view()->setCameraStyle(style, 0);
+		services->view()->setCameraStyle(style, groupIdx);
 }
 
 void FraxinusWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup0(cstDEFAULT_STYLE);
+	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 0);
 }
 
 ImportWorkflowState::ImportWorkflowState(QState* parent, CoreServicesPtr services) :
@@ -95,7 +95,7 @@ QIcon ProcessWorkflowState::getIcon() const
 
 void ProcessWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup0(cstDEFAULT_STYLE);
+	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 0);
 	this->autoStartHardware();
 }
 
@@ -179,7 +179,8 @@ QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup0(cstANGLED_TOOL_STYLE);
+	this->setCameraStyleInGroup(cstTOOL_STYLE, 1);
+	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
 }
 
 bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
@@ -207,7 +208,8 @@ QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup0(cstTOOL_STYLE);
+	this->setCameraStyleInGroup(cstTOOL_STYLE, 1);
+	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
 }
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const

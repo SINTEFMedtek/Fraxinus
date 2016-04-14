@@ -104,7 +104,7 @@ ApplicationsParser::ApplicationsParser()
 
 	//-----------------------------------------------------
 	// VIRTUAL BRONCHOSCOPY FLY-THROUGH
-	desktop = Desktop("LAYOUT_3D_3DAC", QByteArray::fromBase64(""));
+	desktop = Desktop("LAYOUT_VB_FLY_THROUGH", QByteArray::fromBase64(""));
 	toolbars.clear();
 	toolbars << standardToolbars << "Help";
 	this->addToolbarsToDesktop(desktop, toolbars);
@@ -114,7 +114,7 @@ ApplicationsParser::ApplicationsParser()
 
 	//-----------------------------------------------------
 	// VIRTUAL BRONCHOSCOPY CUT-PLANES
-	desktop = Desktop("LAYOUT_3D_3DAC", QByteArray::fromBase64(""));
+	desktop = Desktop("LAYOUT_VB_CUT_PLANES", QByteArray::fromBase64(""));
 	toolbars.clear();
 	toolbars << standardToolbars << "Help";
 	this->addToolbarsToDesktop(desktop, toolbars);

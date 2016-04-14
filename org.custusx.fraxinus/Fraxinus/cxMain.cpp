@@ -36,6 +36,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxMainWindowApplicationComponent.h"
 #include "cxLogicManager.h"
 #include "cxApplication.h"
+#include "cxViewService.h"
+#include "cxLayoutData.h"
+#include "cxView.h"
+
+
+namespace cx
+{
+void addAdditionalDefaultLayouts()
+{
+
+	ViewServicePtr viewService = logicManager()->getViewService();
+	{
+		LayoutData layout = LayoutData::create("LAYOUT_VB_FLY_THROUGH", "VB FLY-THROUGH", 3, 5);
+		layout.setView(1, View::VIEW_3D, LayoutRegion(0, 0, 3, 3));
+		layout.setView(0, View::VIEW_3D, LayoutRegion(0, 3, 1, 2));
+		layout.setView(2, ptAXIAL, LayoutRegion(1, 3, 1, 2));
+		layout.setView(2, ptCORONAL, LayoutRegion(2, 3, 1, 2));
+		viewService->addDefaultLayout(layout);
+	}
+	{
+		LayoutData layout = LayoutData::create("LAYOUT_VB_CUT_PLANES", "VB CUT-PLANES", 3, 5);
+		layout.setView(0, View::VIEW_3D, LayoutRegion(0, 0, 3, 3));
+		layout.setView(1, View::VIEW_3D, LayoutRegion(0, 3, 1, 2));
+		layout.setView(2, ptAXIAL, LayoutRegion(1, 3, 1, 2));
+		layout.setView(2, ptCORONAL, LayoutRegion(2, 3, 1, 2));
+		viewService->addDefaultLayout(layout);
+	}
+}
+} //cx
 
 int main(int argc, char *argv[])
 {
@@ -55,6 +84,8 @@ int main(int argc, char *argv[])
 
   cx::ApplicationComponentPtr mainwindow(new cx::MainWindowApplicationComponent<cx::MainWindow>());
   cx::LogicManager::initialize(mainwindow);
+
+  cx::addAdditionalDefaultLayouts();
 
   int retVal = app.exec();
 
