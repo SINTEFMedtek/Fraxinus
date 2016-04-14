@@ -39,6 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxPatientModelService.h"
 #include "cxLogger.h"
 #include "cxVisServices.h"
+#include "cxClippers.h"
+#include "cxInteractiveClipper.h"
 
 namespace cx
 {
@@ -54,9 +56,26 @@ void FraxinusWorkflowState::setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int g
 		services->view()->setCameraStyle(style, groupIdx);
 }
 
-void FraxinusWorkflowState::onEntry(QEvent * event)
+void FraxinusWorkflowState::useClipper(bool on)
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	if(services)
+	{
+		ClippersPtr clippers = services->view()->getClippers();
+		InteractiveClipperPtr anyplaneClipper = clippers->getClipper("Any");
+		anyplaneClipper->useClipper(on);
+	}
+}
+
+void FraxinusWorkflowState::onEntryDefault()
 {
 	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 0);
+	this->useClipper(false);
+}
+
+void FraxinusWorkflowState::onEntry(QEvent * event)
+{
+	this->onEntryDefault();
 }
 
 ImportWorkflowState::ImportWorkflowState(QState* parent, CoreServicesPtr services) :
@@ -95,7 +114,7 @@ QIcon ProcessWorkflowState::getIcon() const
 
 void ProcessWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 0);
+	this->onEntryDefault();
 	this->autoStartHardware();
 }
 
@@ -181,6 +200,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
 	this->setCameraStyleInGroup(cstTOOL_STYLE, 1);
 	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
+	this->useClipper(true);
 }
 
 bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
@@ -210,6 +230,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
 	this->setCameraStyleInGroup(cstTOOL_STYLE, 1);
 	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
+	this->useClipper(true);
 }
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const

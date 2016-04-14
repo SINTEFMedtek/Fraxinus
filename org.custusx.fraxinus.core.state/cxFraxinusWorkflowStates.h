@@ -58,6 +58,9 @@ public:
 	FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services);
 	virtual void setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx);
 	virtual void onEntry(QEvent* event);
+protected:
+	void onEntryDefault();
+	void useClipper(bool on);
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public FraxinusWorkflowState
