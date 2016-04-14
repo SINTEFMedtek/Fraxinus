@@ -64,6 +64,7 @@ ctkMacroBuildPlugin(
   RESOURCES ${PLUGIN_resources}
   TARGET_LIBRARIES ${PLUGIN_target_libraries}
   OUTPUT_DIR ${PLUGIN_OUTPUT_DIR}
+  ${CX_CTK_PLUGIN_NO_INSTALL}
 )
 target_include_directories(org_custusx_fraxinus_core_state
     PUBLIC

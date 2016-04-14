@@ -54,13 +54,13 @@ class org_custusx_virtualbronchoscopy(cx.build.cxComponents.CppComponent):
     def sourceFolder(self):
         return 'org.custusx.virtualbronchoscopy'
     def update(self):
-        self._getBuilder().gitCheckoutBranch('feature/Virtual_Bronchoscopy')
+        self._getBuilder().gitCheckoutDefaultBranch()
     def configure(self):
         pass
     def build(self):
         pass
     def repository(self):
-        base = self.controlData.gitrepo_open_site_base
+        base = self.controlData.gitrepo_main_site_base
         return '%s/org.custusx.virtualbronchoscopy.git' % base
     def makeClean(self):
         pass
