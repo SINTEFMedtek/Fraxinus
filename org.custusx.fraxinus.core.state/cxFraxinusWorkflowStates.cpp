@@ -39,6 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxPatientModelService.h"
 #include "cxLogger.h"
 #include "cxVisServices.h"
+#include "cxClippers.h"
+#include "cxInteractiveClipper.h"
 
 namespace cx
 {
@@ -47,16 +49,33 @@ FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QStrin
 	WorkflowState(parent, uid, name, services)
 {}
 
-void FraxinusWorkflowState::setCameraStyleInGroup0(CAMERA_STYLE_TYPE style)
+void FraxinusWorkflowState::setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx)
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	if(services)
-		services->view()->setCameraStyle(style, 0);
+		services->view()->setCameraStyle(style, groupIdx);
+}
+
+void FraxinusWorkflowState::useClipper(bool on)
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	if(services)
+	{
+		ClippersPtr clippers = services->view()->getClippers();
+		InteractiveClipperPtr anyplaneClipper = clippers->getClipper("Any");
+		anyplaneClipper->useClipper(on);
+	}
+}
+
+void FraxinusWorkflowState::onEntryDefault()
+{
+	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 0);
+	this->useClipper(false);
 }
 
 void FraxinusWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup0(cstDEFAULT_STYLE);
+	this->onEntryDefault();
 }
 
 ImportWorkflowState::ImportWorkflowState(QState* parent, CoreServicesPtr services) :
@@ -95,7 +114,7 @@ QIcon ProcessWorkflowState::getIcon() const
 
 void ProcessWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup0(cstDEFAULT_STYLE);
+	this->onEntryDefault();
 	this->autoStartHardware();
 }
 
@@ -179,7 +198,9 @@ QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup0(cstANGLED_TOOL_STYLE);
+	this->setCameraStyleInGroup(cstTOOL_STYLE, 1);
+	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
+	this->useClipper(true);
 }
 
 bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
@@ -207,7 +228,9 @@ QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup0(cstTOOL_STYLE);
+	this->setCameraStyleInGroup(cstTOOL_STYLE, 1);
+	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
+	this->useClipper(true);
 }
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
