@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
   app.setWindowIcon(QIcon(":/icons/icons/Fraxinus2.png"));
   app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
-  cx::DataLocations::setWebsiteURL("www.custusx.org/fraxinus");
+  cx::DataLocations::setWebsiteURL("http://www.custusx.org/fraxinus");
   cx::ApplicationComponentPtr mainwindow(new cx::MainWindowApplicationComponent<cx::MainWindow>());
   cx::LogicManager::initialize(mainwindow);
 
