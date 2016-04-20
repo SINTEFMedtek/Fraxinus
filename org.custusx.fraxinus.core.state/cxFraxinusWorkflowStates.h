@@ -46,7 +46,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "boost/shared_ptr.hpp"
 #include "cxViewService.h"
 
-
 namespace cx
 {
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
@@ -68,22 +67,31 @@ class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public Fraxinu
 Q_OBJECT
 
 public:
-    ImportWorkflowState(QState* parent, CoreServicesPtr services);
+    ImportWorkflowState(QState* parent, VisServicesPtr services);
     virtual ~ImportWorkflowState();
     virtual QIcon getIcon() const;
-    virtual bool canEnter() const;
+	virtual bool canEnter() const;
+	virtual void onEntry(QEvent *event);
+private slots:
+	void imageSelected();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public FraxinusWorkflowState
 {
 Q_OBJECT
 
+	void imageSelected();
+	void performAirwaysSegmentation(ImagePtr image);
+	DataPtr getCenterline();
 public:
     ProcessWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~ProcessWorkflowState();
     virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
 	virtual bool canEnter() const;
+
+signals:
+	void airwaysSegmented();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public FraxinusWorkflowState

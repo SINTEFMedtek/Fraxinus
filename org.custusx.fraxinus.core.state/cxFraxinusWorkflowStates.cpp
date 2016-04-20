@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxFraxinusWorkflowStates.h"
+#include <QProgressDialog>
 #include "cxStateService.h"
 #include "cxSettings.h"
 #include "cxTrackingService.h"
@@ -41,6 +42,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVisServices.h"
 #include "cxClippers.h"
 #include "cxInteractiveClipper.h"
+#include "cxAirWaysFilterService.h"
+#include "cxActiveData.h"
+#include "cxImage.h"
+#include "cxMesh.h"
+#include "cxSelectDataStringPropertyBase.h"
 
 namespace cx
 {
@@ -78,12 +84,37 @@ void FraxinusWorkflowState::onEntry(QEvent * event)
 	this->onEntryDefault();
 }
 
-ImportWorkflowState::ImportWorkflowState(QState* parent, CoreServicesPtr services) :
+ImportWorkflowState::ImportWorkflowState(QState* parent, VisServicesPtr services) :
 	FraxinusWorkflowState(parent, "ImportUid", "Import", services)
-{}
+{
+}
 
 ImportWorkflowState::~ImportWorkflowState()
 {}
+
+void ImportWorkflowState::onEntry(QEvent * event)
+{
+	this->onEntryDefault();
+}
+
+void ImportWorkflowState::imageSelected()
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
+
+	ImagePtr activeImage = services->patient()->getActiveData()->getActive<Image>();
+	if(!activeImage)
+		CX_LOG_DEBUG() << "Active image not set";
+
+	airwaysFilter->getInputTypes();
+	airwaysFilter->getOutputTypes();
+	airwaysFilter->getOptions();
+
+	if(airwaysFilter->execute(activeImage))
+		airwaysFilter->postProcess();
+	else
+		CX_LOG_DEBUG() << "airwaysFilter->execute failed";
+}
 
 QIcon ImportWorkflowState::getIcon() const
 {
@@ -116,6 +147,60 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 {
 	this->onEntryDefault();
 	this->autoStartHardware();
+	this->imageSelected();
+}
+
+void ProcessWorkflowState::imageSelected()
+{
+	DataPtr centerline = this->getCenterline();
+	if(centerline)
+		return;
+
+	ActiveDataPtr activeData = mServices->patient()->getActiveData();
+	if(!activeData)
+		return;
+
+	ImagePtr activeImage = activeData->getActive<Image>();
+	if(!activeImage)
+		return;
+
+	this->performAirwaysSegmentation(activeImage);
+}
+
+DataPtr ProcessWorkflowState::getCenterline()
+{
+	std::map<QString, DataPtr> datas = mServices->patient()->getData();
+
+	for (std::map<QString, DataPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+	{
+		if(iter->first.contains("centerline"))
+			return iter->second;
+	}
+	return DataPtr();
+}
+
+void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+
+	QProgressDialog progress("Please wait a few minutes for airways segmentation.\n(Program may appear frozen while processing.)", QString(), 0, 0);
+	progress.show();
+
+	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
+	airwaysFilter->getInputTypes();
+	airwaysFilter->getOutputTypes();
+//	std::vector<SelectDataStringPropertyBasePtr> outputTypes = airwaysFilter->getOutputTypes();
+	airwaysFilter->getOptions();
+
+	if(airwaysFilter->execute(image))
+	{
+		airwaysFilter->postProcess();
+		progress.hide();
+		emit airwaysSegmented();
+	}
+	else
+		CX_LOG_WARNING() << "Airway segmentation failed";
+
 }
 
 bool ProcessWorkflowState::canEnter() const

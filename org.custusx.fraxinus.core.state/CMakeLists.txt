@@ -47,7 +47,9 @@ set(PLUGIN_target_libraries
     Qt5::Widgets
     cxResource
     cxResourceVisualization
+    cxResourceFilter
     cxGui
+    org_custusx_filter_airways
     )
 
 set(PLUGIN_OUTPUT_DIR "")
