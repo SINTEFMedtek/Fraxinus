@@ -58,14 +58,23 @@ ApplicationsParser::ApplicationsParser()
 	Desktop desktop;
 
 	QStringList standardToolbars;
-    standardToolbars << "Workflow" << "Navigation";
+    standardToolbars << "Workflow";
+    //"Workflow" << "Navigation" << "Data" << "Help"
 
+
+    //-----------------------------------------------------
+    // NEW/LOAD PATIENT
+    desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+    QStringList toolbars;
+    toolbars << standardToolbars;
+    this->addToolbarsToDesktop(desktop, toolbars);
+    mWorkflowDefaultDesktops["PatientUid"] = desktop;
+    //-----------------------------------------------------
 
 	//-----------------------------------------------------
     // IMPORT
 	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
-	QStringList toolbars;
-    toolbars << standardToolbars << "Data" << "Help";
+    toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset("VolumePropertiesWidget", Qt::LeftDockWidgetArea, true);
 	desktop.addPreset("DicomWidget", Qt::LeftDockWidgetArea, true);
@@ -76,7 +85,7 @@ ApplicationsParser::ApplicationsParser()
     // PROCESS
     desktop = Desktop("LAYOUT_3D", QByteArray::fromBase64(""));
 	toolbars.clear();
-    toolbars << standardToolbars << "Help";
+    toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
     desktop.addPreset("Airway Segmentation Filter Widget", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["ProcessUid"] = desktop;
@@ -86,27 +95,17 @@ ApplicationsParser::ApplicationsParser()
     // PINPOINT
     desktop = Desktop("LAYOUT_A_3DCS", QByteArray::fromBase64(""));
 	toolbars.clear();
-    toolbars << standardToolbars << "Help";
+    toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
     desktop.addPreset("MetricWidget", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["PinpointUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
-    // ROUTE TO TARGET
-    desktop = Desktop("LAYOUT_3D", QByteArray::fromBase64(""));
-	toolbars.clear();
-    toolbars << standardToolbars << "Help";
-    this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset("Route to target Widget", Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["RouteToTargetUid"] = desktop;
-	//-----------------------------------------------------
-
-	//-----------------------------------------------------
 	// VIRTUAL BRONCHOSCOPY FLY-THROUGH
 	desktop = Desktop("LAYOUT_VB_FLY_THROUGH", QByteArray::fromBase64(""));
 	toolbars.clear();
-	toolbars << standardToolbars << "Help";
+    toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset("Virtual Bronchoscopy Widget", Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["VirtualBronchoscopyFlyThroughUid"] = desktop;
@@ -116,7 +115,7 @@ ApplicationsParser::ApplicationsParser()
 	// VIRTUAL BRONCHOSCOPY CUT-PLANES
 	desktop = Desktop("LAYOUT_VB_CUT_PLANES", QByteArray::fromBase64(""));
 	toolbars.clear();
-	toolbars << standardToolbars << "Help";
+    toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset("ClippingPropertiesWidget", Qt::LeftDockWidgetArea, true);
 	desktop.addPreset("Virtual Bronchoscopy Widget", Qt::LeftDockWidgetArea, true);

@@ -40,16 +40,17 @@ namespace cx
 CustusXWorkflowStateMachine::CustusXWorkflowStateMachine(VisServicesPtr services) :
 	WorkflowStateMachine(services)
 {
-	WorkflowState* importWorkflowState = this->newState(new ImportWorkflowState(mParentState, services));
+
+    WorkflowState* patientWorkflowState = this->newState(new PatientWorkflowState(mParentState, services));
+    this->newState(new ImportWorkflowState(mParentState, services));
 	this->newState(new ProcessWorkflowState(mParentState, services));
 	this->newState(new PinpointWorkflowState(mParentState, services));
-	this->newState(new RouteToTargetWorkflowState(mParentState, services));
 	this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
 	this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
 
 	//set initial state on all levels
 	this->setInitialState(mParentState);
-    mParentState->setInitialState(importWorkflowState);
+    mParentState->setInitialState(patientWorkflowState);
 }
 
 CustusXWorkflowStateMachine::~CustusXWorkflowStateMachine()
