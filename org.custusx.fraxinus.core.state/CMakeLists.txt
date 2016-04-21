@@ -42,7 +42,10 @@ set(PLUGIN_resources
 #Compute the plugin dependencies
 ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
 set(PLUGIN_target_libraries 
+    PUBLIC
     ${PLUGIN_target_libraries}
+
+    PRIVATE
     cxPluginUtilities
     Qt5::Widgets
     cxResource

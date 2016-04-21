@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVisServices.h"
 #include "cxClippers.h"
 #include "cxInteractiveClipper.h"
-#include "cxAirWaysFilterService.h"
+#include "cxAirwaysFilterService.h"
 #include "cxActiveData.h"
 #include "cxImage.h"
 #include "cxMesh.h"
