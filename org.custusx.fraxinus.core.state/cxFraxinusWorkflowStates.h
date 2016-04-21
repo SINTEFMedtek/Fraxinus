@@ -62,6 +62,17 @@ protected:
 	void useClipper(bool on);
 };
 
+class org_custusx_fraxinus_core_state_EXPORT PatientWorkflowState: public FraxinusWorkflowState
+{
+Q_OBJECT
+
+public:
+    PatientWorkflowState(QState* parent, CoreServicesPtr services);
+    virtual ~PatientWorkflowState();
+    virtual QIcon getIcon() const;
+    virtual bool canEnter() const;
+};
+
 class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public FraxinusWorkflowState
 {
 Q_OBJECT
@@ -101,17 +112,6 @@ Q_OBJECT
 public:
     PinpointWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~PinpointWorkflowState();
-    virtual QIcon getIcon() const;
-	virtual bool canEnter() const;
-};
-
-class org_custusx_fraxinus_core_state_EXPORT RouteToTargetWorkflowState: public FraxinusWorkflowState
-{
-Q_OBJECT
-
-public:
-    RouteToTargetWorkflowState(QState* parent, CoreServicesPtr services);
-    virtual ~RouteToTargetWorkflowState();
     virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
 };

@@ -59,7 +59,6 @@ public:
 private:
 	void addDefaultDesktops(QString workflowStateUid, QString layoutUid, QString mainwindowstate);
 	XmlOptionFile getSettings();
-//	XmlOptionFile mXmlFile;
 	std::map<QString, Desktop> mWorkflowDefaultDesktops;
 	void addToolbarsToDesktop(Desktop& desktop, QStringList toolbars);
 };

@@ -84,6 +84,29 @@ void FraxinusWorkflowState::onEntry(QEvent * event)
 	this->onEntryDefault();
 }
 
+// --------------------------------------------------------
+// --------------------------------------------------------
+
+PatientWorkflowState::PatientWorkflowState(QState* parent, CoreServicesPtr services) :
+    FraxinusWorkflowState(parent, "PatientUid", "New/Load Patient", services)
+{}
+
+PatientWorkflowState::~PatientWorkflowState()
+{}
+
+QIcon PatientWorkflowState::getIcon() const
+{
+    return QIcon(":/icons/icons/import.png");
+}
+
+bool PatientWorkflowState::canEnter() const
+{
+    return true;
+}
+
+// --------------------------------------------------------
+// --------------------------------------------------------
+
 ImportWorkflowState::ImportWorkflowState(QState* parent, VisServicesPtr services) :
 	FraxinusWorkflowState(parent, "ImportUid", "Import", services)
 {
@@ -205,12 +228,8 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 
 bool ProcessWorkflowState::canEnter() const
 {
-    //return mBackend->getPatientService()->isPatientValid();
     return true;
 }
-
-// --------------------------------------------------------
-// --------------------------------------------------------
 
 // --------------------------------------------------------
 // --------------------------------------------------------
@@ -220,8 +239,10 @@ PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr ser
 {
 	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
+
 PinpointWorkflowState::~PinpointWorkflowState()
 {}
+
 QIcon PinpointWorkflowState::getIcon() const
 {
     return QIcon(":/icons/icons/pinpoint.png");
@@ -234,35 +255,6 @@ bool PinpointWorkflowState::canEnter() const
     //return mBackend->getPatientService()->isPatientValid();
     return true;
 }
-
-// --------------------------------------------------------
-// --------------------------------------------------------
-
-// --------------------------------------------------------
-// --------------------------------------------------------
-
-RouteToTargetWorkflowState::RouteToTargetWorkflowState(QState* parent, CoreServicesPtr services) :
-	FraxinusWorkflowState(parent, "RouteToTargetUid", "Route To Target", services)
-{
-	connect(mServices->patient().get(), SIGNAL(dataAddedOrRemoved()), this, SLOT(canEnterSlot()));
-}
-
-RouteToTargetWorkflowState::~RouteToTargetWorkflowState()
-{}
-
-QIcon RouteToTargetWorkflowState::getIcon() const
-{
-    return QIcon(":/icons/icons/routetotarget.png");
-}
-
-bool RouteToTargetWorkflowState::canEnter() const
-{
-    //return !mBackend->getPatientService()->getData().empty();
-    return true;
-}
-
-// --------------------------------------------------------
-// --------------------------------------------------------
 
 // --------------------------------------------------------
 // --------------------------------------------------------
@@ -320,7 +312,6 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
 {
-	//return mBackend->getPatientService()->isPatientValid();
 	return true;
 }
 

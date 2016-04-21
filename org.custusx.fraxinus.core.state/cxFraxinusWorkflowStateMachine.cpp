@@ -42,22 +42,23 @@ namespace cx
 CustusXWorkflowStateMachine::CustusXWorkflowStateMachine(VisServicesPtr services) :
 	WorkflowStateMachine(services)
 {
+	WorkflowState* patientWorkflowState = this->newState(new PatientWorkflowState(mParentState, services));
 	WorkflowState* importWorkflowState = this->newState(new ImportWorkflowState(mParentState, services));
 	WorkflowState* processWorkflowState = this->newState(new ProcessWorkflowState(mParentState, services));
 	WorkflowState* pinpointWorkflowState = this->newState(new PinpointWorkflowState(mParentState, services));
-	WorkflowState* routeToTargetWorkflowState = this->newState(new RouteToTargetWorkflowState(mParentState, services));
+//	WorkflowState* routeToTargetWorkflowState = this->newState(new RouteToTargetWorkflowState(mParentState, services));
 	WorkflowState* virtualBronchoscopyFlyThroughWorkflowState = this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
 	WorkflowState* virtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
 
 	this->newState(processWorkflowState);
 	this->newState(pinpointWorkflowState);
-	this->newState(routeToTargetWorkflowState);
+//	this->newState(routeToTargetWorkflowState);
 	this->newState(virtualBronchoscopyFlyThroughWorkflowState);
 	this->newState(virtualBronchoscopyCutPlanesWorkflowState);
 
 	//set initial state on all levels
 	this->setInitialState(mParentState);
-    mParentState->setInitialState(importWorkflowState);
+	mParentState->setInitialState(patientWorkflowState);
 
 	//Create transitions
 	ActiveDataPtr activeData = mServices->patient()->getActiveData();
