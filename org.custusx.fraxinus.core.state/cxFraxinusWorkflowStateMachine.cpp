@@ -50,20 +50,16 @@ CustusXWorkflowStateMachine::CustusXWorkflowStateMachine(VisServicesPtr services
 	WorkflowState* virtualBronchoscopyFlyThroughWorkflowState = this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
 	WorkflowState* virtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
 
-	this->newState(processWorkflowState);
-	this->newState(pinpointWorkflowState);
-//	this->newState(routeToTargetWorkflowState);
-	this->newState(virtualBronchoscopyFlyThroughWorkflowState);
-	this->newState(virtualBronchoscopyCutPlanesWorkflowState);
-
 	//set initial state on all levels
 	this->setInitialState(mParentState);
 	mParentState->setInitialState(patientWorkflowState);
 
-	//Create transitions
 	ActiveDataPtr activeData = mServices->patient()->getActiveData();
+
+	//Create transitions
 	importWorkflowState->addTransition(activeData.get(), SIGNAL(activeImageChanged(const QString&)), processWorkflowState);
 	processWorkflowState->addTransition(processWorkflowState, SIGNAL(airwaysSegmented()), pinpointWorkflowState);
+	pinpointWorkflowState->addTransition(pinpointWorkflowState, SIGNAL(routeToTargetCreated()), virtualBronchoscopyFlyThroughWorkflowState);
 }
 
 CustusXWorkflowStateMachine::~CustusXWorkflowStateMachine()

@@ -47,6 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxImage.h"
 #include "cxMesh.h"
 #include "cxSelectDataStringPropertyBase.h"
+#include "cxPointMetric.h"
+#include "cxRouteToTargetFilterService.h"
 
 namespace cx
 {
@@ -238,6 +240,7 @@ PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr ser
 	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services)
 {
 	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+	connect(services->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
 }
 
 PinpointWorkflowState::~PinpointWorkflowState()
@@ -254,6 +257,36 @@ bool PinpointWorkflowState::canEnter() const
 // running and us acq. Thus we need access to the reg mode.
     //return mBackend->getPatientService()->isPatientValid();
     return true;
+}
+
+void PinpointWorkflowState::dataAddedOrRemovedSlot()
+{
+	std::map<QString, PointMetricPtr> metrics = mServices->patient()->getDataOfType<PointMetric>();
+	PointMetricPtr metric;
+	if (!metrics.empty())
+	{
+		metric = metrics.begin()->second;
+	}
+
+	if(metric)
+	{
+		//TODO: Create route to target
+
+
+
+//		RouteToTargetFilterPtr routeToTargetFilter = RouteToTargetFilterPtr(new RouteToTargetFilter(mServices));
+//		routeToTargetFilter->getInputTypes();
+//		routeToTargetFilter->getOutputTypes();
+//	//	std::vector<SelectDataStringPropertyBasePtr> outputTypes = routeToTargetFilter->getOutputTypes();
+//		routeToTargetFilter->getOptions();
+
+//		if(routeToTargetFilter->execute(image))
+//		{
+//			routeToTargetFilter->postProcess();
+//			progress.hide();
+			emit routeToTargetCreated();
+//		}
+	}
 }
 
 // --------------------------------------------------------

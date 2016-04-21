@@ -57,7 +57,6 @@ Q_OBJECT
 public:
 		CustusXWorkflowStateMachine(VisServicesPtr services);
         virtual ~CustusXWorkflowStateMachine();
-
 };
 
 typedef boost::shared_ptr<CustusXWorkflowStateMachine> CustusXWorkflowStateMachinePtr;

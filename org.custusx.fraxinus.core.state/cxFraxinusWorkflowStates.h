@@ -114,6 +114,10 @@ public:
     virtual ~PinpointWorkflowState();
     virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
+signals:
+	void routeToTargetCreated();
+private slots:
+	void dataAddedOrRemovedSlot();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkflowState: public FraxinusWorkflowState

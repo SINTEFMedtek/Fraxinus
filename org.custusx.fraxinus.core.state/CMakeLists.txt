@@ -53,6 +53,7 @@ set(PLUGIN_target_libraries
     cxResourceFilter
     cxGui
     org_custusx_filter_airways
+    org_custusx_filter_routetotarget
     )
 
 set(PLUGIN_OUTPUT_DIR "")
