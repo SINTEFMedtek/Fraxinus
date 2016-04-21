@@ -39,6 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxViewService.h"
 #include "cxLayoutData.h"
 #include "cxView.h"
+#include "cxDataLocations.h"
 
 
 namespace cx
@@ -77,11 +78,12 @@ int main(int argc, char *argv[])
 
   cx::Application app(argc, argv);
   app.setOrganizationName("Fraxinus");
-  app.setOrganizationDomain("www.custusx.org");
+  app.setOrganizationDomain("www.sintef.no");
   app.setApplicationName(CX_SYSTEM_BASE_NAME);
   app.setWindowIcon(QIcon(":/icons/icons/Fraxinus2.png"));
   app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
+  cx::DataLocations::setWebsiteURL("http://www.custusx.org/fraxinus");
   cx::ApplicationComponentPtr mainwindow(new cx::MainWindowApplicationComponent<cx::MainWindow>());
   cx::LogicManager::initialize(mainwindow);
 
