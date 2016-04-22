@@ -356,7 +356,6 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 
 	if(widget)
 	{
-		CX_LOG_DEBUG() << "found VB widget";
 		MeshPtr routeToTarget = this->getRouteTotarget();
 		if(routeToTarget)
 			widget->setRouteToTarget(routeToTarget->getUid());
