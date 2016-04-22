@@ -31,6 +31,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxFraxinusWorkflowStates.h"
+
+#include <QDialog>
+#include <QApplication>
+#include <QMainWindow>
+
 #include "cxStateService.h"
 #include "cxSettings.h"
 #include "cxTrackingService.h"
@@ -41,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVisServices.h"
 #include "cxClippers.h"
 #include "cxInteractiveClipper.h"
+#include "cxNewLoadPatientDialog.h"
 
 namespace cx
 {
@@ -91,6 +97,13 @@ PatientWorkflowState::~PatientWorkflowState()
 QIcon PatientWorkflowState::getIcon() const
 {
     return QIcon(":/icons/icons/import.png");
+}
+
+void PatientWorkflowState::onEntry(QEvent * event)
+{
+    //TODO: This creates a warning, need to find out which window should be the parent
+    NewLoadPatientDialog dialog(Q_NULLPTR, mServices->patient());
+    dialog.exec();
 }
 
 bool PatientWorkflowState::canEnter() const
@@ -165,9 +178,6 @@ QIcon PinpointWorkflowState::getIcon() const
 
 bool PinpointWorkflowState::canEnter() const
 {
-// We need to perform patient orientation prior to
-// running and us acq. Thus we need access to the reg mode.
-    //return mBackend->getPatientService()->isPatientValid();
     return true;
 }
 
@@ -197,7 +207,6 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 
 bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 {
-    //return mBackend->getPatientService()->isPatientValid();
     return true;
 }
 
