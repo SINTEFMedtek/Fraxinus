@@ -32,6 +32,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cxFraxinusWorkflowStates.h"
 #include <QProgressDialog>
+#include <QMainWindow>
+#include <QApplication>
 #include "cxStateService.h"
 #include "cxSettings.h"
 #include "cxTrackingService.h"
@@ -49,6 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxSelectDataStringPropertyBase.h"
 #include "cxPointMetric.h"
 #include "cxRouteToTargetFilterService.h"
+#include "cxVBWidget.h"
 
 namespace cx
 {
@@ -86,6 +89,45 @@ void FraxinusWorkflowState::onEntry(QEvent * event)
 	this->onEntryDefault();
 }
 
+MeshPtr FraxinusWorkflowState::getCenterline()
+{
+	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
+	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+	{
+		if(iter->first.contains("centerline") && !iter->first.contains("_rtt_cl"))
+			return iter->second;
+	}
+	return MeshPtr();
+}
+
+MeshPtr FraxinusWorkflowState::getRouteTotarget()
+{
+	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
+	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+	{
+		if(iter->first.contains("_rtt_cl"))
+			return iter->second;
+	}
+	return MeshPtr();
+}
+
+
+QMainWindow* FraxinusWorkflowState::getMainWindow()
+{
+	QWidgetList widgets = qApp->topLevelWidgets();
+	for (QWidgetList::iterator i = widgets.begin(); i != widgets.end(); ++i)
+		if ((*i)->objectName() == "MainWindow")
+			return (QMainWindow*) (*i);
+	return NULL;
+}
+
+VBWidget* FraxinusWorkflowState::getVBWidget()
+{
+	QMainWindow* mainWindow = this->getMainWindow();
+
+	QString widgetName("Virtual Bronchoscopy Widget");
+	return mainWindow->findChild<VBWidget*>(widgetName);
+}
 // --------------------------------------------------------
 // --------------------------------------------------------
 
@@ -192,18 +234,6 @@ void ProcessWorkflowState::imageSelected()
 	this->performAirwaysSegmentation(activeImage);
 }
 
-DataPtr ProcessWorkflowState::getCenterline()
-{
-	std::map<QString, DataPtr> datas = mServices->patient()->getData();
-
-	for (std::map<QString, DataPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
-	{
-		if(iter->first.contains("centerline"))
-			return iter->second;
-	}
-	return DataPtr();
-}
-
 void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
@@ -240,7 +270,7 @@ PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr ser
 	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services)
 {
 	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
-	connect(services->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
+	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
 }
 
 PinpointWorkflowState::~PinpointWorkflowState()
@@ -261,32 +291,42 @@ bool PinpointWorkflowState::canEnter() const
 
 void PinpointWorkflowState::dataAddedOrRemovedSlot()
 {
+	PointMetricPtr targetPoint = this->getTargetPoint();
+	MeshPtr centerline = this->getCenterline();
+	MeshPtr routeToTarget = this->getRouteTotarget();
+
+	if(targetPoint && centerline && !routeToTarget)
+		this->createRouteToTarget();
+}
+
+void PinpointWorkflowState::createRouteToTarget()
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	RouteToTargetFilterPtr routeToTargetFilter = RouteToTargetFilterPtr(new RouteToTargetFilter(services));
+	std::vector<SelectDataStringPropertyBasePtr> input = routeToTargetFilter->getInputTypes();
+	routeToTargetFilter->getOutputTypes();
+	routeToTargetFilter->getOptions();
+
+	PointMetricPtr targetPoint = this->getTargetPoint();
+	MeshPtr centerline = this->getCenterline();
+
+	input[0]->setValue(centerline->getUid());
+	input[1]->setValue(targetPoint->getUid());
+
+	if(routeToTargetFilter->execute())
+	{
+		routeToTargetFilter->postProcess();
+		emit routeToTargetCreated();
+	}
+}
+
+PointMetricPtr PinpointWorkflowState::getTargetPoint()
+{
 	std::map<QString, PointMetricPtr> metrics = mServices->patient()->getDataOfType<PointMetric>();
 	PointMetricPtr metric;
 	if (!metrics.empty())
-	{
 		metric = metrics.begin()->second;
-	}
-
-	if(metric)
-	{
-		//TODO: Create route to target
-
-
-
-//		RouteToTargetFilterPtr routeToTargetFilter = RouteToTargetFilterPtr(new RouteToTargetFilter(mServices));
-//		routeToTargetFilter->getInputTypes();
-//		routeToTargetFilter->getOutputTypes();
-//	//	std::vector<SelectDataStringPropertyBasePtr> outputTypes = routeToTargetFilter->getOutputTypes();
-//		routeToTargetFilter->getOptions();
-
-//		if(routeToTargetFilter->execute(image))
-//		{
-//			routeToTargetFilter->postProcess();
-//			progress.hide();
-			emit routeToTargetCreated();
-//		}
-	}
+	return metric;
 }
 
 // --------------------------------------------------------
@@ -311,6 +351,16 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 	this->setCameraStyleInGroup(cstTOOL_STYLE, 1);
 	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
 	this->useClipper(true);
+
+	VBWidget* widget = this->getVBWidget();
+
+	if(widget)
+	{
+		CX_LOG_DEBUG() << "found VB widget";
+		MeshPtr routeToTarget = this->getRouteTotarget();
+		if(routeToTarget)
+			widget->setRouteToTarget(routeToTarget->getUid());
+	}
 }
 
 bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const

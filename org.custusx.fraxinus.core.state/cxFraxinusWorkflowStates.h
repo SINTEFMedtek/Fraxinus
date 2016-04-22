@@ -46,9 +46,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "boost/shared_ptr.hpp"
 #include "cxViewService.h"
 
+class QMainWindow;
+
 namespace cx
 {
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
+class VBWidget;
 
 class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public WorkflowState
 {
@@ -60,6 +63,10 @@ public:
 protected:
 	void onEntryDefault();
 	void useClipper(bool on);
+	MeshPtr getCenterline();
+	MeshPtr getRouteTotarget();
+	QMainWindow *getMainWindow();
+	VBWidget *getVBWidget();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PatientWorkflowState: public FraxinusWorkflowState
@@ -93,7 +100,6 @@ Q_OBJECT
 
 	void imageSelected();
 	void performAirwaysSegmentation(ImagePtr image);
-	DataPtr getCenterline();
 public:
     ProcessWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~ProcessWorkflowState();
@@ -109,6 +115,8 @@ class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public Fraxi
 {
 Q_OBJECT
 
+	PointMetricPtr getTargetPoint();
+	void createRouteToTarget();
 public:
     PinpointWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~PinpointWorkflowState();

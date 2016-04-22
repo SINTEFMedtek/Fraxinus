@@ -54,6 +54,7 @@ set(PLUGIN_target_libraries
     cxGui
     org_custusx_filter_airways
     org_custusx_filter_routetotarget
+    org_custusx_virtualbronchoscopy
     )
 
 set(PLUGIN_OUTPUT_DIR "")
