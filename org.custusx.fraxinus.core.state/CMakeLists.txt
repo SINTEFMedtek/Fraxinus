@@ -21,8 +21,6 @@ set(PLUGIN_SRCS
     cxStatePluginActivator.cpp
     cxApplicationsParser.h
     cxApplicationsParser.cpp
-    cxNewLoadPatientDialog.h
-    cxNewLoadPatientDialog.cpp
 )
 
 # Files which should be processed by Qts moc

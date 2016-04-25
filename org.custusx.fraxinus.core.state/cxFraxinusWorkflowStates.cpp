@@ -46,7 +46,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVisServices.h"
 #include "cxClippers.h"
 #include "cxInteractiveClipper.h"
-#include "cxNewLoadPatientDialog.h"
 
 namespace cx
 {
@@ -101,9 +100,6 @@ QIcon PatientWorkflowState::getIcon() const
 
 void PatientWorkflowState::onEntry(QEvent * event)
 {
-    //TODO: This creates a warning, need to find out which window should be the parent
-    NewLoadPatientDialog dialog(Q_NULLPTR, mServices->patient());
-    dialog.exec();
 }
 
 bool PatientWorkflowState::canEnter() const

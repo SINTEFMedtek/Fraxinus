@@ -30,26 +30,25 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
-#ifndef NEWLOADPATIENTDIALOG_H
-#define NEWLOADPATIENTDIALOG_H
+#ifndef NEWLOADPATIENTWIDGET_H
+#define NEWLOADPATIENTWIDGET_H
 
-#include <QDialog>
+#include "cxBaseWidget.h"
 #include <QKeyEvent>
 #include "cxPatientModelService.h"
 
 namespace cx
 {
 
-class NewLoadPatientDialog : public QDialog
+class NewLoadPatientWidget : public BaseWidget
 {
+    Q_OBJECT
 public:
-    NewLoadPatientDialog(QWidget *parent, PatientModelServicePtr patient);
+    NewLoadPatientWidget(QWidget *parent, PatientModelServicePtr patient);
 
 private slots:
     void createNewPatient();
     void loadPatient();
-    void closeDialog();
-    void triggerMainWindowActionWithObjectName(QString actionName);
 
 private:
     PatientModelServicePtr mPatient;
@@ -57,4 +56,4 @@ private:
 
 }
 
-#endif // NEWLOADPATIENTDIALOG_H
+#endif // NEWLOADPATIENTWIDGET_H

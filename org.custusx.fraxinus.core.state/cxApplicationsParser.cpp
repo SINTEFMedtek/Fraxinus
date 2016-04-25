@@ -68,6 +68,7 @@ ApplicationsParser::ApplicationsParser()
     QStringList toolbars;
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
+    desktop.addPreset("NewLoadPatientWidget", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["PatientUid"] = desktop;
     //-----------------------------------------------------
 
