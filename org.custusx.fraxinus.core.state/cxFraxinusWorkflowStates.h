@@ -56,6 +56,7 @@ class VBWidget;
 class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public WorkflowState
 {
 	Q_OBJECT
+	ImagePtr getActiveImage();
 public:
 	FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services);
 	virtual void setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx);
@@ -67,6 +68,7 @@ protected:
 	MeshPtr getRouteTotarget();
 	QMainWindow *getMainWindow();
 	VBWidget *getVBWidget();
+	MeshPtr getAirwaysContour();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PatientWorkflowState: public FraxinusWorkflowState
@@ -132,6 +134,7 @@ class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkfl
 {
 Q_OBJECT
 
+	void showAirwaysAndRouteToTarget();
 public:
 	VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services);
 	virtual ~VirtualBronchoscopyFlyThroughWorkflowState();

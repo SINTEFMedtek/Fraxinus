@@ -52,6 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxPointMetric.h"
 #include "cxRouteToTargetFilterService.h"
 #include "cxVBWidget.h"
+#include "cxViewGroupData.h"
 
 namespace cx
 {
@@ -75,7 +76,19 @@ void FraxinusWorkflowState::useClipper(bool on)
 		ClippersPtr clippers = services->view()->getClippers();
 		InteractiveClipperPtr anyplaneClipper = clippers->getClipper("Any");
 		anyplaneClipper->useClipper(on);
+		anyplaneClipper->setData(this->getActiveImage());
+		anyplaneClipper->invertPlane(true);
 	}
+}
+
+ImagePtr FraxinusWorkflowState::getActiveImage()
+{
+	ActiveDataPtr activeData = mServices->patient()->getActiveData();
+	if(!activeData)
+		return ImagePtr();
+
+	ImagePtr activeImage = activeData->getActive<Image>();
+	return activeImage;
 }
 
 void FraxinusWorkflowState::onEntryDefault()
@@ -111,6 +124,16 @@ MeshPtr FraxinusWorkflowState::getRouteTotarget()
 	return MeshPtr();
 }
 
+MeshPtr FraxinusWorkflowState::getAirwaysContour()
+{
+	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
+	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+	{
+		if(iter->first.contains("_ge"))
+			return iter->second;
+	}
+	return MeshPtr();
+}
 
 QMainWindow* FraxinusWorkflowState::getMainWindow()
 {
@@ -348,8 +371,6 @@ QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup(cstTOOL_STYLE, 1);
-	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
 	this->useClipper(true);
 
 	VBWidget* widget = this->getVBWidget();
@@ -360,6 +381,25 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 		if(routeToTarget)
 			widget->setRouteToTarget(routeToTarget->getUid());
 	}
+
+	this->showAirwaysAndRouteToTarget();
+
+	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
+	this->setCameraStyleInGroup(cstTOOL_STYLE, 2);
+}
+
+void VirtualBronchoscopyFlyThroughWorkflowState::showAirwaysAndRouteToTarget()
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	ViewGroupDataPtr viewGroup = services->view()->getGroup(2);
+
+	MeshPtr routeToTarget = this->getRouteTotarget();
+	if(routeToTarget)
+		viewGroup->addData(routeToTarget->getUid());
+
+	MeshPtr airways = this->getAirwaysContour();
+	if(airways)
+		viewGroup->addData(airways->getUid());
 }
 
 bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
@@ -387,7 +427,7 @@ QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup(cstTOOL_STYLE, 1);
+	this->setCameraStyleInGroup(cstTOOL_STYLE, 2);
 	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
 	this->useClipper(true);
 }
