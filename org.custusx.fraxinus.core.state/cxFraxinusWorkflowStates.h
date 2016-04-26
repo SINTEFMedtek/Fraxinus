@@ -69,6 +69,7 @@ protected:
 	QMainWindow *getMainWindow();
 	VBWidget *getVBWidget();
 	MeshPtr getAirwaysContour();
+	ImagePtr getCTImage();
 protected slots:
 	virtual void setDefaultCameraStyle();
 	virtual void setVBCameraStyle();
@@ -103,7 +104,6 @@ class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public Fraxin
 {
 Q_OBJECT
 
-	void imageSelected();
 	void performAirwaysSegmentation(ImagePtr image);
 public:
     ProcessWorkflowState(QState* parent, CoreServicesPtr services);
@@ -114,6 +114,8 @@ public:
 
 signals:
 	void airwaysSegmented();
+private slots:
+	void imageSelected();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public FraxinusWorkflowState

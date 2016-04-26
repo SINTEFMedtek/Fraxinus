@@ -151,6 +151,18 @@ MeshPtr FraxinusWorkflowState::getAirwaysContour()
 	return MeshPtr();
 }
 
+ImagePtr FraxinusWorkflowState::getCTImage()
+{
+	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();;
+
+	ImagePtr image;
+
+	if (!images.empty())
+		image = images.begin()->second;
+
+	return image;
+}
+
 QMainWindow* FraxinusWorkflowState::getMainWindow()
 {
 	QWidgetList widgets = qApp->topLevelWidgets();
@@ -253,7 +265,9 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 {
 	this->onEntryDefault();
 	this->autoStartHardware();
-	this->imageSelected();
+
+	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
+	QTimer::singleShot(0, this, SLOT(imageSelected()));
 }
 
 void ProcessWorkflowState::imageSelected()
@@ -262,19 +276,15 @@ void ProcessWorkflowState::imageSelected()
 	if(centerline)
 		return;
 
-	ActiveDataPtr activeData = mServices->patient()->getActiveData();
-	if(!activeData)
-		return;
-
-	ImagePtr activeImage = activeData->getActive<Image>();
-	if(!activeImage)
-		return;
-
-	this->performAirwaysSegmentation(activeImage);
+	ImagePtr image = this->getCTImage();
+	this->performAirwaysSegmentation(image);
 }
 
 void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 {
+	if(!image)
+		return;
+
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
 	QProgressDialog progress("Please wait a few minutes for airways segmentation.\n(Program may appear frozen while processing.)", QString(), 0, 0);
