@@ -64,10 +64,11 @@ ApplicationsParser::ApplicationsParser()
 
     //-----------------------------------------------------
     // NEW/LOAD PATIENT
-    desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+    desktop = Desktop("LAYOUT_3D", QByteArray::fromBase64(""));
     QStringList toolbars;
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
+    desktop.addPreset("NewLoadPatientWidget", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["PatientUid"] = desktop;
     //-----------------------------------------------------
 

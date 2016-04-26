@@ -71,6 +71,7 @@ public:
     PatientWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~PatientWorkflowState();
     virtual QIcon getIcon() const;
+    virtual void onEntry(QEvent* event);
     virtual bool canEnter() const;
 };
 
