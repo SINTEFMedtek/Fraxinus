@@ -93,8 +93,24 @@ ImagePtr FraxinusWorkflowState::getActiveImage()
 
 void FraxinusWorkflowState::onEntryDefault()
 {
-	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 0);
 	this->useClipper(false);
+
+	//Hack to make sure camera style is set correnyly
+	//This is needed as set camera style needs the views to be shown before trying to set style
+	QTimer::singleShot(0, this, SLOT(setDefaultCameraStyle()));
+}
+
+void FraxinusWorkflowState::setDefaultCameraStyle()
+{
+	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 0);
+	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 1);
+	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 2);
+}
+
+void FraxinusWorkflowState::setVBCameraStyle()
+{
+	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
+	this->setCameraStyleInGroup(cstTOOL_STYLE, 2);
 }
 
 void FraxinusWorkflowState::onEntry(QEvent * event)
@@ -384,8 +400,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 
 	this->showAirwaysAndRouteToTarget();
 
-	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
-	this->setCameraStyleInGroup(cstTOOL_STYLE, 2);
+	QTimer::singleShot(0, this, SLOT(setVBCameraStyle()));
 }
 
 void VirtualBronchoscopyFlyThroughWorkflowState::showAirwaysAndRouteToTarget()
@@ -427,9 +442,8 @@ QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup(cstTOOL_STYLE, 2);
-	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
 	this->useClipper(true);
+	QTimer::singleShot(0, this, SLOT(setVBCameraStyle()));
 }
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const

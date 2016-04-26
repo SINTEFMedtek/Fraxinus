@@ -69,6 +69,9 @@ protected:
 	QMainWindow *getMainWindow();
 	VBWidget *getVBWidget();
 	MeshPtr getAirwaysContour();
+protected slots:
+	virtual void setDefaultCameraStyle();
+	virtual void setVBCameraStyle();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PatientWorkflowState: public FraxinusWorkflowState
