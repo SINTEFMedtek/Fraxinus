@@ -42,12 +42,19 @@ set(PLUGIN_resources
 #Compute the plugin dependencies
 ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
 set(PLUGIN_target_libraries 
+    PUBLIC
     ${PLUGIN_target_libraries}
+
+    PRIVATE
     cxPluginUtilities
     Qt5::Widgets
     cxResource
     cxResourceVisualization
+    cxResourceFilter
     cxGui
+    org_custusx_filter_airways
+    org_custusx_filter_routetotarget
+    org_custusx_virtualbronchoscopy
     )
 
 set(PLUGIN_OUTPUT_DIR "")
