@@ -32,8 +32,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cxFraxinusWorkflowStates.h"
 #include <QProgressDialog>
-#include <QMainWindow>
+#include <QDialog>
 #include <QApplication>
+#include <QMainWindow>
 #include "cxStateService.h"
 #include "cxSettings.h"
 #include "cxTrackingService.h"
@@ -194,6 +195,10 @@ QIcon PatientWorkflowState::getIcon() const
     return QIcon(":/icons/icons/import.png");
 }
 
+void PatientWorkflowState::onEntry(QEvent * event)
+{
+}
+
 bool PatientWorkflowState::canEnter() const
 {
     return true;
@@ -332,9 +337,6 @@ QIcon PinpointWorkflowState::getIcon() const
 
 bool PinpointWorkflowState::canEnter() const
 {
-// We need to perform patient orientation prior to
-// running and us acq. Thus we need access to the reg mode.
-    //return mBackend->getPatientService()->isPatientValid();
     return true;
 }
 
@@ -429,7 +431,6 @@ void VirtualBronchoscopyFlyThroughWorkflowState::showAirwaysAndRouteToTarget()
 
 bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 {
-    //return mBackend->getPatientService()->isPatientValid();
     return true;
 }
 
