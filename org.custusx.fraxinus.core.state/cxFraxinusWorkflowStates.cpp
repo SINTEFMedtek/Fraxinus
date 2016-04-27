@@ -220,25 +220,6 @@ void ImportWorkflowState::onEntry(QEvent * event)
 	this->onEntryDefault();
 }
 
-void ImportWorkflowState::imageSelected()
-{
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
-
-	ImagePtr activeImage = services->patient()->getActiveData()->getActive<Image>();
-	if(!activeImage)
-		CX_LOG_DEBUG() << "Active image not set";
-
-	airwaysFilter->getInputTypes();
-	airwaysFilter->getOutputTypes();
-	airwaysFilter->getOptions();
-
-	if(airwaysFilter->execute(activeImage))
-		airwaysFilter->postProcess();
-	else
-		CX_LOG_DEBUG() << "airwaysFilter->execute failed";
-}
-
 QIcon ImportWorkflowState::getIcon() const
 {
     return QIcon(":/icons/icons/import.png");
@@ -296,12 +277,15 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 	progress.show();
 
 	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
-	airwaysFilter->getInputTypes();
+	std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
 	airwaysFilter->getOutputTypes();
-//	std::vector<SelectDataStringPropertyBasePtr> outputTypes = airwaysFilter->getOutputTypes();
 	airwaysFilter->getOptions();
 
-	if(airwaysFilter->execute(image))
+	input[0]->setValue(image->getUid());
+
+	if(!airwaysFilter->preProcess())
+		CX_LOG_WARNING() << "Airway segmentation preProcess failed";
+	if(airwaysFilter->execute())
 	{
 		airwaysFilter->postProcess();
 		progress.hide();
