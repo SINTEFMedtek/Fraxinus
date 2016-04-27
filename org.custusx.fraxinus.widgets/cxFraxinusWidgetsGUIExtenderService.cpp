@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctkPluginContext.h"
 #include "cxFiltersWidget.h"
 #include "cxVisServices.h"
+#include "cxPinpointWidget.h"
 
 namespace cx
 {
@@ -50,6 +51,7 @@ std::vector<GUIExtenderService::CategorizedWidget> FraxinusWidgetsGUIExtenderSer
 	std::vector<CategorizedWidget> retval;
     retval.push_back(GUIExtenderService::CategorizedWidget(new FiltersWidget(services, NULL, QStringList("Route to target"), "fraxinus_routetotargetwidget"),"Fraxinus"));
     retval.push_back(GUIExtenderService::CategorizedWidget(new FiltersWidget(services, NULL, QStringList("Airway Segmentation Filter"), "fraxinus_airwaysegmentationwidget"),"Fraxinus"));
+    retval.push_back(GUIExtenderService::CategorizedWidget(new PinpointWidget(services, NULL),"Fraxinus"));
 
 	return retval;
 }

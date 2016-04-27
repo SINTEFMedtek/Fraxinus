@@ -3,14 +3,16 @@ project(org_custusx_fraxinus_widgets)
 set(PLUGIN_export_directive "${PROJECT_NAME}_EXPORT")
 
 set(PLUGIN_SRCS
-  cxFraxinusWidgetsPluginActivator.cpp
-  cxFraxinusWidgetsGUIExtenderService.cpp
+    cxFraxinusWidgetsPluginActivator.cpp
+    cxFraxinusWidgetsGUIExtenderService.cpp
+    cxPinpointWidget.cpp
 )
 
 # Files which should be processed by Qts moc
 set(PLUGIN_MOC_SRCS
-  cxFraxinusWidgetsPluginActivator.h
-  cxFraxinusWidgetsGUIExtenderService.h
+    cxFraxinusWidgetsPluginActivator.h
+    cxFraxinusWidgetsGUIExtenderService.h
+    cxPinpointWidget.h
 )
 
 # Qt Designer files which should be processed by Qts uic

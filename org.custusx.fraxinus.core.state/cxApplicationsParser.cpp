@@ -97,7 +97,7 @@ ApplicationsParser::ApplicationsParser()
 	toolbars.clear();
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset("MetricWidget", Qt::LeftDockWidgetArea, true);
+    desktop.addPreset("PinpointWidget", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["PinpointUid"] = desktop;
 	//-----------------------------------------------------
 
