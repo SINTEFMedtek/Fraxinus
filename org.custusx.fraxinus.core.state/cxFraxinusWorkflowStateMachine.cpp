@@ -33,6 +33,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusWorkflowStateMachine.h"
 #include "cxFraxinusWorkflowStates.h"
 #include "cxVisServices.h"
+#include "cxPatientModelService.h"
+#include "cxActiveData.h"
 
 namespace cx
 {
@@ -40,17 +42,23 @@ namespace cx
 CustusXWorkflowStateMachine::CustusXWorkflowStateMachine(VisServicesPtr services) :
 	WorkflowStateMachine(services)
 {
-
-    WorkflowState* patientWorkflowState = this->newState(new PatientWorkflowState(mParentState, services));
-    this->newState(new ImportWorkflowState(mParentState, services));
-	this->newState(new ProcessWorkflowState(mParentState, services));
-	this->newState(new PinpointWorkflowState(mParentState, services));
-	this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
-	this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
+	WorkflowState* patientWorkflowState = this->newState(new PatientWorkflowState(mParentState, services));
+	WorkflowState* importWorkflowState = this->newState(new ImportWorkflowState(mParentState, services));
+	WorkflowState* processWorkflowState = this->newState(new ProcessWorkflowState(mParentState, services));
+	WorkflowState* pinpointWorkflowState = this->newState(new PinpointWorkflowState(mParentState, services));
+//	WorkflowState* routeToTargetWorkflowState = this->newState(new RouteToTargetWorkflowState(mParentState, services));
+	WorkflowState* virtualBronchoscopyFlyThroughWorkflowState = this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
+	WorkflowState* virtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
 
 	//set initial state on all levels
 	this->setInitialState(mParentState);
-    mParentState->setInitialState(patientWorkflowState);
+	mParentState->setInitialState(patientWorkflowState);
+
+	//Create transitions
+	importWorkflowState->addTransition(mServices->patient().get(), SIGNAL(dataAddedOrRemoved()), processWorkflowState);
+
+	processWorkflowState->addTransition(processWorkflowState, SIGNAL(airwaysSegmented()), pinpointWorkflowState);
+	pinpointWorkflowState->addTransition(pinpointWorkflowState, SIGNAL(routeToTargetCreated()), virtualBronchoscopyFlyThroughWorkflowState);
 }
 
 CustusXWorkflowStateMachine::~CustusXWorkflowStateMachine()

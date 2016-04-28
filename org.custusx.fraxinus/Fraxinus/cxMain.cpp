@@ -50,18 +50,18 @@ void addAdditionalDefaultLayouts()
 	ViewServicePtr viewService = logicManager()->getViewService();
 	{
 		LayoutData layout = LayoutData::create("LAYOUT_VB_FLY_THROUGH", "VB FLY-THROUGH", 3, 5);
-		layout.setView(1, View::VIEW_3D, LayoutRegion(0, 0, 3, 3));
+		layout.setView(2, View::VIEW_3D, LayoutRegion(0, 0, 3, 3));
 		layout.setView(0, View::VIEW_3D, LayoutRegion(0, 3, 1, 2));
-		layout.setView(2, ptAXIAL, LayoutRegion(1, 3, 1, 2));
-		layout.setView(2, ptCORONAL, LayoutRegion(2, 3, 1, 2));
+		layout.setView(1, ptAXIAL, LayoutRegion(1, 3, 1, 2));
+		layout.setView(1, ptCORONAL, LayoutRegion(2, 3, 1, 2));
 		viewService->addDefaultLayout(layout);
 	}
 	{
 		LayoutData layout = LayoutData::create("LAYOUT_VB_CUT_PLANES", "VB CUT-PLANES", 3, 5);
 		layout.setView(0, View::VIEW_3D, LayoutRegion(0, 0, 3, 3));
-		layout.setView(1, View::VIEW_3D, LayoutRegion(0, 3, 1, 2));
-		layout.setView(2, ptAXIAL, LayoutRegion(1, 3, 1, 2));
-		layout.setView(2, ptCORONAL, LayoutRegion(2, 3, 1, 2));
+		layout.setView(2, View::VIEW_3D, LayoutRegion(0, 3, 1, 2));
+		layout.setView(1, ptAXIAL, LayoutRegion(1, 3, 1, 2));
+		layout.setView(1, ptCORONAL, LayoutRegion(2, 3, 1, 2));
 		viewService->addDefaultLayout(layout);
 	}
 }

@@ -6,6 +6,7 @@ set(PLUGIN_SRCS
     cxFraxinusWidgetsPluginActivator.cpp
     cxFraxinusWidgetsGUIExtenderService.cpp
     cxPinpointWidget.cpp
+    cxNewLoadPatientWidget.cpp
 )
 
 # Files which should be processed by Qts moc
@@ -13,6 +14,7 @@ set(PLUGIN_MOC_SRCS
     cxFraxinusWidgetsPluginActivator.h
     cxFraxinusWidgetsGUIExtenderService.h
     cxPinpointWidget.h
+    cxNewLoadPatientWidget.h
 )
 
 # Qt Designer files which should be processed by Qts uic
@@ -33,7 +35,7 @@ set(PLUGIN_target_libraries
     Qt5::Widgets
     cxResourceVisualization #todo: remove (for VisServices, for FilterSetupWidget)
     cxGui #todo: remove (for FilterSetupWidget)
-    cxResourceWidgets #todo: remove? (for cxGui, for FilterSetupWidget)
+    cxResourceWidgets
     cxResource #todo: remove?
     cxResourceFilter
     org_custusx_filter_routetotarget

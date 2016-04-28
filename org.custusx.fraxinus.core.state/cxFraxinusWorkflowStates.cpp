@@ -31,6 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxFraxinusWorkflowStates.h"
+#include <QProgressDialog>
+#include <QDialog>
+#include <QApplication>
+#include <QMainWindow>
 #include "cxStateService.h"
 #include "cxSettings.h"
 #include "cxTrackingService.h"
@@ -41,6 +45,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVisServices.h"
 #include "cxClippers.h"
 #include "cxInteractiveClipper.h"
+#include "cxAirwaysFilterService.h"
+#include "cxActiveData.h"
+#include "cxImage.h"
+#include "cxMesh.h"
+#include "cxSelectDataStringPropertyBase.h"
+#include "cxPointMetric.h"
+#include "cxRouteToTargetFilterService.h"
+#include "cxVBWidget.h"
+#include "cxViewGroupData.h"
 
 namespace cx
 {
@@ -64,13 +77,41 @@ void FraxinusWorkflowState::useClipper(bool on)
 		ClippersPtr clippers = services->view()->getClippers();
 		InteractiveClipperPtr anyplaneClipper = clippers->getClipper("Any");
 		anyplaneClipper->useClipper(on);
+		anyplaneClipper->setData(this->getActiveImage());
+		anyplaneClipper->invertPlane(true);
 	}
+}
+
+ImagePtr FraxinusWorkflowState::getActiveImage()
+{
+	ActiveDataPtr activeData = mServices->patient()->getActiveData();
+	if(!activeData)
+		return ImagePtr();
+
+	ImagePtr activeImage = activeData->getActive<Image>();
+	return activeImage;
 }
 
 void FraxinusWorkflowState::onEntryDefault()
 {
-	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 0);
 	this->useClipper(false);
+
+	//Hack to make sure camera style is set correnyly
+	//This is needed as set camera style needs the views to be shown before trying to set style
+	QTimer::singleShot(0, this, SLOT(setDefaultCameraStyle()));
+}
+
+void FraxinusWorkflowState::setDefaultCameraStyle()
+{
+	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 0);
+	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 1);
+	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 2);
+}
+
+void FraxinusWorkflowState::setVBCameraStyle()
+{
+	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
+	this->setCameraStyleInGroup(cstTOOL_STYLE, 2);
 }
 
 void FraxinusWorkflowState::onEntry(QEvent * event)
@@ -78,6 +119,67 @@ void FraxinusWorkflowState::onEntry(QEvent * event)
 	this->onEntryDefault();
 }
 
+MeshPtr FraxinusWorkflowState::getCenterline()
+{
+	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
+	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+	{
+		if(iter->first.contains("centerline") && !iter->first.contains("_rtt_cl"))
+			return iter->second;
+	}
+	return MeshPtr();
+}
+
+MeshPtr FraxinusWorkflowState::getRouteTotarget()
+{
+	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
+	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+	{
+		if(iter->first.contains("_rtt_cl"))
+			return iter->second;
+	}
+	return MeshPtr();
+}
+
+MeshPtr FraxinusWorkflowState::getAirwaysContour()
+{
+	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
+	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+	{
+		if(iter->first.contains("_ge"))
+			return iter->second;
+	}
+	return MeshPtr();
+}
+
+ImagePtr FraxinusWorkflowState::getCTImage()
+{
+	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();;
+
+	ImagePtr image;
+
+	if (!images.empty())
+		image = images.begin()->second;
+
+	return image;
+}
+
+QMainWindow* FraxinusWorkflowState::getMainWindow()
+{
+	QWidgetList widgets = qApp->topLevelWidgets();
+	for (QWidgetList::iterator i = widgets.begin(); i != widgets.end(); ++i)
+		if ((*i)->objectName() == "MainWindow")
+			return (QMainWindow*) (*i);
+	return NULL;
+}
+
+VBWidget* FraxinusWorkflowState::getVBWidget()
+{
+	QMainWindow* mainWindow = this->getMainWindow();
+
+	QString widgetName("Virtual Bronchoscopy Widget");
+	return mainWindow->findChild<VBWidget*>(widgetName);
+}
 // --------------------------------------------------------
 // --------------------------------------------------------
 
@@ -93,6 +195,10 @@ QIcon PatientWorkflowState::getIcon() const
     return QIcon(":/icons/icons/import.png");
 }
 
+void PatientWorkflowState::onEntry(QEvent * event)
+{
+}
+
 bool PatientWorkflowState::canEnter() const
 {
     return true;
@@ -101,12 +207,37 @@ bool PatientWorkflowState::canEnter() const
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-ImportWorkflowState::ImportWorkflowState(QState* parent, CoreServicesPtr services) :
+ImportWorkflowState::ImportWorkflowState(QState* parent, VisServicesPtr services) :
 	FraxinusWorkflowState(parent, "ImportUid", "Import", services)
-{}
+{
+}
 
 ImportWorkflowState::~ImportWorkflowState()
 {}
+
+void ImportWorkflowState::onEntry(QEvent * event)
+{
+	this->onEntryDefault();
+}
+
+void ImportWorkflowState::imageSelected()
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
+
+	ImagePtr activeImage = services->patient()->getActiveData()->getActive<Image>();
+	if(!activeImage)
+		CX_LOG_DEBUG() << "Active image not set";
+
+	airwaysFilter->getInputTypes();
+	airwaysFilter->getOutputTypes();
+	airwaysFilter->getOptions();
+
+	if(airwaysFilter->execute(activeImage))
+		airwaysFilter->postProcess();
+	else
+		CX_LOG_DEBUG() << "airwaysFilter->execute failed";
+}
 
 QIcon ImportWorkflowState::getIcon() const
 {
@@ -139,6 +270,46 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 {
 	this->onEntryDefault();
 	this->autoStartHardware();
+
+	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
+	QTimer::singleShot(0, this, SLOT(imageSelected()));
+}
+
+void ProcessWorkflowState::imageSelected()
+{
+	DataPtr centerline = this->getCenterline();
+	if(centerline)
+		return;
+
+	ImagePtr image = this->getCTImage();
+	this->performAirwaysSegmentation(image);
+}
+
+void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
+{
+	if(!image)
+		return;
+
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+
+	QProgressDialog progress("Please wait a few minutes for airways segmentation.\n(Program may appear frozen while processing.)", QString(), 0, 0);
+	progress.show();
+
+	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
+	airwaysFilter->getInputTypes();
+	airwaysFilter->getOutputTypes();
+//	std::vector<SelectDataStringPropertyBasePtr> outputTypes = airwaysFilter->getOutputTypes();
+	airwaysFilter->getOptions();
+
+	if(airwaysFilter->execute(image))
+	{
+		airwaysFilter->postProcess();
+		progress.hide();
+		emit airwaysSegmented();
+	}
+	else
+		CX_LOG_WARNING() << "Airway segmentation failed";
+
 }
 
 bool ProcessWorkflowState::canEnter() const
@@ -153,6 +324,7 @@ PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr ser
 	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services)
 {
 	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
 }
 
 PinpointWorkflowState::~PinpointWorkflowState()
@@ -165,10 +337,47 @@ QIcon PinpointWorkflowState::getIcon() const
 
 bool PinpointWorkflowState::canEnter() const
 {
-// We need to perform patient orientation prior to
-// running and us acq. Thus we need access to the reg mode.
-    //return mBackend->getPatientService()->isPatientValid();
     return true;
+}
+
+void PinpointWorkflowState::dataAddedOrRemovedSlot()
+{
+	PointMetricPtr targetPoint = this->getTargetPoint();
+	MeshPtr centerline = this->getCenterline();
+	MeshPtr routeToTarget = this->getRouteTotarget();
+
+	if(targetPoint && centerline && !routeToTarget)
+		this->createRouteToTarget();
+}
+
+void PinpointWorkflowState::createRouteToTarget()
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	RouteToTargetFilterPtr routeToTargetFilter = RouteToTargetFilterPtr(new RouteToTargetFilter(services));
+	std::vector<SelectDataStringPropertyBasePtr> input = routeToTargetFilter->getInputTypes();
+	routeToTargetFilter->getOutputTypes();
+	routeToTargetFilter->getOptions();
+
+	PointMetricPtr targetPoint = this->getTargetPoint();
+	MeshPtr centerline = this->getCenterline();
+
+	input[0]->setValue(centerline->getUid());
+	input[1]->setValue(targetPoint->getUid());
+
+	if(routeToTargetFilter->execute())
+	{
+		routeToTargetFilter->postProcess();
+		emit routeToTargetCreated();
+	}
+}
+
+PointMetricPtr PinpointWorkflowState::getTargetPoint()
+{
+	std::map<QString, PointMetricPtr> metrics = mServices->patient()->getDataOfType<PointMetric>();
+	PointMetricPtr metric;
+	if (!metrics.empty())
+		metric = metrics.begin()->second;
+	return metric;
 }
 
 // --------------------------------------------------------
@@ -190,14 +399,38 @@ QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup(cstTOOL_STYLE, 1);
-	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
 	this->useClipper(true);
+
+	VBWidget* widget = this->getVBWidget();
+
+	if(widget)
+	{
+		MeshPtr routeToTarget = this->getRouteTotarget();
+		if(routeToTarget)
+			widget->setRouteToTarget(routeToTarget->getUid());
+	}
+
+	this->showAirwaysAndRouteToTarget();
+
+	QTimer::singleShot(0, this, SLOT(setVBCameraStyle()));
+}
+
+void VirtualBronchoscopyFlyThroughWorkflowState::showAirwaysAndRouteToTarget()
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	ViewGroupDataPtr viewGroup = services->view()->getGroup(2);
+
+	MeshPtr routeToTarget = this->getRouteTotarget();
+	if(routeToTarget)
+		viewGroup->addData(routeToTarget->getUid());
+
+	MeshPtr airways = this->getAirwaysContour();
+	if(airways)
+		viewGroup->addData(airways->getUid());
 }
 
 bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 {
-    //return mBackend->getPatientService()->isPatientValid();
     return true;
 }
 
@@ -220,9 +453,8 @@ QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
-	this->setCameraStyleInGroup(cstTOOL_STYLE, 1);
-	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
 	this->useClipper(true);
+	QTimer::singleShot(0, this, SLOT(setVBCameraStyle()));
 }
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
