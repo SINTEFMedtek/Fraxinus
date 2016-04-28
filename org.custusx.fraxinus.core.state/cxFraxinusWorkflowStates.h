@@ -97,8 +97,6 @@ public:
     virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
 	virtual void onEntry(QEvent *event);
-private slots:
-	void imageSelected();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public FraxinusWorkflowState
