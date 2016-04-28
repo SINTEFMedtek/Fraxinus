@@ -92,8 +92,9 @@ ImagePtr FraxinusWorkflowState::getActiveImage()
 	return activeImage;
 }
 
-void FraxinusWorkflowState::onEntryDefault()
+void FraxinusWorkflowState::onEntryDefault(QEvent * event)
 {
+	WorkflowState::onEntry(event);
 	this->useClipper(false);
 
 	//Hack to make sure camera style is set correnyly
@@ -116,7 +117,7 @@ void FraxinusWorkflowState::setVBCameraStyle()
 
 void FraxinusWorkflowState::onEntry(QEvent * event)
 {
-	this->onEntryDefault();
+	this->onEntryDefault(event);
 }
 
 MeshPtr FraxinusWorkflowState::getCenterline()
@@ -180,6 +181,7 @@ VBWidget* FraxinusWorkflowState::getVBWidget()
 	QString widgetName("Virtual Bronchoscopy Widget");
 	return mainWindow->findChild<VBWidget*>(widgetName);
 }
+
 // --------------------------------------------------------
 // --------------------------------------------------------
 
@@ -193,10 +195,6 @@ PatientWorkflowState::~PatientWorkflowState()
 QIcon PatientWorkflowState::getIcon() const
 {
     return QIcon(":/icons/icons/import.png");
-}
-
-void PatientWorkflowState::onEntry(QEvent * event)
-{
 }
 
 bool PatientWorkflowState::canEnter() const
@@ -217,7 +215,7 @@ ImportWorkflowState::~ImportWorkflowState()
 
 void ImportWorkflowState::onEntry(QEvent * event)
 {
-	this->onEntryDefault();
+	this->onEntryDefault(event);
 }
 
 QIcon ImportWorkflowState::getIcon() const
@@ -249,7 +247,7 @@ QIcon ProcessWorkflowState::getIcon() const
 
 void ProcessWorkflowState::onEntry(QEvent * event)
 {
-	this->onEntryDefault();
+	this->onEntryDefault(event);
 	this->autoStartHardware();
 
 	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
@@ -383,6 +381,7 @@ QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
+	WorkflowState::onEntry(event);
 	this->useClipper(true);
 
 	VBWidget* widget = this->getVBWidget();
@@ -437,6 +436,7 @@ QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
+	WorkflowState::onEntry(event);
 	this->useClipper(true);
 	QTimer::singleShot(0, this, SLOT(setVBCameraStyle()));
 }
