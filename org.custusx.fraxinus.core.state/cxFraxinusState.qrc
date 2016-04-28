@@ -1,9 +1,10 @@
 <RCC>
     <qresource prefix="/icons">
-        <file>icons/import.png</file>
-        <file>icons/pinpoint.png</file>
-        <file>icons/process.png</file>
-        <file>icons/routetotarget.png</file>
-        <file>icons/virtualbronchoscopy.png</file>
+        <file>icons/airwaysegmentation.svg</file>
+        <file>icons/import.svg</file>
+        <file>icons/patient.svg</file>
+        <file>icons/pinpoint.svg</file>
+        <file>icons/routetotarget.svg</file>
+        <file>icons/vbflythrough.svg</file>
     </qresource>
 </RCC>

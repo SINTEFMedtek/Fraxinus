@@ -1,0 +1,75 @@
+
+	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="256" height="256" viewBox="0 0 100 100">
+
+		<defs>
+			<linearGradient id="middle-1-gradient" gradientUnits="userSpaceOnUse" x1="50" y1="98" x2="50" y2="2" spreadMethod="pad">
+			<stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.1"/>
+			<stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.5"/>
+		</linearGradient><linearGradient id="gloss-top-gradient" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="50" y2="6" spreadMethod="pad">
+			<stop offset="0%" stop-color="#FFFFFF" stop-opacity="0"/>
+			<stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.4"/>
+		</linearGradient><linearGradient id="gloss-right-gradient" gradientUnits="userSpaceOnUse" x1="37" y1="24" x2="92" y2="57" spreadMethod="pad">
+			<stop offset="0%" stop-color="#FFFFFF" stop-opacity="0"/>
+			<stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.4"/>
+		</linearGradient><linearGradient id="gloss-left-gradient" gradientUnits="userSpaceOnUse" x1="63" y1="57" x2="8" y2="24" spreadMethod="pad">
+			<stop offset="0%" stop-color="#FFFFFF" stop-opacity="0"/>
+			<stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.4"/>
+		</linearGradient><g id="background">
+			<path fill="url(#background-gradient)" stroke="none" d=" M 96.1 30.55 Q 92.25 21.6 85.35 14.65 78.45 7.75 69.5 3.95 60.2 0 50.05 0 39.85 0 30.55 3.95 21.55 7.75 14.65 14.65 7.75 21.6 3.95 30.55 0 39.85 0 50.05 0 60.2 3.95 69.5 7.75 78.45 14.65 85.35 21.55 92.25 30.55 96.1 39.85 100 50.05 100 60.2 100 69.5 96.1 78.45 92.25 85.35 85.35 92.25 78.45 96.1 69.5 100 60.2 100 50.05 100 39.85 96.1 30.55 Z"/>
+		</g><g id="middle-1">
+			<path fill="url(#middle-1-gradient)" stroke="none" d=" M 94.1 31.45 Q 90.45 22.85 83.85 16.2 77.2 9.6 68.65 6 59.75 2.2 50.05 2.2 40.3 2.2 31.4 6 22.8 9.6 16.2 16.2 9.6 22.85 5.95 31.45 2.2 40.3 2.2 50.05 2.2 59.75 5.95 68.65 9.6 77.2 16.2 83.85 22.8 90.45 31.4 94.1 40.3 97.85 50.05 97.85 59.75 97.85 68.65 94.1 77.2 90.45 83.85 83.85 90.45 77.2 94.1 68.65 97.85 59.75 97.85 50.05 97.85 40.3 94.1 31.45 M 82.5 17.55 Q 88.85 23.9 92.4 32.15 96 40.7 96 50.05 96 59.4 92.4 67.9 88.85 76.15 82.5 82.5 76.15 88.85 67.9 92.4 59.4 96 50.05 96 40.7 96 32.15 92.4 23.9 88.85 17.55 82.5 11.15 76.15 7.65 67.9 4.05 59.4 4.05 50.05 4.05 40.7 7.65 32.15 11.15 23.9 17.55 17.55 23.9 11.15 32.15 7.7 40.7 4.05 50.05 4.05 59.4 4.05 67.9 7.7 76.15 11.15 82.5 17.55 Z"/>
+		</g><mask id="mask">
+			<path fill="#FFFFFF" stroke="none" d=" M 96.1 30.5 Q 92.25 21.55 85.35 14.65 78.45 7.7 69.5 3.9 60.2 0 50.05 0 39.85 0 30.55 3.9 21.55 7.7 14.65 14.65 7.75 21.55 3.95 30.5 0 39.85 0 50 0 60.15 3.95 69.45 7.75 78.4 14.65 85.3 21.55 92.25 30.55 96.05 39.85 100 50.05 100 60.2 100 69.5 96.05 78.45 92.25 85.35 85.3 92.25 78.4 96.1 69.45 100 60.15 100 50 100 39.85 96.1 30.5 Z"/>
+		</mask><g id="gloss-top">
+			<path fill="url(#gloss-top-gradient)" stroke="none" d=" M 81.5 40.8 Q 84.2 36.05 84.2 30.9 84.2 25.7 81.5 21 78.95 16.4 74.2 12.9 64.2 5.45 50.05 5.45 35.8 5.45 25.8 12.9 15.8 20.35 15.8 30.9 15.8 41.45 25.8 48.9 35.8 56.35 50.05 56.35 64.2 56.35 74.2 48.9 78.95 45.4 81.5 40.8 Z"/>
+		</g><g id="gloss-left">
+			<path fill="url(#gloss-left-gradient)" stroke="none" d=" M 72.2 5.2 Q 61.75 0 50.05 0 39.85 0 30.55 3.95 21.55 7.75 14.65 14.65 7.75 21.6 3.95 30.55 0 39.85 0 50.05 0 59.65 3.55 68.6 7 77.15 13.3 84 13.5 78.65 17.05 71.95 24 58.6 40.6 51.7 57.1 44.85 66.3 24.35 69.15 17.95 70.95 10.95 72.2 5.25 72.2 5.2 Z"/>
+		</g><g id="gloss-right">
+			<path fill="url(#gloss-right-gradient)" stroke="none" d=" M 96.1 30.55 Q 92.25 21.6 85.35 14.65 78.45 7.75 69.45 3.95 60.15 0 50 0 38.25 0 27.8 5.2 27.8 5.25 29 10.95 30.85 17.95 33.7 24.35 42.9 44.85 59.4 51.7 76 58.6 83 71.95 86.5 78.65 86.7 84 93 77.15 96.45 68.6 100 59.65 100 50.05 100 39.85 96.1 30.55 Z"/>
+		</g><g id="x-icon">
+			<path fill="#FF0000" fill-opacity="0" stroke="none" d=" M 57.8 42.2 L 42.2 42.2 42.2 57.8 57.8 57.8 57.8 42.2 Z"/>
+		</g><linearGradient id="x-background-gradient" x1="0" y1="0" y2="1" x2="0">
+			<stop stop-color="#22D3B3" offset="0%"/>
+			<stop stop-color="#01163E" offset="100%"/>
+		</linearGradient>
+			
+	<linearGradient id="background-gradient" x1="0" y1="0" y2="1" x2="0" >
+		<stop stop-color="#4ADCFD" offset="0%"/>
+		<stop stop-color="#0634A7" offset="100%"/>
+	</linearGradient>
+
+			
+			
+			<g transform="scale(0.4366507020251395) translate(-27.220996856689453 -27.222000122070312)" id="picture"><path d="M253.41 56.125c.407-.534.786-1.09 1.116-1.683l.396-.6-.072-.044c.88-1.802 1.387-3.82 1.387-5.96 0-7.513-6.094-13.607-13.608-13.607-4.4 0-8.304 2.1-10.79 5.34L112.75 190.603 55.275 141.02c-.75-.792-1.58-1.51-2.477-2.14l-.077-.064-.004.004c-2.623-1.808-5.798-2.874-9.226-2.874-8.985 0-16.27 7.284-16.27 16.267 0 4.08 1.512 7.798 3.992 10.653l-.01.01 72.32 79.83c2.967 3.954 7.68 6.523 13.004 6.523 5.322 0 10.034-2.57 13.002-6.523h.01l.076-.114c.318-.43.614-.877.89-1.34l122.903-185.13z"/></g>
+			
+	<linearGradient id="picture-gradient" x1="0" y1="0" y2="1" x2="0" >
+		<stop stop-color="#ffffff" offset="0%"/>
+		<stop stop-color="#ffffff" offset="100%"/>
+	</linearGradient>
+
+		</defs>
+
+		
+
+			<use xlink:href="#background" fill="url(#background-gradient)" />
+
+		<use xlink:href="#middle-1" />
+
+			<g mask="url(#mask)">
+				<g transform="
+				        translate(
+                                50 50
+)
+                            translate(0 0)  scale(0.5249999999999999)  
+                            translate(
+                                -50 -50
+)">
+						<use xlink:href="#picture" fill="url(#picture-gradient)"  />
+				</g>
+			</g>
+
+		
+
+			<use xlink:href="#gloss-top" opacity="1" />
+
+	</svg>
