@@ -48,7 +48,7 @@ CustusXWorkflowStateMachine::CustusXWorkflowStateMachine(VisServicesPtr services
 	WorkflowState* pinpointWorkflowState = this->newState(new PinpointWorkflowState(mParentState, services));
 //	WorkflowState* routeToTargetWorkflowState = this->newState(new RouteToTargetWorkflowState(mParentState, services));
 	WorkflowState* virtualBronchoscopyFlyThroughWorkflowState = this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
-	WorkflowState* virtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
+    WorkflowState* virtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
 
 	//set initial state on all levels
 	this->setInitialState(mParentState);

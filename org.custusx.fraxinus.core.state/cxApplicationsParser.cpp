@@ -120,7 +120,7 @@ ApplicationsParser::ApplicationsParser()
 	desktop.addPreset("ClippingPropertiesWidget", Qt::LeftDockWidgetArea, true);
 	desktop.addPreset("Virtual Bronchoscopy Widget", Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["VirtualBronchoscopyCutPlanesUid"] = desktop;
-	//-----------------------------------------------------
+    //-----------------------------------------------------
 
 }
 
