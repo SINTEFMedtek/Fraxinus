@@ -144,6 +144,7 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("TrackingPositionFilter/enabled", false);
 	this->fillDefault("backgroundColor", QColor("black"));
 	this->fillDefault("View/shadingOn", false);
+	this->fillDefault("showManualTool", true);
 }
 
 
