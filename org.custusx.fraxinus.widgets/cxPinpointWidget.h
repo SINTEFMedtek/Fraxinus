@@ -35,7 +35,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cxBaseWidget.h"
 
+class QLineEdit;
+
 namespace cx {
+
 typedef boost::shared_ptr<class MetricManager> MetricManagerPtr;
 typedef boost::shared_ptr<class PointMetric> PointMetricPtr;
 typedef boost::shared_ptr<class VisServices> VisServicesPtr;
@@ -50,12 +53,15 @@ private slots:
     void setPointMetric();
     void centerToImage();
     void targetNameChanged(const QString &text);
+    void loadNameOfPointMetric();
 
 private:
     void createPointMetric();
     void updateCoordinateOfPointMetric();
-    void updateNameOfPointMetric();
+    void setNameOfPointMetric();
+    QString getNameOfPointMetric() const;
 
+    QLineEdit *mPointMetricNameLineEdit;
     VisServicesPtr mServices;
     MetricManagerPtr mMetricManager;
     QString mMetricUid;
