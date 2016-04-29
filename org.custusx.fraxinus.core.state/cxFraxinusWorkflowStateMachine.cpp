@@ -57,7 +57,6 @@ CustusXWorkflowStateMachine::CustusXWorkflowStateMachine(VisServicesPtr services
 
 	//Create transitions
 	mPatientWorkflowState->addTransition(mServices->patient().get(), SIGNAL(patientChanged()), mImportWorkflowState);
-//	mImportWorkflowState->addTransition(mServices->patient().get(), SIGNAL(dataAddedOrRemoved()), mProcessWorkflowState);
 	mImportWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
 	mProcessWorkflowState->addTransition(mProcessWorkflowState, SIGNAL(airwaysSegmented()), mPinpointWorkflowState);
 	mPinpointWorkflowState->addTransition(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState);
