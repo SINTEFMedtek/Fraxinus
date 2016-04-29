@@ -1,0 +1,51 @@
+
+	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="256" height="256" viewBox="0 0 100 100">
+
+		<defs>
+			<g id="background">
+<path fill="url(#background-gradient)" stroke="none" d=" M 100 18.4 Q 100 10.8 94.6 5.4 89.05 0 81.6 0 L 18.4 0 Q 10.8 0 5.4 5.4 0 10.8 0 18.4 L 0 81.6 Q 0 89.05 5.4 94.6 10.8 100 18.4 100 L 81.6 100 Q 89.05 100 94.6 94.6 100 89.05 100 81.6 L 100 18.4 Z"/>
+</g><g id="middle-1">
+<path fill="#FFFFFF" fill-opacity="0.30196078431372547" stroke="none" d=" M 100 19.2 Q 100 11.15 94.4 5.65 88.75 0 80.8 0 L 19.2 0 Q 11.15 0 5.65 5.65 0 11.15 0 19.2 L 0 80.8 Q 0 88.75 5.65 94.4 11.15 100 19.2 100 L 80.8 100 Q 88.75 100 94.4 94.4 100 88.75 100 80.8 L 100 19.2 M 82.5 6.1 Q 87.2 6.1 90.55 9.45 93.8 12.7 93.8 17.4 L 93.8 82.5 Q 93.8 87.2 90.55 90.55 87.2 93.8 82.5 93.8 L 17.4 93.8 Q 12.7 93.8 9.45 90.55 6.1 87.2 6.1 82.5 L 6.1 17.4 Q 6.1 12.7 9.45 9.45 12.7 6.1 17.4 6.1 L 82.5 6.1 Z"/>
+</g><mask id="mask">
+<path fill="#FFFFFF" stroke="none" d=" M 100 18.4 Q 100 10.8 94.6 5.4 89.05 0 81.6 0 L 18.4 0 Q 10.8 0 5.4 5.4 0 10.8 0 18.4 L 0 81.6 Q 0 89.05 5.4 94.6 10.8 100 18.4 100 L 81.6 100 Q 89.05 100 94.6 94.6 100 89.05 100 81.6 L 100 18.4 Z"/>
+</mask>
+			
+	<linearGradient id="background-gradient" x1="0" y1="0" y2="1" x2="0" >
+		<stop stop-color="#0038f2" offset="0%"/>
+		<stop stop-color="#0038f2" offset="100%"/>
+	</linearGradient>
+
+			
+			
+			<g transform="scale(0.4366507020251395) translate(-27.220996856689453 -27.222000122070312)" id="picture"><path d="M253.41 56.125c.407-.534.786-1.09 1.116-1.683l.396-.6-.072-.044c.88-1.802 1.387-3.82 1.387-5.96 0-7.513-6.094-13.607-13.608-13.607-4.4 0-8.304 2.1-10.79 5.34L112.75 190.603 55.275 141.02c-.75-.792-1.58-1.51-2.477-2.14l-.077-.064-.004.004c-2.623-1.808-5.798-2.874-9.226-2.874-8.985 0-16.27 7.284-16.27 16.267 0 4.08 1.512 7.798 3.992 10.653l-.01.01 72.32 79.83c2.967 3.954 7.68 6.523 13.004 6.523 5.322 0 10.034-2.57 13.002-6.523h.01l.076-.114c.318-.43.614-.877.89-1.34l122.903-185.13z"/></g>
+			
+	<linearGradient id="picture-gradient" x1="0" y1="0" y2="1" x2="0" >
+		<stop stop-color="#ffffff" offset="0%"/>
+		<stop stop-color="#ffffff" offset="100%"/>
+	</linearGradient>
+
+		</defs>
+
+		
+
+			<use xlink:href="#background" fill="url(#background-gradient)" />
+
+		<use xlink:href="#middle-1" />
+
+			<g mask="url(#mask)">
+				<g transform="
+				        translate(
+                                50 50
+)
+                            translate(0 0)  scale(0.5249999999999999)  
+                            translate(
+                                -50 -50
+)">
+						<use xlink:href="#picture" fill="url(#picture-gradient)"  />
+				</g>
+			</g>
+
+		
+
+
+	</svg>
