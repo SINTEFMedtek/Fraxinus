@@ -32,9 +32,9 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 
     QVBoxLayout *v_layout = new QVBoxLayout();
     QHBoxLayout *h_layout = new QHBoxLayout();
-    h_layout->addWidget(setPointMetric);
     h_layout->addWidget(pointMetricName);
     h_layout->addWidget(centerToImage);
+    h_layout->addWidget(setPointMetric);
     h_layout->addStretch();
     v_layout->addLayout(h_layout);
     v_layout->addStretch();
