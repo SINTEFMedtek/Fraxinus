@@ -58,8 +58,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cx
 {
 
-FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services) :
-	WorkflowState(parent, uid, name, services)
+FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction) :
+	WorkflowState(parent, uid, name, services, enableAction)
 {}
 
 void FraxinusWorkflowState::setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx)
@@ -186,7 +186,7 @@ VBWidget* FraxinusWorkflowState::getVBWidget()
 // --------------------------------------------------------
 
 PatientWorkflowState::PatientWorkflowState(QState* parent, CoreServicesPtr services) :
-    FraxinusWorkflowState(parent, "PatientUid", "New/Load Patient", services)
+	FraxinusWorkflowState(parent, "PatientUid", "New/Load Patient", services)
 {}
 
 PatientWorkflowState::~PatientWorkflowState()
@@ -206,7 +206,7 @@ bool PatientWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 ImportWorkflowState::ImportWorkflowState(QState* parent, VisServicesPtr services) :
-	FraxinusWorkflowState(parent, "ImportUid", "Import", services)
+	FraxinusWorkflowState(parent, "ImportUid", "Import", services, false)
 {
 }
 
@@ -232,7 +232,7 @@ bool ImportWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 ProcessWorkflowState::ProcessWorkflowState(QState* parent, CoreServicesPtr services) :
-	FraxinusWorkflowState(parent, "ProcessUid", "Process", services)
+	FraxinusWorkflowState(parent, "ProcessUid", "Process", services, false)
 {
 	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
@@ -303,7 +303,7 @@ bool ProcessWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr services) :
-	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services)
+	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services, false)
 {
 	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
@@ -366,7 +366,7 @@ PointMetricPtr PinpointWorkflowState::getTargetPoint()
 // --------------------------------------------------------
 
 VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services) :
-	FraxinusWorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services)
+	FraxinusWorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services, false)
 {
 	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
@@ -421,7 +421,7 @@ bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, VisServicesPtr services) :
-	FraxinusWorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services)
+	FraxinusWorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services, false)
 {
 	connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }

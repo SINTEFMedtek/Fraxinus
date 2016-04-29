@@ -56,7 +56,18 @@ class org_custusx_fraxinus_core_state_EXPORT CustusXWorkflowStateMachine : publi
 Q_OBJECT
 public:
 		CustusXWorkflowStateMachine(VisServicesPtr services);
-        virtual ~CustusXWorkflowStateMachine();
+		virtual ~CustusXWorkflowStateMachine();
+private slots:
+		void enableStatesSlot();
+private:
+		void enableStates(bool enable);
+
+		WorkflowState* mPatientWorkflowState;
+		WorkflowState* mImportWorkflowState;
+		WorkflowState* mProcessWorkflowState;
+		WorkflowState* mPinpointWorkflowState;
+		WorkflowState* mVirtualBronchoscopyFlyThroughWorkflowState;
+		WorkflowState* mVirtualBronchoscopyCutPlanesWorkflowState;
 };
 
 typedef boost::shared_ptr<CustusXWorkflowStateMachine> CustusXWorkflowStateMachinePtr;

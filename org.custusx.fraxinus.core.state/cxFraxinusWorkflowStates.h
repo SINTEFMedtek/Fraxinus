@@ -58,7 +58,7 @@ class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public Work
 	Q_OBJECT
 	ImagePtr getActiveImage();
 public:
-	FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services);
+	FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction = true);
 	virtual void setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx);
 	virtual void onEntry(QEvent* event);
 protected:
