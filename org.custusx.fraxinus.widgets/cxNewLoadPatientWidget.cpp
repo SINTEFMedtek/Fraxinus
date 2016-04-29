@@ -19,11 +19,11 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, PatientModelServiceP
     this->setWindowTitle("Create or select patient");
 
     QPushButton* newButton = new QPushButton("&New Patient");
-    newButton->setIcon(QIcon(":/icons/icons/import.png"));
+    newButton->setIcon(QIcon(":/icons/icons/add.svg"));
     connect(newButton, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatient);
 
     QPushButton* loadButton = new QPushButton("&Load Patient");
-    loadButton->setIcon(QIcon(":/icons/icons/import.png"));
+    loadButton->setIcon(QIcon(":/icons/icons/select.svg"));
     connect(loadButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadPatient);
 
     QVBoxLayout* layout = new QVBoxLayout(this);

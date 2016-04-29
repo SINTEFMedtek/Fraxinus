@@ -2,7 +2,12 @@ project(org_custusx_fraxinus_widgets)
 
 set(PLUGIN_export_directive "${PROJECT_NAME}_EXPORT")
 
+qt5_add_resources(fraxinus_widgets_resources
+    cxFraxinusWidgets.qrc
+)
+
 set(PLUGIN_SRCS
+    ${fraxinus_widgets_resources}
     cxFraxinusWidgetsPluginActivator.cpp
     cxFraxinusWidgetsGUIExtenderService.cpp
     cxPinpointWidget.cpp
