@@ -59,6 +59,9 @@ public:
 		virtual ~CustusXWorkflowStateMachine();
 private slots:
 		void enableStatesSlot();
+		void dataAddedOrRemovedSlot();
+signals:
+		void dataAdded();
 private:
 		void enableStates(bool enable);
 

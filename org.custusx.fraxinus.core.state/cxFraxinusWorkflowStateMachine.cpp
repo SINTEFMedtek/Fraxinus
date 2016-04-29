@@ -57,11 +57,12 @@ CustusXWorkflowStateMachine::CustusXWorkflowStateMachine(VisServicesPtr services
 
 	//Create transitions
 	mPatientWorkflowState->addTransition(mServices->patient().get(), SIGNAL(patientChanged()), mImportWorkflowState);
-	mImportWorkflowState->addTransition(mServices->patient().get(), SIGNAL(dataAddedOrRemoved()), mProcessWorkflowState);
+	mImportWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
 	mProcessWorkflowState->addTransition(mProcessWorkflowState, SIGNAL(airwaysSegmented()), mPinpointWorkflowState);
 	mPinpointWorkflowState->addTransition(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState);
 
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &CustusXWorkflowStateMachine::enableStatesSlot);
+	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &CustusXWorkflowStateMachine::dataAddedOrRemovedSlot);
 }
 
 CustusXWorkflowStateMachine::~CustusXWorkflowStateMachine()
@@ -80,7 +81,12 @@ void CustusXWorkflowStateMachine::enableStates(bool enable)
 	mPinpointWorkflowState->enableAction(enable);
 	mVirtualBronchoscopyFlyThroughWorkflowState->enableAction(enable);
 	mVirtualBronchoscopyCutPlanesWorkflowState->enableAction(enable);
+}
 
+void CustusXWorkflowStateMachine::dataAddedOrRemovedSlot()
+{
+	if(mServices->patient()->getData().size() > 0)
+		emit dataAdded();
 }
 
 } //namespace cx
