@@ -117,10 +117,9 @@ ApplicationsParser::ApplicationsParser()
 	toolbars.clear();
     toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset("ClippingPropertiesWidget", Qt::LeftDockWidgetArea, true);
 	desktop.addPreset("Virtual Bronchoscopy Widget", Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["VirtualBronchoscopyCutPlanesUid"] = desktop;
-	//-----------------------------------------------------
+    //-----------------------------------------------------
 
 }
 
