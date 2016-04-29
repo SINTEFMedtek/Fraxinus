@@ -287,6 +287,7 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
     {
         airwaysFilter->postProcess();
         progress.hide();
+        this->getAirwaysContour()->setColor("#FFCCCC");
         emit airwaysSegmented();
     }
     else
