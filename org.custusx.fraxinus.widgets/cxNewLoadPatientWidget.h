@@ -49,6 +49,7 @@ public:
 private slots:
     void createNewPatient();
     void loadPatient();
+    void restoreToFactorySettings();
 
 private:
     PatientModelServicePtr mPatient;

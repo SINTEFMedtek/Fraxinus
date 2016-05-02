@@ -8,6 +8,8 @@
 
 #include "cxApplication.h"
 #include "cxLogger.h"
+#include "cxLogicManager.h"
+#include "cxDataLocations.h"
 
 namespace cx
 {
@@ -26,9 +28,13 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, PatientModelServiceP
     loadButton->setIcon(QIcon(":/icons/icons/select.svg"));
     connect(loadButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadPatient);
 
+    QPushButton* restoreToFactorySettingsButton = new QPushButton("&Restore factory settings");
+    connect(restoreToFactorySettingsButton, &QPushButton::clicked, this, &NewLoadPatientWidget::restoreToFactorySettings);
+
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->addWidget(newButton);
     layout->addWidget(loadButton);
+    layout->addWidget(restoreToFactorySettingsButton);
     layout->addStretch();
     this->setLayout(layout);
 }
@@ -43,6 +49,12 @@ void NewLoadPatientWidget::loadPatient()
 {
     QString actionName = "LoadFile";
     triggerMainWindowActionWithObjectName(actionName);
+}
+
+void NewLoadPatientWidget::restoreToFactorySettings()
+{
+    DataLocations::deletePersistentWritablePath();
+    LogicManager::getInstance()->restartServicesWithProfile("Bronchoscopy");
 }
 
 

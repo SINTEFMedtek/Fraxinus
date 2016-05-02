@@ -130,7 +130,7 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("Automation/autoReconstruct", false);
 	this->fillDefault("Automation/autoSelectActiveTool", true);
 	this->fillDefault("Automation/autoSave", true);
-	this->fillDefault("Automation/autoLoadRecentPatient", true);
+	this->fillDefault("Automation/autoLoadRecentPatient", false);
 	this->fillDefault("Automation/autoLoadRecentPatientWithinHours", 8);
 	this->fillDefault("Automation/autoShowNewData", true);
 	this->fillDefault("Automation/autoShowNewDataInViewGroup0", true);
@@ -144,6 +144,7 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("TrackingPositionFilter/enabled", false);
 	this->fillDefault("backgroundColor", QColor("black"));
 	this->fillDefault("View/shadingOn", false);
+	this->fillDefault("showManualTool", true);
 }
 
 

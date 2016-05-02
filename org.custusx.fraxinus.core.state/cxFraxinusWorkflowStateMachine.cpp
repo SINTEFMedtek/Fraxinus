@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVisServices.h"
 #include "cxPatientModelService.h"
 #include "cxActiveData.h"
+#include "cxLogger.h"
 
 namespace cx
 {
@@ -42,26 +43,50 @@ namespace cx
 CustusXWorkflowStateMachine::CustusXWorkflowStateMachine(VisServicesPtr services) :
 	WorkflowStateMachine(services)
 {
-	WorkflowState* patientWorkflowState = this->newState(new PatientWorkflowState(mParentState, services));
-	WorkflowState* importWorkflowState = this->newState(new ImportWorkflowState(mParentState, services));
-	WorkflowState* processWorkflowState = this->newState(new ProcessWorkflowState(mParentState, services));
-	WorkflowState* pinpointWorkflowState = this->newState(new PinpointWorkflowState(mParentState, services));
-//	WorkflowState* routeToTargetWorkflowState = this->newState(new RouteToTargetWorkflowState(mParentState, services));
-	WorkflowState* virtualBronchoscopyFlyThroughWorkflowState = this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
-    WorkflowState* virtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
+	mPatientWorkflowState = this->newState(new PatientWorkflowState(mParentState, services));
+	mImportWorkflowState = this->newState(new ImportWorkflowState(mParentState, services));
+	mProcessWorkflowState = this->newState(new ProcessWorkflowState(mParentState, services));
+	mPinpointWorkflowState = this->newState(new PinpointWorkflowState(mParentState, services));
+//	routeToTargetWorkflowState = this->newState(new RouteToTargetWorkflowState(mParentState, services));
+	mVirtualBronchoscopyFlyThroughWorkflowState = this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
+	mVirtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
 
 	//set initial state on all levels
 	this->setInitialState(mParentState);
-	mParentState->setInitialState(patientWorkflowState);
+	mParentState->setInitialState(mPatientWorkflowState);
 
 	//Create transitions
-	importWorkflowState->addTransition(mServices->patient().get(), SIGNAL(dataAddedOrRemoved()), processWorkflowState);
+	mPatientWorkflowState->addTransition(mServices->patient().get(), SIGNAL(patientChanged()), mImportWorkflowState);
+	mImportWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
+	mProcessWorkflowState->addTransition(mProcessWorkflowState, SIGNAL(airwaysSegmented()), mPinpointWorkflowState);
+	mPinpointWorkflowState->addTransition(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState);
 
-	processWorkflowState->addTransition(processWorkflowState, SIGNAL(airwaysSegmented()), pinpointWorkflowState);
-	pinpointWorkflowState->addTransition(pinpointWorkflowState, SIGNAL(routeToTargetCreated()), virtualBronchoscopyFlyThroughWorkflowState);
+	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &CustusXWorkflowStateMachine::enableStatesSlot);
+	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &CustusXWorkflowStateMachine::dataAddedOrRemovedSlot);
 }
 
 CustusXWorkflowStateMachine::~CustusXWorkflowStateMachine()
 {}
+
+
+void CustusXWorkflowStateMachine::enableStatesSlot()
+{
+	this->enableStates(true);
+}
+
+void CustusXWorkflowStateMachine::enableStates(bool enable)
+{
+	mImportWorkflowState->enableAction(enable);
+	mProcessWorkflowState->enableAction(enable);
+	mPinpointWorkflowState->enableAction(enable);
+	mVirtualBronchoscopyFlyThroughWorkflowState->enableAction(enable);
+	mVirtualBronchoscopyCutPlanesWorkflowState->enableAction(enable);
+}
+
+void CustusXWorkflowStateMachine::dataAddedOrRemovedSlot()
+{
+	if(mServices->patient()->getData().size() > 0)
+		emit dataAdded();
+}
 
 } //namespace cx

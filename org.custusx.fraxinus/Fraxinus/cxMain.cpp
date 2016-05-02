@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxLayoutData.h"
 #include "cxView.h"
 #include "cxDataLocations.h"
+#include "cxProfile.h"
 
 
 namespace cx
@@ -85,6 +86,8 @@ int main(int argc, char *argv[])
 
   cx::DataLocations::setWebsiteURL("http://www.custusx.org/fraxinus");
   cx::ApplicationComponentPtr mainwindow(new cx::MainWindowApplicationComponent<cx::MainWindow>());
+
+  cx::ProfileManager::getInstance("Bronchoscopy");
   cx::LogicManager::initialize(mainwindow);
 
   cx::addAdditionalDefaultLayouts();

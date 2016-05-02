@@ -58,8 +58,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cx
 {
 
-FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services) :
-    WorkflowState(parent, uid, name, services)
+FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction) :
+	WorkflowState(parent, uid, name, services, enableAction)
 {}
 
 void FraxinusWorkflowState::setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx)
@@ -92,9 +92,10 @@ ImagePtr FraxinusWorkflowState::getActiveImage()
     return activeImage;
 }
 
-void FraxinusWorkflowState::onEntryDefault()
+void FraxinusWorkflowState::onEntryDefault(QEvent * event)
 {
-    this->useClipper(false);
+	WorkflowState::onEntry(event);
+	this->useClipper(false);
 
     //Hack to make sure camera style is set correnyly
     //This is needed as set camera style needs the views to be shown before trying to set style
@@ -116,7 +117,7 @@ void FraxinusWorkflowState::setVBCameraStyle()
 
 void FraxinusWorkflowState::onEntry(QEvent * event)
 {
-    this->onEntryDefault();
+	this->onEntryDefault(event);
 }
 
 MeshPtr FraxinusWorkflowState::getCenterline()
@@ -180,11 +181,12 @@ VBWidget* FraxinusWorkflowState::getVBWidget()
     QString widgetName("Virtual Bronchoscopy Widget");
     return mainWindow->findChild<VBWidget*>(widgetName);
 }
+
 // --------------------------------------------------------
 // --------------------------------------------------------
 
 PatientWorkflowState::PatientWorkflowState(QState* parent, CoreServicesPtr services) :
-    FraxinusWorkflowState(parent, "PatientUid", "New/Load Patient", services)
+	FraxinusWorkflowState(parent, "PatientUid", "New/Load Patient", services)
 {}
 
 PatientWorkflowState::~PatientWorkflowState()
@@ -193,10 +195,6 @@ PatientWorkflowState::~PatientWorkflowState()
 QIcon PatientWorkflowState::getIcon() const
 {
     return QIcon(":/icons/icons/patient.svg");
-}
-
-void PatientWorkflowState::onEntry(QEvent * event)
-{
 }
 
 bool PatientWorkflowState::canEnter() const
@@ -208,7 +206,7 @@ bool PatientWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 ImportWorkflowState::ImportWorkflowState(QState* parent, VisServicesPtr services) :
-    FraxinusWorkflowState(parent, "ImportUid", "Import", services)
+	FraxinusWorkflowState(parent, "ImportUid", "Import", services, false)
 {
 }
 
@@ -217,7 +215,7 @@ ImportWorkflowState::~ImportWorkflowState()
 
 void ImportWorkflowState::onEntry(QEvent * event)
 {
-    this->onEntryDefault();
+	this->onEntryDefault(event);
 }
 
 QIcon ImportWorkflowState::getIcon() const
@@ -234,7 +232,7 @@ bool ImportWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 ProcessWorkflowState::ProcessWorkflowState(QState* parent, CoreServicesPtr services) :
-    FraxinusWorkflowState(parent, "ProcessUid", "Process", services)
+	FraxinusWorkflowState(parent, "ProcessUid", "Process", services, false)
 {
     connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
@@ -249,8 +247,8 @@ QIcon ProcessWorkflowState::getIcon() const
 
 void ProcessWorkflowState::onEntry(QEvent * event)
 {
-    this->onEntryDefault();
-    this->autoStartHardware();
+	this->onEntryDefault(event);
+	this->autoStartHardware();
 
     //Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
     QTimer::singleShot(0, this, SLOT(imageSelected()));
@@ -289,6 +287,7 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
     {
         airwaysFilter->postProcess();
         progress.hide();
+        this->getAirwaysContour()->setColor("#FFCCCC");
         emit airwaysSegmented();
     }
     else
@@ -305,7 +304,7 @@ bool ProcessWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr services) :
-    FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services)
+	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services, false)
 {
     connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
     connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
@@ -368,7 +367,7 @@ PointMetricPtr PinpointWorkflowState::getTargetPoint()
 // --------------------------------------------------------
 
 VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services) :
-    FraxinusWorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services)
+	FraxinusWorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services, false)
 {
     connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
@@ -383,7 +382,8 @@ QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
-    this->useClipper(true);
+	WorkflowState::onEntry(event);
+	this->useClipper(true);
 
     VBWidget* widget = this->getVBWidget();
 
@@ -422,7 +422,7 @@ bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, VisServicesPtr services) :
-    FraxinusWorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services)
+	FraxinusWorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services, false)
 {
     connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
 }
@@ -437,8 +437,9 @@ QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
-    this->useClipper(true);
-    QTimer::singleShot(0, this, SLOT(setVBCameraStyle()));
+	WorkflowState::onEntry(event);
+	this->useClipper(true);
+	QTimer::singleShot(0, this, SLOT(setVBCameraStyle()));
 }
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const

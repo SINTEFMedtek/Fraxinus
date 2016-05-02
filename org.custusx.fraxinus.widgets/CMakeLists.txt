@@ -43,6 +43,7 @@ set(PLUGIN_target_libraries
     cxResourceWidgets
     cxResource #todo: remove?
     cxResourceFilter
+	cxLogicManager
     org_custusx_filter_routetotarget
     org_custusx_filter_tubesegmentation
     )
