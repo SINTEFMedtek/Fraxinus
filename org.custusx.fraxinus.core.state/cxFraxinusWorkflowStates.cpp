@@ -328,6 +328,7 @@ PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr ser
 {
     connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
     connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
+    connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
 }
 
 PinpointWorkflowState::~PinpointWorkflowState()
@@ -350,7 +351,26 @@ void PinpointWorkflowState::dataAddedOrRemovedSlot()
     MeshPtr routeToTarget = this->getRouteTotarget();
 
     if(targetPoint && centerline && !routeToTarget)
+    {
         this->createRouteToTarget();
+        connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::updateRouteToTarget);
+    }
+}
+
+void PinpointWorkflowState::updateRouteToTarget()
+{
+    std::cout << "1" << std::endl;
+    MeshPtr routeToTarget = this->getRouteTotarget();
+    std::cout << "2" << std::endl;
+    if(routeToTarget)
+    {
+        std::cout << "2.1" << std::endl;
+        mServices->patient()->removeData(routeToTarget->getUid());
+        std::cout << "2.2" << std::endl;
+        this->dataAddedOrRemovedSlot();
+        std::cout << "2.3" << std::endl;
+    }
+    std::cout << "3" << std::endl;
 }
 
 void PinpointWorkflowState::createRouteToTarget()

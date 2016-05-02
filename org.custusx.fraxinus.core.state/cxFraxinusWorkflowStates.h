@@ -140,7 +140,8 @@ public:
 signals:
 	void routeToTargetCreated();
 private slots:
-	void dataAddedOrRemovedSlot();
+    void dataAddedOrRemovedSlot();
+    void updateRouteToTarget();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkflowState: public FraxinusWorkflowState
