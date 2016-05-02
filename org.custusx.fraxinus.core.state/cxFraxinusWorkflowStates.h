@@ -40,11 +40,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QStateMachine>
 #include <QString>
 #include <QAction>
+#include <QDialog>
 #include "cxTypeConversions.h"
 #include "cxRequestEnterStateTransition.h"
 #include "cxWorkflowState.h"
 #include "boost/shared_ptr.hpp"
 #include "cxViewService.h"
+#include "cxFilterTimedAlgorithm.h"
+#include "cxTimedAlgorithmProgressBar.h"
 
 class QMainWindow;
 
@@ -113,6 +116,14 @@ signals:
 	void airwaysSegmented();
 private slots:
 	void imageSelected();
+    void runFilterSlot();
+    void finishedSlot();
+
+private:
+    FilterPtr mCurrentFilter;
+    FilterTimedAlgorithmPtr mThread;
+    TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
+    QDialog dialog;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public FraxinusWorkflowState

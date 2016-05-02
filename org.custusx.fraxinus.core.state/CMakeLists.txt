@@ -49,6 +49,7 @@ set(PLUGIN_target_libraries
     cxPluginUtilities
     Qt5::Widgets
     cxResource
+	cxResourceWidgets
     cxResourceVisualization
     cxResourceFilter
     cxGui

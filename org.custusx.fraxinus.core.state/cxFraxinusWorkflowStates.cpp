@@ -31,10 +31,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxFraxinusWorkflowStates.h"
-#include <QProgressDialog>
-#include <QDialog>
 #include <QApplication>
 #include <QMainWindow>
+#include <QLayout>
 #include "cxStateService.h"
 #include "cxSettings.h"
 #include "cxTrackingService.h"
@@ -235,6 +234,11 @@ ProcessWorkflowState::ProcessWorkflowState(QState* parent, CoreServicesPtr servi
 	FraxinusWorkflowState(parent, "ProcessUid", "Process", services, false)
 {
     connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+    mTimedAlgorithmProgressBar = new cx::TimedAlgorithmProgressBar;
+
+    QHBoxLayout *layout = new QHBoxLayout();
+    layout->addWidget(mTimedAlgorithmProgressBar);
+    dialog.setLayout(layout);
 }
 
 ProcessWorkflowState::~ProcessWorkflowState()
@@ -270,9 +274,7 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
         return;
 
     VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-
-    QProgressDialog progress("Please wait a few minutes for airways segmentation.\n(Program may appear frozen while processing.)", QString(), 0, 0);
-    progress.show();
+    dialog.show();
 
     AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
     std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
@@ -281,18 +283,36 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 
     input[0]->setValue(image->getUid());
 
-    if(!airwaysFilter->preProcess())
-        CX_LOG_WARNING() << "Airway segmentation preProcess failed";
-    if(airwaysFilter->execute())
-    {
-        airwaysFilter->postProcess();
-        progress.hide();
-        this->getAirwaysContour()->setColor("#FFCCCC");
-        emit airwaysSegmented();
-    }
-    else
-        CX_LOG_WARNING() << "Airway segmentation failed";
+    mCurrentFilter = airwaysFilter;
+    this->runFilterSlot();
 
+}
+
+void ProcessWorkflowState::runFilterSlot()
+{
+    if (!mCurrentFilter)
+        return;
+    if (mThread)
+    {
+        reportWarning(QString("Last operation on %1 is not finished. Could not start filtering").arg(mThread->getFilter()->getName()));
+        return;
+    }
+    mThread.reset(new FilterTimedAlgorithm(mCurrentFilter));
+    connect(mThread.get(), SIGNAL(finished()), this, SLOT(finishedSlot()));
+    mTimedAlgorithmProgressBar->attach(mThread);
+
+    mThread->execute();
+}
+
+void ProcessWorkflowState::finishedSlot()
+{
+
+    mTimedAlgorithmProgressBar->detach(mThread);
+    disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(finishedSlot()));
+    mThread.reset();
+    dialog.hide();
+    this->getAirwaysContour()->setColor("#FFCCCC");
+    emit airwaysSegmented();
 }
 
 bool ProcessWorkflowState::canEnter() const
