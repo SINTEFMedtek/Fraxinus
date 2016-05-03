@@ -54,6 +54,7 @@ class QMainWindow;
 namespace cx
 {
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
+typedef boost::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
 class VBWidget;
 
 class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public WorkflowState
@@ -64,23 +65,30 @@ public:
 	virtual void setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx);
 	virtual void onEntry(QEvent* event);
 protected:
-    ImagePtr getActiveImage();
 	void onEntryDefault(QEvent *event);
-    void useClipper(bool on, ImagePtr image);
+    void useClipper(bool on, DataPtr data);
     void useClipper(bool on, std::map<QString, DataPtr> data = std::map<QString, DataPtr>());
-	MeshPtr getCenterline();
+
+    MeshPtr getCenterline();
     MeshPtr getRouteToTarget();
 	QMainWindow *getMainWindow();
 	VBWidget *getVBWidget();
 	MeshPtr getAirwaysContour();
 	ImagePtr getCTImage();
-    void setTransferfunction3D(QString transferfunction, ImagePtr ctImage);
+    ImagePtr getCTImageCopied();
+
+    void setTransferfunction3D(QString transferfunction, ImagePtr image);
+    void setTransferfunction2D(QString transferfunction, ImagePtr image);
     void setRTTInVBWidget();
 
 protected slots:
 	virtual void setDefaultCameraStyle();
     virtual void setVBFlythroughCameraStyle();
     virtual void setVBCutplanesCameraStyle();
+
+private:
+        ImagePtr getActiveImage();
+        TransferFunctions3DPresetsPtr getTransferfunctionPresets();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PatientWorkflowState: public FraxinusWorkflowState
@@ -141,12 +149,15 @@ public:
     PinpointWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~PinpointWorkflowState();
     virtual QIcon getIcon() const;
+    virtual void onEntry(QEvent *event);
 	virtual bool canEnter() const;
 signals:
 	void routeToTargetCreated();
 private slots:
     void dataAddedOrRemovedSlot();
     void updateRouteToTarget();
+private:
+    void addDataToView();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkflowState: public FraxinusWorkflowState

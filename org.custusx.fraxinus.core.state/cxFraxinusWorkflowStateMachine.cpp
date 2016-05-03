@@ -36,6 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxPatientModelService.h"
 #include "cxActiveData.h"
 #include "cxLogger.h"
+#include "cxImage.h"
 
 namespace cx
 {
@@ -85,8 +86,17 @@ void CustusXWorkflowStateMachine::enableStates(bool enable)
 
 void CustusXWorkflowStateMachine::dataAddedOrRemovedSlot()
 {
-	if(mServices->patient()->getData().size() > 0)
+    std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
+    if (images.size() == 1)
+    {
+        ImagePtr image = images.begin()->second;
+        ImagePtr image_copy = image->copy();
+        image_copy->setName(image->getName()+"_copy");
+        image_copy->setUid(image->getUid()+"_copy");
+        mServices->patient()->insertData(image_copy);
+
 		emit dataAdded();
+    }
 }
 
 } //namespace cx

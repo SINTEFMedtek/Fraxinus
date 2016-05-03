@@ -72,11 +72,11 @@ void FraxinusWorkflowState::setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int g
         services->view()->setCameraStyle(style, groupIdx);
 }
 
-void FraxinusWorkflowState::useClipper(bool on, ImagePtr image)
+void FraxinusWorkflowState::useClipper(bool on, DataPtr data)
 {
-    std::map<QString, DataPtr> data;
-    data[image->getUid()] = image;
-    this->useClipper(on, data);
+    std::map<QString, DataPtr> dataMap;
+    dataMap[data->getUid()] = data;
+    this->useClipper(on, dataMap);
 }
 
 void FraxinusWorkflowState::useClipper(bool on, std::map<QString, DataPtr> data)
@@ -176,13 +176,36 @@ MeshPtr FraxinusWorkflowState::getAirwaysContour()
 
 ImagePtr FraxinusWorkflowState::getCTImage()
 {
-    std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();;
-
+    std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
+    std::cout << "Number of images: " << images.size() << std::endl;
+    std::map<QString, ImagePtr>::iterator it = images.begin();
     ImagePtr image;
+    for( ; it != images.end(); ++it)
+    {
+        if(!it->first.contains("_copy"))
+        {
+            image = it->second;
+            break;
+        }
+    }
+    return image;
+}
 
-    if (!images.empty())
-        image = images.begin()->second;
-
+ImagePtr FraxinusWorkflowState::getCTImageCopied()
+{
+    std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
+    std::map<QString, ImagePtr>::iterator it = images.begin();
+    ImagePtr image;
+    for( ; it != images.end(); ++it)
+    {
+        std::cout << "Copied? " << it->first.toStdString() << std::endl;
+        if(it->first.contains("_copy"))
+        {
+            std::cout << "using " << it->first.toStdString() << std::endl;
+            image = it->second;
+            break;
+        }
+    }
     return image;
 }
 
@@ -203,12 +226,25 @@ VBWidget* FraxinusWorkflowState::getVBWidget()
     return mainWindow->findChild<VBWidget*>(widgetName);
 }
 
-void FraxinusWorkflowState::setTransferfunction3D(QString transferfunction, ImagePtr ctImage)
+TransferFunctions3DPresetsPtr FraxinusWorkflowState::getTransferfunctionPresets()
 {
     XmlOptionFile preset(DataLocations::findConfigFilePath("presets.xml", "/transferFunctions"));
     XmlOptionFile custom = profile()->getXmlSettings().descend("presetTransferFunctions");
     TransferFunctions3DPresetsPtr transferFunctionPresets = TransferFunctions3DPresetsPtr(new TransferFunctions3DPresets(preset, custom));
-    transferFunctionPresets->load3D(transferfunction, ctImage);
+
+    return transferFunctionPresets;
+}
+
+void FraxinusWorkflowState::setTransferfunction3D(QString transferfunction, ImagePtr image)
+{
+    TransferFunctions3DPresetsPtr transferFunctionPresets = getTransferfunctionPresets();
+    transferFunctionPresets->load3D(transferfunction, image);
+}
+
+void FraxinusWorkflowState::setTransferfunction2D(QString transferfunction, ImagePtr image)
+{
+    TransferFunctions3DPresetsPtr transferFunctionPresets = getTransferfunctionPresets();
+    transferFunctionPresets->load2D(transferfunction, image);
 }
 
 void FraxinusWorkflowState::setRTTInVBWidget()
@@ -382,6 +418,15 @@ QIcon PinpointWorkflowState::getIcon() const
     return QIcon(":/icons/icons/pinpoint.svg");
 }
 
+void PinpointWorkflowState::onEntry(QEvent * event)
+{
+    WorkflowState::onEntry(event);
+    this->useClipper(false, this->getCTImage());
+    this->addDataToView();
+    //this->setRTTInVBWidget();
+    //QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
+}
+
 bool PinpointWorkflowState::canEnter() const
 {
     return true;
@@ -442,6 +487,52 @@ PointMetricPtr PinpointWorkflowState::getTargetPoint()
     return metric;
 }
 
+void PinpointWorkflowState::addDataToView()
+{
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+
+    //assuming layout: LAYOUT_ACAS
+    ViewGroupDataPtr viewGroup0_2D = services->view()->getGroup(0);
+    ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+
+    ImagePtr ctImage = this->getCTImage();
+    if(ctImage)
+    {
+        QString transferfunction("2D CT Lung");
+        this->setTransferfunction2D(transferfunction, ctImage);
+        viewGroup1_2D->addData(ctImage->getUid());
+        viewGroup0_2D->removeData(ctImage->getUid());
+    }
+
+    ImagePtr ctImage_copied = this->getCTImageCopied();
+    if(ctImage_copied)
+    {
+        QString transferfunction("2D CT Abdomen");
+        this->setTransferfunction2D(transferfunction, ctImage);
+        viewGroup0_2D->addData(ctImage_copied->getUid());
+        viewGroup1_2D->removeData(ctImage_copied->getUid());
+    }
+
+    MeshPtr routeToTarget = this->getRouteToTarget();
+    if(routeToTarget)
+    {
+        //viewGroup0_3D->addData(routeToTarget->getUid());
+        //viewGroup2_3D->addData(routeToTarget->getUid());
+    }
+
+    MeshPtr airways = this->getAirwaysContour();
+    if(airways)
+    {
+        //viewGroup0_3D->addData(airways->getUid());
+    }
+
+    MeshPtr centerline = this->getCenterline();
+    if(centerline)
+    {
+        //viewGroup2_3D->removeData(centerline->getUid());
+    }
+}
+
 // --------------------------------------------------------
 // --------------------------------------------------------
 
@@ -462,7 +553,7 @@ QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
 	WorkflowState::onEntry(event);
-    this->useClipper(false, this->getActiveImage());
+    this->useClipper(true, this->getCTImageCopied());
     this->addDataToView();
     this->setRTTInVBWidget();
     QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
@@ -486,6 +577,15 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
         viewGroup0_3D->removeData(ctImage->getUid());
     }
 
+    ImagePtr ctImage_copied = this->getCTImageCopied();
+    if(ctImage_copied)
+    {
+        QString transferfunction("Default");
+        this->setTransferfunction3D(transferfunction, ctImage_copied);
+        viewGroup0_3D->addData(ctImage_copied->getUid());
+        viewGroup2_3D->removeData(ctImage_copied->getUid());
+    }
+
     MeshPtr routeToTarget = this->getRouteToTarget();
     if(routeToTarget)
     {
@@ -496,7 +596,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
     MeshPtr airways = this->getAirwaysContour();
     if(airways)
     {
-        viewGroup0_3D->addData(airways->getUid());
+        viewGroup0_3D->removeData(airways->getUid());
     }
 
     MeshPtr centerline = this->getCenterline();
@@ -531,7 +631,7 @@ QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
 void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
 	WorkflowState::onEntry(event);
-    this->useClipper(true, this->getActiveImage());
+    this->useClipper(true, this->getCTImage());
     this->addDataToView();
     this->setRTTInVBWidget();
     QTimer::singleShot(0, this, SLOT(setVBCutplaneCameraStyle()));
@@ -553,6 +653,12 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
         this->setTransferfunction3D(transferfunction, ctImage);
         viewGroup0_3D->addData(ctImage->getUid());
         viewGroup2_3D->removeData(ctImage->getUid());
+    }
+
+    ImagePtr ctImage_copied = this->getCTImageCopied();
+    if(ctImage_copied)
+    {
+        viewGroup0_3D->removeData(ctImage_copied->getUid());
     }
 
     MeshPtr routeToTarget = this->getRouteToTarget();
