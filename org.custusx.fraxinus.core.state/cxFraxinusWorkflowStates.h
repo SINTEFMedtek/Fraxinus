@@ -59,20 +59,22 @@ class VBWidget;
 class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public WorkflowState
 {
 	Q_OBJECT
-	ImagePtr getActiveImage();
 public:
 	FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction = true);
 	virtual void setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx);
 	virtual void onEntry(QEvent* event);
 protected:
+    ImagePtr getActiveImage();
 	void onEntryDefault(QEvent *event);
-	void useClipper(bool on);
+    void useClipper(bool on, ImagePtr image);
+    void useClipper(bool on, std::map<QString, DataPtr> data = std::map<QString, DataPtr>());
 	MeshPtr getCenterline();
 	MeshPtr getRouteTotarget();
 	QMainWindow *getMainWindow();
 	VBWidget *getVBWidget();
 	MeshPtr getAirwaysContour();
 	ImagePtr getCTImage();
+    void setTransferfunction3D(QString transferfunction, ImagePtr ctImage);
 protected slots:
 	virtual void setDefaultCameraStyle();
 	virtual void setVBCameraStyle();
