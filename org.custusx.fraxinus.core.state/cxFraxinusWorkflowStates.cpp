@@ -359,18 +359,12 @@ void PinpointWorkflowState::dataAddedOrRemovedSlot()
 
 void PinpointWorkflowState::updateRouteToTarget()
 {
-    std::cout << "1" << std::endl;
     MeshPtr routeToTarget = this->getRouteTotarget();
-    std::cout << "2" << std::endl;
     if(routeToTarget)
     {
-        std::cout << "2.1" << std::endl;
         mServices->patient()->removeData(routeToTarget->getUid());
-        std::cout << "2.2" << std::endl;
         this->dataAddedOrRemovedSlot();
-        std::cout << "2.3" << std::endl;
     }
-    std::cout << "3" << std::endl;
 }
 
 void PinpointWorkflowState::createRouteToTarget()
@@ -399,7 +393,9 @@ PointMetricPtr PinpointWorkflowState::getTargetPoint()
     std::map<QString, PointMetricPtr> metrics = mServices->patient()->getDataOfType<PointMetric>();
     PointMetricPtr metric;
     if (!metrics.empty())
+    {
         metric = metrics.begin()->second;
+    }
     return metric;
 }
 
