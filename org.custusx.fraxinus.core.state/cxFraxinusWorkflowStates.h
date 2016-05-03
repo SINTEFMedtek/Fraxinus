@@ -69,15 +69,18 @@ protected:
     void useClipper(bool on, ImagePtr image);
     void useClipper(bool on, std::map<QString, DataPtr> data = std::map<QString, DataPtr>());
 	MeshPtr getCenterline();
-	MeshPtr getRouteTotarget();
+    MeshPtr getRouteToTarget();
 	QMainWindow *getMainWindow();
 	VBWidget *getVBWidget();
 	MeshPtr getAirwaysContour();
 	ImagePtr getCTImage();
     void setTransferfunction3D(QString transferfunction, ImagePtr ctImage);
+    void setRTTInVBWidget();
+
 protected slots:
 	virtual void setDefaultCameraStyle();
-	virtual void setVBCameraStyle();
+    virtual void setVBFlythroughCameraStyle();
+    virtual void setVBCutplanesCameraStyle();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PatientWorkflowState: public FraxinusWorkflowState
@@ -150,13 +153,15 @@ class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkfl
 {
 Q_OBJECT
 
-	void showAirwaysAndRouteToTarget();
 public:
 	VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services);
 	virtual ~VirtualBronchoscopyFlyThroughWorkflowState();
     virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
 	virtual bool canEnter() const;
+
+private:
+    void addDataToView();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyCutPlanesWorkflowState: public FraxinusWorkflowState
@@ -169,6 +174,9 @@ public:
 	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
 	virtual bool canEnter() const;
+
+private:
+    void addDataToView();
 };
 
 /**

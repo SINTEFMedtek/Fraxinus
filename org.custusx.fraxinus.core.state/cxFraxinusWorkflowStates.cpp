@@ -56,6 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxProfile.h"
 #include "cxDataLocations.h"
 #include "cxTransferFunctions3DPresets.h"
+#include "cxApplication.h"
 
 namespace cx
 {
@@ -89,7 +90,6 @@ void FraxinusWorkflowState::useClipper(bool on, std::map<QString, DataPtr> data)
         std::map<QString, DataPtr>::iterator it = data.begin();
         for(; it != data.end(); ++it)
         {
-            //anyplaneClipper->setData(this->getActiveImage());
             anyplaneClipper->setData(it->second);
         }
         anyplaneClipper->invertPlane(true);
@@ -124,10 +124,16 @@ void FraxinusWorkflowState::setDefaultCameraStyle()
     this->setCameraStyleInGroup(cstDEFAULT_STYLE, 2);
 }
 
-void FraxinusWorkflowState::setVBCameraStyle()
+void FraxinusWorkflowState::setVBFlythroughCameraStyle()
 {
     this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
     this->setCameraStyleInGroup(cstTOOL_STYLE, 2);
+}
+
+void FraxinusWorkflowState::setVBCutplanesCameraStyle()
+{
+    this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
+    this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 2);
 }
 
 void FraxinusWorkflowState::onEntry(QEvent * event)
@@ -146,7 +152,7 @@ MeshPtr FraxinusWorkflowState::getCenterline()
     return MeshPtr();
 }
 
-MeshPtr FraxinusWorkflowState::getRouteTotarget()
+MeshPtr FraxinusWorkflowState::getRouteToTarget()
 {
     std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
     for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
@@ -203,6 +209,18 @@ void FraxinusWorkflowState::setTransferfunction3D(QString transferfunction, Imag
     XmlOptionFile custom = profile()->getXmlSettings().descend("presetTransferFunctions");
     TransferFunctions3DPresetsPtr transferFunctionPresets = TransferFunctions3DPresetsPtr(new TransferFunctions3DPresets(preset, custom));
     transferFunctionPresets->load3D(transferfunction, ctImage);
+}
+
+void FraxinusWorkflowState::setRTTInVBWidget()
+{
+    VBWidget* widget = this->getVBWidget();
+
+    if(widget)
+    {
+        MeshPtr routeToTarget = this->getRouteToTarget();
+        if(routeToTarget)
+            widget->setRouteToTarget(routeToTarget->getUid());
+    }
 }
 
 
@@ -373,7 +391,7 @@ void PinpointWorkflowState::dataAddedOrRemovedSlot()
 {
     PointMetricPtr targetPoint = this->getTargetPoint();
     MeshPtr centerline = this->getCenterline();
-    MeshPtr routeToTarget = this->getRouteTotarget();
+    MeshPtr routeToTarget = this->getRouteToTarget();
 
     if(targetPoint && centerline && !routeToTarget)
     {
@@ -384,7 +402,7 @@ void PinpointWorkflowState::dataAddedOrRemovedSlot()
 
 void PinpointWorkflowState::updateRouteToTarget()
 {
-    MeshPtr routeToTarget = this->getRouteTotarget();
+    MeshPtr routeToTarget = this->getRouteToTarget();
     if(routeToTarget)
     {
         mServices->patient()->removeData(routeToTarget->getUid());
@@ -445,22 +463,12 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
 	WorkflowState::onEntry(event);
     this->useClipper(false, this->getActiveImage());
-
-    VBWidget* widget = this->getVBWidget();
-
-    if(widget)
-    {
-        MeshPtr routeToTarget = this->getRouteTotarget();
-        if(routeToTarget)
-            widget->setRouteToTarget(routeToTarget->getUid());
-    }
-
-    this->showAirwaysAndRouteToTarget();
-
-    QTimer::singleShot(0, this, SLOT(setVBCameraStyle()));
+    this->addDataToView();
+    this->setRTTInVBWidget();
+    QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
 }
 
-void VirtualBronchoscopyFlyThroughWorkflowState::showAirwaysAndRouteToTarget()
+void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 {
     VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
@@ -478,7 +486,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::showAirwaysAndRouteToTarget()
         viewGroup0_3D->removeData(ctImage->getUid());
     }
 
-    MeshPtr routeToTarget = this->getRouteTotarget();
+    MeshPtr routeToTarget = this->getRouteToTarget();
     if(routeToTarget)
     {
         viewGroup0_3D->addData(routeToTarget->getUid());
@@ -489,6 +497,12 @@ void VirtualBronchoscopyFlyThroughWorkflowState::showAirwaysAndRouteToTarget()
     if(airways)
     {
         viewGroup0_3D->addData(airways->getUid());
+    }
+
+    MeshPtr centerline = this->getCenterline();
+    if(centerline)
+    {
+        viewGroup2_3D->removeData(centerline->getUid());
     }
 }
 
@@ -518,7 +532,48 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
 	WorkflowState::onEntry(event);
     this->useClipper(true, this->getActiveImage());
-	QTimer::singleShot(0, this, SLOT(setVBCameraStyle()));
+    this->addDataToView();
+    this->setRTTInVBWidget();
+    QTimer::singleShot(0, this, SLOT(setVBCutplaneCameraStyle()));
+}
+
+void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
+{
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+
+    //assuming layout: LAYOUT_VB_CUT_PLANES
+    ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
+    ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+    ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(2);
+
+    ImagePtr ctImage = this->getCTImage();
+    if(ctImage)
+    {
+        QString transferfunction("Default");
+        this->setTransferfunction3D(transferfunction, ctImage);
+        viewGroup0_3D->addData(ctImage->getUid());
+        viewGroup2_3D->removeData(ctImage->getUid());
+    }
+
+    MeshPtr routeToTarget = this->getRouteToTarget();
+    if(routeToTarget)
+    {
+        viewGroup0_3D->addData(routeToTarget->getUid());
+        viewGroup2_3D->removeData(routeToTarget->getUid());
+    }
+
+    MeshPtr airways = this->getAirwaysContour();
+    if(airways)
+    {
+        viewGroup0_3D->addData(airways->getUid());
+        viewGroup2_3D->removeData(airways->getUid());
+    }
+
+    MeshPtr centerline = this->getCenterline();
+    if(centerline)
+    {
+        viewGroup2_3D->addData(centerline->getUid());
+    }
 }
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
