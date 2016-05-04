@@ -24,13 +24,11 @@ endmacro()
 #
 ###############################################################################
 function(cxsetup_install_configuration_files)
-
     install(DIRECTORY ${SOURCE_DIR}/config/
-                    DESTINATION ${CX_INSTALL_ROOT_DIR}/config
-                    FILE_PERMISSIONS ${CX_FULL_PERMISSIONS}
-                    DIRECTORY_PERMISSIONS ${CX_FULL_PERMISSIONS}
-                    )
-
+            DESTINATION ./${CX_INSTALL_CONFIG_DIR}
+            FILE_PERMISSIONS ${CX_FULL_PERMISSIONS}
+            DIRECTORY_PERMISSIONS ${CX_FULL_PERMISSIONS}
+            )
 endfunction()
 
 ###############################################################################
@@ -43,20 +41,6 @@ function(cxsetup_install_documentation_files)
     #TODO
 
 endfunction()
-
-
-if(APPLE)
-    # Install folder for storage of igstk<->CustusX symlinks.
-    # The symlinks must be in an absolute location.
-    # Apple only (Win uses COM-ports, Linux installs with OS)
-    # Because CPACK_PACKAGING_INSTALL_PREFIX is "/", this will install
-    # in /Library/CustusX.
-    install(DIRECTORY ${SOURCE_DIR}/install/Apple/igstk.links
-            DESTINATION Library/CustusX
-            FILE_PERMISSIONS ${CX_FULL_PERMISSIONS}
-            DIRECTORY_PERMISSIONS ${CX_FULL_PERMISSIONS}
-            )
-endif(APPLE)
 
 
 message(STATUS "Configuring plugin org.custusx.fraxinus...")
