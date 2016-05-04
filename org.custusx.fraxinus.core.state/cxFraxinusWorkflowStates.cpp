@@ -57,6 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxDataLocations.h"
 #include "cxTransferFunctions3DPresets.h"
 #include "cxApplication.h"
+#include "cxSyncedValue.h"
 
 namespace cx
 {
@@ -72,27 +73,28 @@ void FraxinusWorkflowState::setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int g
         services->view()->setCameraStyle(style, groupIdx);
 }
 
-void FraxinusWorkflowState::useClipper(bool on, DataPtr data)
-{
-    std::map<QString, DataPtr> dataMap;
-    dataMap[data->getUid()] = data;
-    this->useClipper(on, dataMap);
-}
-
-void FraxinusWorkflowState::useClipper(bool on, std::map<QString, DataPtr> data)
+InteractiveClipperPtr FraxinusWorkflowState::enableInvertedClipper(QString clipper_name, bool on)
 {
     VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+    InteractiveClipperPtr anyplaneClipper;
     if(services)
     {
         ClippersPtr clippers = services->view()->getClippers();
-        InteractiveClipperPtr anyplaneClipper = clippers->getClipper("Any");
+        anyplaneClipper = clippers->getClipper(clipper_name);
         anyplaneClipper->useClipper(on);
-        std::map<QString, DataPtr>::iterator it = data.begin();
-        for(; it != data.end(); ++it)
-        {
-            anyplaneClipper->setData(it->second);
-        }
         anyplaneClipper->invertPlane(true);
+    }
+
+    return anyplaneClipper;
+}
+
+void FraxinusWorkflowState::removeAllDataFromClipper(InteractiveClipperPtr clipper)
+{
+    std::map<QString, DataPtr> datas = clipper->getDatas();
+    std::map<QString, DataPtr>::iterator it = datas.begin();
+    for(; it != datas.end(); ++it)
+    {
+        clipper->removeData(it->second);
     }
 }
 
@@ -109,8 +111,23 @@ ImagePtr FraxinusWorkflowState::getActiveImage()
 void FraxinusWorkflowState::onEntryDefault(QEvent * event)
 {
 	WorkflowState::onEntry(event);
-    std::map<QString, DataPtr> all_data = mServices->patient()->getData();
-    this->useClipper(false, all_data);
+
+    //Reset clipping
+    InteractiveClipperPtr anyplaneClipper = this->enableInvertedClipper("Any", false);
+    this->removeAllDataFromClipper(anyplaneClipper);
+
+    //Reset viewgroups
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+    for(int i=0; i<3; ++i)
+    {
+        ViewGroupDataPtr viewgroup = services->view()->getGroup(i);
+        //Clear
+        viewgroup->clearData();
+
+        //Set default zoomfactor
+        viewgroup->getGroup2DZoom()->set(0.3);
+        viewgroup->getGlobal2DZoom()->set(0.3);
+    }
 
     //Hack to make sure camera style is set correnyly
     //This is needed as set camera style needs the views to be shown before trying to set style
@@ -133,7 +150,7 @@ void FraxinusWorkflowState::setVBFlythroughCameraStyle()
 void FraxinusWorkflowState::setVBCutplanesCameraStyle()
 {
     this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
-    this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 2);
+    this->setCameraStyleInGroup(cstTOOL_STYLE, 2);
 }
 
 void FraxinusWorkflowState::onEntry(QEvent * event)
@@ -293,7 +310,7 @@ ImportWorkflowState::~ImportWorkflowState()
 
 void ImportWorkflowState::onEntry(QEvent * event)
 {
-	this->onEntryDefault(event);
+    FraxinusWorkflowState::onEntry(event);
 }
 
 QIcon ImportWorkflowState::getIcon() const
@@ -330,7 +347,7 @@ QIcon ProcessWorkflowState::getIcon() const
 
 void ProcessWorkflowState::onEntry(QEvent * event)
 {
-	this->onEntryDefault(event);
+    FraxinusWorkflowState::onEntry(event);
 	this->autoStartHardware();
 
     //Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
@@ -420,8 +437,9 @@ QIcon PinpointWorkflowState::getIcon() const
 
 void PinpointWorkflowState::onEntry(QEvent * event)
 {
-    WorkflowState::onEntry(event);
-    this->useClipper(false, this->getCTImage());
+    FraxinusWorkflowState::onEntry(event);
+    InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
+    clipper->addData(this->getCTImage());
     this->addDataToView();
     //this->setRTTInVBWidget();
     //QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
@@ -498,8 +516,7 @@ void PinpointWorkflowState::addDataToView()
     ImagePtr ctImage = this->getCTImage();
     if(ctImage)
     {
-        QString transferfunction("2D CT Lung");
-        this->setTransferfunction2D(transferfunction, ctImage);
+        this->setTransferfunction2D("2D CT Lung", ctImage);
         viewGroup1_2D->addData(ctImage->getUid());
         viewGroup0_2D->removeData(ctImage->getUid());
     }
@@ -552,8 +569,9 @@ QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
-	WorkflowState::onEntry(event);
-    this->useClipper(true, this->getCTImageCopied());
+    FraxinusWorkflowState::onEntry(event);
+    InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
+    clipper->addData(this->getCTImageCopied());
     this->addDataToView();
     this->setRTTInVBWidget();
     QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
@@ -567,6 +585,8 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
     ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
     ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
     ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(2);
+
+    //TODO add PointMetric to 3D view
 
     ImagePtr ctImage = this->getCTImage();
     if(ctImage)
@@ -630,56 +650,42 @@ QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
-	WorkflowState::onEntry(event);
-    this->useClipper(true, this->getCTImage());
+    FraxinusWorkflowState::onEntry(event);
+    InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
+    clipper->addData(this->getCTImage());
     this->addDataToView();
     this->setRTTInVBWidget();
-    QTimer::singleShot(0, this, SLOT(setVBCutplaneCameraStyle()));
+    QTimer::singleShot(0, this, SLOT(setVBCutplanesCameraStyle()));
 }
 
 void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 {
     VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
-    //assuming layout: LAYOUT_VB_CUT_PLANES
-    ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
-    ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
-    ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(2);
-
     ImagePtr ctImage = this->getCTImage();
-    if(ctImage)
-    {
-        QString transferfunction("Default");
-        this->setTransferfunction3D(transferfunction, ctImage);
-        viewGroup0_3D->addData(ctImage->getUid());
-        viewGroup2_3D->removeData(ctImage->getUid());
-    }
-
     ImagePtr ctImage_copied = this->getCTImageCopied();
-    if(ctImage_copied)
-    {
-        viewGroup0_3D->removeData(ctImage_copied->getUid());
-    }
-
     MeshPtr routeToTarget = this->getRouteToTarget();
-    if(routeToTarget)
-    {
-        viewGroup0_3D->addData(routeToTarget->getUid());
-        viewGroup2_3D->removeData(routeToTarget->getUid());
-    }
-
     MeshPtr airways = this->getAirwaysContour();
-    if(airways)
-    {
-        viewGroup0_3D->addData(airways->getUid());
-        viewGroup2_3D->removeData(airways->getUid());
-    }
-
     MeshPtr centerline = this->getCenterline();
-    if(centerline)
-    {
-        viewGroup2_3D->addData(centerline->getUid());
-    }
+
+    //assuming layout: LAYOUT_VB_CUT_PLANES
+
+    ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
+    this->setTransferfunction3D("Default", ctImage);
+    viewGroup0_3D->addData(ctImage->getUid());
+    viewGroup0_3D->addData(routeToTarget->getUid());
+    viewGroup0_3D->addData(airways->getUid());
+
+    ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+    this->setTransferfunction2D("2D CT Lung", ctImage);
+    viewGroup1_2D->getGroup2DZoom()->set(0.2);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.2);
+    viewGroup1_2D->addData(ctImage->getUid());
+
+    ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(2);
+    this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
+    viewGroup2_3D->addData(ctImage_copied->getUid());
+    viewGroup2_3D->addData(routeToTarget->getUid());
 }
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const

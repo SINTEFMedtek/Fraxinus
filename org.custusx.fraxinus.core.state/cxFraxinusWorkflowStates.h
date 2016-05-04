@@ -65,10 +65,6 @@ public:
 	virtual void setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx);
 	virtual void onEntry(QEvent* event);
 protected:
-	void onEntryDefault(QEvent *event);
-    void useClipper(bool on, DataPtr data);
-    void useClipper(bool on, std::map<QString, DataPtr> data = std::map<QString, DataPtr>());
-
     MeshPtr getCenterline();
     MeshPtr getRouteToTarget();
 	QMainWindow *getMainWindow();
@@ -81,14 +77,18 @@ protected:
     void setTransferfunction2D(QString transferfunction, ImagePtr image);
     void setRTTInVBWidget();
 
+    InteractiveClipperPtr enableInvertedClipper(QString clipper_name, bool on);
+    void removeAllDataFromClipper(InteractiveClipperPtr clipper);
+
 protected slots:
 	virtual void setDefaultCameraStyle();
     virtual void setVBFlythroughCameraStyle();
     virtual void setVBCutplanesCameraStyle();
 
 private:
-        ImagePtr getActiveImage();
-        TransferFunctions3DPresetsPtr getTransferfunctionPresets();
+    void onEntryDefault(QEvent *event);
+    ImagePtr getActiveImage();
+    TransferFunctions3DPresetsPtr getTransferfunctionPresets();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PatientWorkflowState: public FraxinusWorkflowState
