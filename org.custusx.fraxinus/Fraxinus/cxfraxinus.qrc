@@ -1,7 +1,8 @@
 <RCC>
     <qresource prefix="/icons">
-        <file>icons/Fraxinus.png</file>
         <file>icons/Fraxinus2.icns</file>
         <file>icons/Fraxinus2.png</file>
+        <file>icons/Fraxinus.png</file>
+        <file>icons/Fraxinus.ico</file>
     </qresource>
 </RCC>

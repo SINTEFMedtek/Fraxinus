@@ -25,14 +25,14 @@ set(SOURCES
 if(APPLE)
     # For Apple set the icns file containing icons
     # set where in the bundle to put the icns file
-    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/icons/Fraxinus2.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+	set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/icons/Fraxinus.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
     # include the icns file in the target
-    set(SOURCES ${SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/icons/Fraxinus2.icns)
+	set(SOURCES ${SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/icons/Fraxinus.icns)
 
     # NOTE: Don't include the path in MACOSX_BUNDLE_ICON_FILE -- this is
     # the property added to Info.plist
-    set(MACOSX_BUNDLE_ICON_FILE "Fraxinus2.icns")
+	set(MACOSX_BUNDLE_ICON_FILE "Fraxinus.icns")
 endif(APPLE)
 
 #------------------------------------------------------------------------------

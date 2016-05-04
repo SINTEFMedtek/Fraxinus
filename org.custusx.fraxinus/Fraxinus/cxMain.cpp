@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
   app.setOrganizationName("Fraxinus");
   app.setOrganizationDomain("www.sintef.no");
   app.setApplicationName(CX_SYSTEM_BASE_NAME);
-  app.setWindowIcon(QIcon(":/icons/icons/Fraxinus2.png"));
+  app.setWindowIcon(QIcon(":/icons/icons/Fraxinus.png"));
   app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
   cx::DataLocations::setWebsiteURL("http://www.custusx.org/fraxinus");
