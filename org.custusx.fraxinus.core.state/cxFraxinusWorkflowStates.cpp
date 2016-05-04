@@ -581,49 +581,29 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 {
     VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
+    ImagePtr ctImage = this->getCTImage();
+    ImagePtr ctImage_copied = this->getCTImageCopied();
+    MeshPtr routeToTarget = this->getRouteToTarget();
+    MeshPtr airways = this->getAirwaysContour();
+    MeshPtr centerline = this->getCenterline();
+
     //assuming layout: LAYOUT_VB_FLY_THROUGH
     ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
+    this->setTransferfunction3D("Default", ctImage_copied);
+    viewGroup0_3D->addData(ctImage_copied->getUid());
+    viewGroup0_3D->addData(routeToTarget->getUid());
+
     ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+    viewGroup1_2D->getGroup2DZoom()->set(0.2);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.2);
+    viewGroup1_2D->addData(ctImage_copied->getUid());
+
     ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(2);
+    this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage);
+    //TODO add PointMetric
+    viewGroup2_3D->addData(ctImage->getUid());
+    viewGroup2_3D->addData(routeToTarget->getUid());
 
-    //TODO add PointMetric to 3D view
-
-    ImagePtr ctImage = this->getCTImage();
-    if(ctImage)
-    {
-        QString transferfunction("3D CT Virtual Bronchoscopy");
-        this->setTransferfunction3D(transferfunction, ctImage);
-        viewGroup2_3D->addData(ctImage->getUid());
-        viewGroup0_3D->removeData(ctImage->getUid());
-    }
-
-    ImagePtr ctImage_copied = this->getCTImageCopied();
-    if(ctImage_copied)
-    {
-        QString transferfunction("Default");
-        this->setTransferfunction3D(transferfunction, ctImage_copied);
-        viewGroup0_3D->addData(ctImage_copied->getUid());
-        viewGroup2_3D->removeData(ctImage_copied->getUid());
-    }
-
-    MeshPtr routeToTarget = this->getRouteToTarget();
-    if(routeToTarget)
-    {
-        viewGroup0_3D->addData(routeToTarget->getUid());
-        viewGroup2_3D->addData(routeToTarget->getUid());
-    }
-
-    MeshPtr airways = this->getAirwaysContour();
-    if(airways)
-    {
-        viewGroup0_3D->removeData(airways->getUid());
-    }
-
-    MeshPtr centerline = this->getCenterline();
-    if(centerline)
-    {
-        viewGroup2_3D->removeData(centerline->getUid());
-    }
 }
 
 bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
