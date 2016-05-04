@@ -17,4 +17,4 @@ sips -z 512 512   Fraxinus.png --out Fraxinus.iconset/icon_256x256@2x.png
 sips -z 512 512   Fraxinus.png --out Fraxinus.iconset/icon_512x512.png
 cp Fraxinus.png Fraxinus.iconset/icon_512x512@2x.png
 iconutil -c icns Fraxinus.iconset
-rm -R Fraxinus.iconset
+#rm -R Fraxinus.iconset
