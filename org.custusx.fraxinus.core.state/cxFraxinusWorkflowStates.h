@@ -64,14 +64,16 @@ public:
 	FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction = true);
 	virtual void setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx);
 	virtual void onEntry(QEvent* event);
+
 protected:
-    MeshPtr getCenterline();
-    MeshPtr getRouteToTarget();
+    MeshPtr getCenterline() const;
+    MeshPtr getRouteToTarget() const;
 	QMainWindow *getMainWindow();
 	VBWidget *getVBWidget();
-	MeshPtr getAirwaysContour();
-	ImagePtr getCTImage();
-    ImagePtr getCTImageCopied();
+    MeshPtr getAirwaysContour() const;
+    ImagePtr getCTImage() const;
+    ImagePtr getCTImageCopied() const;
+    PointMetricPtr getTargetPoint() const;
 
     void setTransferfunction3D(QString transferfunction, ImagePtr image);
     void setTransferfunction2D(QString transferfunction, ImagePtr image);
@@ -79,6 +81,8 @@ protected:
 
     InteractiveClipperPtr enableInvertedClipper(QString clipper_name, bool on);
     void removeAllDataFromClipper(InteractiveClipperPtr clipper);
+
+    virtual void addDataToView() = 0;
 
 protected slots:
 	virtual void setDefaultCameraStyle();
@@ -100,6 +104,10 @@ public:
     virtual ~PatientWorkflowState();
     virtual QIcon getIcon() const;
     virtual bool canEnter() const;
+    virtual void onEntry(QEvent* event);
+
+private:
+    virtual void addDataToView();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public FraxinusWorkflowState
@@ -112,6 +120,9 @@ public:
     virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
 	virtual void onEntry(QEvent *event);
+
+private:
+    virtual void addDataToView();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public FraxinusWorkflowState
@@ -127,12 +138,14 @@ public:
 	virtual bool canEnter() const;
 signals:
 	void airwaysSegmented();
+
 private slots:
 	void imageSelected();
     void runFilterSlot();
     void finishedSlot();
 
 private:
+    virtual void addDataToView();
     FilterPtr mCurrentFilter;
     FilterTimedAlgorithmPtr mThread;
     TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
@@ -143,8 +156,6 @@ class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public Fraxi
 {
 Q_OBJECT
 
-	PointMetricPtr getTargetPoint();
-	void createRouteToTarget();
 public:
     PinpointWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~PinpointWorkflowState();
@@ -157,6 +168,7 @@ private slots:
     void dataAddedOrRemovedSlot();
     void updateRouteToTarget();
 private:
+    void createRouteToTarget();
     void addDataToView();
 };
 
@@ -169,7 +181,7 @@ public:
 	virtual ~VirtualBronchoscopyFlyThroughWorkflowState();
     virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
-	virtual bool canEnter() const;
+    virtual bool canEnter() const;
 
 private:
     void addDataToView();
