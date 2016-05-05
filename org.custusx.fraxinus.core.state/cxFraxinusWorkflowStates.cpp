@@ -65,7 +65,9 @@ namespace cx
 
 FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction) :
 	WorkflowState(parent, uid, name, services, enableAction)
-{}
+{
+    connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &FraxinusWorkflowState::canEnterSlot);
+}
 
 void FraxinusWorkflowState::setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx)
 {
