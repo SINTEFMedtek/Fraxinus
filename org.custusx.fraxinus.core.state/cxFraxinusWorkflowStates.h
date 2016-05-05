@@ -120,6 +120,7 @@ public:
     virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
 	virtual void onEntry(QEvent *event);
+    virtual void onExit(QEvent * event);
 
 private:
     virtual void addDataToView();

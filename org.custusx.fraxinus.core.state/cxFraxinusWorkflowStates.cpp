@@ -340,6 +340,20 @@ void ImportWorkflowState::onEntry(QEvent * event)
     this->addDataToView();
 }
 
+void ImportWorkflowState::onExit(QEvent * event)
+{
+    std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
+    if (images.size() == 1)
+    {
+        ImagePtr image = images.begin()->second;
+        ImagePtr image_copy = image->copy();
+        image_copy->setName(image->getName()+"_copy");
+        image_copy->setUid(image->getUid()+"_copy");
+        mServices->patient()->insertData(image_copy);
+    }
+    WorkflowState::onExit(event);
+}
+
 QIcon ImportWorkflowState::getIcon() const
 {
     return QIcon(":/icons/icons/import.svg");
@@ -360,6 +374,7 @@ void ImportWorkflowState::addDataToView()
     ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
     if(ctImage)
     {
+        this->setTransferfunction3D("Default", ctImage);
         this->setTransferfunction2D("2D CT Lung", ctImage);
         viewGroup0_3D->addData(ctImage->getUid());
     }

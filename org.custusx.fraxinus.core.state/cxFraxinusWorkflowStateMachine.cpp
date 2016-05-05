@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cx
 {
 
-CustusXWorkflowStateMachine::CustusXWorkflowStateMachine(VisServicesPtr services) :
+FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr services) :
 	WorkflowStateMachine(services)
 {
 	mPatientWorkflowState = this->newState(new PatientWorkflowState(mParentState, services));
@@ -62,20 +62,20 @@ CustusXWorkflowStateMachine::CustusXWorkflowStateMachine(VisServicesPtr services
 	mProcessWorkflowState->addTransition(mProcessWorkflowState, SIGNAL(airwaysSegmented()), mPinpointWorkflowState);
 	mPinpointWorkflowState->addTransition(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState);
 
-	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &CustusXWorkflowStateMachine::enableStatesSlot);
-	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &CustusXWorkflowStateMachine::dataAddedOrRemovedSlot);
+    connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &FraxinusWorkflowStateMachine::enableStatesSlot);
+    connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot);
 }
 
-CustusXWorkflowStateMachine::~CustusXWorkflowStateMachine()
+FraxinusWorkflowStateMachine::~FraxinusWorkflowStateMachine()
 {}
 
 
-void CustusXWorkflowStateMachine::enableStatesSlot()
+void FraxinusWorkflowStateMachine::enableStatesSlot()
 {
 	this->enableStates(true);
 }
 
-void CustusXWorkflowStateMachine::enableStates(bool enable)
+void FraxinusWorkflowStateMachine::enableStates(bool enable)
 {
 	mImportWorkflowState->enableAction(enable);
 	mProcessWorkflowState->enableAction(enable);
@@ -84,19 +84,9 @@ void CustusXWorkflowStateMachine::enableStates(bool enable)
 	mVirtualBronchoscopyCutPlanesWorkflowState->enableAction(enable);
 }
 
-void CustusXWorkflowStateMachine::dataAddedOrRemovedSlot()
+void FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot()
 {
-    std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
-    if (images.size() == 1)
-    {
-        ImagePtr image = images.begin()->second;
-        ImagePtr image_copy = image->copy();
-        image_copy->setName(image->getName()+"_copy");
-        image_copy->setUid(image->getUid()+"_copy");
-        mServices->patient()->insertData(image_copy);
-
-		emit dataAdded();
-    }
+    emit dataAdded();
 }
 
 } //namespace cx

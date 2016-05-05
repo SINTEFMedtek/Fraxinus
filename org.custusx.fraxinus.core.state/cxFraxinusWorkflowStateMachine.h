@@ -51,12 +51,12 @@ typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
  * \date 9. sept. 2015
  * \author Janne Beate Bakeng, SINTEF
  */
-class org_custusx_fraxinus_core_state_EXPORT CustusXWorkflowStateMachine : public WorkflowStateMachine
+class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowStateMachine : public WorkflowStateMachine
 {
 Q_OBJECT
 public:
-		CustusXWorkflowStateMachine(VisServicesPtr services);
-		virtual ~CustusXWorkflowStateMachine();
+        FraxinusWorkflowStateMachine(VisServicesPtr services);
+        virtual ~FraxinusWorkflowStateMachine();
 private slots:
 		void enableStatesSlot();
 		void dataAddedOrRemovedSlot();
@@ -73,7 +73,7 @@ private:
 		WorkflowState* mVirtualBronchoscopyCutPlanesWorkflowState;
 };
 
-typedef boost::shared_ptr<CustusXWorkflowStateMachine> CustusXWorkflowStateMachinePtr;
+typedef boost::shared_ptr<FraxinusWorkflowStateMachine> CustusXWorkflowStateMachinePtr;
 }
 
 #endif /* CXCUSTUSXWORKFLOWSTATEMACHINE_H_ */
