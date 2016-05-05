@@ -112,6 +112,7 @@ ImagePtr FraxinusWorkflowState::getActiveImage()
 void FraxinusWorkflowState::onEntryDefault(QEvent * event)
 {
 	WorkflowState::onEntry(event);
+    this->enableAction(true);
 
     //Reset clipping
     InteractiveClipperPtr anyplaneClipper = this->enableInvertedClipper("Any", false);
@@ -292,7 +293,7 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 // --------------------------------------------------------
 
 PatientWorkflowState::PatientWorkflowState(QState* parent, CoreServicesPtr services) :
-	FraxinusWorkflowState(parent, "PatientUid", "New/Load Patient", services)
+    FraxinusWorkflowState(parent, "PatientUid", "New/Load Patient", services, true)
 {}
 
 PatientWorkflowState::~PatientWorkflowState()
@@ -364,7 +365,7 @@ QIcon ImportWorkflowState::getIcon() const
 
 bool ImportWorkflowState::canEnter() const
 {
-    return true;
+    return mServices->patient()->isPatientValid();
 }
 
 void ImportWorkflowState::addDataToView()
@@ -395,7 +396,6 @@ void ImportWorkflowState::addDataToView()
 ProcessWorkflowState::ProcessWorkflowState(QState* parent, CoreServicesPtr services) :
 	FraxinusWorkflowState(parent, "ProcessUid", "Process", services, false)
 {
-    connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
     mTimedAlgorithmProgressBar = new cx::TimedAlgorithmProgressBar;
 
     QHBoxLayout *layout = new QHBoxLayout();
@@ -479,7 +479,7 @@ void ProcessWorkflowState::finishedSlot()
 
 bool ProcessWorkflowState::canEnter() const
 {
-    return true;
+    return this->getCTImage();
 }
 
 void ProcessWorkflowState::addDataToView()
@@ -504,7 +504,6 @@ void ProcessWorkflowState::addDataToView()
 PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr services) :
 	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services, false)
 {
-    connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
     connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
     connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
 }
@@ -526,7 +525,7 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 
 bool PinpointWorkflowState::canEnter() const
 {
-    return true;
+    return this->getCenterline();
 }
 
 void PinpointWorkflowState::dataAddedOrRemovedSlot()
@@ -609,7 +608,7 @@ void PinpointWorkflowState::addDataToView()
 VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services) :
 	FraxinusWorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services, false)
 {
-    connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+
 }
 
 VirtualBronchoscopyFlyThroughWorkflowState::~VirtualBronchoscopyFlyThroughWorkflowState()
@@ -682,7 +681,7 @@ bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, VisServicesPtr services) :
 	FraxinusWorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services, false)
 {
-    connect(mServices->patient().get(), SIGNAL(patientChanged()), this, SLOT(canEnterSlot()));
+
 }
 
 VirtualBronchoscopyCutPlanesWorkflowState::~VirtualBronchoscopyCutPlanesWorkflowState()
@@ -742,7 +741,10 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
 {
-    return true;
+    PointMetricPtr targetPoint = this->getTargetPoint();
+    MeshPtr centerline = this->getCenterline();
+    MeshPtr routeToTarget = this->getRouteToTarget();
+    return targetPoint && centerline && routeToTarget;
 }
 
 } //namespace cx

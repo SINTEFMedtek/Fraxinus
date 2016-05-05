@@ -57,14 +57,12 @@ Q_OBJECT
 public:
         FraxinusWorkflowStateMachine(VisServicesPtr services);
         virtual ~FraxinusWorkflowStateMachine();
+
 private slots:
-		void enableStatesSlot();
 		void dataAddedOrRemovedSlot();
 signals:
 		void dataAdded();
 private:
-		void enableStates(bool enable);
-
 		WorkflowState* mPatientWorkflowState;
 		WorkflowState* mImportWorkflowState;
 		WorkflowState* mProcessWorkflowState;
