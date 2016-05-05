@@ -58,6 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxTransferFunctions3DPresets.h"
 #include "cxApplication.h"
 #include "cxSyncedValue.h"
+#include "cxCameraControl.h"
 
 namespace cx
 {
@@ -128,6 +129,8 @@ void FraxinusWorkflowState::onEntryDefault(QEvent * event)
         viewgroup->getGroup2DZoom()->set(0.3);
         viewgroup->getGlobal2DZoom()->set(0.3);
     }
+
+    services->view()->getCameraControl()->setSuperiorView();
 
     //Hack to make sure camera style is set correnyly
     //This is needed as set camera style needs the views to be shown before trying to set style
