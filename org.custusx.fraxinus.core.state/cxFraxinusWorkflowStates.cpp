@@ -485,7 +485,10 @@ void ProcessWorkflowState::finishedSlot()
 
 bool ProcessWorkflowState::canEnter() const
 {
-    return this->getCTImage();
+    if(this->getCTImage())
+        return true;
+    else
+        return false;
 }
 
 void ProcessWorkflowState::addDataToView()
@@ -531,7 +534,11 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 
 bool PinpointWorkflowState::canEnter() const
 {
-    return this->getCenterline();
+    if(this->getCenterline())
+        return true;
+    else
+        return false;
+
 }
 
 void PinpointWorkflowState::dataAddedOrRemovedSlot()
