@@ -131,7 +131,11 @@ void FraxinusWorkflowState::onEntryDefault(QEvent * event)
         viewgroup->getGlobal2DZoom()->set(0.3);
     }
 
-    services->view()->getCameraControl()->setSuperiorView();
+    CameraControlPtr camera_control = services->view()->getCameraControl();
+    if(camera_control)
+    {
+        camera_control->setSuperiorView();
+    }
 
     //Hack to make sure camera style is set correnyly
     //This is needed as set camera style needs the views to be shown before trying to set style
