@@ -479,7 +479,9 @@ void ProcessWorkflowState::finishedSlot()
     disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(finishedSlot()));
     mThread.reset();
     dialog.hide();
-    this->getAirwaysContour()->setColor("#FFCCCC");
+    MeshPtr airways = this->getAirwaysContour();
+    if(airways)
+        airways->setColor("#FFCCCC");
     emit airwaysSegmented();
 }
 
