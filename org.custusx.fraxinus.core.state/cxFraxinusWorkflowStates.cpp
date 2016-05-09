@@ -481,8 +481,10 @@ void ProcessWorkflowState::finishedSlot()
     dialog.hide();
     MeshPtr airways = this->getAirwaysContour();
     if(airways)
+	{
         airways->setColor("#FFCCCC");
-    emit airwaysSegmented();
+		emit airwaysSegmented();
+	}
 }
 
 bool ProcessWorkflowState::canEnter() const
