@@ -665,6 +665,8 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
         viewGroup0_3D->addData(ctImage_copied->getUid());
     if(routeToTarget)
         viewGroup0_3D->addData(routeToTarget->getUid());
+	if(targetPoint)
+		viewGroup0_3D->addData(targetPoint->getUid());
 
     ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
     viewGroup1_2D->getGroup2DZoom()->set(0.2);
