@@ -93,7 +93,7 @@ class CustusXFinder:
 
         cx_root = '%s/%s' % (root, cx_name)
         url_base = 'ssh://git@git.code.sintef.no/mt'
-        url_name = 'fraxinus.git'
+        url_name = 'custusx.git'
         cx_repo_path='%s/%s' % (cx_root, cx_name)
 
         repo = cxRepoHandler.RepoHandler(silent=self.silent)
