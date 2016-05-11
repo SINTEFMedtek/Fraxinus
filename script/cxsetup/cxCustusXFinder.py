@@ -92,7 +92,7 @@ class CustusXFinder:
         cx_name = self.locations.getPublicRepoFolder()
 
         cx_root = '%s/%s' % (root, cx_name)
-        url_base = 'ssh://git@git.code.sintef.no/mt'
+        url_base = 'git@github.com:SINTEFMedtek/'
         url_name = 'custusx.git'
         cx_repo_path='%s/%s' % (cx_root, cx_name)
 
