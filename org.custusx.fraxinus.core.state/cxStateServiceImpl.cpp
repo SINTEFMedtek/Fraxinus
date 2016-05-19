@@ -81,7 +81,7 @@ void StateServiceImpl::initialize()
 
 	ProfileManager::initialize();
 
-	mWorkflowStateMachine.reset(new CustusXWorkflowStateMachine(mServices));
+	mWorkflowStateMachine.reset(new FraxinusWorkflowStateMachine(mServices));
 	mWorkflowStateMachine->start();
 
 	connect(mWorkflowStateMachine.get(), &WorkflowStateMachine::activeStateChanged, this, &StateServiceImpl::workflowStateChanged);

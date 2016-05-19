@@ -40,39 +40,59 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QStateMachine>
 #include <QString>
 #include <QAction>
+#include <QDialog>
 #include "cxTypeConversions.h"
 #include "cxRequestEnterStateTransition.h"
 #include "cxWorkflowState.h"
 #include "boost/shared_ptr.hpp"
 #include "cxViewService.h"
+#include "cxFilterTimedAlgorithm.h"
+#include "cxTimedAlgorithmProgressBar.h"
 
 class QMainWindow;
 
 namespace cx
 {
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
+typedef boost::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
 class VBWidget;
 
 class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public WorkflowState
 {
 	Q_OBJECT
-	ImagePtr getActiveImage();
 public:
 	FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction = true);
 	virtual void setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx);
 	virtual void onEntry(QEvent* event);
+
 protected:
-	void onEntryDefault(QEvent *event);
-	void useClipper(bool on);
-	MeshPtr getCenterline();
-	MeshPtr getRouteTotarget();
+    MeshPtr getCenterline() const;
+    MeshPtr getRouteToTarget() const;
 	QMainWindow *getMainWindow();
 	VBWidget *getVBWidget();
-	MeshPtr getAirwaysContour();
-	ImagePtr getCTImage();
+    MeshPtr getAirwaysContour() const;
+    ImagePtr getCTImage() const;
+    ImagePtr getCTImageCopied() const;
+    PointMetricPtr getTargetPoint() const;
+
+    void setTransferfunction3D(QString transferfunction, ImagePtr image);
+    void setTransferfunction2D(QString transferfunction, ImagePtr image);
+    void setRTTInVBWidget();
+
+    InteractiveClipperPtr enableInvertedClipper(QString clipper_name, bool on);
+    void removeAllDataFromClipper(InteractiveClipperPtr clipper);
+
+    virtual void addDataToView() = 0;
+
 protected slots:
 	virtual void setDefaultCameraStyle();
-	virtual void setVBCameraStyle();
+    virtual void setVBFlythroughCameraStyle();
+    virtual void setVBCutplanesCameraStyle();
+
+private:
+    void onEntryDefault(QEvent *event);
+    ImagePtr getActiveImage();
+    TransferFunctions3DPresetsPtr getTransferfunctionPresets();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PatientWorkflowState: public FraxinusWorkflowState
@@ -84,6 +104,10 @@ public:
     virtual ~PatientWorkflowState();
     virtual QIcon getIcon() const;
     virtual bool canEnter() const;
+    virtual void onEntry(QEvent* event);
+
+private:
+    virtual void addDataToView();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public FraxinusWorkflowState
@@ -96,6 +120,10 @@ public:
     virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
 	virtual void onEntry(QEvent *event);
+    virtual void onExit(QEvent * event);
+
+private:
+    virtual void addDataToView();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public FraxinusWorkflowState
@@ -111,38 +139,53 @@ public:
 	virtual bool canEnter() const;
 signals:
 	void airwaysSegmented();
+
 private slots:
 	void imageSelected();
+    void runFilterSlot();
+    void finishedSlot();
+
+private:
+    virtual void addDataToView();
+    FilterPtr mCurrentFilter;
+    FilterTimedAlgorithmPtr mThread;
+    TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
+    QDialog dialog;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public FraxinusWorkflowState
 {
 Q_OBJECT
 
-	PointMetricPtr getTargetPoint();
-	void createRouteToTarget();
 public:
     PinpointWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~PinpointWorkflowState();
     virtual QIcon getIcon() const;
+    virtual void onEntry(QEvent *event);
 	virtual bool canEnter() const;
 signals:
 	void routeToTargetCreated();
 private slots:
-	void dataAddedOrRemovedSlot();
+    void dataAddedOrRemovedSlot();
+    void updateRouteToTarget();
+private:
+    void createRouteToTarget();
+    void addDataToView();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkflowState: public FraxinusWorkflowState
 {
 Q_OBJECT
 
-	void showAirwaysAndRouteToTarget();
 public:
 	VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services);
 	virtual ~VirtualBronchoscopyFlyThroughWorkflowState();
     virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
-	virtual bool canEnter() const;
+    virtual bool canEnter() const;
+
+private:
+    void addDataToView();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyCutPlanesWorkflowState: public FraxinusWorkflowState
@@ -155,6 +198,9 @@ public:
 	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
 	virtual bool canEnter() const;
+
+private:
+    void addDataToView();
 };
 
 /**

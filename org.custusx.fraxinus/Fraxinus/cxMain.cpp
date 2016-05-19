@@ -65,6 +65,15 @@ void addAdditionalDefaultLayouts()
 		layout.setView(1, ptCORONAL, LayoutRegion(2, 3, 1, 2));
 		viewService->addDefaultLayout(layout);
 	}
+    {
+        // ACS 3D
+        LayoutData layout = LayoutData::create("LAYOUT_ACAS", "ACAS", 2, 2);
+        layout.setView(1, ptAXIAL, LayoutRegion(0, 0));
+        layout.setView(1, ptCORONAL, LayoutRegion(0, 1));
+        layout.setView(1, ptSAGITTAL, LayoutRegion(1, 1));
+        layout.setView(0, ptAXIAL, LayoutRegion(1, 0));
+        viewService->addDefaultLayout(layout);
+    }
 }
 } //cx
 
@@ -81,7 +90,7 @@ int main(int argc, char *argv[])
   app.setOrganizationName("Fraxinus");
   app.setOrganizationDomain("www.sintef.no");
   app.setApplicationName(CX_SYSTEM_BASE_NAME);
-  app.setWindowIcon(QIcon(":/icons/icons/Fraxinus2.png"));
+  app.setWindowIcon(QIcon(":/icons/icons/Fraxinus.png"));
   app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
   cx::DataLocations::setWebsiteURL("http://www.custusx.org/fraxinus");
