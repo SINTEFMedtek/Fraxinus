@@ -44,7 +44,7 @@ namespace cx
 FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr services) :
 	WorkflowStateMachine(services)
 {
-	mPatientWorkflowState = this->newState(new PatientWorkflowState(mParentState, services));
+	mPatientWorkflowState = dynamic_cast<FraxinusWorkflowState*>(this->newState(new PatientWorkflowState(mParentState, services)));
     mImportWorkflowState = this->newState(new ImportWorkflowState(mParentState, services));
     mProcessWorkflowState = this->newState(new ProcessWorkflowState(mParentState, services));
     mPinpointWorkflowState = this->newState(new PinpointWorkflowState(mParentState, services));
@@ -76,7 +76,8 @@ FraxinusWorkflowStateMachine::~FraxinusWorkflowStateMachine()
 
 void FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot()
 {
-    emit dataAdded();
+	if(mPatientWorkflowState->getCTImage())
+		emit dataAdded();
 }
 
 } //namespace cx

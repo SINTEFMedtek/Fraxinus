@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cx
 {
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
+class FraxinusWorkflowState;
 
 /** \brief State Machine for the Workflow Steps for CustusX
  *
@@ -63,7 +64,7 @@ private slots:
 signals:
 		void dataAdded();
 private:
-		WorkflowState* mPatientWorkflowState;
+		FraxinusWorkflowState* mPatientWorkflowState;
 		WorkflowState* mImportWorkflowState;
 		WorkflowState* mProcessWorkflowState;
 		WorkflowState* mPinpointWorkflowState;

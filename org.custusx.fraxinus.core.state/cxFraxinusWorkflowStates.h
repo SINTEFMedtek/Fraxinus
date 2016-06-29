@@ -65,13 +65,14 @@ public:
 	virtual void setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx);
 	virtual void onEntry(QEvent* event);
 
+	ImagePtr getCTImage() const;
+
 protected:
     MeshPtr getCenterline() const;
     MeshPtr getRouteToTarget() const;
 	QMainWindow *getMainWindow();
 	VBWidget *getVBWidget();
     MeshPtr getAirwaysContour() const;
-    ImagePtr getCTImage() const;
     ImagePtr getCTImageCopied() const;
     PointMetricPtr getTargetPoint() const;
 
