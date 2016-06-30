@@ -181,13 +181,22 @@ MeshPtr FraxinusWorkflowState::getCenterline() const
 
 MeshPtr FraxinusWorkflowState::getRouteToTarget() const
 {
+	QStringList allRoutes;
+
     std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
     for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
     {
         if(iter->first.contains("_rtt_cl"))
-            return iter->second;
+			allRoutes << iter->first;
     }
-    return MeshPtr();
+
+	if(allRoutes.isEmpty())
+		return MeshPtr();
+	else
+	{
+		allRoutes.sort();
+		return datas[allRoutes.last()];
+	}
 }
 
 MeshPtr FraxinusWorkflowState::getAirwaysContour() const
@@ -290,7 +299,7 @@ void FraxinusWorkflowState::setRTTInVBWidget()
     {
         MeshPtr routeToTarget = this->getRouteToTarget();
         if(routeToTarget)
-            widget->setRouteToTarget(routeToTarget->getUid());
+			widget->setRouteToTarget(routeToTarget->getUid());
     }
 }
 
@@ -515,7 +524,8 @@ void ProcessWorkflowState::addDataToView()
 // --------------------------------------------------------
 
 PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr services) :
-	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services, false)
+	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services, false),
+	mPointChanged(false)
 {
     connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
     connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
@@ -549,23 +559,30 @@ void PinpointWorkflowState::dataAddedOrRemovedSlot()
 {
     PointMetricPtr targetPoint = this->getTargetPoint();
     MeshPtr centerline = this->getCenterline();
-    MeshPtr routeToTarget = this->getRouteToTarget();
+	MeshPtr routeToTarget = this->getRouteToTarget();
 
-    if(targetPoint && centerline && !routeToTarget)
-    {
-        this->createRouteToTarget();
-        connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::updateRouteToTarget);
-    }
+	if(targetPoint && centerline && !routeToTarget)
+		this->createRoute();
 }
 
-void PinpointWorkflowState::updateRouteToTarget()
+void PinpointWorkflowState::createRoute()
 {
-    MeshPtr routeToTarget = this->getRouteToTarget();
-    if(routeToTarget)
-    {
-        mServices->patient()->removeData(routeToTarget->getUid());
-        this->dataAddedOrRemovedSlot();
-    }
+	MeshPtr oldRouteToTarget = this->getRouteToTarget();
+	if(!oldRouteToTarget)
+	{
+		this->createRouteToTarget();
+		PointMetricPtr targetPoint = this->getTargetPoint();
+		mPointChanged = false;
+		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged);
+	}
+	else if(mPointChanged)
+		this->createRouteToTarget();
+}
+
+void PinpointWorkflowState::pointChanged()
+{
+	mPointChanged = true;
+	this->createRoute();
 }
 
 void PinpointWorkflowState::createRouteToTarget()

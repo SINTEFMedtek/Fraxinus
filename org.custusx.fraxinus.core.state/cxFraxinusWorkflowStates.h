@@ -69,7 +69,7 @@ public:
 
 protected:
     MeshPtr getCenterline() const;
-    MeshPtr getRouteToTarget() const;
+	MeshPtr getRouteToTarget() const;
 	QMainWindow *getMainWindow();
 	VBWidget *getVBWidget();
     MeshPtr getAirwaysContour() const;
@@ -168,10 +168,13 @@ signals:
 	void routeToTargetCreated();
 private slots:
     void dataAddedOrRemovedSlot();
-    void updateRouteToTarget();
+	void createRoute();
+	void pointChanged();
 private:
     void createRouteToTarget();
     void addDataToView();
+
+	bool mPointChanged;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkflowState: public FraxinusWorkflowState
