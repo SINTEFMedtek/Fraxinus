@@ -33,49 +33,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 //#include "cxFraxinusMainWindow.h"
 #include "cxMainWindow.h"
-#include "cxMainWindowApplicationComponent.h"
 #include "cxLogicManager.h"
 #include "cxApplication.h"
-#include "cxViewService.h"
-#include "cxLayoutData.h"
-#include "cxView.h"
 #include "cxDataLocations.h"
 #include "cxProfile.h"
 
-
-namespace cx
-{
-void addAdditionalDefaultLayouts()
-{
-
-	ViewServicePtr viewService = logicManager()->getViewService();
-	{
-		LayoutData layout = LayoutData::create("LAYOUT_VB_FLY_THROUGH", "VB FLY-THROUGH", 3, 5);
-		layout.setView(2, View::VIEW_3D, LayoutRegion(0, 0, 3, 3));
-		layout.setView(0, View::VIEW_3D, LayoutRegion(0, 3, 1, 2));
-		layout.setView(1, ptAXIAL, LayoutRegion(1, 3, 1, 2));
-		layout.setView(1, ptCORONAL, LayoutRegion(2, 3, 1, 2));
-		viewService->addDefaultLayout(layout);
-	}
-	{
-		LayoutData layout = LayoutData::create("LAYOUT_VB_CUT_PLANES", "VB CUT-PLANES", 3, 5);
-		layout.setView(0, View::VIEW_3D, LayoutRegion(0, 0, 3, 3));
-		layout.setView(2, View::VIEW_3D, LayoutRegion(0, 3, 1, 2));
-		layout.setView(1, ptAXIAL, LayoutRegion(1, 3, 1, 2));
-		layout.setView(1, ptCORONAL, LayoutRegion(2, 3, 1, 2));
-		viewService->addDefaultLayout(layout);
-	}
-    {
-        // ACS 3D
-        LayoutData layout = LayoutData::create("LAYOUT_ACAS", "ACAS", 2, 2);
-        layout.setView(1, ptAXIAL, LayoutRegion(0, 0));
-        layout.setView(1, ptCORONAL, LayoutRegion(0, 1));
-        layout.setView(1, ptSAGITTAL, LayoutRegion(1, 1));
-        layout.setView(0, ptAXIAL, LayoutRegion(1, 0));
-        viewService->addDefaultLayout(layout);
-    }
-}
-} //cx
+#include "cxFraxinusMainWindowApplicationComponent.h"
 
 int main(int argc, char *argv[])
 {
@@ -94,12 +57,10 @@ int main(int argc, char *argv[])
   app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
   cx::DataLocations::setWebsiteURL("http://www.custusx.org/fraxinus");
-  cx::ApplicationComponentPtr mainwindow(new cx::MainWindowApplicationComponent<cx::MainWindow>());
+  cx::ApplicationComponentPtr mainwindow(new cx::FraxinusMainWindowApplicationComponent());
 
   cx::ProfileManager::getInstance("Bronchoscopy");
   cx::LogicManager::initialize(mainwindow);
-
-  cx::addAdditionalDefaultLayouts();
 
   int retVal = app.exec();
 

@@ -143,7 +143,10 @@ Desktop ApplicationsParser::getDefaultDesktop(QString workflowName)
 {
 	//TODO use applicationName!!!
 	if (!mWorkflowDefaultDesktops.count(workflowName))
+	{
+		CX_LOG_WARNING() << "Cannot find workflow: " << workflowName;
 		return mWorkflowDefaultDesktops["DEFAULT"];
+	}
 	return mWorkflowDefaultDesktops[workflowName];
 }
 
