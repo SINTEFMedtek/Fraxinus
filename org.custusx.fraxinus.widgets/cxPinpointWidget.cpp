@@ -16,7 +16,7 @@
 namespace cx {
 
 PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
-    BaseWidget(parent, "PinpointWidget", "Pinpoint"),
+	BaseWidget(parent, "pinpoint_widget", "Pinpoint"),
     mServices(services),
     mMetricManager(new MetricManager()),
     mMetricUid("fraxinus_target"),

@@ -68,7 +68,7 @@ ApplicationsParser::ApplicationsParser()
     QStringList toolbars;
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset("NewLoadPatientWidget", Qt::LeftDockWidgetArea, true);
+	desktop.addPreset("new_load_patient_widget", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["PatientUid"] = desktop;
     //-----------------------------------------------------
 
@@ -77,7 +77,7 @@ ApplicationsParser::ApplicationsParser()
 	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset("DicomWidget", Qt::LeftDockWidgetArea, true);
+	desktop.addPreset("dicom_widget", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["ImportUid"] = desktop;
 	//-----------------------------------------------------
 
@@ -97,7 +97,7 @@ ApplicationsParser::ApplicationsParser()
 	toolbars.clear();
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset("PinpointWidget", Qt::LeftDockWidgetArea, true);
+	desktop.addPreset("pinpoint_widget", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["PinpointUid"] = desktop;
 	//-----------------------------------------------------
 
@@ -107,7 +107,7 @@ ApplicationsParser::ApplicationsParser()
 	toolbars.clear();
     toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset("Virtual Bronchoscopy Widget", Qt::LeftDockWidgetArea, true);
+	desktop.addPreset("virtual_bronchoscopy_widget", Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["VirtualBronchoscopyFlyThroughUid"] = desktop;
 	//-----------------------------------------------------
 
@@ -117,7 +117,7 @@ ApplicationsParser::ApplicationsParser()
 	toolbars.clear();
     toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset("Virtual Bronchoscopy Widget", Qt::LeftDockWidgetArea, true);
+	desktop.addPreset("virtual_bronchoscopy_widget", Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["VirtualBronchoscopyCutPlanesUid"] = desktop;
     //-----------------------------------------------------
 
