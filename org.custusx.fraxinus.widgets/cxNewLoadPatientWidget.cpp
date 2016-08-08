@@ -15,7 +15,7 @@ namespace cx
 {
 
 NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, PatientModelServicePtr patient) :
-    BaseWidget(parent, "NewLoadPatientWidget", "New/Load Patient"),
+	BaseWidget(parent, "new_load_patient_widget", "New/Load Patient"),
     mPatient(patient)
 {
     this->setWindowTitle("Create or select patient");

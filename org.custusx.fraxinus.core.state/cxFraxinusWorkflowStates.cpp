@@ -248,7 +248,7 @@ QMainWindow* FraxinusWorkflowState::getMainWindow()
 {
     QWidgetList widgets = qApp->topLevelWidgets();
     for (QWidgetList::iterator i = widgets.begin(); i != widgets.end(); ++i)
-        if ((*i)->objectName() == "MainWindow")
+		if ((*i)->objectName() == "main_window")
             return (QMainWindow*) (*i);
     return NULL;
 }
@@ -257,7 +257,7 @@ VBWidget* FraxinusWorkflowState::getVBWidget()
 {
     QMainWindow* mainWindow = this->getMainWindow();
 
-    QString widgetName("Virtual Bronchoscopy Widget");
+	QString widgetName("virtual_bronchoscopy_widget");
     return mainWindow->findChild<VBWidget*>(widgetName);
 }
 
