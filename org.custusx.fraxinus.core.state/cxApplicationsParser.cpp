@@ -50,6 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVideoServiceProxy.h"
 #include "cxProfile.h"
 
+#include "cxLogger.h"
+
 namespace cx
 {
 
@@ -141,29 +143,16 @@ Desktop ApplicationsParser::getDefaultDesktop(QString workflowName)
 {
 	//TODO use applicationName!!!
 	if (!mWorkflowDefaultDesktops.count(workflowName))
+	{
+		CX_LOG_WARNING() << "Cannot find workflow: " << workflowName;
 		return mWorkflowDefaultDesktops["DEFAULT"];
+	}
 	return mWorkflowDefaultDesktops[workflowName];
 }
 
 Desktop ApplicationsParser::getDesktop(QString workflowName)
 {
-	Desktop retval;
-	XmlOptionFile file = this->getSettings();
-	QDomElement workflowElement = file.descend(workflowName).getElement();
-	QDomElement desktopElement;
-	if (workflowElement.namedItem("custom").isNull())
-	{
-		return this->getDefaultDesktop(workflowName);
-	}
-	else
-	{
-		desktopElement = workflowElement.namedItem("custom").toElement();
-	}
-	retval.mMainWindowState = QByteArray::fromBase64(desktopElement.attribute("mainwindowstate").toLatin1());
-	retval.mLayoutUid = desktopElement.attribute("layoutuid");
-	retval.mSecondaryLayoutUid = desktopElement.attribute("secondarylayoutuid");
-
-	return retval;
+	return this->getDefaultDesktop(workflowName);
 }
 
 void ApplicationsParser::setDesktop(QString workflowName, Desktop desktop)

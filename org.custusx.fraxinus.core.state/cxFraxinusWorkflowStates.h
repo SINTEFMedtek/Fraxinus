@@ -65,13 +65,14 @@ public:
 	virtual void setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx);
 	virtual void onEntry(QEvent* event);
 
+	ImagePtr getCTImage() const;
+
 protected:
     MeshPtr getCenterline() const;
-    MeshPtr getRouteToTarget() const;
+	MeshPtr getRouteToTarget() const;
 	QMainWindow *getMainWindow();
 	VBWidget *getVBWidget();
     MeshPtr getAirwaysContour() const;
-    ImagePtr getCTImage() const;
     ImagePtr getCTImageCopied() const;
     PointMetricPtr getTargetPoint() const;
 
@@ -167,10 +168,13 @@ signals:
 	void routeToTargetCreated();
 private slots:
     void dataAddedOrRemovedSlot();
-    void updateRouteToTarget();
+	void createRoute();
+	void pointChanged();
 private:
     void createRouteToTarget();
     void addDataToView();
+
+	bool mPointChanged;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkflowState: public FraxinusWorkflowState

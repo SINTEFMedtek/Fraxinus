@@ -20,6 +20,8 @@ set(SOURCES
     ${SOURCES}
     ${fraxinus_resources}
     cxMain.cpp
+    cxFraxinusMainWindowApplicationComponent.h
+    cxFraxinusMainWindowApplicationComponent.cpp
 )
 
 if(APPLE)
