@@ -37,6 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxApplication.h"
 #include "cxDataLocations.h"
 #include "cxProfile.h"
+#include "cxConfig.h"
 
 #include "cxFraxinusMainWindowApplicationComponent.h"
 
