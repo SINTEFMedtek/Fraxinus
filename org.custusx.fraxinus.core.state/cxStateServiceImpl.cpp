@@ -145,7 +145,7 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("backgroundColor", QColor("black"));
 	this->fillDefault("View/shadingOn", false);
 	this->fillDefault("View/clinicalView", "Radiological");
-	this->fillDefault("showManualTool", true);
+    this->fillDefault("View3D/showManualTool", true);
 }
 
 
