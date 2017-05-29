@@ -56,10 +56,9 @@ void PinpointWidget::setPointMetric()
 void PinpointWidget::targetNameChanged(const QString &text)
 {
     mMetricName = text;
-    if(!mMetricManager->getMetric(mMetricUid))
-        this->createPointMetric();
-    else
-        this->setNameOfPointMetric();
+
+	if(mMetricManager->getMetric(mMetricUid))
+		this->setNameOfPointMetric();
 }
 
 void PinpointWidget::loadNameOfPointMetric()
