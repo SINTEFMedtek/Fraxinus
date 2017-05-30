@@ -36,7 +36,6 @@ class Fraxinus(cx.build.cxComponents.CppComponent):
         add('CX_PLUGIN_org.custusx.core.state', 'OFF')
         add('CX_EXTERNAL_PLUGIN_org_custusx_fraxinus_core_state', '%s/org.custusx.fraxinus.core.state' % self.sourcePath())
         add('CX_EXTERNAL_PLUGIN_org_custusx_fraxinus_widgets', '%s/org.custusx.fraxinus.widgets' % self.sourcePath())
-        add('CX_PLUGIN_org.custusx.filter.tubesegmentation', 'ON')
         if (platform.system() == 'Linux') or (platform.system() == 'Windows'):
             add('CX_PLUGIN_org.custusx.filter.airways', 'ON')
 
