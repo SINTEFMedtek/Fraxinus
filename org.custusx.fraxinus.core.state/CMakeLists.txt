@@ -39,6 +39,9 @@ set(PLUGIN_UI_FORMS
 set(PLUGIN_resources
 )
 
+find_package(FAST REQUIRED)
+link_directories("${FAST_DIR}/lib/")
+
 #Compute the plugin dependencies
 ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
 set(PLUGIN_target_libraries 
