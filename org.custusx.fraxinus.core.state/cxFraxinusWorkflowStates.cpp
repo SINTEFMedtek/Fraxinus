@@ -543,7 +543,12 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 {
     FraxinusWorkflowState::onEntry(event);
     this->addDataToView();
-    //QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
+
+	PointMetricPtr targetPoint = this->getTargetPoint();
+	if(targetPoint)
+	{
+		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
+	}
 }
 
 bool PinpointWorkflowState::canEnter() const
@@ -573,7 +578,7 @@ void PinpointWorkflowState::createRoute()
 		this->createRouteToTarget();
 		PointMetricPtr targetPoint = this->getTargetPoint();
 		mPointChanged = false;
-		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged);
+		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
 	else if(mPointChanged)
 		this->createRouteToTarget();
