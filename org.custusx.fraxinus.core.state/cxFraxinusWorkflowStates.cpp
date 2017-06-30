@@ -646,8 +646,9 @@ void PinpointWorkflowState::addDataToView()
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services) :
-	FraxinusWorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services, false)
+VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services)
+  : FraxinusWorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services, false)
+  , m3DViewGroupNumber(2)
 {
 
 }
@@ -665,10 +666,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
     FraxinusWorkflowState::onEntry(event);
     this->addDataToView();
     this->setRTTInVBWidget();
-
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(2);
-	viewGroup0_3D->getCamera3D()->getCamera()->Dolly(1010);
+	this->zoomInCamera();
 
     QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
 }
@@ -703,7 +701,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
     if(ctImage_copied)
         viewGroup1_2D->addData(ctImage_copied->getUid());
 
-    ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(2);
+	ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(m3DViewGroupNumber);
     this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage);
     //TODO add PointMetric
     if(targetPoint)
@@ -721,6 +719,13 @@ bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
     MeshPtr centerline = this->getCenterline();
     MeshPtr routeToTarget = this->getRouteToTarget();
     return targetPoint && centerline && routeToTarget;
+}
+
+void VirtualBronchoscopyFlyThroughWorkflowState::zoomInCamera()
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	ViewGroupDataPtr viewGroup_3D = services->view()->getGroup(m3DViewGroupNumber);
+	viewGroup_3D->getCamera3D()->getCamera()->Dolly(1010); //Tested this value. Seemed ok on Mac.
 }
 
 // --------------------------------------------------------

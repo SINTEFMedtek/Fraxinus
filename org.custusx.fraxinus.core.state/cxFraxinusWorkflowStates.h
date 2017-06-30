@@ -190,6 +190,8 @@ public:
 
 private:
     void addDataToView();
+	void zoomInCamera();
+	int m3DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyCutPlanesWorkflowState: public FraxinusWorkflowState
