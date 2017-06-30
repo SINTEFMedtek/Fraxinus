@@ -59,6 +59,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxApplication.h"
 #include "cxSyncedValue.h"
 #include "cxCameraControl.h"
+#include <vtkCamera.h>
+
 
 namespace cx
 {
@@ -663,6 +665,11 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
     FraxinusWorkflowState::onEntry(event);
     this->addDataToView();
     this->setRTTInVBWidget();
+
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(2);
+	viewGroup0_3D->getCamera3D()->getCamera()->Dolly(1010);
+
     QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
 }
 
