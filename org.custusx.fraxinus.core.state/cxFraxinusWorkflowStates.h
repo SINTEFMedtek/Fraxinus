@@ -176,6 +176,7 @@ private slots:
 private:
     void createRouteToTarget();
     void addDataToView();
+	void deleteOldRouteToTarget();
 
 	bool mPointChanged;
 };
