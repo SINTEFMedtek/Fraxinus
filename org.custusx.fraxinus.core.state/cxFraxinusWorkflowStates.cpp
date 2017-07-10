@@ -59,6 +59,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxApplication.h"
 #include "cxSyncedValue.h"
 #include "cxCameraControl.h"
+#include "cxPinpointWidget.h"
+
 
 namespace cx
 {
@@ -268,6 +270,16 @@ VBWidget* FraxinusWorkflowState::getVBWidget()
 
 	QString widgetName("virtual_bronchoscopy_widget");
     return mainWindow->findChild<VBWidget*>(widgetName);
+}
+
+PinpointWidget* FraxinusWorkflowState::getPinpointWidget()
+{
+	QMainWindow* mainWindow = this->getMainWindow();
+
+	QString widgetName("pinpoint_widget");
+	//return mainWindow->findChild<PinpointWidget*>(widgetName);
+	PinpointWidget* ret = mainWindow->findChild<PinpointWidget*>(widgetName);
+	return ret;
 }
 
 TransferFunctions3DPresetsPtr FraxinusWorkflowState::getTransferfunctionPresets()
@@ -527,8 +539,9 @@ PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr ser
 	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services, false),
 	mPointChanged(false)
 {
-    connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
-    connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
+	//connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
+	//connect(this->getPinpointWidget(), &PinpointWidget::targetMetricCreated, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
+	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 }
 
 PinpointWorkflowState::~PinpointWorkflowState()
@@ -543,6 +556,8 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 {
     FraxinusWorkflowState::onEntry(event);
     this->addDataToView();
+
+	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	if(targetPoint)

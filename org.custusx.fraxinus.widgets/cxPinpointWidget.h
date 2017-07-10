@@ -49,6 +49,9 @@ class PinpointWidget : public BaseWidget
 public:
     PinpointWidget(VisServicesPtr services, QWidget *parent);
 
+signals:
+	void targetMetricSet();
+
 private slots:
     void setPointMetric();
     void centerToImage();
