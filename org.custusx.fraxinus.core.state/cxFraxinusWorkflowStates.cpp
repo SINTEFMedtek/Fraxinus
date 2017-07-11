@@ -60,6 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxSyncedValue.h"
 #include "cxCameraControl.h"
 #include <vtkCamera.h>
+#include "cxVB3DCameraZoomSetting.h"
 
 
 namespace cx
@@ -666,7 +667,9 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
     FraxinusWorkflowState::onEntry(event);
     this->addDataToView();
     this->setRTTInVBWidget();
-	this->zoomInCamera();
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+    if(services)
+        services->zoomCamera3D(m3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
 
     QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
 }
@@ -721,18 +724,13 @@ bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
     return targetPoint && centerline && routeToTarget;
 }
 
-void VirtualBronchoscopyFlyThroughWorkflowState::zoomInCamera()
-{
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	ViewGroupDataPtr viewGroup_3D = services->view()->getGroup(m3DViewGroupNumber);
-	viewGroup_3D->getCamera3D()->getCamera()->Dolly(1010); //Tested this value. Seemed ok on Mac.
-}
 
 // --------------------------------------------------------
 // --------------------------------------------------------
 
 VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, VisServicesPtr services) :
 	FraxinusWorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services, false)
+  , mFlyThroughViewGroupNumber3D(2)
 {
 
 }
@@ -750,6 +748,10 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
     FraxinusWorkflowState::onEntry(event);
     this->addDataToView();
     this->setRTTInVBWidget();
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+    if(services)
+        services->zoomCamera3D(mFlyThroughViewGroupNumber3D, VB3DCameraZoomSetting::getZoomFactor());
+
     QTimer::singleShot(0, this, SLOT(setVBCutplanesCameraStyle()));
 }
 
@@ -784,7 +786,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
     if(ctImage)
         viewGroup1_2D->addData(ctImage->getUid());
 
-    ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(2);
+    ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(mFlyThroughViewGroupNumber3D);
     this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
     if(ctImage_copied)
         viewGroup2_3D->addData(ctImage_copied->getUid());

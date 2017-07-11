@@ -190,7 +190,6 @@ public:
 
 private:
     void addDataToView();
-	void zoomInCamera();
 	int m3DViewGroupNumber;
 };
 
@@ -207,6 +206,7 @@ public:
 
 private:
     void addDataToView();
+    int mFlyThroughViewGroupNumber3D;
 };
 
 /**

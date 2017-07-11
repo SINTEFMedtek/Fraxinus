@@ -21,6 +21,8 @@ set(PLUGIN_SRCS
     cxStatePluginActivator.cpp
     cxApplicationsParser.h
     cxApplicationsParser.cpp
+    cxVBCameraZoomSetting3D.h
+    cxVBCameraZoomSetting3D.cpp
 )
 
 # Files which should be processed by Qts moc
