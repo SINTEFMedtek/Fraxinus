@@ -60,6 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxSyncedValue.h"
 #include "cxCameraControl.h"
 #include "cxPinpointWidget.h"
+#include "cxContourFilter.h"
 
 
 namespace cx
@@ -175,7 +176,7 @@ MeshPtr FraxinusWorkflowState::getCenterline() const
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
-		if(iter->first.contains("centerline") && !iter->first.contains("_rtt_cl"))
+        if(iter->first.contains(AirwaysFilter::getNameSuffix()) && !iter->first.contains(RouteToTargetFilter::getNameSuffix()))
 			return iter->second;
 	}
 	return MeshPtr();
@@ -188,8 +189,8 @@ MeshPtr FraxinusWorkflowState::getRouteToTarget() const
 
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
-		if(this->getTargetPoint())
-			if(iter->first.contains(this->getTargetPoint()->getName()) && iter->first.contains("_ext"))
+        if(this->getTargetPoint())
+            if(iter->first.contains(this->getTargetPoint()->getName()) && iter->first.contains(RouteToTargetFilter::getNameSuffixExtension()))
 				return iter->second;
 	}
 
@@ -201,7 +202,7 @@ MeshPtr FraxinusWorkflowState::getAirwaysContour() const
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
-		if(iter->first.contains("_ge"))
+        if(iter->first.contains(ContourFilter::getNameSuffix()))
 			return iter->second;
 	}
 	return MeshPtr();
