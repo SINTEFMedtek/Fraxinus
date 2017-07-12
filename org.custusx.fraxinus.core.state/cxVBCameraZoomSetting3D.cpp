@@ -1,4 +1,4 @@
-#include "cxVB3DCameraZoomSetting.h"
+#include "cxVBCameraZoomSetting3D.h"
 
 VB3DCameraZoomSetting::VB3DCameraZoomSetting()
 {

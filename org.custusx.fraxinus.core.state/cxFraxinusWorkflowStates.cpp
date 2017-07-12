@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxSyncedValue.h"
 #include "cxCameraControl.h"
 #include <vtkCamera.h>
-#include "cxVB3DCameraZoomSetting.h"
+#include "cxVBCameraZoomSetting3D.h"
 
 
 namespace cx
