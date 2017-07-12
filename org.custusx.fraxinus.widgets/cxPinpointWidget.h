@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef PINPOINTWIDGET_H
 #define PINPOINTWIDGET_H
 
-#include "org_custusx_fraxinus_widgets_EXPORT.h"
+#include "org_custusx_fraxinus_widgets_Export.h"
 #include "cxBaseWidget.h"
 
 class QLineEdit;
