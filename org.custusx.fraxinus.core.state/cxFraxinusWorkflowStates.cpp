@@ -273,7 +273,6 @@ PinpointWidget* FraxinusWorkflowState::getPinpointWidget()
 	QMainWindow* mainWindow = this->getMainWindow();
 
 	QString widgetName("pinpoint_widget");
-	//return mainWindow->findChild<PinpointWidget*>(widgetName);
 	PinpointWidget* ret = mainWindow->findChild<PinpointWidget*>(widgetName);
 	return ret;
 }
@@ -535,8 +534,6 @@ PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr ser
 	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services, false),
 	mPointChanged(false)
 {
-	//connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
-	//connect(this->getPinpointWidget(), &PinpointWidget::targetMetricCreated, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 }
 
@@ -593,10 +590,8 @@ void PinpointWorkflowState::createRoute()
 	}
 	else if(mPointChanged)
 	{
-		//disconnect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot);
 		this->deleteOldRouteToTarget();
 		this->createRouteToTarget();
-		//connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 	}
 }
 
