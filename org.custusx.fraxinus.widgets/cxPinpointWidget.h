@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef PINPOINTWIDGET_H
 #define PINPOINTWIDGET_H
 
+#include "org_custusx_fraxinus_widgets_Export.h"
 #include "cxBaseWidget.h"
 
 class QLineEdit;
@@ -43,11 +44,14 @@ typedef boost::shared_ptr<class MetricManager> MetricManagerPtr;
 typedef boost::shared_ptr<class PointMetric> PointMetricPtr;
 typedef boost::shared_ptr<class VisServices> VisServicesPtr;
 
-class PinpointWidget : public BaseWidget
+class org_custusx_fraxinus_widgets_EXPORT PinpointWidget : public BaseWidget
 {
     Q_OBJECT
 public:
     PinpointWidget(VisServicesPtr services, QWidget *parent);
+
+signals:
+	void targetMetricSet();
 
 private slots:
     void setPointMetric();

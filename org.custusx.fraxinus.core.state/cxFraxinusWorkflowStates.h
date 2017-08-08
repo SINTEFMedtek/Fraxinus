@@ -56,6 +56,8 @@ namespace cx
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 typedef boost::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
 class VBWidget;
+class PinpointWidget;
+
 
 class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public WorkflowState
 {
@@ -72,6 +74,7 @@ protected:
 	MeshPtr getRouteToTarget() const;
 	QMainWindow *getMainWindow();
 	VBWidget *getVBWidget();
+	PinpointWidget *getPinpointWidget();
     MeshPtr getAirwaysContour() const;
     ImagePtr getCTImageCopied() const;
     PointMetricPtr getTargetPoint() const;
@@ -173,6 +176,7 @@ private slots:
 private:
     void createRouteToTarget();
     void addDataToView();
+	void deleteOldRouteToTarget();
 
 	bool mPointChanged;
 };
