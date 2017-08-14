@@ -51,6 +51,8 @@ void PinpointWidget::setPointMetric()
         this->createPointMetric();
     else
         this->updateCoordinateOfPointMetric();
+
+	emit targetMetricSet();
 }
 
 void PinpointWidget::targetNameChanged(const QString &text)

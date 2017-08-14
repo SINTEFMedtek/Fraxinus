@@ -61,6 +61,7 @@ set(PLUGIN_target_libraries
     org_custusx_filter_airways
     org_custusx_filter_routetotarget
     org_custusx_virtualbronchoscopy
+    org_custusx_fraxinus_widgets
     )
 
 set(PLUGIN_OUTPUT_DIR "")
