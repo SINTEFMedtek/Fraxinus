@@ -691,8 +691,8 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
     this->addDataToView();
     this->setRTTInVBWidget();
     VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-    if(services)
-        services->zoomCamera3D(m3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
+	if(services)
+		services->view()->zoomCamera3D(m3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
 
     QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
 }
@@ -772,8 +772,8 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
     this->addDataToView();
     this->setRTTInVBWidget();
     VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-    if(services)
-        services->zoomCamera3D(mFlyThroughViewGroupNumber3D, VB3DCameraZoomSetting::getZoomFactor());
+	if(services)
+		services->view()->zoomCamera3D(mFlyThroughViewGroupNumber3D, VB3DCameraZoomSetting::getZoomFactor());
 
     QTimer::singleShot(0, this, SLOT(setVBCutplanesCameraStyle()));
 }
