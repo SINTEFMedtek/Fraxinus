@@ -516,12 +516,7 @@ bool ProcessWorkflowState::canEnter() const
 void ProcessWorkflowState::addDataToView()
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-
-	ImagePtr ctImage = this->getCTImage();
-	ImagePtr ctImage_copied = this->getCTImageCopied();
-	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
-	MeshPtr centerline = this->getCenterline();
 
 	//Assuming 3D
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
@@ -631,9 +626,6 @@ void PinpointWorkflowState::addDataToView()
 
 	ImagePtr ctImage = this->getCTImage();
 	ImagePtr ctImage_copied = this->getCTImageCopied();
-	MeshPtr routeToTarget = this->getRouteToTarget();
-	MeshPtr airways = this->getAirwaysContour();
-	MeshPtr centerline = this->getCenterline();
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
@@ -702,10 +694,8 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
 	ImagePtr ctImage = this->getCTImage();
-	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
-	MeshPtr centerline = this->getCenterline();
 	PointMetricPtr targetPoint = this->getTargetPoint();
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
@@ -729,7 +719,6 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 
 	ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(m3DViewGroupNumber);
     this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage);
-    //TODO add PointMetric
     if(targetPoint)
         viewGroup2_3D->addData(targetPoint->getUid());
     if(ctImage)
@@ -786,7 +775,6 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
-	MeshPtr centerline = this->getCenterline();
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
