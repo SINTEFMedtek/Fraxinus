@@ -698,24 +698,16 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	MeshPtr airways = this->getAirwaysContour();
 	PointMetricPtr targetPoint = this->getTargetPoint();
 
-	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
-	clipper->addData(this->getCTImageCopied());
-
 	//assuming layout: LAYOUT_VB_FLY_THROUGH
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
-	this->setTransferfunction3D("Default", ctImage_copied);
-	if(ctImage_copied)
-		viewGroup0_3D->addData(ctImage_copied->getUid());
-	if(routeToTarget)
-		viewGroup0_3D->addData(routeToTarget->getUid());
-	if(targetPoint)
-		viewGroup0_3D->addData(targetPoint->getUid());
+	if(airways)
+		viewGroup0_3D->addData(airways->getUid());
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
 	viewGroup1_2D->getGroup2DZoom()->set(0.2);
 	viewGroup1_2D->getGlobal2DZoom()->set(0.2);
-	if(ctImage_copied)
-		viewGroup1_2D->addData(ctImage_copied->getUid());
+	if(ctImage)
+		viewGroup1_2D->addData(ctImage->getUid());
 
 	ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(m3DViewGroupNumber);
     this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage);
