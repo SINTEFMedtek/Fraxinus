@@ -516,12 +516,7 @@ bool ProcessWorkflowState::canEnter() const
 void ProcessWorkflowState::addDataToView()
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-
-	ImagePtr ctImage = this->getCTImage();
-	ImagePtr ctImage_copied = this->getCTImageCopied();
-	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
-	MeshPtr centerline = this->getCenterline();
 
 	//Assuming 3D
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
@@ -631,9 +626,6 @@ void PinpointWorkflowState::addDataToView()
 
 	ImagePtr ctImage = this->getCTImage();
 	ImagePtr ctImage_copied = this->getCTImageCopied();
-	MeshPtr routeToTarget = this->getRouteToTarget();
-	MeshPtr airways = this->getAirwaysContour();
-	MeshPtr centerline = this->getCenterline();
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
@@ -702,34 +694,23 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
 	ImagePtr ctImage = this->getCTImage();
-	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
-	MeshPtr centerline = this->getCenterline();
 	PointMetricPtr targetPoint = this->getTargetPoint();
-
-	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
-	clipper->addData(this->getCTImageCopied());
 
 	//assuming layout: LAYOUT_VB_FLY_THROUGH
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
-	this->setTransferfunction3D("Default", ctImage_copied);
-	if(ctImage_copied)
-		viewGroup0_3D->addData(ctImage_copied->getUid());
-	if(routeToTarget)
-		viewGroup0_3D->addData(routeToTarget->getUid());
-	if(targetPoint)
-		viewGroup0_3D->addData(targetPoint->getUid());
+	if(airways)
+		viewGroup0_3D->addData(airways->getUid());
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
 	viewGroup1_2D->getGroup2DZoom()->set(0.2);
 	viewGroup1_2D->getGlobal2DZoom()->set(0.2);
-	if(ctImage_copied)
-		viewGroup1_2D->addData(ctImage_copied->getUid());
+	if(ctImage)
+		viewGroup1_2D->addData(ctImage->getUid());
 
 	ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(m3DViewGroupNumber);
     this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage);
-    //TODO add PointMetric
     if(targetPoint)
         viewGroup2_3D->addData(targetPoint->getUid());
     if(ctImage)
@@ -786,7 +767,6 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
-	MeshPtr centerline = this->getCenterline();
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
