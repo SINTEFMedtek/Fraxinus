@@ -37,9 +37,9 @@ endfunction()
 #
 ###############################################################################
 function(cxsetup_install_documentation_files)
-
-    #TODO
-
+    set(DOC_FOLDER "${SOURCE_DIR}/doc/user_manual")
+    cx_doc_define_user_docs("${DOC_FOLDER}")
+    set_property(GLOBAL PROPERTY CX_DOC_USER_MAINPAGE_OVERRIDE "${DOC_FOLDER}/Fraxinus_doc_mainpage.md")
 endfunction()
 
 
