@@ -146,6 +146,7 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("View/shadingOn", false);
 	this->fillDefault("View/clinicalView", "Radiological");
     this->fillDefault("View3D/showManualTool", true);
+	this->fillDefault("Gui/showMenuBar", false);
 }
 
 
