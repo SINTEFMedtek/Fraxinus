@@ -65,6 +65,11 @@ void FraxinusMainWindowApplicationComponent::addAdditionalDefaultLayouts()
 		layout.setView(0, ptAXIAL, LayoutRegion(1, 0));
 		viewService->addDefaultLayout(layout);
 	}
+	{
+		// EMPTY
+		LayoutData layout = LayoutData::create("LAYOUT_EMPTY", "EMPTY", 0, 0);
+		viewService->addDefaultLayout(layout);
+	}
 }
 
 }//cx

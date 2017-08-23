@@ -64,15 +64,27 @@ ApplicationsParser::ApplicationsParser()
     //"Workflow" << "Navigation" << "Data" << "Help"
 
 
-    //-----------------------------------------------------
-    // NEW/LOAD PATIENT
-    desktop = Desktop("LAYOUT_3D", QByteArray::fromBase64(""));
-    QStringList toolbars;
-    toolbars << standardToolbars;
-    this->addToolbarsToDesktop(desktop, toolbars);
+//    //-----------------------------------------------------
+//    // NEW/LOAD PATIENT
+//    desktop = Desktop("LAYOUT_3D", QByteArray::fromBase64(""));
+//    QStringList toolbars;
+//    toolbars << standardToolbars;
+//    this->addToolbarsToDesktop(desktop, toolbars);
+//	desktop.addPreset("new_load_patient_widget", Qt::LeftDockWidgetArea, true);
+//    mWorkflowDefaultDesktops["PatientUid"] = desktop;
+//    //-----------------------------------------------------
+
+	//-----------------------------------------------------
+	// NEW/LOAD PATIENT
+	desktop = Desktop("LAYOUT_EMPTY", QByteArray::fromBase64(""));
+	QStringList toolbars;
+	toolbars << standardToolbars << "Help";
+	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset("new_load_patient_widget", Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["PatientUid"] = desktop;
-    //-----------------------------------------------------
+	desktop.addPreset("help_widget", Qt::RightDockWidgetArea, false);
+	//desktop.addPreset("help_widget", Qt::NoDockWidgetArea, false);
+	mWorkflowDefaultDesktops["PatientUid"] = desktop;
+	//-----------------------------------------------------
 
 	//-----------------------------------------------------
     // IMPORT
