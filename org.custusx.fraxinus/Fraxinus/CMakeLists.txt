@@ -44,7 +44,7 @@ if(APPLE)
     add_executable(Fraxinus MACOSX_BUNDLE ${SOURCES} ) #APPLE
 else(APPLE)
     if(CX_WINDOWS)
-        add_executable(Fraxinus ${SOURCES}) #WINDOWS
+        add_executable(Fraxinus ${SOURCES} CustusX.rc) #WINDOWS
         set_target_properties(Fraxinus PROPERTIES LINK_FLAGS    "/MANIFESTUAC:\"level='asInvoker' uiAccess='false'\"")
     else()
         add_executable(Fraxinus ${SOURCES} ) #LINUX
