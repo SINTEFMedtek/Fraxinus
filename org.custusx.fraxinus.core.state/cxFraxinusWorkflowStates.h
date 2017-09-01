@@ -71,7 +71,8 @@ public:
 
 protected:
     MeshPtr getCenterline() const;
-	MeshPtr getRouteToTarget() const;
+    MeshPtr getRouteToTarget() const;
+    MeshPtr getExtendedRouteToTarget() const;
 	QMainWindow *getMainWindow();
 	VBWidget *getVBWidget();
 	PinpointWidget *getPinpointWidget();
