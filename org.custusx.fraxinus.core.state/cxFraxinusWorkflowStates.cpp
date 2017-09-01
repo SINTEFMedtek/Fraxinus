@@ -192,11 +192,26 @@ MeshPtr FraxinusWorkflowState::getRouteToTarget() const
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
         if(this->getTargetPoint())
-            if(iter->first.contains(this->getTargetPoint()->getName()) && iter->first.contains(RouteToTargetFilter::getNameSuffixExtension()))
+            if(iter->first.contains(this->getTargetPoint()->getName()) && iter->first.contains(RouteToTargetFilter::getNameSuffix()) && !iter->first.contains(RouteToTargetFilter::getNameSuffixExtension()))
 				return iter->second;
 	}
 
 	return MeshPtr();
+}
+
+MeshPtr FraxinusWorkflowState::getExtendedRouteToTarget() const
+{
+    QStringList allRoutes;
+    std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
+
+    for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+    {
+        if(this->getTargetPoint())
+            if(iter->first.contains(this->getTargetPoint()->getName()) && iter->first.contains(RouteToTargetFilter::getNameSuffixExtension()))
+                return iter->second;
+    }
+
+    return MeshPtr();
 }
 
 MeshPtr FraxinusWorkflowState::getAirwaysContour() const
@@ -695,6 +710,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 
 	ImagePtr ctImage = this->getCTImage();
 	MeshPtr routeToTarget = this->getRouteToTarget();
+    MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
 	PointMetricPtr targetPoint = this->getTargetPoint();
 
@@ -715,6 +731,8 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
         viewGroup2_3D->addData(targetPoint->getUid());
     if(ctImage)
         viewGroup2_3D->addData(ctImage->getUid());
+    if(extendedRouteToTarget)
+        viewGroup2_3D->addData(extendedRouteToTarget->getUid());
     if(routeToTarget)
         viewGroup2_3D->addData(routeToTarget->getUid());
 
