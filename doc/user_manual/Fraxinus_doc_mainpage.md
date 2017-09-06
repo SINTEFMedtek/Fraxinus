@@ -3,7 +3,7 @@ Fraxinus User Documentation {#mainpage}
 
 \addindex user_doc_overview
 
-Fraxinus is an IGT Navigation platform based on CustusX (http://www.custusx.org) for research use in the Sphenoblock procedure.
+Fraxinus is an IGT Navigation platform based on CustusX (http://www.custusx.org) for research in bronchoscopy.
 
 ## Conditions for use
 
