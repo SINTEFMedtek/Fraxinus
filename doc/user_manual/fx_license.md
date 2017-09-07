@@ -1,19 +1,19 @@
 Fraxinus software license {#fx_license}
 ===================
 
-Fraxinus software is usable for NNN.
+The Fraxinus software is free to use for everyone.
 
 CustusX license is given here: \ref license.
 
 Full license text:
 
     License for Fraxinus software,
-    an Image Guided Surgery Application.
+    a Bronchoscopy Planning Application.
 
     Copyright (C) 2008-
     SINTEF Technology & Society, Medical Technology
 
-    Fraxinus software is developed by SINTEF for NNN.
+    Fraxinus software is developed by SINTEF for St. Olavs Hospital, Trondheim, Norway.
 
     Fraxinus software is a research tool. It is NOT intended for use or
     certified for use in a normal clinical setting. SINTEF
@@ -27,6 +27,6 @@ Full license text:
 
     Contact:
 
-    http://www.sintef.no/SINTEF-Teknologi-og-samfunn/avdelinger/medisinsk-teknologi/
-    http://www.usigt.org/index.php/the-custusx-navigation-system
+    http://www.sintef.no/sintef-teknologi-og-samfunn/helse/medtek/
+    http://www.sintef.no/projectweb/usigt/forskning/custusx-navigasjonssystem/
 
