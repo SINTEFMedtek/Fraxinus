@@ -60,13 +60,13 @@ ApplicationsParser::ApplicationsParser()
 	Desktop desktop;
 
 	QStringList standardToolbars;
-    standardToolbars << "Workflow";
+	standardToolbars << "Workflow" << "Help";
 
 	//-----------------------------------------------------
 	// NEW/LOAD PATIENT
-	desktop = Desktop("LAYOUT_EMPTY", QByteArray::fromBase64(""));
+	desktop = Desktop("LAYOUT_3D", QByteArray::fromBase64(""));
 	QStringList toolbars;
-	toolbars << standardToolbars << "Help";
+	toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset("new_load_patient_widget", Qt::LeftDockWidgetArea, true);
 	desktop.addPreset("help_widget", Qt::RightDockWidgetArea, false);
