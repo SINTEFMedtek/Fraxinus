@@ -7,13 +7,22 @@ Table of contents:
 
 * \ref about_user_manual
 * \ref description_Fraxinus
+* \ref description_workflow
+  * \ref description_newloadpatient
+  * \ref description_import
+  * \ref description_process
+  * \ref description_pinpoint
+  * \ref description_vbflythrough
+  * \ref description_vbcutplanes
+* \ref fx_troubleshooting
+* \ref fx_advancedusers
 
 ## This document {#about_user_manual}
 
 The Fraxinus procedure and setup is described in this document.
 
-These help documents are based on the underlying CustusX. Hence much of the content is not relevant for Fraxinus users.
 The help pages are context sensitive, meaning that the current page might change when the user clicks different places in the program.
+Since these help documents are based on the underlying CustusX, much of the content might not be relevant for Fraxinus users.
 To come back to this page, use the back/forward arrows at the top, or use the leftmost button
 to bring up the contents. The Fraxinus spesific help pages will be at the top of the list.
 
@@ -53,3 +62,47 @@ to any of the other steps.
 but it has another main 3D view. Here you can see the surface model of the lungs together with the
 imported volume. The volume has been cut with a plane at the tip of the endoscope. From this
 step you can go to any of the other steps.
+
+## Detailed description of workflow steps {#description_workflow}
+
+### New/Load Patient {#description_newloadpatient}
+
+In this step you can create a new or load an old patient. There is also a button to *Restore factory settings*.
+If you change some settings in the program which you are not able to undo, or the program for some reason
+starts to behave badly, you can use this button to return the program to its original state.
+This button deletes the folder *Fraxinus_settings* in your home folder. If anything seems to be wrong with
+the program, deleting this folder and starting it again might help.
+
+
+### Import {#description_import}
+
+Import Dicom.
+Mhd - toolbars.
+
+### Process {#description_process}
+
+manual seed
+lung sack
+
+### Pinpoint {#description_pinpoint}
+
+blubb
+
+### Virtual bronchoscopy fly through {#description_vbflythrough}
+
+Manglende linje - vinkelrett på kamera.
+piltaster
+
+### Virtual Bronchoscopy Cut Planes {#description_vbcutplanes}
+
+blblb
+
+## Troubleshooting {#fx_troubleshooting}
+
+Slette folder
+gå litt fram og tilbake ved svart skjem etter load pat.
+Sentrere bildet.
+
+## For advanced users {#fx_advancedusers}
+
+Remove fil menu
