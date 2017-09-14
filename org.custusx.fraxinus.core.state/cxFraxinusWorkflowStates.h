@@ -195,7 +195,8 @@ public:
 
 private:
     void addDataToView();
-	int m3DViewGroupNumber;
+	int mFlyThrough3DViewGroupNumber;
+	int mSurfaceModel3DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyCutPlanesWorkflowState: public FraxinusWorkflowState
