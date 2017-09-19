@@ -133,23 +133,41 @@ It might be easier to go back to the *Pinpoint* step and set the target again. A
 the camera all the way to the target, so that you are already in the lower part of the lungs when you
 go back to the images in the *Pinpoint*.
 
-
-
-Manglende linje - vinkelrett på kamera.
-piltaster
+The slider and the buttons for the camera position can be controlled from the keyboard. Use the arrows
+and page up/page down, or the numpad.
 
 ### Virtual Bronchoscopy Cut Planes {#description_vbcutplanes}
 
-blblb
+See the previous step.
 
 ## Troubleshooting {#fx_troubleshooting}
 
-Slette folder
-gå litt fram og tilbake ved svart skjem etter load pat.
-Sentrere bildet.
-trykk R.
-Check rotation buttons.
+- Most things needed to know to use Fraxinus are explained above.
+- As a general recommendation, if something seems to be very wrong, try a restart of the program.
+If that doesn't help, use the *Restore factory settings* button in the first step to clean the
+*Fraxinus_settings folder* and restart the program.
+- It has been seen that the 3D view in some steps might be empty upon entering the step.
+In that case, going to another step and then back should fill the view.
+- To make the arrows control the camera in the fly through view, it has been necessary to override all
+other keyboard input in those steps. Meaning e.g. that the "R" button can't be used to center the image
+in the steps containing this view.
+- To get more output in possible error situations, run Fraxinus from a
+command window: use the Windows button + R, type cmd and press enter. Here navigate to the folder
+with your Fraxinus.exe and run the command *set_run_environment.bat Fraxinus.exe*.
+- It has been seen that CT images with low resolution might give some strange twists in the camera path
+along the branches.
+
 
 ## Appendix A: For advanced users {#fx_advancedusers}
 
-Remove fil menu
+*Fraxinus* is a layer on top of *CustusX* which gives a smooth and simple workflow for doing
+virtual bronchoscopy. The user interface has been made as clean and simple as possible, and
+everything which is needed for the users of Fraxinus is already available by default.
+
+However, for advanced users who want to have access to the full functionality of CustusX,
+it is possible to enable the menu bar with all options: open the file
+*C:\Users\your_user_name\Fraxinus_settings\profiles\Bronchoscopy\settings\settings.ini*,
+where you must use the *your_user_name* you have on your computer. Change *showMenuBar=false*
+to *showMenuBar=true*. Then start the program. One thing this enables is e.g. import of the volume
+from .mhd files. You will find more help on the CustusX features in other parts of the help system.
+
