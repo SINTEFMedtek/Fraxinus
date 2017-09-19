@@ -54,7 +54,7 @@ class org_custusx_virtualbronchoscopy(cx.build.cxComponents.CppComponent):
         return 'org.custusx.virtualbronchoscopy'
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
-        self._getBuilder().gitCheckout('3a7f69fa10751c73410607a8b3749b1aad335b5b')
+        self._getBuilder().gitCheckout('e41851b5e939759f3ce19ac396473e7ee8ba0046')
     def configure(self):
         pass
     def build(self):

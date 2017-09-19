@@ -83,6 +83,8 @@ protected:
     void setTransferfunction3D(QString transferfunction, ImagePtr image);
     void setTransferfunction2D(QString transferfunction, ImagePtr image);
     void setRTTInVBWidget();
+	void setupVBWidget(int flyThrough3DViewGroupNumber);
+	void cleanupVBWidget();
 
     InteractiveClipperPtr enableInvertedClipper(QString clipper_name, bool on);
     void removeAllDataFromClipper(InteractiveClipperPtr clipper);
@@ -191,8 +193,8 @@ public:
 	virtual ~VirtualBronchoscopyFlyThroughWorkflowState();
     virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
-    virtual bool canEnter() const;
-
+	void onExit(QEvent *event);
+	virtual bool canEnter() const;
 private:
     void addDataToView();
 	int mFlyThrough3DViewGroupNumber;
@@ -208,11 +210,12 @@ public:
 	virtual ~VirtualBronchoscopyCutPlanesWorkflowState();
 	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
+	void onExit(QEvent *event);
 	virtual bool canEnter() const;
 
 private:
     void addDataToView();
-    int mFlyThroughViewGroupNumber3D;
+	int mFlyThrough3DViewGroupNumber;
 };
 
 /**
