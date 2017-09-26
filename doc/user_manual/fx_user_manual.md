@@ -87,7 +87,7 @@ By pressing on the *Advanced* button, you get access to a couple of features for
 
 This step has some advanced features which experienced users might find helpful.
 The algorithm which creates a surface model from the imported volume, is implemented
-through a CustusX concept called *Filter*. Hence we can se that the *Airway Segmentation Filter*r
+through a CustusX concept called *Filter*. Hence we can se that the *Airway Segmentation Filter*
 is selected.
 
 In the *Input* field one can select the volume one wants to segment. After pressing the *Play*
@@ -99,7 +99,7 @@ also do a segmentation of the lung sack.
 
 You can use the *Eye* button next to the boxes to show or hide the respective objects in the 3D scene.
 You can also right click in the 3D or 2D views to show or hide objects.
-To delete an object, select it in a box and press twice the *Thrashcan* button.
+To delete an object, select it in a box and press the *Trashcan* button twice.
 
 The segmentation algorithm might not always be able to segment a given input volume. Any number of reasons
 can cause this, e.g. poor quality pictures. One thing which might help is to check the
@@ -130,7 +130,7 @@ to move the camera along. The objects are named with the target name. Those name
 indicate an extension from the center of the airways perpendicular out to the target.
 To get the help lines, you must select the corresponding objects in the 3D scene by right clicking.
 It might be easier to go back to the *Pinpoint* step and set the target again. A tip is to slide
-the camera all the way to the target, so that you are already in the lower part of the lungs when you
+the camera all the way to the target, so that you already are in the lower part of the lungs when you
 go back to the images in the *Pinpoint*.
 
 The slider and the buttons for the camera position can be controlled from the keyboard. Use the arrows
@@ -152,8 +152,11 @@ In that case, going to another step and then back should fill the view.
 other keyboard input in those steps. Meaning e.g. that the "R" button can't be used to center the image
 in the steps containing this view.
 - To get more output in possible error situations, run Fraxinus from a
-command window: use the Windows button + R, type cmd and press enter. Here navigate to the folder
-with your Fraxinus.exe and run the command *set_run_environment.bat Fraxinus.exe*.
+command window: use the *Windows button + R*, type *cmd* and press enter. Here navigate to the folder
+with your Fraxinus.exe and run the command:
+
+    set_run_environment.bat Fraxinus.exe
+
 - It has been seen that CT images with low resolution might give some strange twists in the camera path
 along the branches.
 
@@ -166,7 +169,9 @@ everything which is needed for the users of Fraxinus is already available by def
 
 However, for advanced users who want to have access to the full functionality of CustusX,
 it is possible to enable the menu bar with all options: open the file
-*C:\Users\your_user_name\Fraxinus_settings\profiles\Bronchoscopy\settings\settings.ini*,
+
+    C:\Users\your_user_name\Fraxinus_settings\profiles\Bronchoscopy\settings\settings.ini
+
 where you must use the *your_user_name* you have on your computer. Change *showMenuBar=false*
 to *showMenuBar=true*. Then start the program. One thing this enables is e.g. import of the volume
 from .mhd files. You will find more help on the CustusX features in other parts of the help system.
