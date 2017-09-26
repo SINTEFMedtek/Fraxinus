@@ -758,6 +758,8 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	}
 	if(routeToTarget)
 		viewGroup3_3D->addData(routeToTarget->getUid());
+	if(targetPoint)
+		viewGroup3_3D->addData(targetPoint->getUid());
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
 	viewGroup1_2D->getGroup2DZoom()->set(0.2);
@@ -828,6 +830,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
+	PointMetricPtr targetPoint = this->getTargetPoint();
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
@@ -845,6 +848,8 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 		airways->setColor(c);
 		viewGroup0_3D->addData(airways->getUid());
 	}
+	if(targetPoint)
+		viewGroup0_3D->addData(targetPoint->getUid());
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
 	this->setTransferfunction2D("2D CT Lung", ctImage);

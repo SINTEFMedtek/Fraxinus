@@ -71,6 +71,7 @@ step you can go to any of the other steps.
 
 ## Detailed description of the workflow steps {#description_workflow}
 
+\addindex new_load_patient_widget
 ### New/Load Patient {#description_newloadpatient}
 
 In this step you can create a new or load an old patient. There is also a button to *Restore factory settings*.
@@ -82,6 +83,7 @@ the program, deleting this folder and starting it again might help.
 ### Import {#description_import}
 
 By pressing on the *Advanced* button, you get access to a couple of features for getting more info from your DICOM images.
+See also \ref org_custusx_dicom.
 
 ### Process {#description_process}
 
@@ -115,7 +117,7 @@ in the 2D views. As long as you don't click anywhere, the point is at the same p
 when you return to the *Process* view.
 - Press the *Play* button, and hopefully the algorithm will succeed.
 
-
+\addindex pinpoint_widget
 ### Pinpoint {#description_pinpoint}
 
 Use this step to set a target for the virtual bronchoscopy or for the manual seed point
@@ -123,6 +125,7 @@ used in the process step. If the images get away from you, you can use the butto
 next to the target name to get them back to the center. You can change the target name if you want to
 save multiple route to the target for the next step.
 
+\addindex virtual_bronchoscopy_widget
 ### Virtual bronchoscopy Fly Through {#description_vbflythrough}
 
 Here you move the camera through the airways to your target. In the box you can select which route
