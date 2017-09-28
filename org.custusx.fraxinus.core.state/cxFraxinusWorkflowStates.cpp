@@ -349,7 +349,8 @@ void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber)
 		services->view()->zoomCamera3D(flyThrough3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
 
 	this->getVBWidget()->grabKeyboard(); //NB! This make this widget take all keyboard input. E.g. "R" doesn't work in this workflow step.
-	//this->getVBWidget()->setFocus();
+	//Actually, "R" seems to be a special case since it is from VTK. Other key input might work, but maybe not if the menu bar is off.
+	//this->getVBWidget()->setFocus(); // Can't seem to get any affect from this regarding key input.
 }
 
 void FraxinusWorkflowState::cleanupVBWidget()

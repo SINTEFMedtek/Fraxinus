@@ -154,6 +154,10 @@ In that case, going to another step and then back should fill the view.
 - To make the arrows control the camera in the fly through view, it has been necessary to override all
 other keyboard input in those steps. Meaning e.g. that the "R" button can't be used to center the image
 in the steps containing this view.
+- If the arrow keys seems to stop working, a single or more presses on the "Tab" key on the keyboard
+might solve this. This has been seen on Mac after setting a new target.
+- You might experience that the tail of the line you are navigating after in the Fly through step
+gets a small curl. By zooming in more you can get rid of this curl.
 - To get more output in possible error situations, run Fraxinus from a
 command window: use the *Windows button + R*, type *cmd* and press enter. Here navigate to the folder
 with your Fraxinus.exe and run the command:
