@@ -21,13 +21,6 @@ The system must only be used on properly configured and calibrated hardware.
 
 Fraxinus is open source software and is free to use by anyone. See \ref fx_license for details.
 
-## Producer
+## Developed by SINTEF
 
-SINTEF Technology and Society <br>
-Department of Medical Technology <br>
-P.O. Box 4760 Torgarden <br>
-NO-7465 Trondheim <br>
-Norway <br>
-
-Web: http://www.sintef.no/sintef-teknologi-og-samfunn/helse/medtek/ <br>
-Phone: +47 73 59 03 00 <br>
+See \ref sintef_organization.
