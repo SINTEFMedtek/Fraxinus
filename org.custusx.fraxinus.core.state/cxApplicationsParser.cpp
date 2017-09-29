@@ -60,23 +60,23 @@ ApplicationsParser::ApplicationsParser()
 	Desktop desktop;
 
 	QStringList standardToolbars;
-    standardToolbars << "Workflow";
-    //"Workflow" << "Navigation" << "Data" << "Help"
+	standardToolbars << "Workflow" << "Help";
 
-
-    //-----------------------------------------------------
-    // NEW/LOAD PATIENT
-    desktop = Desktop("LAYOUT_3D", QByteArray::fromBase64(""));
-    QStringList toolbars;
-    toolbars << standardToolbars;
-    this->addToolbarsToDesktop(desktop, toolbars);
+	//-----------------------------------------------------
+	// NEW/LOAD PATIENT
+	desktop = Desktop("LAYOUT_3D", QByteArray::fromBase64(""));
+	QStringList toolbars;
+	toolbars << standardToolbars;
+	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset("new_load_patient_widget", Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["PatientUid"] = desktop;
-    //-----------------------------------------------------
+	desktop.addPreset("help_widget", Qt::RightDockWidgetArea, false);
+	mWorkflowDefaultDesktops["PatientUid"] = desktop;
+	//-----------------------------------------------------
 
 	//-----------------------------------------------------
     // IMPORT
 	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+	toolbars.clear();
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset("dicom_widget", Qt::LeftDockWidgetArea, true);

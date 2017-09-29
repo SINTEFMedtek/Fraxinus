@@ -127,7 +127,7 @@ void FraxinusWorkflowState::onEntryDefault(QEvent * event)
 
 	//Reset viewgroups
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	for(int i=0; i<3; ++i)
+	for(int i=0; i<4; ++i)
 	{
 		ViewGroupDataPtr viewgroup = services->view()->getGroup(i);
 		//Clear
@@ -154,12 +154,26 @@ void FraxinusWorkflowState::setDefaultCameraStyle()
 	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 0);
 	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 1);
 	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 2);
+	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 3);
 }
 
 void FraxinusWorkflowState::setVBFlythroughCameraStyle()
 {
-	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
+	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 3);
 	this->setCameraStyleInGroup(cstTOOL_STYLE, 2);
+
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	if(services)
+	{
+		CameraControlPtr camera_control = services->view()->getCameraControl();
+		if(camera_control)
+		{
+			ViewPtr v = camera_control->getView();
+			camera_control->setView(services->view()->get3DView(3));
+			camera_control->setAnteriorView(); //Be sure that the camera style is set to default, or this has no effect.
+			camera_control->setView(v);
+		}
+	}
 }
 
 void FraxinusWorkflowState::setVBCutplanesCameraStyle()
@@ -327,6 +341,23 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 	}
 }
 
+void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber)
+{
+	this->setRTTInVBWidget();
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	if(services)
+		services->view()->zoomCamera3D(flyThrough3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
+
+	this->getVBWidget()->grabKeyboard(); //NB! This make this widget take all keyboard input. E.g. "R" doesn't work in this workflow step.
+	//Actually, "R" seems to be a special case since it is from VTK. Other key input might work, but maybe not if the menu bar is off.
+	//this->getVBWidget()->setFocus(); // Can't seem to get any affect from this regarding key input.
+}
+
+void FraxinusWorkflowState::cleanupVBWidget()
+{
+	this->getVBWidget()->releaseKeyboard();
+	//this->getVBWidget()->clearFocus();
+}
 
 // --------------------------------------------------------
 // --------------------------------------------------------
@@ -679,7 +710,8 @@ void PinpointWorkflowState::deleteOldRouteToTarget()
 
 VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services)
   : FraxinusWorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services, false)
-  , m3DViewGroupNumber(2)
+  , mFlyThrough3DViewGroupNumber(2)
+  , mSurfaceModel3DViewGroupNumber(3)
 {
 
 }
@@ -696,12 +728,14 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
     FraxinusWorkflowState::onEntry(event);
     this->addDataToView();
-    this->setRTTInVBWidget();
-    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	if(services)
-		services->view()->zoomCamera3D(m3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
+	this->setupVBWidget(mFlyThrough3DViewGroupNumber);
 
     QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
+}
+
+void VirtualBronchoscopyFlyThroughWorkflowState::onExit(QEvent * event)
+{
+	this->cleanupVBWidget();
 }
 
 void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
@@ -715,9 +749,18 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	PointMetricPtr targetPoint = this->getTargetPoint();
 
 	//assuming layout: LAYOUT_VB_FLY_THROUGH
-	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
+	ViewGroupDataPtr viewGroup3_3D = services->view()->getGroup(mSurfaceModel3DViewGroupNumber);
 	if(airways)
-		viewGroup0_3D->addData(airways->getUid());
+	{
+		QColor c = airways->getColor();
+		c.setAlphaF(0.4);
+		airways->setColor(c);
+		viewGroup3_3D->addData(airways->getUid());
+	}
+	if(routeToTarget)
+		viewGroup3_3D->addData(routeToTarget->getUid());
+	if(targetPoint)
+		viewGroup3_3D->addData(targetPoint->getUid());
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
 	viewGroup1_2D->getGroup2DZoom()->set(0.2);
@@ -725,7 +768,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
 
-	ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(m3DViewGroupNumber);
+	ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(mFlyThrough3DViewGroupNumber);
     this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage);
     if(targetPoint)
         viewGroup2_3D->addData(targetPoint->getUid());
@@ -752,7 +795,7 @@ bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 
 VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, VisServicesPtr services) :
 	FraxinusWorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services, false)
-  , mFlyThroughViewGroupNumber3D(2)
+  , mFlyThrough3DViewGroupNumber(2)
 {
 
 }
@@ -769,12 +812,14 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
     FraxinusWorkflowState::onEntry(event);
     this->addDataToView();
-    this->setRTTInVBWidget();
-    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	if(services)
-		services->view()->zoomCamera3D(mFlyThroughViewGroupNumber3D, VB3DCameraZoomSetting::getZoomFactor());
+	this->setupVBWidget(mFlyThrough3DViewGroupNumber);
 
-    QTimer::singleShot(0, this, SLOT(setVBCutplanesCameraStyle()));
+	QTimer::singleShot(0, this, SLOT(setVBCutplanesCameraStyle()));
+}
+
+void VirtualBronchoscopyCutPlanesWorkflowState::onExit(QEvent *event)
+{
+	this->cleanupVBWidget();
 }
 
 void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
@@ -784,7 +829,9 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	ImagePtr ctImage = this->getCTImage();
 	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
+	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
+	PointMetricPtr targetPoint = this->getTargetPoint();
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
@@ -795,10 +842,15 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	this->setTransferfunction3D("Default", ctImage);
 	if(ctImage)
 		viewGroup0_3D->addData(ctImage->getUid());
-	if(routeToTarget)
-		viewGroup0_3D->addData(routeToTarget->getUid());
 	if(airways)
+	{
+		QColor c = airways->getColor();
+		c.setAlphaF(1);
+		airways->setColor(c);
 		viewGroup0_3D->addData(airways->getUid());
+	}
+	if(targetPoint)
+		viewGroup0_3D->addData(targetPoint->getUid());
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
 	this->setTransferfunction2D("2D CT Lung", ctImage);
@@ -807,10 +859,12 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
 
-    ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(mFlyThroughViewGroupNumber3D);
+	ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(mFlyThrough3DViewGroupNumber);
     this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
     if(ctImage_copied)
         viewGroup2_3D->addData(ctImage_copied->getUid());
+	if(extendedRouteToTarget)
+		viewGroup2_3D->addData(extendedRouteToTarget->getUid());
     if(routeToTarget)
         viewGroup2_3D->addData(routeToTarget->getUid());
 }

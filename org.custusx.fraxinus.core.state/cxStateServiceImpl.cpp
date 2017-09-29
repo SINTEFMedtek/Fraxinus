@@ -147,6 +147,7 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("View/clinicalView", "Radiological");
     this->fillDefault("View3D/showManualTool", true);
 	this->fillDefault("Gui/showMenuBar", false);
+    this->fillDefault("useGPU2DRendering", false); //This should be removed when the 2D overlay bug has been fixed.
 }
 
 
