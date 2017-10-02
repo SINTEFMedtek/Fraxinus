@@ -106,15 +106,8 @@ To delete an object, select it in a box and press the *Trashcan* button twice.
 The segmentation algorithm might not always be able to segment a given input volume. Any number of reasons
 can cause this, e.g. poor quality pictures. One thing which might help is to check the
 *Use manual seed point* box. You then select a point in the start of the trachea wich the algorithm should work from:
-- Make sure that your volume which you want to segment is visible in the 3D view as explained above.
-- Right click at the top of the Fraxinus window to display the *Navigation Toolbar*.
-- Click the rightmost icon in the toolbar to activate the *Point Picker*.
-- Zoom and rotate your volume so that you are able to click a point inside the trachea.
-Hold the *Shift* button to drag the model and use the mouse wheel to zoom.
-You see that the yellow crosshair is at the place you clicked.
-- You might also use the *Pinpoint* workflow step to find a good spot to place the point
-in the 2D views. As long as you don't click anywhere, the point is at the same place in the model
-when you return to the *Process* view.
+- Make sure that your volume which you want to segment is visible in the 2D and 3D view as explained above.
+- Click in the 2D views so and place the crosshair freely inside the trachea.
 - Press the *Play* button, and hopefully the algorithm will succeed.
 
 \addindex pinpoint_widget
