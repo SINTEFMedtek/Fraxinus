@@ -394,7 +394,10 @@ void PatientWorkflowState::addDataToView()
 	//Assuming 3D
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
 	if(ctImage)
+	{
+		this->setTransferfunction3D("Default", ctImage);
 		viewGroup0_3D->addData(ctImage->getUid());
+	}
 }
 
 // --------------------------------------------------------
@@ -448,6 +451,7 @@ void ImportWorkflowState::addDataToView()
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
 	if(ctImage)
 	{
+		ctImage->setInitialWindowLevel(-1, -1);
 		this->setTransferfunction3D("Default", ctImage);
 		this->setTransferfunction2D("2D CT Lung", ctImage);
 		viewGroup0_3D->addData(ctImage->getUid());
