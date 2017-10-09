@@ -414,6 +414,12 @@ void ImportWorkflowState::onExit(QEvent * event)
 		image_copy->setUid(image->getUid()+"_copy");
 		mServices->patient()->insertData(image_copy);
 	}
+
+	ImagePtr ctImage = this->getCTImage();
+	if(ctImage)
+	{
+		ctImage->setInitialWindowLevel(-1, -1);
+	}
 	WorkflowState::onExit(event);
 }
 
@@ -726,6 +732,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 void VirtualBronchoscopyFlyThroughWorkflowState::onExit(QEvent * event)
 {
 	this->cleanupVBWidget();
+	WorkflowState::onExit(event);
 }
 
 void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
@@ -816,6 +823,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 void VirtualBronchoscopyCutPlanesWorkflowState::onExit(QEvent *event)
 {
 	this->cleanupVBWidget();
+	WorkflowState::onExit(event);
 }
 
 void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
