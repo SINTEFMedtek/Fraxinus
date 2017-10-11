@@ -82,6 +82,10 @@ the program, deleting this folder and starting it again might help.
 
 ### Import {#description_import}
 
+There is one important limitation in Fraxinus, it only works as intended if there is one and only one volume loaded per patient
+at a time. If you e.g. have several CT images for one uniqe person, you should make a new patient folder for each set
+of images.
+
 By pressing on the *Advanced* button, you get access to a couple of features for getting more info from your DICOM images.
 See also \ref org_custusx_dicom.
 
@@ -123,14 +127,15 @@ save multiple route to the target for the next step.
 
 Here you move the camera through the airways to your target. In the box you can select which route
 to move the camera along. The objects are named with the target name. Those named with _ext
-indicate an extension from the center of the airways perpendicular out to the target.
+indicate an extension from the center of the airways perpendicular out to the target. This line
+is the blue line which you can see when you approach the cloasest point to the target inside the airways.
 To get the help lines, you must select the corresponding objects in the 3D scene by right clicking.
 It might be easier to go back to the *Pinpoint* step and set the target again. A tip is to slide
 the camera all the way to the target, so that you already are in the lower part of the lungs when you
 go back to the images in the *Pinpoint*.
 
-The slider and the buttons for the camera position can be controlled from the keyboard. Use the arrows
-and page up/page down, or the numpad.
+The slider, the wheels for the endoscope orientation and the reset button can be controlled from the keyboard. Use the arrows
+and page up/page down, or the numpad. Reset is at *5*.
 
 ### Virtual Bronchoscopy Cut Planes {#description_vbcutplanes}
 

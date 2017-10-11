@@ -127,7 +127,7 @@ void FraxinusWorkflowState::onEntryDefault(QEvent * event)
 
 	//Reset viewgroups
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	for(int i=0; i<4; ++i)
+	for(int i=0; i<3; ++i)
 	{
 		ViewGroupDataPtr viewgroup = services->view()->getGroup(i);
 		//Clear
@@ -154,26 +154,12 @@ void FraxinusWorkflowState::setDefaultCameraStyle()
 	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 0);
 	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 1);
 	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 2);
-	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 3);
 }
 
 void FraxinusWorkflowState::setVBFlythroughCameraStyle()
 {
-	this->setCameraStyleInGroup(cstDEFAULT_STYLE, 3);
+	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, 0);
 	this->setCameraStyleInGroup(cstTOOL_STYLE, 2);
-
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	if(services)
-	{
-		CameraControlPtr camera_control = services->view()->getCameraControl();
-		if(camera_control)
-		{
-			ViewPtr v = camera_control->getView();
-			camera_control->setView(services->view()->get3DView(3));
-			camera_control->setAnteriorView(); //Be sure that the camera style is set to default, or this has no effect.
-			camera_control->setView(v);
-		}
-	}
 }
 
 void FraxinusWorkflowState::setVBCutplanesCameraStyle()
@@ -427,6 +413,12 @@ void ImportWorkflowState::onExit(QEvent * event)
 		image_copy->setName(image->getName()+"_copy");
 		image_copy->setUid(image->getUid()+"_copy");
 		mServices->patient()->insertData(image_copy);
+	}
+
+	ImagePtr ctImage = this->getCTImage();
+	if(ctImage)
+	{
+		ctImage->setInitialWindowLevel(-1, -1);
 	}
 	WorkflowState::onExit(event);
 }
@@ -715,7 +707,7 @@ void PinpointWorkflowState::deleteOldRouteToTarget()
 VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services)
   : FraxinusWorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services, false)
   , mFlyThrough3DViewGroupNumber(2)
-  , mSurfaceModel3DViewGroupNumber(3)
+  , mSurfaceModel3DViewGroupNumber(0)
 {
 
 }
@@ -740,6 +732,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 void VirtualBronchoscopyFlyThroughWorkflowState::onExit(QEvent * event)
 {
 	this->cleanupVBWidget();
+	WorkflowState::onExit(event);
 }
 
 void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
@@ -747,24 +740,30 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
 	ImagePtr ctImage = this->getCTImage();
+	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
     MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
 	PointMetricPtr targetPoint = this->getTargetPoint();
 
-	//assuming layout: LAYOUT_VB_FLY_THROUGH
-	ViewGroupDataPtr viewGroup3_3D = services->view()->getGroup(mSurfaceModel3DViewGroupNumber);
+	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
+	clipper->addData(this->getCTImage());
+
+	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(mSurfaceModel3DViewGroupNumber);
+	this->setTransferfunction3D("Default", ctImage);
+	if(ctImage)
+		viewGroup0_3D->addData(ctImage->getUid());
 	if(airways)
 	{
 		QColor c = airways->getColor();
-		c.setAlphaF(0.4);
+		c.setAlphaF(1);
 		airways->setColor(c);
-		viewGroup3_3D->addData(airways->getUid());
+		viewGroup0_3D->addData(airways->getUid());
 	}
-	if(routeToTarget)
-		viewGroup3_3D->addData(routeToTarget->getUid());
 	if(targetPoint)
-		viewGroup3_3D->addData(targetPoint->getUid());
+		viewGroup0_3D->addData(targetPoint->getUid());
+	if(extendedRouteToTarget)
+		viewGroup0_3D->addData(extendedRouteToTarget->getUid());
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
 	viewGroup1_2D->getGroup2DZoom()->set(0.2);
@@ -773,11 +772,11 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 		viewGroup1_2D->addData(ctImage->getUid());
 
 	ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(mFlyThrough3DViewGroupNumber);
-    this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage);
+	this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
     if(targetPoint)
         viewGroup2_3D->addData(targetPoint->getUid());
-    if(ctImage)
-        viewGroup2_3D->addData(ctImage->getUid());
+	if(ctImage_copied)
+		viewGroup2_3D->addData(ctImage_copied->getUid());
     if(extendedRouteToTarget)
         viewGroup2_3D->addData(extendedRouteToTarget->getUid());
     if(routeToTarget)
@@ -824,6 +823,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 void VirtualBronchoscopyCutPlanesWorkflowState::onExit(QEvent *event)
 {
 	this->cleanupVBWidget();
+	WorkflowState::onExit(event);
 }
 
 void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
