@@ -36,33 +36,5 @@ class Fraxinus(cx.build.cxComponents.CppComponent):
         add('CX_PLUGIN_org.custusx.core.state', 'OFF')
         add('CX_EXTERNAL_PLUGIN_org_custusx_fraxinus_core_state', '%s/org.custusx.fraxinus.core.state' % self.sourcePath())
         add('CX_EXTERNAL_PLUGIN_org_custusx_fraxinus_widgets', '%s/org.custusx.fraxinus.widgets' % self.sourcePath())
-        if (platform.system() == 'Linux') or (platform.system() == 'Windows'):
-            add('CX_PLUGIN_org.custusx.filter.airways', 'ON')
 
 # ---------------------------------------------------------
-
-class org_custusx_virtualbronchoscopy(cx.build.cxComponents.CppComponent):
-
-    def name(self):
-        return "org.custusx.virtualbronchoscopy"
-    def help(self):
-        return 'Plugin virtualbronchoscopy'
-    def path(self):
-        custusx = self._createSibling(cx.build.cxComponents.CustusX)
-        return '%s/%s/source/plugins' % (custusx.path(), custusx.sourceFolder())
-    def sourceFolder(self):
-        return 'org.custusx.virtualbronchoscopy'
-    def update(self):
-        self._getBuilder().gitSetRemoteURL(self.repository())
-        self._getBuilder().gitCheckout('9596827c7efe2d440229c12289d6d5283448e040')
-    def configure(self):
-        pass
-    def build(self):
-        pass
-    def repository(self):
-        base = self.controlData.gitrepo_main_site_base
-        return '%s/org.custusx.virtualbronchoscopy.git' % base
-    def makeClean(self):
-        pass
-    def pluginPath(self):
-        return '%s' % self.sourcePath()
