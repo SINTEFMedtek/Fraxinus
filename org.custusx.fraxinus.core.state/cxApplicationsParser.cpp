@@ -50,7 +50,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVideoServiceProxy.h"
 #include "cxProfile.h"
 
+#include "cxFraxinusVBWidget.h"
 #include "cxLogger.h"
+
 
 namespace cx
 {
@@ -109,7 +111,7 @@ ApplicationsParser::ApplicationsParser()
 	toolbars.clear();
     toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset("virtual_bronchoscopy_widget", Qt::LeftDockWidgetArea, true);
+	desktop.addPreset(FraxinusVBWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["VirtualBronchoscopyFlyThroughUid"] = desktop;
 	//-----------------------------------------------------
 

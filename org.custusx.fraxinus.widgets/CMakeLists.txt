@@ -12,6 +12,7 @@ set(PLUGIN_SRCS
     cxFraxinusWidgetsGUIExtenderService.cpp
     cxPinpointWidget.cpp
     cxNewLoadPatientWidget.cpp
+    cxFraxinusVBWidget.cpp
 )
 
 # Files which should be processed by Qts moc
@@ -20,6 +21,7 @@ set(PLUGIN_MOC_SRCS
     cxFraxinusWidgetsGUIExtenderService.h
     cxPinpointWidget.h
     cxNewLoadPatientWidget.h
+    cxFraxinusVBWidget.h
 )
 
 # Qt Designer files which should be processed by Qts uic
@@ -45,6 +47,7 @@ set(PLUGIN_target_libraries
     cxResourceFilter
 	cxLogicManager
     org_custusx_filter_routetotarget
+    org_custusx_virtualbronchoscopy
     )
 
 set(PLUGIN_OUTPUT_DIR "")

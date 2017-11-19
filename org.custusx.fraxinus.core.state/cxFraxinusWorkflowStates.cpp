@@ -51,7 +51,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxSelectDataStringPropertyBase.h"
 #include "cxPointMetric.h"
 #include "cxRouteToTargetFilterService.h"
-#include "cxVBWidget.h"
 #include "cxViewGroupData.h"
 #include "cxProfile.h"
 #include "cxDataLocations.h"
@@ -63,6 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVBCameraZoomSetting3D.h"
 #include "cxPinpointWidget.h"
 #include "cxContourFilter.h"
+#include "cxFraxinusVBWidget.h"
 
 
 namespace cx
@@ -281,7 +281,7 @@ VBWidget* FraxinusWorkflowState::getVBWidget()
 {
 	QMainWindow* mainWindow = this->getMainWindow();
 
-	QString widgetName("virtual_bronchoscopy_widget");
+	QString widgetName(FraxinusVBWidget::getWidgetName());
     return mainWindow->findChild<VBWidget*>(widgetName);
 }
 
