@@ -31,16 +31,42 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxFraxinusVBWidget.h"
+#include <QButtonGroup>
+#include <QGroupBox>
+#include <QKeyEvent>
+#include <QRadioButton>
+#include <QVBoxLayout>
+#include "cxVisServices.h"
+#include "cxViewService.h"
+#include "cxViewGroupData.h"
 
 
 namespace cx {
 
-FraxinusVBWidget::FraxinusVBWidget(cx::VisServicesPtr services, QWidget* parent):
-    VBWidget(services, parent)
+FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
+    VBWidget(services, parent),
+    mServices(services)
 {
     this->setObjectName(this->getWidgetName());
 
+    // Selector for displaying volume or artificial tubes
+    QButtonGroup *displaySelectorGroup = new QButtonGroup(this);
+    mVolumeButton = new QRadioButton(tr("Volume"));
+    mVolumeButton->setChecked(true);
+    mTubeButton = new QRadioButton(tr("Tubes"));
+    displaySelectorGroup->addButton(mVolumeButton);
+    displaySelectorGroup->addButton(mTubeButton);
 
+    QGroupBox* viewBox = new QGroupBox(tr("View"));
+    QVBoxLayout* viewVLayout = new QVBoxLayout;
+    viewVLayout->addWidget(mVolumeButton);
+    viewVLayout->addWidget(mTubeButton);
+    viewBox->setLayout(viewVLayout);
+    mVerticalLayout->insertWidget(mVerticalLayout->count()-1, viewBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+    mVerticalLayout->addStretch(); //And add some more stretch
+
+    connect(mTubeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayVolume);
+    connect(mTubeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayTubes);
 }
 
 FraxinusVBWidget::~FraxinusVBWidget()
@@ -55,7 +81,53 @@ QString FraxinusVBWidget::getWidgetName()
 
 void FraxinusVBWidget::keyPressEvent(QKeyEvent* event)
 {
+    if (event->key()==Qt::Key_V)
+    {
+        if(mControlsEnabled) {
+            mVolumeButton->setChecked(true);
+            this->displayVolume();
+            return;
+        }
+    }
+
+    if (event->key()==Qt::Key_T)
+    {
+        if(mControlsEnabled) {
+            mTubeButton->setChecked(true);
+            this->displayTubes();
+            return;
+        }
+    }
+
     VBWidget::keyPressEvent(event);
+}
+
+void FraxinusVBWidget::displayVolume()
+{
+    this->hideDataObjects(mTubeViewObjects);
+    this->displayDataObjects(mVolumeViewObjects);
+}
+
+void FraxinusVBWidget::displayTubes()
+{
+    this->hideDataObjects(mVolumeViewObjects);
+    this->displayDataObjects(mTubeViewObjects);
+}
+
+void FraxinusVBWidget::displayDataObjects(std::vector<DataPtr> objects)
+{
+    foreach(DataPtr object, objects)
+    {
+        mServices->view()->getGroup(mViewGroupNumber)->addData(object->getUid());
+    }
+}
+
+void FraxinusVBWidget::hideDataObjects(std::vector<DataPtr> objects)
+{
+    foreach(DataPtr object, objects)
+    {
+        mServices->view()->getGroup(mViewGroupNumber)->removeData(object->getUid());
+    }
 }
 
 void FraxinusVBWidget::setViewGroupNumber(unsigned int viewGroupNumber)

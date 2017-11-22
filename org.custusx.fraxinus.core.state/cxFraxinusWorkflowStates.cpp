@@ -225,6 +225,17 @@ MeshPtr FraxinusWorkflowState::getAirwaysContour() const
 	return MeshPtr();
 }
 
+MeshPtr FraxinusWorkflowState::getAirwaysTubes() const
+{
+	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
+	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+	{
+		if(iter->first.contains(AirwaysFilter::getNameSuffixTubes()))
+			return iter->second;
+	}
+	return MeshPtr();
+}
+
 ImagePtr FraxinusWorkflowState::getCTImage() const
 {
 	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
@@ -277,12 +288,12 @@ QMainWindow* FraxinusWorkflowState::getMainWindow()
 	return NULL;
 }
 
-VBWidget* FraxinusWorkflowState::getVBWidget()
+FraxinusVBWidget* FraxinusWorkflowState::getVBWidget()
 {
 	QMainWindow* mainWindow = this->getMainWindow();
 
 	QString widgetName(FraxinusVBWidget::getWidgetName());
-    return mainWindow->findChild<VBWidget*>(widgetName);
+	return mainWindow->findChild<FraxinusVBWidget*>(widgetName);
 }
 
 PinpointWidget* FraxinusWorkflowState::getPinpointWidget()
@@ -317,7 +328,7 @@ void FraxinusWorkflowState::setTransferfunction2D(QString transferfunction, Imag
 
 void FraxinusWorkflowState::setRTTInVBWidget()
 {
-	VBWidget* widget = this->getVBWidget();
+	FraxinusVBWidget* widget = this->getVBWidget();
 
 	if(widget)
 	{
@@ -327,9 +338,33 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 	}
 }
 
+void FraxinusWorkflowState::setupViewOptionsINVBWidget(int flyThrough3DViewGroupNumber)
+{
+	ImagePtr ctImage_copied = this->getCTImageCopied();
+	std::vector<DataPtr> volumeViewObjects;
+	volumeViewObjects.push_back(ctImage_copied);
+
+	std::vector<DataPtr> tubeViewObjects;
+	MeshPtr tubes = this->getAirwaysTubes();
+	tubeViewObjects.push_back(tubes);
+
+	FraxinusVBWidget* widget = this->getVBWidget();
+	foreach(DataPtr object, volumeViewObjects)
+	{
+		widget->addObjectToVolumeView(object);
+	}
+	foreach(DataPtr object, tubeViewObjects)
+	{
+		widget->addObjectToTubeView(object);
+	}
+	widget->setViewGroupNumber(flyThrough3DViewGroupNumber);
+}
+
+
 void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber)
 {
 	this->setRTTInVBWidget();
+	this->setupViewOptionsINVBWidget(flyThrough3DViewGroupNumber);
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	if(services)
 		services->view()->zoomCamera3D(flyThrough3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
@@ -505,6 +540,7 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 	dialog.show();
 
 	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
+	airwaysFilter->setDefaultStraightCLTubesOption(true);
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
 	airwaysFilter->getOutputTypes();
 	airwaysFilter->getOptions();

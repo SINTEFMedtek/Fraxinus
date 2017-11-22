@@ -37,6 +37,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "org_custusx_fraxinus_widgets_Export.h"
 #include <cxVBWidget.h>
 
+class QRadioButton;
+
 
 namespace cx {
 
@@ -57,6 +59,13 @@ private slots:
     virtual void keyPressEvent(QKeyEvent* event);
 
 private:
+    void displayVolume();
+    void displayTubes();
+    void displayDataObjects(std::vector<DataPtr> objects);
+    void hideDataObjects(std::vector<DataPtr> objects);
+    VisServicesPtr mServices;
+    QRadioButton* mVolumeButton;
+    QRadioButton* mTubeButton;
     unsigned int mViewGroupNumber;
     std::vector<DataPtr> mVolumeViewObjects;
     std::vector<DataPtr> mTubeViewObjects;
