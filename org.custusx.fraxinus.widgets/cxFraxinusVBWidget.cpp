@@ -65,7 +65,7 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     mVerticalLayout->insertWidget(mVerticalLayout->count()-1, viewBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
     mVerticalLayout->addStretch(); //And add some more stretch
 
-    connect(mTubeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayVolume);
+    connect(mVolumeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayVolume);
     connect(mTubeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayTubes);
 }
 
@@ -81,7 +81,17 @@ QString FraxinusVBWidget::getWidgetName()
 
 void FraxinusVBWidget::keyPressEvent(QKeyEvent* event)
 {
-    if (event->key()==Qt::Key_V)
+    enum Key7{NONE, SHOWVOLUME, SHOWTUBES};
+    Key7 key7 = Key7::NONE;
+    if (event->key()==Qt::Key_7)
+    {
+        if(mVolumeButton->isChecked())
+            key7 = Key7::SHOWTUBES;
+        else if(mTubeButton->isChecked())
+            key7 = Key7::SHOWVOLUME;
+    }
+
+    if (event->key()==Qt::Key_V || key7 == Key7::SHOWVOLUME)
     {
         if(mControlsEnabled) {
             mVolumeButton->setChecked(true);
@@ -90,7 +100,7 @@ void FraxinusVBWidget::keyPressEvent(QKeyEvent* event)
         }
     }
 
-    if (event->key()==Qt::Key_T)
+    if (event->key()==Qt::Key_T || key7 == Key7::SHOWTUBES)
     {
         if(mControlsEnabled) {
             mTubeButton->setChecked(true);
