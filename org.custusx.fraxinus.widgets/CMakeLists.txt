@@ -1,5 +1,8 @@
 project(org_custusx_fraxinus_widgets)
 
+#### Enable C++11
+set (CMAKE_CXX_STANDARD 11)
+
 set(PLUGIN_export_directive "${PROJECT_NAME}_EXPORT")
 
 qt5_add_resources(fraxinus_widgets_resources
