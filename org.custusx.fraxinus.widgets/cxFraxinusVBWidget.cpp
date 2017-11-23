@@ -81,7 +81,7 @@ QString FraxinusVBWidget::getWidgetName()
 
 void FraxinusVBWidget::keyPressEvent(QKeyEvent* event)
 {
-    enum Key7{NONE, SHOWVOLUME, SHOWTUBES};
+    enum class Key7{NONE, SHOWVOLUME, SHOWTUBES};
     Key7 key7 = Key7::NONE;
     if (event->key()==Qt::Key_7)
     {
