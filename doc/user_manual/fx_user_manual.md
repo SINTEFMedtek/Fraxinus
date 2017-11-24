@@ -128,7 +128,7 @@ save multiple route to the target for the next step.
 Here you move the camera through the airways to your target. In the box you can select which route
 to move the camera along. The objects are named with the target name. Those named with _ext
 indicate an extension from the center of the airways perpendicular out to the target. This line
-is the blue line which you can see when you approach the cloasest point to the target inside the airways.
+is the blue line which you can see when you approach the closest point to the target inside the airways.
 To get the help lines, you must select the corresponding objects in the 3D scene by right clicking.
 It might be easier to go back to the *Pinpoint* step and set the target again. A tip is to slide
 the camera all the way to the target, so that you already are in the lower part of the lungs when you

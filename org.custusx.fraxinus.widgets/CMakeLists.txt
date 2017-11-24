@@ -1,5 +1,8 @@
 project(org_custusx_fraxinus_widgets)
 
+#### Enable C++11
+set (CMAKE_CXX_STANDARD 11)
+
 set(PLUGIN_export_directive "${PROJECT_NAME}_EXPORT")
 
 qt5_add_resources(fraxinus_widgets_resources
@@ -12,6 +15,7 @@ set(PLUGIN_SRCS
     cxFraxinusWidgetsGUIExtenderService.cpp
     cxPinpointWidget.cpp
     cxNewLoadPatientWidget.cpp
+    cxFraxinusVBWidget.cpp
 )
 
 # Files which should be processed by Qts moc
@@ -20,6 +24,7 @@ set(PLUGIN_MOC_SRCS
     cxFraxinusWidgetsGUIExtenderService.h
     cxPinpointWidget.h
     cxNewLoadPatientWidget.h
+    cxFraxinusVBWidget.h
 )
 
 # Qt Designer files which should be processed by Qts uic
@@ -45,6 +50,7 @@ set(PLUGIN_target_libraries
     cxResourceFilter
 	cxLogicManager
     org_custusx_filter_routetotarget
+    org_custusx_virtualbronchoscopy
     )
 
 set(PLUGIN_OUTPUT_DIR "")

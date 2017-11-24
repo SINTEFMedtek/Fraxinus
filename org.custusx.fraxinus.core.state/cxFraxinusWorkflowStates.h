@@ -55,7 +55,7 @@ namespace cx
 {
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 typedef boost::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
-class VBWidget;
+class FraxinusVBWidget;
 class PinpointWidget;
 
 
@@ -74,15 +74,17 @@ protected:
     MeshPtr getRouteToTarget() const;
     MeshPtr getExtendedRouteToTarget() const;
 	QMainWindow *getMainWindow();
-	VBWidget *getVBWidget();
+	FraxinusVBWidget *getVBWidget();
 	PinpointWidget *getPinpointWidget();
     MeshPtr getAirwaysContour() const;
+	MeshPtr getAirwaysTubes() const;
     ImagePtr getCTImageCopied() const;
     PointMetricPtr getTargetPoint() const;
 
     void setTransferfunction3D(QString transferfunction, ImagePtr image);
     void setTransferfunction2D(QString transferfunction, ImagePtr image);
     void setRTTInVBWidget();
+	void setupViewOptionsINVBWidget(int flyThrough3DViewGroupNumber);
 	void setupVBWidget(int flyThrough3DViewGroupNumber);
 	void cleanupVBWidget();
 
