@@ -80,6 +80,9 @@ protected:
 	MeshPtr getAirwaysTubes() const;
     ImagePtr getCTImageCopied() const;
     PointMetricPtr getTargetPoint() const;
+	PointMetricPtr getEndoscopePoint() const;
+	DistanceMetricPtr getDistanceToTargetMetric() const;
+
 
     void setTransferfunction3D(QString transferfunction, ImagePtr image);
     void setTransferfunction2D(QString transferfunction, ImagePtr image);

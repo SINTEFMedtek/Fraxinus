@@ -49,6 +49,9 @@ class org_custusx_fraxinus_widgets_EXPORT PinpointWidget : public BaseWidget
     Q_OBJECT
 public:
     PinpointWidget(VisServicesPtr services, QWidget *parent);
+	static QString getTargetMetricUid();
+	static QString getToolMetricUid();
+	static QString getDistanceMetricUid();
 
 signals:
 	void targetMetricSet();
@@ -61,6 +64,8 @@ private slots:
 
 private:
     void createPointMetric();
+	void createToolMetric();
+	void createDistanceMetric();
     void updateCoordinateOfPointMetric();
     void setNameOfPointMetric();
     QString getNameOfPointMetric() const;
@@ -68,8 +73,8 @@ private:
     QLineEdit *mPointMetricNameLineEdit;
     VisServicesPtr mServices;
     MetricManagerPtr mMetricManager;
-    QString mMetricUid;
-    QString mMetricName;
+	QString mTargetMetricUid;
+	QString mTargetMetricName;
 };
 
 }

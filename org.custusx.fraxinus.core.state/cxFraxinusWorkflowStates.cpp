@@ -50,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxMesh.h"
 #include "cxSelectDataStringPropertyBase.h"
 #include "cxPointMetric.h"
+#include "cxDistanceMetric.h"
 #include "cxRouteToTargetFilterService.h"
 #include "cxViewGroupData.h"
 #include "cxProfile.h"
@@ -271,11 +272,51 @@ ImagePtr FraxinusWorkflowState::getCTImageCopied() const
 PointMetricPtr FraxinusWorkflowState::getTargetPoint() const
 {
 	std::map<QString, PointMetricPtr> metrics = mServices->patient()->getDataOfType<PointMetric>();
+	std::map<QString, PointMetricPtr>::iterator it = metrics.begin();
 	PointMetricPtr metric;
-	if (!metrics.empty())
+	for( ; it != metrics.end(); ++it)
 	{
-		metric = metrics.begin()->second;
+		if(it->first.contains(PinpointWidget::getTargetMetricUid()))
+		{
+			metric = it->second;
+			break;
+		}
 	}
+
+	return metric;
+}
+
+PointMetricPtr FraxinusWorkflowState::getEndoscopePoint() const
+{
+	std::map<QString, PointMetricPtr> metrics = mServices->patient()->getDataOfType<PointMetric>();
+	std::map<QString, PointMetricPtr>::iterator it = metrics.begin();
+	PointMetricPtr metric;
+	for( ; it != metrics.end(); ++it)
+	{
+		if(it->first.contains(PinpointWidget::getToolMetricUid()))
+		{
+			metric = it->second;
+			break;
+		}
+	}
+
+	return metric;
+}
+
+DistanceMetricPtr FraxinusWorkflowState::getDistanceToTargetMetric() const
+{
+	std::map<QString, DistanceMetricPtr> metrics = mServices->patient()->getDataOfType<DistanceMetric>();
+	std::map<QString, DistanceMetricPtr>::iterator it = metrics.begin();
+	DistanceMetricPtr metric;
+	for( ; it != metrics.end(); ++it)
+	{
+		if(it->first.contains(PinpointWidget::getDistanceMetricUid()))
+		{
+			metric = it->second;
+			break;
+		}
+	}
+
 	return metric;
 }
 
@@ -781,6 +822,9 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
     MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
 	PointMetricPtr targetPoint = this->getTargetPoint();
+	PointMetricPtr EndoscopePoint = this->getEndoscopePoint();
+	DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
+
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
@@ -800,6 +844,10 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 		viewGroup0_3D->addData(targetPoint->getUid());
 	if(extendedRouteToTarget)
 		viewGroup0_3D->addData(extendedRouteToTarget->getUid());
+	if(EndoscopePoint)
+		viewGroup0_3D->addData(EndoscopePoint->getUid());
+	if(distanceToTargetMetric)
+		viewGroup0_3D->addData(distanceToTargetMetric->getUid());
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
 	viewGroup1_2D->getGroup2DZoom()->set(0.2);
@@ -872,6 +920,8 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
 	PointMetricPtr targetPoint = this->getTargetPoint();
+	PointMetricPtr EndoscopePoint = this->getEndoscopePoint();
+	DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
@@ -898,6 +948,10 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	viewGroup1_2D->getGlobal2DZoom()->set(0.2);
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
+	if(EndoscopePoint)
+		viewGroup0_3D->addData(EndoscopePoint->getUid());
+	if(distanceToTargetMetric)
+		viewGroup0_3D->addData(distanceToTargetMetric->getUid());
 
 	ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(mFlyThrough3DViewGroupNumber);
     this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
