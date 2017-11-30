@@ -141,12 +141,13 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("Automation/autoResetCameraToSuperiorViewWhenAutoShowingNewData", true);
 	this->fillDefault("Automation/autoCenterToImageCenterViewWhenAutoShowingNewData", true);
 
-	this->fillDefault("TrackingPositionFilter/enabled", false);
 	this->fillDefault("backgroundColor", QColor("black"));
-	this->fillDefault("View/shadingOn", false);
-	this->fillDefault("View/clinicalView", "Radiological");
-    this->fillDefault("View3D/showManualTool", true);
+	this->fillDefault("TrackingPositionFilter/enabled", false);
 	this->fillDefault("Gui/showMenuBar", false);
+	this->fillDefault("View/clinicalView", "Radiological");
+	this->fillDefault("View/shadingOn", false);
+	this->fillDefault("View/showMetricNamesInCorner", true);
+    this->fillDefault("View3D/showManualTool", true);
     this->fillDefault("View2D/useGPU2DRendering", false); //This should be removed when the 2D overlay bug has been fixed.
 }
 

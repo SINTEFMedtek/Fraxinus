@@ -7,6 +7,7 @@
 #include "cxApplication.h"
 #include "cxMetricManager.h"
 #include "cxPointMetric.h"
+#include "cxDistanceMetric.h"
 #include "cxVisServices.h"
 #include "cxPatientModelService.h"
 #include "cxSpaceProvider.h"
@@ -50,14 +51,14 @@ QString PinpointWidget::getTargetMetricUid()
 	return "fraxinus_target";
 }
 
-QString PinpointWidget::getToolMetricUid()
+QString PinpointWidget::getEndoscopeMetricUid()
 {
 	return "Endoscope";
 }
 
 QString PinpointWidget::getDistanceMetricUid()
 {
-	return "distance1";
+	return "DistanceToTarget";
 }
 
 void PinpointWidget::setPointMetric()
@@ -67,8 +68,8 @@ void PinpointWidget::setPointMetric()
     else
         this->updateCoordinateOfPointMetric();
 
-	if(!mServices->patient()->getData(this->getToolMetricUid()))
-		this->createToolMetric();
+	if(!mServices->patient()->getData(this->getEndoscopeMetricUid()))
+		this->createEndoscopeMetric();
 
 	if(!mServices->patient()->getData(this->getDistanceMetricUid()))
 		this->createDistanceMetric();
@@ -108,15 +109,23 @@ void PinpointWidget::createPointMetric()
 	this->setNameOfPointMetric();
 }
 
-void PinpointWidget::createToolMetric()
+void PinpointWidget::createEndoscopeMetric()
 {
 	CoordinateSystem tool(COORDINATE_SYSTEM::csTOOL, "active");
-	mMetricManager->addPoint(Vector3D(0,0,0), tool, this->getToolMetricUid());
+	mMetricManager->addPoint(Vector3D(0,0,0), tool, this->getEndoscopeMetricUid());
 }
 
 void PinpointWidget::createDistanceMetric()
 {
-	mMetricManager->addDistanceButtonClickedSlot();
+	DistanceMetricPtr distance = mMetricManager->addDistance(this->getDistanceMetricUid());
+	distance->setName("Direct distance");
+
+	DataPtr target = mServices->patient()->getData(mTargetMetricUid);
+	DataPtr endoscope = mServices->patient()->getData(this->getEndoscopeMetricUid());
+
+	MetricReferenceArgumentListPtr arg = distance->getArguments();
+	arg->set(0, target);
+	arg->set(1, endoscope);
 }
 
 void PinpointWidget::updateCoordinateOfPointMetric()

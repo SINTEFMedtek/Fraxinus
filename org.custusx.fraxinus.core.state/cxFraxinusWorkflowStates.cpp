@@ -293,7 +293,7 @@ PointMetricPtr FraxinusWorkflowState::getEndoscopePoint() const
 	PointMetricPtr metric;
 	for( ; it != metrics.end(); ++it)
 	{
-		if(it->first.contains(PinpointWidget::getToolMetricUid()))
+		if(it->first.contains(PinpointWidget::getEndoscopeMetricUid()))
 		{
 			metric = it->second;
 			break;
@@ -822,7 +822,6 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
     MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	PointMetricPtr EndoscopePoint = this->getEndoscopePoint();
 	DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 
 
@@ -844,8 +843,6 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 		viewGroup0_3D->addData(targetPoint->getUid());
 	if(extendedRouteToTarget)
 		viewGroup0_3D->addData(extendedRouteToTarget->getUid());
-	if(EndoscopePoint)
-		viewGroup0_3D->addData(EndoscopePoint->getUid());
 	if(distanceToTargetMetric)
 		viewGroup0_3D->addData(distanceToTargetMetric->getUid());
 
@@ -920,7 +917,6 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = this->getAirwaysContour();
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	PointMetricPtr EndoscopePoint = this->getEndoscopePoint();
 	DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
@@ -948,8 +944,6 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	viewGroup1_2D->getGlobal2DZoom()->set(0.2);
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
-	if(EndoscopePoint)
-		viewGroup0_3D->addData(EndoscopePoint->getUid());
 	if(distanceToTargetMetric)
 		viewGroup0_3D->addData(distanceToTargetMetric->getUid());
 

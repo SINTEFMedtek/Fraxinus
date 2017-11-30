@@ -50,7 +50,7 @@ class org_custusx_fraxinus_widgets_EXPORT PinpointWidget : public BaseWidget
 public:
     PinpointWidget(VisServicesPtr services, QWidget *parent);
 	static QString getTargetMetricUid();
-	static QString getToolMetricUid();
+	static QString getEndoscopeMetricUid();
 	static QString getDistanceMetricUid();
 
 signals:
@@ -64,7 +64,7 @@ private slots:
 
 private:
     void createPointMetric();
-	void createToolMetric();
+	void createEndoscopeMetric();
 	void createDistanceMetric();
     void updateCoordinateOfPointMetric();
     void setNameOfPointMetric();
