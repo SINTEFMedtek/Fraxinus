@@ -148,7 +148,6 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("View/shadingOn", false);
 	this->fillDefault("View/showMetricNamesInCorner", true);
     this->fillDefault("View3D/showManualTool", true);
-    this->fillDefault("View2D/useGPU2DRendering", false); //This should be removed when the 2D overlay bug has been fixed.
 }
 
 
