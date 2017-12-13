@@ -954,7 +954,9 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	if(extendedRouteToTarget)
 		viewGroup2_3D->addData(extendedRouteToTarget->getUid());
     if(routeToTarget)
-        viewGroup2_3D->addData(routeToTarget->getUid());
+		viewGroup2_3D->addData(routeToTarget->getUid());
+	if(targetPoint)
+		viewGroup2_3D->addData(targetPoint->getUid());
 }
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const

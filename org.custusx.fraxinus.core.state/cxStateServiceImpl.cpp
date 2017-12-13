@@ -148,6 +148,7 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("View/shadingOn", false);
 	this->fillDefault("View/showMetricNamesInCorner", true);
     this->fillDefault("View3D/showManualTool", true);
+	this->fillDefault("View3D/sphereRadius", 1.3);
 }
 
 
