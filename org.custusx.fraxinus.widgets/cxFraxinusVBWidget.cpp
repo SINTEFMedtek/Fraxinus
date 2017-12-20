@@ -128,6 +128,8 @@ void FraxinusVBWidget::displayDataObjects(std::vector<DataPtr> objects)
 {
     foreach(DataPtr object, objects)
     {
+        if(!object)
+            continue;
         mServices->view()->getGroup(mViewGroupNumber)->addData(object->getUid());
     }
 }
@@ -136,6 +138,8 @@ void FraxinusVBWidget::hideDataObjects(std::vector<DataPtr> objects)
 {
     foreach(DataPtr object, objects)
     {
+        if(!object)
+            continue;
         mServices->view()->getGroup(mViewGroupNumber)->removeData(object->getUid());
     }
 }

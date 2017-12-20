@@ -357,6 +357,8 @@ TransferFunctions3DPresetsPtr FraxinusWorkflowState::getTransferfunctionPresets(
 
 void FraxinusWorkflowState::setTransferfunction3D(QString transferfunction, ImagePtr image)
 {
+	if(!image)
+		return;
 	TransferFunctions3DPresetsPtr transferFunctionPresets = getTransferfunctionPresets();
 	transferFunctionPresets->load3D(transferfunction, image);
 }
