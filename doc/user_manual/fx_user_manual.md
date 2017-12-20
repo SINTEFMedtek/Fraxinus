@@ -36,9 +36,9 @@ Fraxinus should be installed on a computer with a relatively good graphics card.
 
 ## Description of the Fraxinus procedure {#description_Fraxinus}
 
-Here is a short description of the workflow in Fraxinus. The workflow is separated in workflow steps
+Here is a short introduction to the workflow in Fraxinus. The workflow is separated in workflow steps
 which most of the time should be followed in order. Many actions will automatically take you to the next workflow step.
-A more detailed description of each workflow step is given in \ref description_workflow.
+A more detailed description of each workflow step is given after this introduction in \ref description_workflow.
 
 At the top of the Fraxinus window you see the workflow toolbar. You can see which step you are currently at,
 and you can change step by clicking on a given step. Hold the mouse over each step to see the name.
@@ -46,29 +46,30 @@ and you can change step by clicking on a given step. Hold the mouse over each st
 * \ref description_newloadpatient - When you start Fraxinus, you will be in the *New/Load Patient* step. You must create a new patient the first time you use Fraxinus.
 When you have selected a name and location, you will be taken to the next workflow step.
 
-* \ref description_import - In the *Import* step you should first open your folder with the Dicom images. Then expand and select the series which you want to
-import as a volume into your patient. When the importer is finished you are taken to the nest step.
+* \ref description_import - In the *Import* step you should first open your folder with the Dicom images. Next, expand and select the series which you want to
+import as a volume into your patient. Click *Import*, and when the importer is finished you are taken to the nest step.
 
 * \ref description_process - For a new patient, the *Process* step should be fully automatic and you should see a timer which shows the progress on the calculations.
 The Process step does a segmentation of the lung airways, creating a surface model, and creates a centerline through the branches.
-It also creates a straight centerline with tubes around.
+From the center line, it also creates a straight centerline model with tubes around to be used for the visualization.
 Tests show that most lung volumes should be processed within a couple of minutes. When the calculations are done, you are taken to the next step.
 
 * \ref description_pinpoint - In this step you can navigate in the 2D images of your volume to find a target for the virtual bronchoscopy.
 Use a combination of clicking, draging and zooming to find your target with the crosshair. Click the *Set Target*
 button and a route to the target will be created and you will be taken to the next step.
 
-* \ref description_vbflythrough - This is the interesting step. Here you use the slider to move the camera
-along the centerline from the entry of the trachea to your target. The camera is on the tip of the endoscope.
-You can also see the tip in the 2D images and in relation to the surface model. There are two wheels
-to rotate the endoscope and to tilt it left or right and a button to reset the camera.
+* \ref description_vbflythrough - Here you use the slider to move the camera
+along the centerline from the entry of the trachea to your target.
+You can also see the camera position in the 2D images and in relation to the surface model. There are two wheels
+to rotate the endoscope and to tilt it left or right, and a button to reset the camera.
 You can select to view the original lung volume or an artificial, transparent tube model of the airways.
 There is a distance metric which gives you the direct distance, i.e. the distance in a straight line, between
-the endoscope and the target point.
+your position and the target point.
 From this step you can go back to the Pinpoint step
 to look at new target paths or you can go to the last step for a different view. You can also go back
 to any of the other steps.
-See the detailed description for a list of keyboard shortcuts.
+See \ref description_vbflythrough for a list of keyboard shortcuts.
+
 * \ref description_vbcutplanes - This step has the same controls as the previous step,
 but it has switched the main 3D view. Here you can see the surface model of the lungs together with the
 imported volume. The volume is cut with a plane at the tip of the endoscope. From this
@@ -87,16 +88,26 @@ the program, deleting this folder and starting it again might help.
 
 ### Import {#description_import}
 
-There is one important limitation in Fraxinus, it only works as intended if there is one and only one volume loaded per patient
-at a time. If you e.g. have several CT series for one uniqe person, you should make a new patient folder for each set
-of images.
+There is one important limitation in Fraxinus, it only works as intended if there is one and only one volume imported per patient
+at a time. If you want to try to import a different CT series, you should start over by making a new patient.
+
+If you have more than one Dicom series to choose between, select one with preferably slice thickness 2.0 mm or less.
+For Siemens CT series, look for the name *Thorax 1.0 B30*.
 
 By pressing on the *Advanced* button, you get access to a couple of features for getting more info from your DICOM images.
 See also \ref org_custusx_dicom.
 
 ### Process {#description_process}
 
-This step has some advanced features which experienced users might find helpful.
+Usually this step is fully automatic when you perform the normal Fraxinus workflow
+on a new patient. However, the segmentation algorithm might not always be able to segment a given input volume. Any number of reasons
+can cause this, e.g. poor quality pictures. One thing which might help is to check the
+*Use manual seed point* box. You then select a point in the start of the trachea which the algorithm should work from:
+- Make sure that your volume which you want to segment is visible in the 2D and 3D view by right clicking and selecting it.
+- Click in the 2D views and place the crosshair freely inside the trachea.
+- Press the *Play* button, and hopefully the algorithm will succeed.
+
+Here follows a general description of the options in this step.
 The algorithm which creates a surface model from the imported volume, is implemented
 through a CustusX concept called *Filter*. Hence we can se that the *Airway Segmentation Filter*
 is selected.
@@ -110,18 +121,11 @@ also do a segmentation of the lung sack.
 - Straight centerline: If the *Straight centerline and tubes* checkbox is checked, you will get a
 centerline with straight branches between the branch points.
 - Straight airway tubes: If the *Straight centerline and tubes* checkbox is checked, you will get a
-tube object whci hfits around the straight centerline.
+tube object which fits around the straight centerline.
 
 You can use the *Eye* button next to the boxes to show or hide the respective objects in the 3D scene.
 You can also right click in the 3D or 2D views to show or hide objects.
 To delete an object, select it in a box and press the *Trashcan* button twice.
-
-The segmentation algorithm might not always be able to segment a given input volume. Any number of reasons
-can cause this, e.g. poor quality pictures. One thing which might help is to check the
-*Use manual seed point* box. You then select a point in the start of the trachea wich the algorithm should work from:
-- Make sure that your volume which you want to segment is visible in the 2D and 3D view as explained above.
-- Click in the 2D views so and place the crosshair freely inside the trachea.
-- Press the *Play* button, and hopefully the algorithm will succeed.
 
 \addindex pinpoint_widget
 ### Pinpoint {#description_pinpoint}
@@ -135,7 +139,7 @@ save routes to different targets for the next step.
 
 Here you move the camera through the airways to your target. In the box you can select which route
 to move the camera along, if you have chosen different names for your targets.
-The objects are named with the target name. Those named with _ext
+The route objects are named with *rtt* and the target name. Those named with *_ext*
 indicate an extension from the center of the airways perpendicular out to the target. This line
 is the blue line which you can see when you approach the closest point to the target inside the center of the airways.
 To get the help lines, you must select the corresponding objects in the 3D scene by right clicking.
@@ -153,6 +157,12 @@ The slider, the wheels for the endoscope orientation, the reset button and the v
 Use the arrows and page up/page down for the endoscope. Reset is at the *5* key and toggle the view with *V*,*T* and *7*.
 One can also use the numpad. Make sure that the *Num lock* button is in the right setting.
 
+You can zoom in the views by using either a mouse wheel or two fingers up or down on a mouse pad. Note that
+the main view is zoomed in very much already, so you need quite much scrolling to zoom out.
+
+If you are not happy with the color and/or texture of your volume, you can edit the transfer function.
+See \ref fx_advancedusers.
+
 ### Virtual Bronchoscopy Cut Planes {#description_vbcutplanes}
 
 See the previous step.
@@ -164,6 +174,8 @@ See the previous step.
 If that doesn't help, use the *Restore factory settings* button in the first step to clean the
 *Fraxinus_settings folder* and restart the program.
 - Try to create a new patient if something seems to be wrong with your patient.
+- The Airway segmentation in the Process step might hang on certain unusual or "bad" Dicom series.
+If so, you might have to restart the computer if nothing happens after several minutes.
 - It has been seen that CT images with low resolution might give some strange twists in the camera path
 along the branches.
 - It has been seen that the 3D view in some steps might be empty upon entering the step.
@@ -189,8 +201,17 @@ with your Fraxinus.exe and run the command:
 virtual bronchoscopy. The user interface has been made as clean and simple as possible, and
 everything which is needed for the users of Fraxinus is available by default.
 
-However, for advanced users who want to have access to the full functionality of CustusX,
-it is possible to enable the menu bar with all options: open the file
+However, for advanced users who want to have access to more functionality,
+it is possible to right click on the top of the window to enable the rest of the widgets
+and toolbars of CustusX.
+
+To e.g. edit the transfer function of the volume in the Fly through step, right click and
+open the *Volume Properties* widget. Go to the *Transfer Functions* tab and drag the values
+or right click to remove or set new points. Right click on the color bar to customize the colors.
+Note that going between workflow steps will reset many of the widget, help and object layouts to the
+Fraxinus default settings.
+
+To enable the menu bar with all the options from CustusX: open the file
 
     C:\Users\your_user_name\Fraxinus_settings\profiles\Bronchoscopy\settings\settings.ini
 
