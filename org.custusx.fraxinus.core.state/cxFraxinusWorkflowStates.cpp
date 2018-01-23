@@ -939,6 +939,8 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	}
 	if(targetPoint)
 		viewGroup0_3D->addData(targetPoint->getUid());
+	if(extendedRouteToTarget)
+		viewGroup0_3D->addData(extendedRouteToTarget->getUid());
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
 	this->setTransferfunction2D("2D CT Lung", ctImage);
