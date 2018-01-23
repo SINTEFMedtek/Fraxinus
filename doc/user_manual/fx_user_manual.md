@@ -137,18 +137,16 @@ save routes to different targets for the next step.
 \addindex fraxinus_virtual_bronchoscopy_widget
 ### Virtual bronchoscopy Fly Through {#description_vbflythrough}
 
-Here you move the camera through the airways to your target. In the box you can select which route
-to move the camera along, if you have chosen different names for your targets.
-The route objects are named with *rtt* and the target name. Those named with *_ext*
-indicate an extension from the center of the airways perpendicular out to the target. This line
-is the blue line which you can see when you approach the closest point to the target inside the airways.
-To get the help lines, you must select the corresponding objects in the 3D scene by right clicking.
-Usually it is easier to go back to the *Pinpoint* step and set the target again. A tip is to slide
-the camera all the way to the target, so that you already are in the lower part of the lungs when you
-go back to the images in the *Pinpoint* step.
+Here you move the camera through the airways to your target.
+The blue line, which you can see when you approach the closest point to the target inside the airways,
+indicate an extension from the center of the airways perpendicular out to the target.
 
-The *Tubes* view let you fly through an artificial, transparent tube model of the airways, created around a straight centerline.
-The camera path, however is based on the real centerline. Therefore you might see that the camera goes
+If you want to go back to the *Pinpoint* step and set the target again, a tip is to slide
+the camera all the way to the target. In this way, you already are in the lower part of the lungs when you
+return to the images in the *Pinpoint* step.
+
+The *Tubes* view lets you fly through an artificial, transparent tube model of the airways, created around a straight centerline.
+The camera path, however, is based on the real centerline. Therefore you might see that the camera goes
 outside the tubes at times, especially at the start of the trachea. The tubes are meant to give an additional
 overview of the layout of the airways. One should go back and forth between the views to get comfortable with
 the airways.
@@ -190,6 +188,7 @@ If so, you might have to restart the computer if nothing happens after several m
 along the branches.
 - It has been seen that the 3D view in some steps might be empty upon entering the step.
 In that case, going to another step and then back should fill the view.
+- Don't use Norwegian or other special characters in the target name field.
 - To make the arrows control the camera in the fly through view, it has been necessary to override all
 other keyboard input in those steps. Meaning e.g. that the "R" button can't be used to center the image
 in the steps containing this view.

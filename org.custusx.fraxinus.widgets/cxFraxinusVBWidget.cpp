@@ -49,6 +49,10 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 {
     this->setObjectName(this->getWidgetName());
 
+	//Disable the select RTT box, as it is only confusing.
+	//To use it you still need to manually change many objects in the graphics.
+	mRouteToTarget->setEnabled(false);
+
     // Selector for displaying volume or artificial tubes
     QButtonGroup *displaySelectorGroup = new QButtonGroup(this);
     mVolumeButton = new QRadioButton(tr("Volume"));
