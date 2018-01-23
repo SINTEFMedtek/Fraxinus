@@ -149,7 +149,8 @@ The *Tubes* view lets you fly through an artificial, transparent tube model of t
 The camera path, however, is based on the real centerline. Therefore you might see that the camera goes
 outside the tubes at times, especially at the start of the trachea. The tubes are meant to give an additional
 overview of the layout of the airways. One should go back and forth between the views to get comfortable with
-the airways.
+the airways. Note that the tubes are based on the centerline, which might not have the complete layout of the lung three.
+However, the volume view should have all the information from the images.
 
 The slider, the wheels for the endoscope orientation, the reset button and the view can be controlled from the keyboard.
 Use the arrows and page up/page down for the endoscope. Reset is at the *5* key and toggle the view with *V*,*T* and *7*.
