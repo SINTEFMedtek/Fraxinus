@@ -31,17 +31,17 @@ Use the question mark at the top of the Fraxinus window to bring up the help pag
 
 ## Hardware {#hardware_Fraxinus}
 
-Fraxinus should be installed on a computer with a relatively good graphics card.
-
+On Windows laptops, it is at the time necessary to set Fraxinus to run with the integrated graphics card.
+See also \ref fx_troubleshooting.
 
 ## Description of the Fraxinus procedure {#description_Fraxinus}
 
 This is a short introduction to the workflow in Fraxinus. The workflow is separated in workflow steps
-that normally should be followed in sequential order. Many actions will automatically take you to the next workflow step.
+which normally should be followed in sequential order. Many actions will automatically take you to the next workflow step.
 A more detailed description of each workflow step is given after this introduction in \ref description_workflow.
 
 At the top of the Fraxinus window you see the workflow toolbar. You can see which step you are currently at,
-and you can select a different step by clicking on its icon on the toolbar. Hold the mouse over each step icon to see the name.
+and you can select a different step by clicking on its icon on the toolbar. Hold the mouse over each step's icon to see the name.
 
 * \ref description_newloadpatient - When you start Fraxinus, you will be in the *New/Load Patient* step. You must create a new patient the first time you use Fraxinus.
 When you have selected a name and location, you will be taken to the next workflow step.
@@ -174,6 +174,16 @@ See the previous step.
 If that doesn't help, use the *Restore factory settings* button in the first step to clean the
 *Fraxinus_settings folder* and restart the program.
 - Try to create a new patient if something seems to be wrong with your patient.
+- Fraxinus has some issues when running on Windows laptops. It is necessary to set fraxinus to run on the
+integrated graphics card, rather than on any external ones. If not, one might experience hangs or crashes
+after several workflow step changes, or when running the Lung sack segmentation.
+Still, when running on the integrated card, the memory usage of Fraxinus might become very high.
+One can use the Windows task manager to monitor this.
+The recommended practice is to close Fraxinus after each session to release the memory.
+For a computer with a NVIDIA external graphics card, the way to change to the internal card is:
+open the NVIDIA control panel from the NVIDIA settings icon in the lower right on the task bar.
+Go to the *Manage 3D settings* -> *Program settings*. Add the *Fraxinus.exe* from your installation
+and select *Integrated graphics*.
 - The Airway segmentation in the Process step might hang on certain unusual or "bad" Dicom series.
 If so, you might have to restart the computer if nothing happens after several minutes.
 - It has been seen that CT images with low resolution might give some strange twists in the camera path
