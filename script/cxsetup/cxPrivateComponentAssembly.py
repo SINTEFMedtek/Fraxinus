@@ -16,8 +16,8 @@ class PrivateControlData(cx.build.cxInstallData.Common):
         super(PrivateControlData, self).__init__()
         
         
-        private_folder = cxCustusXFinder.RepoLocations().getPrivateRepoPath()
-        self.main_branch = cxRepoHandler.getBranchForRepo(private_folder, fallback='master')
+        self.main_repo_folder = cxCustusXFinder.RepoLocations().getPrivateRepoPath()
+        self.main_branch = cxRepoHandler.getBranchForRepo(self.main_repo_folder, fallback='master')
         user = "custusx"
         server = "sintefweb07.sintef.no"
         self.publish_release_target                 = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/releases", user)

@@ -121,7 +121,7 @@ ApplicationsParser::ApplicationsParser()
 	toolbars.clear();
     toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset("virtual_bronchoscopy_widget", Qt::LeftDockWidgetArea, true);
+	desktop.addPreset(FraxinusVBWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["VirtualBronchoscopyCutPlanesUid"] = desktop;
     //-----------------------------------------------------
 

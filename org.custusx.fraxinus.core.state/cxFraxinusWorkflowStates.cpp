@@ -357,6 +357,8 @@ TransferFunctions3DPresetsPtr FraxinusWorkflowState::getTransferfunctionPresets(
 
 void FraxinusWorkflowState::setTransferfunction3D(QString transferfunction, ImagePtr image)
 {
+	if(!image)
+		return;
 	TransferFunctions3DPresetsPtr transferFunctionPresets = getTransferfunctionPresets();
 	transferFunctionPresets->load3D(transferfunction, image);
 }
@@ -937,6 +939,8 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	}
 	if(targetPoint)
 		viewGroup0_3D->addData(targetPoint->getUid());
+	if(extendedRouteToTarget)
+		viewGroup0_3D->addData(extendedRouteToTarget->getUid());
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
 	this->setTransferfunction2D("2D CT Lung", ctImage);
@@ -954,7 +958,9 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	if(extendedRouteToTarget)
 		viewGroup2_3D->addData(extendedRouteToTarget->getUid());
     if(routeToTarget)
-        viewGroup2_3D->addData(routeToTarget->getUid());
+		viewGroup2_3D->addData(routeToTarget->getUid());
+	if(targetPoint)
+		viewGroup2_3D->addData(targetPoint->getUid());
 }
 
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
