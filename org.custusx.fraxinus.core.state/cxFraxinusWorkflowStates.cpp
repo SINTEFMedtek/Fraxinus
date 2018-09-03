@@ -613,7 +613,7 @@ void ProcessWorkflowState::runFilterSlot()
 		return;
 	if (mThread)
 	{
-		reportWarning(QString("Last operation on %1 is not finished. Could not start filtering").arg(mThread->getFilter()->getName()));
+        reportWarning(QString("Last operation on %1 is not finished. Could not start filtering.").arg(mThread->getFilter()->getName()));
 		return;
 	}
 	mThread.reset(new FilterTimedAlgorithm(mCurrentFilter));
