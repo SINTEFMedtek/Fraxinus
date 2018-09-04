@@ -71,6 +71,7 @@ public:
 
 protected:
     MeshPtr getCenterline() const;
+    MeshPtr getTubeCenterline() const;
     MeshPtr getRouteToTarget() const;
     MeshPtr getExtendedRouteToTarget() const;
 	QMainWindow *getMainWindow();
