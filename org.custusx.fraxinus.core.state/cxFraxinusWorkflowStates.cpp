@@ -734,7 +734,7 @@ void PinpointWorkflowState::pointChanged()
 void PinpointWorkflowState::createRouteToTarget()
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	RouteToTargetFilterPtr routeToTargetFilter = RouteToTargetFilterPtr(new RouteToTargetFilter(services));
+    RouteToTargetFilterPtr routeToTargetFilter = RouteToTargetFilterPtr(new RouteToTargetFilter(services, true));
 	std::vector<SelectDataStringPropertyBasePtr> input = routeToTargetFilter->getInputTypes();
 	routeToTargetFilter->getOutputTypes();
 	routeToTargetFilter->getOptions();
