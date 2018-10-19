@@ -55,22 +55,22 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 
     // Selector for displaying volume or artificial tubes
     QButtonGroup *displaySelectorGroup = new QButtonGroup(this);
-    mVolumeButton = new QRadioButton(tr("Volume"));
-    mVolumeButton->setChecked(true);
     mTubeButton = new QRadioButton(tr("Tubes"));
-    displaySelectorGroup->addButton(mVolumeButton);
+    mTubeButton->setChecked(true);
+    mVolumeButton = new QRadioButton(tr("Volume"));
     displaySelectorGroup->addButton(mTubeButton);
+    displaySelectorGroup->addButton(mVolumeButton);
 
     QGroupBox* viewBox = new QGroupBox(tr("View"));
     QVBoxLayout* viewVLayout = new QVBoxLayout;
-    viewVLayout->addWidget(mVolumeButton);
     viewVLayout->addWidget(mTubeButton);
+    viewVLayout->addWidget(mVolumeButton);
     viewBox->setLayout(viewVLayout);
     mVerticalLayout->insertWidget(mVerticalLayout->count()-1, viewBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
     mVerticalLayout->addStretch(); //And add some more stretch
 
-    connect(mVolumeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayVolume);
     connect(mTubeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayTubes);
+    connect(mVolumeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayVolume);
 }
 
 FraxinusVBWidget::~FraxinusVBWidget()
