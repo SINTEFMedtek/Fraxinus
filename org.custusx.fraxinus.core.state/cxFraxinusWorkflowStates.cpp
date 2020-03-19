@@ -490,7 +490,17 @@ ImportWorkflowState::~ImportWorkflowState()
 void ImportWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
+	ImagePtr ctImage = this->getCTImage();
+
 	this->addDataToView();
+
+	//If no CT image: Trigger import data action (select files for import)
+	if(!ctImage)
+	{
+		triggerMainWindowActionWithObjectName("ImportData");
+	 //Trigger import data after selecting files for import
+		triggerMainWindowActionWithObjectName("ImportSelectedData");
+	}
 }
 
 void ImportWorkflowState::onExit(QEvent * event)
