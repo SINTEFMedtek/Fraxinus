@@ -44,7 +44,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVisServices.h"
 #include "cxClippers.h"
 #include "cxInteractiveClipper.h"
-#include "cxAirwaysFilterService.h"
 #include "cxActiveData.h"
 #include "cxImage.h"
 #include "cxMesh.h"
@@ -65,6 +64,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxContourFilter.h"
 #include "cxFraxinusVBWidget.h"
 
+#ifndef __APPLE__
+#include "cxAirwaysFilterService.h"
+#endif
 
 namespace cx
 {
@@ -604,6 +606,8 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	dialog.show();
 
+
+#ifndef __APPLE__
 	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
 	airwaysFilter->setDefaultStraightCLTubesOption(true);
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
@@ -614,6 +618,7 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 
 	mCurrentFilter = airwaysFilter;
 	this->runFilterSlot();
+#endif
 
 }
 

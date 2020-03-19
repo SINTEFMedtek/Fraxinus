@@ -58,11 +58,17 @@ set(PLUGIN_target_libraries
     cxResourceVisualization
     cxResourceFilter
     cxGui
-    org_custusx_filter_airways
     org_custusx_filter_routetotarget
     org_custusx_virtualbronchoscopy
     org_custusx_fraxinus_widgets
     )
+
+if(NOT CX_APPLE)
+  set(PLUGIN_target_libraries
+    ${PLUGIN_target_libraries}
+    org_custusx_filter_airways
+    )
+endif()
 
 set(PLUGIN_OUTPUT_DIR "")
 if(CX_WINDOWS)
