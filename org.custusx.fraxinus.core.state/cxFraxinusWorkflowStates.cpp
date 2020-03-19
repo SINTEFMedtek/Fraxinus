@@ -179,7 +179,7 @@ MeshPtr FraxinusWorkflowState::getCenterline() const
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
-        if(iter->first.contains(AirwaysFilter::getNameSuffixCenterline()) && !iter->first.contains(RouteToTargetFilter::getNameSuffix()))
+				if(iter->first.contains(airwaysFilterGetNameSuffixCenterline()) && !iter->first.contains(RouteToTargetFilter::getNameSuffix()))
 			return iter->second;
 	}
 	return MeshPtr();
@@ -190,8 +190,8 @@ MeshPtr FraxinusWorkflowState::getTubeCenterline() const
     std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
     for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
     {
-        if(iter->first.contains(AirwaysFilter::getNameSuffixCenterline()) && !iter->first.contains(RouteToTargetFilter::getNameSuffix())
-                && iter->first.contains(AirwaysFilter::getNameSuffixTubes()))
+        if(iter->first.contains(airwaysFilterGetNameSuffixCenterline()) && !iter->first.contains(RouteToTargetFilter::getNameSuffix())
+                && iter->first.contains(airwaysFilterGetNameSuffixTubes()))
             return iter->second;
     }
     return MeshPtr();
@@ -243,7 +243,7 @@ MeshPtr FraxinusWorkflowState::getAirwaysTubes() const
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
-        if(iter->first.contains(AirwaysFilter::getNameSuffixTubes()) & !iter->first.contains(AirwaysFilter::getNameSuffixCenterline()))
+				if(iter->first.contains(airwaysFilterGetNameSuffixTubes()) & !iter->first.contains(airwaysFilterGetNameSuffixCenterline()))
 			return iter->second;
 	}
 	return MeshPtr();
