@@ -588,14 +588,14 @@ void ProcessWorkflowState::imageSelected()
 
 void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 {
-	if(!image)
-		return;
+        if(!image)
+            return;
 
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	dialog.show();
 
 	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
-	airwaysFilter->setDefaultStraightCLTubesOption(true);
+        //airwaysFilter->setDefaultStraightCLTubesOption(true);
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
 	airwaysFilter->getOutputTypes();
 	airwaysFilter->getOptions();
