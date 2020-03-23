@@ -499,7 +499,7 @@ void ImportWorkflowState::onEntry(QEvent * event)
 	//If no CT image: Trigger import data action (select files for import)
 	if(!ctImage)
 	{
-		triggerMainWindowActionWithObjectName("ImportData");
+		triggerMainWindowActionWithObjectName("AddFilesForImport");
 	 //Trigger import data after selecting files for import
 		triggerMainWindowActionWithObjectName("ImportSelectedData");
 	}
