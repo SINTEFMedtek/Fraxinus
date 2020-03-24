@@ -37,6 +37,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QKeyEvent>
 #include "cxPatientModelService.h"
 
+class QPushButton;
+
 namespace cx
 {
 
@@ -50,9 +52,13 @@ private slots:
     void createNewPatient();
     void loadPatient();
     void restoreToFactorySettings();
+    void selectCTData();
 
 private:
+    void enableDataButton();
+
     PatientModelServicePtr mPatient;
+    QPushButton* mSelectCTDataButton;
 };
 
 }

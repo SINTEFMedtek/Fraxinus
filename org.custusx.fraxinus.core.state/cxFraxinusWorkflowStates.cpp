@@ -495,14 +495,6 @@ void ImportWorkflowState::onEntry(QEvent * event)
 	ImagePtr ctImage = this->getCTImage();
 
 	this->addDataToView();
-
-	//If no CT image: Trigger import data action (select files for import)
-	if(!ctImage)
-	{
-		triggerMainWindowActionWithObjectName("AddFilesForImport");
-	 //Trigger import data after selecting files for import
-		triggerMainWindowActionWithObjectName("ImportSelectedData");
-	}
 }
 
 void ImportWorkflowState::onExit(QEvent * event)

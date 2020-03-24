@@ -31,11 +31,19 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, PatientModelServiceP
     QPushButton* restoreToFactorySettingsButton = new QPushButton("&Restore factory settings");
     connect(restoreToFactorySettingsButton, &QPushButton::clicked, this, &NewLoadPatientWidget::restoreToFactorySettings);
 
+    mSelectCTDataButton = new QPushButton("&Select CT data");
+    mSelectCTDataButton->setEnabled(false);
+    connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->addWidget(newButton);
     layout->addWidget(loadButton);
-    layout->addWidget(restoreToFactorySettingsButton);
     layout->addStretch();
+
+    layout->addWidget(mSelectCTDataButton);
+    layout->addStretch();
+
+    layout->addWidget(restoreToFactorySettingsButton);
     this->setLayout(layout);
 }
 
@@ -43,12 +51,22 @@ void NewLoadPatientWidget::createNewPatient()
 {
     QString actionName = "NewPatient";
     triggerMainWindowActionWithObjectName(actionName);
+    enableDataButton();
 }
 
 void NewLoadPatientWidget::loadPatient()
 {
     QString actionName = "LoadFile";
     triggerMainWindowActionWithObjectName(actionName);
+    enableDataButton();
+}
+
+void NewLoadPatientWidget::enableDataButton()
+{
+  if(mPatient->isPatientValid())
+    mSelectCTDataButton->setEnabled(true);
+  else
+    mSelectCTDataButton->setEnabled(false);
 }
 
 void NewLoadPatientWidget::restoreToFactorySettings()
@@ -57,5 +75,10 @@ void NewLoadPatientWidget::restoreToFactorySettings()
     LogicManager::getInstance()->restartServicesWithProfile("Bronchoscopy");
 }
 
+void NewLoadPatientWidget::selectCTData()
+{
+  triggerMainWindowActionWithObjectName("AddFilesForImport");
+  triggerMainWindowActionWithObjectName("ImportSelectedData");
+}
 
 }
