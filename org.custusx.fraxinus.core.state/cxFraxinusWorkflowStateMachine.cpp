@@ -37,6 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxActiveData.h"
 #include "cxLogger.h"
 #include "cxImage.h"
+#include"cxApplication.h"
 
 namespace cx
 {
@@ -57,6 +58,13 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
     connect(mProcessWorkflowState, SIGNAL(airwaysSegmented()), mPinpointWorkflowState, SLOT(canEnterSlot()));
     connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState, SLOT(canEnterSlot()));
     connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyCutPlanesWorkflowState, SLOT(canEnterSlot()));
+
+    QWidget* airwaySegmentationWidget = findMainWindowChildWithObjectName<QWidget*>("Airway Segmentation Filter Widget");
+    if (airwaySegmentationWidget)
+    {
+        connect(airwaySegmentationWidget, SIGNAL(airwaysSegmented()), mPinpointWorkflowState, SLOT(canEnterSlot()));
+        mProcessWorkflowState->addTransition(airwaySegmentationWidget, SIGNAL(airwaysSegmented()), mPinpointWorkflowState);
+    }
 
 	//set initial state on all levels
     this->setInitialState(mParentState);
