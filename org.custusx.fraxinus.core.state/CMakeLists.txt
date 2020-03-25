@@ -5,20 +5,6 @@
 
 project(org_custusx_fraxinus_core_state)
 
-macro(cx_initialize_FAST)
-    find_package(FAST REQUIRED)
-    include_directories("${FAST_DIR}/../FAST/source/")
-    include_directories("${FAST_DIR}/")
-    link_directories("${FAST_DIR}/lib/")
-    set(FAST_SOURCE_DIR ${FAST_DIR}/../FAST/source/FAST/)
-    add_definitions("-DFAST_SOURCE_DIR=\"${FAST_SOURCE_DIR}/\"")
-    message("===========================")
-    message("Initializing FAST in Airways plugin")
-    message("-- ${FAST_DIR}/../FAST/source/")
-    message("===========================")
-    cx_install_add_library_dirs(${FAST_DIR}/bin/)
-endmacro()
-
 cx_initialize_FAST()
 
 set(PLUGIN_export_directive "${PROJECT_NAME}_EXPORT")
