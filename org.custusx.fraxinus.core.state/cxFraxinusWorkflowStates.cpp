@@ -492,8 +492,6 @@ ImportWorkflowState::~ImportWorkflowState()
 void ImportWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
-	ImagePtr ctImage = this->getCTImage();
-
 	this->addDataToView();
 }
 

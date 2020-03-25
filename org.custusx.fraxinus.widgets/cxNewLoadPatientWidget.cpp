@@ -51,17 +51,17 @@ void NewLoadPatientWidget::createNewPatient()
 {
     QString actionName = "NewPatient";
     triggerMainWindowActionWithObjectName(actionName);
-    enableDataButton();
+    enableImportDataButton();
 }
 
 void NewLoadPatientWidget::loadPatient()
 {
     QString actionName = "LoadFile";
     triggerMainWindowActionWithObjectName(actionName);
-    enableDataButton();
+    enableImportDataButton();
 }
 
-void NewLoadPatientWidget::enableDataButton()
+void NewLoadPatientWidget::enableImportDataButton()
 {
   if(mPatient->isPatientValid())
     mSelectCTDataButton->setEnabled(true);

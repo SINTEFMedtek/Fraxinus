@@ -55,7 +55,7 @@ private slots:
     void selectCTData();
 
 private:
-    void enableDataButton();
+    void enableImportDataButton();
 
     PatientModelServicePtr mPatient;
     QPushButton* mSelectCTDataButton;
