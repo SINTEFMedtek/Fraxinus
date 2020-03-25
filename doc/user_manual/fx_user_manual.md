@@ -94,9 +94,6 @@ at a time. If you want to try to import a different CT series, you should start 
 If you have more than one Dicom series to choose between, select one with preferably slice thickness 2.0 mm or less.
 For Siemens CT series, look for the name *Thorax 1.0 B30*.
 
-By clicking the *Advanced* button, you get access to a couple of features to get more info from your DICOM images.
-See also \ref org_custusx_dicom.
-
 ### Process {#description_process}
 
 Usually this step is fully automatic when you perform the normal Fraxinus workflow sequence
