@@ -150,6 +150,7 @@ public:
     virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
 	virtual bool canEnter() const;
+
 signals:
 	void airwaysSegmented();
 

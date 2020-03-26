@@ -59,13 +59,6 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
     connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState, SLOT(canEnterSlot()));
     connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyCutPlanesWorkflowState, SLOT(canEnterSlot()));
 
-    QWidget* airwaySegmentationWidget = findMainWindowChildWithObjectName<QWidget*>("Airway Segmentation Filter Widget");
-    if (airwaySegmentationWidget)
-    {
-        connect(airwaySegmentationWidget, SIGNAL(airwaysSegmented()), mPinpointWorkflowState, SLOT(canEnterSlot()));
-        mProcessWorkflowState->addTransition(airwaySegmentationWidget, SIGNAL(airwaysSegmented()), mPinpointWorkflowState);
-    }
-
 	//set initial state on all levels
     this->setInitialState(mParentState);
     mParentState->setInitialState(mPatientWorkflowState);

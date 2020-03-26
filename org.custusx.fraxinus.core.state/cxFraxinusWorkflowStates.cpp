@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QApplication>
 #include <QMainWindow>
 #include <QLayout>
+#include <QList>
 #include "cxStateService.h"
 #include "cxSettings.h"
 #include "cxTrackingService.h"
@@ -574,6 +575,16 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 
 	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
 	QTimer::singleShot(0, this, SLOT(imageSelected()));
+
+    //Setting Pinpoint workflow active here, in case segmentation is run manuelly if automatic segmentation fails.
+    QObject* parentWorkFlow = this->parent();
+    QList<FraxinusWorkflowState *> allWorkflows = parentWorkFlow->findChildren<FraxinusWorkflowState *>();
+     for (int i = 0; i < allWorkflows.size(); i++)
+         if (allWorkflows[i]->getName() == "Pinpoint")
+         {
+             allWorkflows[i]->enableAction(true);
+             break;
+         }
 }
 
 void ProcessWorkflowState::imageSelected()
@@ -595,7 +606,6 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 	dialog.show();
 
 	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
-        //airwaysFilter->setDefaultStraightCLTubesOption(true);
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
 	airwaysFilter->getOutputTypes();
 	airwaysFilter->getOptions();
@@ -603,7 +613,7 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 	input[0]->setValue(image->getUid());
 
 	mCurrentFilter = airwaysFilter;
-	this->runFilterSlot();
+    this->runFilterSlot();
 
 }
 
@@ -633,9 +643,13 @@ void ProcessWorkflowState::finishedSlot()
 	MeshPtr airways = this->getAirwaysContour();
 	if(airways)
 	{
-		airways->setColor("#FFCCCC");
-		emit airwaysSegmented();
+        airways->setColor("#FFCCCC");
+        emit airwaysSegmented();
 	}
+    else
+    {
+        //TO DO: Ask user to place cursor inside airways (seedpoint), and re-run filter.
+    }
 }
 
 bool ProcessWorkflowState::canEnter() const
@@ -648,6 +662,7 @@ bool ProcessWorkflowState::canEnter() const
 
 void ProcessWorkflowState::addDataToView()
 {
+    //TO DO: show CT in 2D slices as in Pinpointworkflow
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	MeshPtr airways = this->getAirwaysContour();
 
@@ -750,7 +765,7 @@ void PinpointWorkflowState::createRouteToTarget()
 	{
 		routeToTargetFilter->postProcess();
 		emit routeToTargetCreated();
-	}
+    }
 }
 
 void PinpointWorkflowState::addDataToView()
