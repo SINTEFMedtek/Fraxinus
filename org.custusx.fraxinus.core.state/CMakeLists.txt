@@ -5,20 +5,6 @@
 
 project(org_custusx_fraxinus_core_state)
 
-macro(cx_initialize_FAST)
-    find_package(FAST REQUIRED)
-    include_directories("${FAST_DIR}/../FAST/source/")
-    include_directories("${FAST_DIR}/")
-    link_directories("${FAST_DIR}/lib/")
-    set(FAST_SOURCE_DIR ${FAST_DIR}/../FAST/source/FAST/)
-    add_definitions("-DFAST_SOURCE_DIR=\"${FAST_SOURCE_DIR}/\"")
-    message("===========================")
-    message("Initializing FAST in Airways plugin")
-    message("-- ${FAST_DIR}/../FAST/source/")
-    message("===========================")
-    cx_install_add_library_dirs(${FAST_DIR}/bin/)
-endmacro()
-
 cx_initialize_FAST()
 
 set(PLUGIN_export_directive "${PROJECT_NAME}_EXPORT")
@@ -94,11 +80,17 @@ set(PLUGIN_target_libraries
     cxResourceVisualization
     cxResourceFilter
     cxGui
-    org_custusx_filter_airways
     org_custusx_filter_routetotarget
     org_custusx_virtualbronchoscopy
     org_custusx_fraxinus_widgets
     )
+
+if(NOT CX_APPLE)
+  set(PLUGIN_target_libraries
+    ${PLUGIN_target_libraries}
+    org_custusx_filter_airways
+    )
+endif()
 
 set(PLUGIN_OUTPUT_DIR "")
 if(CX_WINDOWS)
