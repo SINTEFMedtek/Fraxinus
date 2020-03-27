@@ -72,7 +72,6 @@ set(PLUGIN_target_libraries
 	cxLogicManager
     org_custusx_filter_routetotarget
     org_custusx_virtualbronchoscopy
-    org_custusx_filter_airways
     )
 
 if(NOT CX_APPLE)
