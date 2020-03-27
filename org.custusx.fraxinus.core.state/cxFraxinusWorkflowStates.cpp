@@ -797,7 +797,6 @@ void PinpointWorkflowState::addDataToView()
     viewGroup1_2D->getGlobal2DZoom()->set(0.3);
     if(ctImage)
         viewGroup1_2D->addData(ctImage->getUid());
-    this->set
 }
 
 void PinpointWorkflowState::deleteOldRouteToTarget()

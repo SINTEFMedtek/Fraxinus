@@ -34,17 +34,20 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, PatientModelServiceP
     restoreToFactorySettingsButton->setPalette(palette);
     connect(restoreToFactorySettingsButton, &QPushButton::clicked, this, &NewLoadPatientWidget::restoreToFactorySettings);
 
-    mSelectCTDataButton = new QPushButton("&Select CT data");
+    mSelectCTDataButton = new QPushButton("& Select CT data");
     mSelectCTDataButton->setIcon(QIcon(":/icons/icons/import.svg"));
     mSelectCTDataButton->setEnabled(false);
     connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
 
     QVBoxLayout* layout = new QVBoxLayout(this);
+    layout->addStretch();
     layout->addWidget(newButton);
     layout->addWidget(loadButton);
     layout->addStretch();
 
     layout->addWidget(mSelectCTDataButton);
+    layout->addStretch();
+    layout->addStretch();
     layout->addStretch();
 
     layout->addWidget(restoreToFactorySettingsButton);
