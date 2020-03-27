@@ -582,7 +582,7 @@ void ProcessWorkflowState::onEntry(QEvent * event)
     QObject* parentWorkFlow = this->parent();
     QList<FraxinusWorkflowState *> allWorkflows = parentWorkFlow->findChildren<FraxinusWorkflowState *>();
      for (int i = 0; i < allWorkflows.size(); i++)
-         if (allWorkflows[i]->getName() == "Pinpoint")
+         if (allWorkflows[i]->getName() == "Set target")
          {
              allWorkflows[i]->enableAction(true);
              break;
@@ -681,7 +681,7 @@ void ProcessWorkflowState::addDataToView()
 // --------------------------------------------------------
 
 PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr services) :
-	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services, false),
+    FraxinusWorkflowState(parent, "PinpointUid", "Set target", services, false),
 	mPointChanged(false)
 {
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
