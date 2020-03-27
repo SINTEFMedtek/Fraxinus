@@ -700,13 +700,13 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
 
-	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
+    connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	if(targetPoint)
 	{
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
-	}
+    }
 }
 
 bool PinpointWorkflowState::canEnter() const
@@ -778,26 +778,26 @@ void PinpointWorkflowState::addDataToView()
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
 	ImagePtr ctImage = this->getCTImage();
-	ImagePtr ctImage_copied = this->getCTImageCopied();
+    //ImagePtr ctImage_copied = this->getCTImageCopied();
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
 
 	//assuming layout: LAYOUT_ACAS
-	ViewGroupDataPtr viewGroup0_2D = services->view()->getGroup(0);
-	this->setTransferfunction2D("2D CT Abdomen", ctImage_copied);
-	viewGroup0_2D->getGroup2DZoom()->set(0.3);
-	viewGroup0_2D->getGlobal2DZoom()->set(0.3);
-	if(ctImage_copied)
-		viewGroup0_2D->addData(ctImage_copied->getUid());
+//	ViewGroupDataPtr viewGroup0_2D = services->view()->getGroup(0);
+//	this->setTransferfunction2D("2D CT Abdomen", ctImage_copied);
+//	viewGroup0_2D->getGroup2DZoom()->set(0.3);
+//	viewGroup0_2D->getGlobal2DZoom()->set(0.3);
+//	if(ctImage_copied)
+//		viewGroup0_2D->addData(ctImage_copied->getUid());
 
-	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
-	this->setTransferfunction2D("2D CT Lung", ctImage);
-	viewGroup1_2D->getGroup2DZoom()->set(0.3);
-	viewGroup1_2D->getGlobal2DZoom()->set(0.3);
-	if(ctImage)
-		viewGroup1_2D->addData(ctImage->getUid());
-
+    ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+    this->setTransferfunction2D("2D CT Lung", ctImage);
+    viewGroup1_2D->getGroup2DZoom()->set(0.3);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.3);
+    if(ctImage)
+        viewGroup1_2D->addData(ctImage->getUid());
+    this->set
 }
 
 void PinpointWorkflowState::deleteOldRouteToTarget()

@@ -59,10 +59,10 @@ void FraxinusMainWindowApplicationComponent::addAdditionalDefaultLayouts()
 	{
 		// ACS 3D
 		LayoutData layout = LayoutData::create("LAYOUT_ACAS", "ACAS", 2, 2);
-		layout.setView(1, ptAXIAL, LayoutRegion(0, 0));
-		layout.setView(1, ptCORONAL, LayoutRegion(0, 1));
+        layout.setView(1, ptAXIAL, LayoutRegion(0, 0, 1, 2));
+        layout.setView(1, ptCORONAL, LayoutRegion(1, 0));
 		layout.setView(1, ptSAGITTAL, LayoutRegion(1, 1));
-		layout.setView(0, ptAXIAL, LayoutRegion(1, 0));
+        //layout.setView(0, ptAXIAL, LayoutRegion(1, 0));
 		viewService->addDefaultLayout(layout);
 	}
 }
