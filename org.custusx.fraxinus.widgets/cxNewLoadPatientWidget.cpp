@@ -29,9 +29,13 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, PatientModelServiceP
     connect(loadButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadPatient);
 
     QPushButton* restoreToFactorySettingsButton = new QPushButton("&Restore factory settings");
+    QPalette palette = restoreToFactorySettingsButton->palette();
+    palette.setColor(QPalette::Button, Qt::red);
+    restoreToFactorySettingsButton->setPalette(palette);
     connect(restoreToFactorySettingsButton, &QPushButton::clicked, this, &NewLoadPatientWidget::restoreToFactorySettings);
 
     mSelectCTDataButton = new QPushButton("&Select CT data");
+    mSelectCTDataButton->setIcon(QIcon(":/icons/icons/import.svg"));
     mSelectCTDataButton->setEnabled(false);
     connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
 
