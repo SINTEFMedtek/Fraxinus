@@ -1,5 +1,7 @@
 project(org_custusx_fraxinus_widgets)
 
+cx_initialize_FAST()
+
 #### Enable C++11
 set (CMAKE_CXX_STANDARD 11)
 
@@ -17,6 +19,24 @@ set(PLUGIN_SRCS
     cxNewLoadPatientWidget.cpp
     cxFraxinusVBWidget.cpp
 )
+
+# Make sure OpenCL kernel files are copied to the installer
+# Install OpenCL kernels
+install(DIRECTORY ${FAST_SOURCE_DIR}
+        DESTINATION ${CX_INSTALL_CONFIG_DIR}/FAST/
+        FILES_MATCHING PATTERN "*.cl"
+)
+
+#Compute the plugin dependencies
+ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
+# Z lib comes with many names, needed for FAST atm
+if(WIN32)
+    set(ZLIB zlib.lib)
+elseif(APPLE)
+    set(ZLIB libz.dylib)
+else()
+    set(ZLIB libz.so)
+endif(WIN32)
 
 # Files which should be processed by Qts moc
 set(PLUGIN_MOC_SRCS
@@ -43,6 +63,7 @@ set(PLUGIN_target_libraries
     cxGUIExtenderService
     cxPluginUtilities
     Qt5::Widgets
+    FAST
     cxResourceVisualization #todo: remove (for VisServices, for FilterSetupWidget)
     cxGui #todo: remove (for FilterSetupWidget)
     cxResourceWidgets
@@ -52,6 +73,13 @@ set(PLUGIN_target_libraries
     org_custusx_filter_routetotarget
     org_custusx_virtualbronchoscopy
     )
+
+if(NOT CX_APPLE)
+  set(PLUGIN_target_libraries
+    ${PLUGIN_target_libraries}
+    org_custusx_filter_airways
+    )
+endif()
 
 set(PLUGIN_OUTPUT_DIR "")
 if(CX_WINDOWS)

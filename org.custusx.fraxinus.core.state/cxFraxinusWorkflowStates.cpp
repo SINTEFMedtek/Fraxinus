@@ -44,7 +44,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVisServices.h"
 #include "cxClippers.h"
 #include "cxInteractiveClipper.h"
-#include "cxAirwaysFilterService.h"
 #include "cxActiveData.h"
 #include "cxImage.h"
 #include "cxMesh.h"
@@ -65,6 +64,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxContourFilter.h"
 #include "cxFraxinusVBWidget.h"
 
+#ifndef __APPLE__
+#include "cxAirwaysFilterService.h"
+#endif
 
 namespace cx
 {
@@ -179,7 +181,7 @@ MeshPtr FraxinusWorkflowState::getCenterline() const
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
-        if(iter->first.contains(AirwaysFilter::getNameSuffixCenterline()) && !iter->first.contains(RouteToTargetFilter::getNameSuffix()))
+				if(iter->first.contains(airwaysFilterGetNameSuffixCenterline()) && !iter->first.contains(RouteToTargetFilter::getNameSuffix()))
 			return iter->second;
 	}
 	return MeshPtr();
@@ -190,8 +192,8 @@ MeshPtr FraxinusWorkflowState::getTubeCenterline() const
     std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
     for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
     {
-        if(iter->first.contains(AirwaysFilter::getNameSuffixCenterline()) && !iter->first.contains(RouteToTargetFilter::getNameSuffix())
-                && iter->first.contains(AirwaysFilter::getNameSuffixTubes()))
+        if(iter->first.contains(airwaysFilterGetNameSuffixCenterline()) && !iter->first.contains(RouteToTargetFilter::getNameSuffix())
+                && iter->first.contains(airwaysFilterGetNameSuffixTubes()))
             return iter->second;
     }
     return MeshPtr();
@@ -243,7 +245,7 @@ MeshPtr FraxinusWorkflowState::getAirwaysTubes() const
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
-        if(iter->first.contains(AirwaysFilter::getNameSuffixTubes()) & !iter->first.contains(AirwaysFilter::getNameSuffixCenterline()))
+				if(iter->first.contains(airwaysFilterGetNameSuffixTubes()) & !iter->first.contains(airwaysFilterGetNameSuffixCenterline()))
 			return iter->second;
 	}
 	return MeshPtr();
@@ -588,14 +590,16 @@ void ProcessWorkflowState::imageSelected()
 
 void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 {
-	if(!image)
-		return;
+        if(!image)
+            return;
 
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	dialog.show();
 
+
+#ifndef __APPLE__
 	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
-	airwaysFilter->setDefaultStraightCLTubesOption(true);
+        //airwaysFilter->setDefaultStraightCLTubesOption(true);
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
 	airwaysFilter->getOutputTypes();
 	airwaysFilter->getOptions();
@@ -604,6 +608,7 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 
 	mCurrentFilter = airwaysFilter;
 	this->runFilterSlot();
+#endif
 
 }
 

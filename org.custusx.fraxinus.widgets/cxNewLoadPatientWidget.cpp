@@ -29,13 +29,25 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, PatientModelServiceP
     connect(loadButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadPatient);
 
     QPushButton* restoreToFactorySettingsButton = new QPushButton("&Restore factory settings");
+    QPalette palette = restoreToFactorySettingsButton->palette();
+    palette.setColor(QPalette::Button, Qt::red);
+    restoreToFactorySettingsButton->setPalette(palette);
     connect(restoreToFactorySettingsButton, &QPushButton::clicked, this, &NewLoadPatientWidget::restoreToFactorySettings);
+
+    mSelectCTDataButton = new QPushButton("&Select CT data");
+    mSelectCTDataButton->setIcon(QIcon(":/icons/icons/import.svg"));
+    mSelectCTDataButton->setEnabled(false);
+    connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
 
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->addWidget(newButton);
     layout->addWidget(loadButton);
-    layout->addWidget(restoreToFactorySettingsButton);
     layout->addStretch();
+
+    layout->addWidget(mSelectCTDataButton);
+    layout->addStretch();
+
+    layout->addWidget(restoreToFactorySettingsButton);
     this->setLayout(layout);
 }
 
@@ -43,12 +55,22 @@ void NewLoadPatientWidget::createNewPatient()
 {
     QString actionName = "NewPatient";
     triggerMainWindowActionWithObjectName(actionName);
+    enableImportDataButton();
 }
 
 void NewLoadPatientWidget::loadPatient()
 {
     QString actionName = "LoadFile";
     triggerMainWindowActionWithObjectName(actionName);
+    enableImportDataButton();
+}
+
+void NewLoadPatientWidget::enableImportDataButton()
+{
+  if(mPatient->isPatientValid())
+    mSelectCTDataButton->setEnabled(true);
+  else
+    mSelectCTDataButton->setEnabled(false);
 }
 
 void NewLoadPatientWidget::restoreToFactorySettings()
@@ -57,5 +79,10 @@ void NewLoadPatientWidget::restoreToFactorySettings()
     LogicManager::getInstance()->restartServicesWithProfile("Bronchoscopy");
 }
 
+void NewLoadPatientWidget::selectCTData()
+{
+  triggerMainWindowActionWithObjectName("AddFilesForImport");
+  triggerMainWindowActionWithObjectName("ImportSelectedData");
+}
 
 }

@@ -5,6 +5,8 @@
 
 project(org_custusx_fraxinus_core_state)
 
+cx_initialize_FAST()
+
 set(PLUGIN_export_directive "${PROJECT_NAME}_EXPORT")
 
 qt5_add_resources(fraxinus_state_resources
@@ -24,6 +26,25 @@ set(PLUGIN_SRCS
     cxVBCameraZoomSetting3D.h
     cxVBCameraZoomSetting3D.cpp
 )
+
+# Make sure OpenCL kernel files are copied to the installer
+# Install OpenCL kernels
+install(DIRECTORY ${FAST_SOURCE_DIR}
+        DESTINATION ${CX_INSTALL_CONFIG_DIR}/FAST/
+        FILES_MATCHING PATTERN "*.cl"
+)
+
+#Compute the plugin dependencies
+ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
+# Z lib comes with many names, needed for FAST atm
+if(WIN32)
+    set(ZLIB zlib.lib)
+elseif(APPLE)
+    set(ZLIB libz.dylib)
+else()
+    set(ZLIB libz.so)
+endif(WIN32)
+
 
 # Files which should be processed by Qts moc
 set(PLUGIN_MOC_SRCS
@@ -51,18 +72,25 @@ set(PLUGIN_target_libraries
     ${PLUGIN_target_libraries}
 
     PRIVATE
+    FAST
     cxPluginUtilities
     Qt5::Widgets
     cxResource
-	cxResourceWidgets
+    cxResourceWidgets
     cxResourceVisualization
     cxResourceFilter
     cxGui
-    org_custusx_filter_airways
     org_custusx_filter_routetotarget
     org_custusx_virtualbronchoscopy
     org_custusx_fraxinus_widgets
     )
+
+if(NOT CX_APPLE)
+  set(PLUGIN_target_libraries
+    ${PLUGIN_target_libraries}
+    org_custusx_filter_airways
+    )
+endif()
 
 set(PLUGIN_OUTPUT_DIR "")
 if(CX_WINDOWS)

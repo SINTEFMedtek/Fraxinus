@@ -81,7 +81,8 @@ ApplicationsParser::ApplicationsParser()
 	toolbars.clear();
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset("dicom_widget", Qt::LeftDockWidgetArea, true);
+    desktop.addPreset("import_widget", Qt::LeftDockWidgetArea, true);
+  //desktop.addPreset("dicom_widget", Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["ImportUid"] = desktop;
 	//-----------------------------------------------------
 
