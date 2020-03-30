@@ -888,8 +888,8 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 		viewGroup0_3D->addData(distanceToTargetMetric->getUid());
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
-	viewGroup1_2D->getGroup2DZoom()->set(0.2);
-	viewGroup1_2D->getGlobal2DZoom()->set(0.2);
+    viewGroup1_2D->getGroup2DZoom()->set(0.4);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.4);
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
 
@@ -983,8 +983,8 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
 	this->setTransferfunction2D("2D CT Lung", ctImage);
-	viewGroup1_2D->getGroup2DZoom()->set(0.2);
-	viewGroup1_2D->getGlobal2DZoom()->set(0.2);
+    viewGroup1_2D->getGroup2DZoom()->set(0.4);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.4);
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
 	if(distanceToTargetMetric)
