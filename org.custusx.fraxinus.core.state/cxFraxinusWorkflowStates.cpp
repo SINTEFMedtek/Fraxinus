@@ -145,7 +145,7 @@ void FraxinusWorkflowState::onEntryDefault(QEvent * event)
 	CameraControlPtr camera_control = services->view()->getCameraControl();
 	if(camera_control)
 	{
-		camera_control->setSuperiorView();
+        camera_control->setSuperiorView();
 	}
 
 	//Hack to make sure camera style is set correnyly
@@ -707,6 +707,8 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	{
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
     }
+
+    this->setDefaultCameraStyle();
 }
 
 bool PinpointWorkflowState::canEnter() const
@@ -780,17 +782,22 @@ void PinpointWorkflowState::addDataToView()
 	ImagePtr ctImage = this->getCTImage();
     //ImagePtr ctImage_copied = this->getCTImageCopied();
 
+    MeshPtr airways = this->getAirwaysContour();
+
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
 
-	//assuming layout: LAYOUT_ACAS
-//	ViewGroupDataPtr viewGroup0_2D = services->view()->getGroup(0);
-//	this->setTransferfunction2D("2D CT Abdomen", ctImage_copied);
-//	viewGroup0_2D->getGroup2DZoom()->set(0.3);
-//	viewGroup0_2D->getGlobal2DZoom()->set(0.3);
-//	if(ctImage_copied)
-//		viewGroup0_2D->addData(ctImage_copied->getUid());
-
+    ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
+    if(airways)
+    {
+        viewGroup0_3D->addData(airways->getUid());
+        CameraControlPtr camera_control = services->view()->getCameraControl();
+        if(camera_control)
+        {
+            camera_control->setAnteriorView();
+            QTimer::singleShot(0, this, SLOT(setDefaultCameraStyle()));
+        }
+    }
     ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
     this->setTransferfunction2D("2D CT Lung", ctImage);
     viewGroup1_2D->getGroup2DZoom()->set(0.3);
