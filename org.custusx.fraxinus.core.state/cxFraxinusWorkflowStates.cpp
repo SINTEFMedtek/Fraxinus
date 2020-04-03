@@ -235,7 +235,7 @@ MeshPtr FraxinusWorkflowState::getAirwaysContour() const
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
-        if(iter->first.contains(ContourFilter::getNameSuffix()))
+        if(iter->first.contains(airwaysFilterGetNameSuffixAirways()) & iter->first.contains(ContourFilter::getNameSuffix()))
 			return iter->second;
 	}
 	return MeshPtr();
@@ -271,17 +271,28 @@ ImagePtr FraxinusWorkflowState::getCTImage() const
 ImagePtr FraxinusWorkflowState::getCTImageCopied() const
 {
 	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
+
 	std::map<QString, ImagePtr>::iterator it = images.begin();
-	ImagePtr image;
+    ImagePtr imageCopied;
 	for( ; it != images.end(); ++it)
 	{
 		if(it->first.contains("_copy"))
 		{
-			image = it->second;
+            imageCopied = it->second;
 			break;
 		}
 	}
-	return image;
+
+    if (!imageCopied)
+    {
+        ImagePtr image = images.begin()->second;
+        imageCopied = image->copy();
+        imageCopied->setName(image->getName()+"_copy");
+        imageCopied->setUid(image->getUid()+"_copy");
+        mServices->patient()->insertData(imageCopied);
+    }
+
+    return imageCopied;
 }
 
 PointMetricPtr FraxinusWorkflowState::getTargetPoint() const
@@ -398,9 +409,9 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 
 void FraxinusWorkflowState::setupViewOptionsINVBWidget(int flyThrough3DViewGroupNumber)
 {
-	ImagePtr ctImage_copied = this->getCTImageCopied();
+    ImagePtr ctImage_copied = this->getCTImageCopied();
 	std::vector<DataPtr> volumeViewObjects;
-	volumeViewObjects.push_back(ctImage_copied);
+    volumeViewObjects.push_back(ctImage_copied);
 
     std::vector<DataPtr> tubeViewObjects;
     MeshPtr tubes = this->getAirwaysTubes();
@@ -498,15 +509,15 @@ void ImportWorkflowState::onEntry(QEvent * event)
 
 void ImportWorkflowState::onExit(QEvent * event)
 {
-	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
-	if (images.size() == 1)
-	{
-		ImagePtr image = images.begin()->second;
-		ImagePtr image_copy = image->copy();
-		image_copy->setName(image->getName()+"_copy");
-		image_copy->setUid(image->getUid()+"_copy");
-		mServices->patient()->insertData(image_copy);
-	}
+//	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
+//	if (images.size() == 1)
+//	{
+//		ImagePtr image = images.begin()->second;
+//		ImagePtr image_copy = image->copy();
+//		image_copy->setName(image->getName()+"_copy");
+//		image_copy->setUid(image->getUid()+"_copy");
+//		mServices->patient()->insertData(image_copy);
+//	}
 
 	ImagePtr ctImage = this->getCTImage();
 	if(ctImage)
