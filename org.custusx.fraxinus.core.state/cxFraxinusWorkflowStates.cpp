@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QMainWindow>
 #include <QLayout>
 #include <QList>
+#include <QMessageBox>
 #include "cxStateService.h"
 #include "cxSettings.h"
 #include "cxTrackingService.h"
@@ -664,7 +665,15 @@ void ProcessWorkflowState::finishedSlot()
 	}
     else
     {
+        this->addDataToView();
         //TO DO: Ask user to place cursor inside airways (seedpoint), and re-run filter.
+        QString message = "Ariway segmentation failed.\n\n"
+                          "Try:\n"
+                          "1. Click inside the airways (e.g. trachea).\n"
+                          "2. Select input.\n"
+                          "3. Select \"Use manual seed point\"\n"
+                          "4. Run the Airway segmantation filter again using the green start button. \n";
+        QMessageBox::warning(NULL,"Airway segmentation failed", message);
     }
 }
 
@@ -681,11 +690,28 @@ void ProcessWorkflowState::addDataToView()
     //TO DO: show CT in 2D slices as in Pinpointworkflow
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	MeshPtr airways = this->getAirwaysContour();
+    ImagePtr ctImage = this->getCTImage();
 
-	//Assuming 3D
+
+    //Assuming 3D
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
 	if(airways)
 		viewGroup0_3D->addData(airways->getUid());
+    else if(ctImage)
+    {
+        ctImage->setInitialWindowLevel(-1, -1);
+        this->setTransferfunction3D("Default", ctImage);
+        this->setTransferfunction2D("2D CT Lung", ctImage);
+        viewGroup0_3D->addData(ctImage->getUid());
+    }
+
+    //Assuming ACS
+    ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+    viewGroup1_2D->getGroup2DZoom()->set(0.1);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.1);
+    if(ctImage)
+        viewGroup1_2D->addData(ctImage->getUid());
+
 }
 
 // --------------------------------------------------------
