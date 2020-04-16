@@ -66,6 +66,8 @@ private:
     void displayDataObjects(std::vector<DataPtr> objects);
     void hideDataObjects(std::vector<DataPtr> objects);
     void UpdateRttInfo(int cameraPosition);
+    void calculateDistanceFromRouteEndToTarget(Eigen::Vector3d routeEndpoint);
+    QString createDistanceFromPathToTargetText();
 
     VisServicesPtr mServices;
     QRadioButton* mVolumeButton;
@@ -76,7 +78,9 @@ private:
     QLabel* mStaticTotalLegth;
     QLabel* mRemainingRttLegth;
     QLabel* mDirectDistance;
+    QLabel* mDistanceToTarget;
     double mRouteLenght;
+    double mDistanceFromPathEndToTarget;
 };
 
 

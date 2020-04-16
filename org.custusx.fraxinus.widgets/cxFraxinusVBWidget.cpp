@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxLogger.h"
 #include "cxRouteToTarget.h"
 #include "cxPinpointWidget.h"
+#include "cxPointMetric.h"
 #include "cxDistanceMetric.h"
 
 namespace cx {
@@ -51,7 +52,8 @@ namespace cx {
 FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     VBWidget(services, parent),
 		mServices(services),
-		mRouteLenght(0)
+		mRouteLenght(0),
+		mDistanceFromPathEndToTarget(0)
 {
     this->setObjectName(this->getWidgetName());
 
@@ -78,7 +80,10 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 		mStaticTotalLegth = new QLabel();
 		mRemainingRttLegth = new QLabel();
 		mDirectDistance = new QLabel();
+		mDistanceToTarget = new QLabel();
 		routeVLayout->addWidget(mStaticTotalLegth);
+		routeVLayout->addWidget(mDistanceToTarget);
+		routeVLayout->addSpacing(10);
 		routeVLayout->addWidget(mRemainingRttLegth);
 		routeVLayout->addWidget(mDirectDistance);
 
@@ -110,8 +115,6 @@ void FraxinusVBWidget::playbackSliderChanged(int cameraPosition)
 void FraxinusVBWidget::UpdateRttInfo(int cameraPosition)
 {
 	double position = 1 - cameraPosition / 100.0;
-	mStaticTotalLegth->setText(QString("Total route inside airways: %1 mm ").arg(mRouteLenght, 0, 'f', 1));
-	mRemainingRttLegth->setText(QString("Remaining route inside airways: %1 mm").arg(mRouteLenght*position, 0, 'f', 1));
 
 	QString distanceMetricUid = PinpointWidget::getDistanceMetricUid();
 	DistanceMetricPtr distanceMetric = mServices->patient()->getData<DistanceMetric>(distanceMetricUid);
@@ -120,10 +123,29 @@ void FraxinusVBWidget::UpdateRttInfo(int cameraPosition)
 	if(distanceMetric)
 		distance = distanceMetric->getDistance();
 
-	mDirectDistance->setText(QString("Direct route: %1 mm").arg(distance, 0, 'f', 1));
+
+	mStaticTotalLegth->setText(QString("Total route inside airways: <b>%1 mm</b> ").arg(mRouteLenght, 0, 'f', 0));
+	mDistanceToTarget->setText(this->createDistanceFromPathToTargetText());
+
+	mRemainingRttLegth->setText(QString("Remaining route inside airways: %1 mm").arg(mRouteLenght*position, 0, 'f', 0));
+	mDirectDistance->setText(QString("Distance to target: %1 mm").arg(distance, 0, 'f', 0));
 
 	//Additional information will probably need access to RouteToTarget object and/or its data
 	//double tracheaLength = RouteToTarget::getTracheaLength();
+}
+
+
+QString FraxinusVBWidget::createDistanceFromPathToTargetText()
+{
+	double threshold = 20; //Color the value red if above this threshold
+	QString distanceText = "Distance from route end to target: ";
+	//QString red="<font color=\"#FF0000\">";
+	if(mDistanceFromPathEndToTarget >= threshold)
+		distanceText += "<font color=\"#FF0000\">";
+	distanceText += QString("<b>%1 mm</b>").arg(mDistanceFromPathEndToTarget, 0, 'f', 0);
+	if(mDistanceFromPathEndToTarget >= threshold)
+	distanceText += "</font>";
+	return distanceText;
 }
 
 void FraxinusVBWidget::calculateRouteLenght()
@@ -136,6 +158,17 @@ void FraxinusVBWidget::calculateRouteLenght()
 	}
 	std::vector< Eigen::Vector3d > route = RouteToTarget::getRoutePositions(mesh);
 	mRouteLenght = RouteToTarget::calculateRouteLength(route);
+	this->calculateDistanceFromRouteEndToTarget(route.back());
+}
+
+void FraxinusVBWidget::calculateDistanceFromRouteEndToTarget(Eigen::Vector3d routeEndpoint)
+{
+	QString pointMetricUid = PinpointWidget::getTargetMetricUid();
+	PointMetricPtr pointMetric = mServices->patient()->getData<PointMetric>(pointMetricUid);
+	Vector3D target = pointMetric->getCoordinate();
+
+	Vector3D direction = (target - routeEndpoint).normal();
+	mDistanceFromPathEndToTarget = dot(target - routeEndpoint, direction);
 }
 
 QString FraxinusVBWidget::getWidgetName()
