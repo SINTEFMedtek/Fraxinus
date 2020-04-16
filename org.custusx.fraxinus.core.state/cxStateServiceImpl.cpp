@@ -149,6 +149,8 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("View/showMetricNamesInCorner", true);
     this->fillDefault("View3D/showManualTool", true);
 	this->fillDefault("View3D/sphereRadius", 1.3);
+
+    this->resetSegmentationSettings();
 }
 
 
@@ -169,6 +171,14 @@ void StateServiceImpl::resetDesktop()
 {
 	ApplicationsParser parser;
 	parser.resetDesktop(mWorkflowStateMachine->getActiveUidState());
+}
+
+void StateServiceImpl::resetSegmentationSettings()
+{
+    XmlOptionFile file = ProfileManager::getInstance()->activeProfile()->getXmlSettings();
+    file = file.descend("fraxinus_airwaysegmentationwidget");
+    file.removeChildren();
+    file.save();
 }
 
 } //namespace cx
