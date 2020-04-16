@@ -36,16 +36,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QKeyEvent>
 #include <QRadioButton>
 #include <QVBoxLayout>
+#include <QLabel>
+#include <QTimer>
 #include "cxVisServices.h"
 #include "cxViewService.h"
 #include "cxViewGroupData.h"
-
+#include "cxLogger.h"
+#include "cxRouteToTarget.h"
+#include "cxPinpointWidget.h"
+#include "cxDistanceMetric.h"
 
 namespace cx {
 
 FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     VBWidget(services, parent),
-    mServices(services)
+		mServices(services),
+		mRouteLenght(0)
 {
     this->setObjectName(this->getWidgetName());
 
@@ -66,16 +72,70 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     viewVLayout->addWidget(mTubeButton);
     viewVLayout->addWidget(mVolumeButton);
     viewBox->setLayout(viewVLayout);
-    mVerticalLayout->insertWidget(mVerticalLayout->count()-1, viewBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+		mVerticalLayout->insertWidget(mVerticalLayout->count()-1, viewBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+
+    QVBoxLayout* routeVLayout = new QVBoxLayout();
+		mStaticTotalLegth = new QLabel();
+		mRemainingRttLegth = new QLabel();
+		mDirectDistance = new QLabel();
+		routeVLayout->addWidget(mStaticTotalLegth);
+		routeVLayout->addWidget(mRemainingRttLegth);
+		routeVLayout->addWidget(mDirectDistance);
+
+    QGroupBox* routeBox = new QGroupBox(tr("Route length"));
+    routeBox->setLayout(routeVLayout);
+    mVerticalLayout->insertWidget(mVerticalLayout->count()-1, routeBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
     mVerticalLayout->addStretch(); //And add some more stretch
 
     connect(mTubeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayTubes);
     connect(mVolumeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayVolume);
+
+		connect(mPlaybackSlider, &QSlider::valueChanged, this, &FraxinusVBWidget::playbackSliderChanged);
+		connect(mRouteToTarget.get(), &SelectDataStringPropertyBase::dataChanged,
+						this, &FraxinusVBWidget::calculateRouteLenght);
 }
 
 FraxinusVBWidget::~FraxinusVBWidget()
 {
 
+}
+
+void FraxinusVBWidget::playbackSliderChanged(int cameraPosition)
+{
+	//Using a single shot timer to wait for other prosesses to update values.
+	//Using a lambda function to add the cameraPosition parameter
+	QTimer::singleShot(0, this, [=](){this->UpdateRttInfo(cameraPosition);});
+}
+
+void FraxinusVBWidget::UpdateRttInfo(int cameraPosition)
+{
+	double position = 1 - cameraPosition / 100.0;
+	mStaticTotalLegth->setText(QString("Total route inside airways: %1 mm ").arg(mRouteLenght, 0, 'f', 1));
+	mRemainingRttLegth->setText(QString("Remaining route inside airways: %1 mm").arg(mRouteLenght*position, 0, 'f', 1));
+
+	QString distanceMetricUid = PinpointWidget::getDistanceMetricUid();
+	DistanceMetricPtr distanceMetric = mServices->patient()->getData<DistanceMetric>(distanceMetricUid);
+
+	double distance = 0;
+	if(distanceMetric)
+		distance = distanceMetric->getDistance();
+
+	mDirectDistance->setText(QString("Direct route: %1 mm").arg(distance, 0, 'f', 1));
+
+	//Additional information will probably need access to RouteToTarget object and/or its data
+	//double tracheaLength = RouteToTarget::getTracheaLength();
+}
+
+void FraxinusVBWidget::calculateRouteLenght()
+{
+	MeshPtr mesh = mRouteToTarget->getMesh();
+	if(!mesh)
+	{
+		mRouteLenght = 0;
+		return;
+	}
+	std::vector< Eigen::Vector3d > route = RouteToTarget::getRoutePositions(mesh);
+	mRouteLenght = RouteToTarget::calculateRouteLength(route);
 }
 
 QString FraxinusVBWidget::getWidgetName()

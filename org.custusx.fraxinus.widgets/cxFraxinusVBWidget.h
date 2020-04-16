@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cxVBWidget.h>
 
 class QRadioButton;
-
+class QLabel;
 
 namespace cx {
 
@@ -57,18 +57,26 @@ public:
 
 private slots:
     virtual void keyPressEvent(QKeyEvent* event);
+    void calculateRouteLenght();
+    void playbackSliderChanged(int cameraPosition);
 
 private:
     void displayVolume();
     void displayTubes();
     void displayDataObjects(std::vector<DataPtr> objects);
     void hideDataObjects(std::vector<DataPtr> objects);
+    void UpdateRttInfo(int cameraPosition);
+
     VisServicesPtr mServices;
     QRadioButton* mVolumeButton;
     QRadioButton* mTubeButton;
     unsigned int mViewGroupNumber;
     std::vector<DataPtr> mVolumeViewObjects;
     std::vector<DataPtr> mTubeViewObjects;
+    QLabel* mStaticTotalLegth;
+    QLabel* mRemainingRttLegth;
+    QLabel* mDirectDistance;
+    double mRouteLenght;
 };
 
 
