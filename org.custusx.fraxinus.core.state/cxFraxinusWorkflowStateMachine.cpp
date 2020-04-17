@@ -37,6 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxActiveData.h"
 #include "cxLogger.h"
 #include "cxImage.h"
+#include"cxApplication.h"
 
 namespace cx
 {
@@ -63,7 +64,8 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
     mParentState->setInitialState(mPatientWorkflowState);
 
 	//Create transitions
-	mPatientWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
+    mPatientWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
+    //mPatientWorkflowState->addTransition(mServices->patient().get(), SIGNAL(patientChanged()), mProcessWorkflowState);
 	mImportWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
 	mProcessWorkflowState->addTransition(mProcessWorkflowState, SIGNAL(airwaysSegmented()), mPinpointWorkflowState);
 	mPinpointWorkflowState->addTransition(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState);

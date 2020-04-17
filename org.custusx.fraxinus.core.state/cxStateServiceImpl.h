@@ -65,6 +65,7 @@ public:
 	virtual Desktop getActiveDesktop();
 	virtual void saveDesktop(Desktop desktop);
 	virtual void resetDesktop();
+        virtual void resetSegmentationSettings();
 
 	virtual bool isNull();
 

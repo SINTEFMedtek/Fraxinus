@@ -98,7 +98,7 @@ ApplicationsParser::ApplicationsParser()
 
 	//-----------------------------------------------------
     // PINPOINT
-    desktop = Desktop("LAYOUT_ACAS", QByteArray::fromBase64(""));
+    desktop = Desktop("LAYOUT_ACS3D", QByteArray::fromBase64(""));
 	toolbars.clear();
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
