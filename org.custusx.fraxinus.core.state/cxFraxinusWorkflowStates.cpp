@@ -756,8 +756,6 @@ void PinpointWorkflowState::pointChanged()
 void PinpointWorkflowState::createRouteToTarget()
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	//Why create a new routeToTargetFilter instead of using an existing one?
-	//Because only FiltersWidget got a mServiceListener for Filters (This is not available for others).
     RouteToTargetFilterPtr routeToTargetFilter = RouteToTargetFilterPtr(new RouteToTargetFilter(services, true));
 	std::vector<SelectDataStringPropertyBasePtr> input = routeToTargetFilter->getInputTypes();
 	routeToTargetFilter->getOutputTypes();
