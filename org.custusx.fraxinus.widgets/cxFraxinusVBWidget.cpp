@@ -123,7 +123,6 @@ void FraxinusVBWidget::UpdateRttInfo(int cameraPosition)
 	if(distanceMetric)
 		distance = distanceMetric->getDistance();
 
-
 	mStaticTotalLegth->setText(QString("Total route inside airways: <b>%1 mm</b> ").arg(mRouteLenght, 0, 'f', 0));
 	mDistanceToTarget->setText(this->createDistanceFromPathToTargetText());
 
@@ -134,17 +133,16 @@ void FraxinusVBWidget::UpdateRttInfo(int cameraPosition)
 	//double tracheaLength = RouteToTarget::getTracheaLength();
 }
 
-
 QString FraxinusVBWidget::createDistanceFromPathToTargetText()
 {
-	double threshold = 20; //Color the value red if above this threshold
+	//Color the value red and print a warning if above this threshold
+	double threshold = 20;
 	QString distanceText = "Distance from route end to target: ";
-	//QString red="<font color=\"#FF0000\">";
 	if(mDistanceFromPathEndToTarget >= threshold)
 		distanceText += "<font color=\"#FF0000\">";
 	distanceText += QString("<b>%1 mm</b>").arg(mDistanceFromPathEndToTarget, 0, 'f', 0);
 	if(mDistanceFromPathEndToTarget >= threshold)
-	distanceText += "</font>";
+		distanceText += "<br>There are no segmented airways close to target!</font>";
 	return distanceText;
 }
 
