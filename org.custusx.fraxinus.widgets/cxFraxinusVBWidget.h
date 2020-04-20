@@ -65,9 +65,12 @@ private:
     void displayTubes();
     void displayDataObjects(std::vector<DataPtr> objects);
     void hideDataObjects(std::vector<DataPtr> objects);
-    void UpdateRttInfo(int cameraPosition);
+    void updateRttInfo(int cameraPosition);
+    void updateAirwaysOpacity(int cameraPosition);
     void calculateDistanceFromRouteEndToTarget(Eigen::Vector3d routeEndpoint);
     QString createDistanceFromPathToTargetText();
+    double getTargetDistance();
+    double getRemainingRouteInsideAirways(int cameraPosition);
 
     VisServicesPtr mServices;
     QRadioButton* mVolumeButton;

@@ -109,13 +109,42 @@ void FraxinusVBWidget::playbackSliderChanged(int cameraPosition)
 {
 	//Using a single shot timer to wait for other prosesses to update values.
 	//Using a lambda function to add the cameraPosition parameter
-	QTimer::singleShot(0, this, [=](){this->UpdateRttInfo(cameraPosition);});
+	QTimer::singleShot(0, this, [=](){this->updateRttInfo(cameraPosition);});
+	QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(cameraPosition);});
 }
 
-void FraxinusVBWidget::UpdateRttInfo(int cameraPosition)
+void FraxinusVBWidget::updateAirwaysOpacity(int cameraPosition)
+{
+	double distanceThreshold = 70;
+	double maxOpacity = 0.5;
+	double distance = getRemainingRouteInsideAirways(cameraPosition);
+
+	foreach(DataPtr object, mTubeViewObjects)
+	{
+		MeshPtr mesh = boost::dynamic_pointer_cast<Mesh>(object);
+		if(mesh)
+		{
+			QColor color = mesh->getColor();
+			color.setAlphaF(1);
+			if(distance < distanceThreshold)
+			{
+				double opacityFactor = maxOpacity*(distanceThreshold-distance)/distanceThreshold;
+				color.setAlphaF(1-opacityFactor);
+			}
+			mesh->setColor(color);
+		}
+	}
+}
+
+double FraxinusVBWidget::getRemainingRouteInsideAirways(int cameraPosition)
 {
 	double position = 1 - cameraPosition / 100.0;
+	double distance = mRouteLenght*position;
+	return distance;
+}
 
+double FraxinusVBWidget::getTargetDistance()
+{
 	QString distanceMetricUid = PinpointWidget::getDistanceMetricUid();
 	DistanceMetricPtr distanceMetric = mServices->patient()->getData<DistanceMetric>(distanceMetricUid);
 
@@ -123,11 +152,18 @@ void FraxinusVBWidget::UpdateRttInfo(int cameraPosition)
 	if(distanceMetric)
 		distance = distanceMetric->getDistance();
 
+	return distance;
+}
+
+void FraxinusVBWidget::updateRttInfo(int cameraPosition)
+{
 	mStaticTotalLegth->setText(QString("Total route inside airways: <b>%1 mm</b> ").arg(mRouteLenght, 0, 'f', 0));
 	mDistanceToTarget->setText(this->createDistanceFromPathToTargetText());
 
-	mRemainingRttLegth->setText(QString("Remaining route inside airways: %1 mm").arg(mRouteLenght*position, 0, 'f', 0));
-	mDirectDistance->setText(QString("Distance to target: %1 mm").arg(distance, 0, 'f', 0));
+	mRemainingRttLegth->setText(QString("Remaining route inside airways: %1 mm").
+															arg(getRemainingRouteInsideAirways(cameraPosition), 0, 'f', 0));
+	mDirectDistance->setText(QString("Distance to target: %1 mm").
+													 arg(this->getTargetDistance(), 0, 'f', 0));
 
 	//Additional information will probably need access to RouteToTarget object and/or its data
 	//double tracheaLength = RouteToTarget::getTracheaLength();
