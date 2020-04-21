@@ -81,9 +81,11 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 		mRemainingRttLegth = new QLabel();
 		mDirectDistance = new QLabel();
 		mDistanceToTarget = new QLabel();
+		mWarningLabel = new QLabel();
 		routeVLayout->addWidget(mStaticTotalLegth);
 		routeVLayout->addWidget(mDistanceToTarget);
-		routeVLayout->addSpacing(10);
+		routeVLayout->addWidget(mWarningLabel);
+		//routeVLayout->addSpacing(10);
 		routeVLayout->addWidget(mRemainingRttLegth);
 		routeVLayout->addWidget(mDirectDistance);
 
@@ -174,11 +176,16 @@ QString FraxinusVBWidget::createDistanceFromPathToTargetText()
 	//Color the value red and print a warning if above this threshold
 	double threshold = 20;
 	QString distanceText = "Distance from route end to target: ";
+	mWarningLabel->clear();
+
 	if(mDistanceFromPathEndToTarget >= threshold)
 		distanceText += "<font color=\"#FF0000\">";
 	distanceText += QString("<b>%1 mm</b>").arg(mDistanceFromPathEndToTarget, 0, 'f', 0);
 	if(mDistanceFromPathEndToTarget >= threshold)
-		distanceText += "<br>There are no segmented airways close to target!</font>";
+	{
+		mWarningLabel->setText("<font color=\"#FF0000\">There are no segmented airways close to target!</font>");
+		distanceText += "</font>";
+	}
 	return distanceText;
 }
 
