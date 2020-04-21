@@ -183,7 +183,7 @@ QString FraxinusVBWidget::createDistanceFromPathToTargetText()
 	distanceText += QString("<b>%1 mm</b>").arg(mDistanceFromPathEndToTarget, 0, 'f', 0);
 	if(mDistanceFromPathEndToTarget >= threshold)
 	{
-		mWarningLabel->setText("<font color=\"#FF0000\">There are no segmented airways close to target!</font>");
+		mWarningLabel->setText("<font color=\"#FF0000\">There are no segmented airways <br>close to target!</font>");
 		distanceText += "</font>";
 	}
 	return distanceText;
