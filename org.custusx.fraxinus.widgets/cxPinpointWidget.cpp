@@ -38,14 +38,11 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
     QHBoxLayout *h_layout = new QHBoxLayout();
     h_layout->addWidget(mPointMetricNameLineEdit);
     h_layout->addWidget(setPointMetric);
-    h_layout->addStretch();
-    v_layout->addStretch();
+    h_layout->addSpacing(10);
+    v_layout->addSpacing(50);
     v_layout->addLayout(h_layout);
-    v_layout->addStretch();
+    v_layout->addSpacing(30);
     v_layout->addWidget(centerToImage);
-    v_layout->addStretch();
-    v_layout->addStretch();
-    v_layout->addStretch();
     v_layout->addStretch();
 
 	this->setLayout(v_layout);
