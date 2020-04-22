@@ -83,7 +83,7 @@ private:
     QLabel* mDirectDistance;
     QLabel* mDistanceToTarget;
     QLabel* mWarningLabel;
-    double mRouteLenght;
+    double mRouteLength;
     double mDistanceFromPathEndToTarget;
 };
 
