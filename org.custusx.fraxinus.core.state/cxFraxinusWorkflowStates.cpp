@@ -34,6 +34,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QApplication>
 #include <QMainWindow>
 #include <QLayout>
+#include <QList>
+#include <QMessageBox>
 #include "cxStateService.h"
 #include "cxSettings.h"
 #include "cxTrackingService.h"
@@ -144,7 +146,7 @@ void FraxinusWorkflowState::onEntryDefault(QEvent * event)
 	CameraControlPtr camera_control = services->view()->getCameraControl();
 	if(camera_control)
 	{
-		camera_control->setSuperiorView();
+        camera_control->setSuperiorView();
 	}
 
 	//Hack to make sure camera style is set correnyly
@@ -234,7 +236,7 @@ MeshPtr FraxinusWorkflowState::getAirwaysContour() const
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
-        if(iter->first.contains(ContourFilter::getNameSuffix()))
+        if(iter->first.contains(airwaysFilterGetNameSuffixAirways()) && iter->first.contains(ContourFilter::getNameSuffix()))
 			return iter->second;
 	}
 	return MeshPtr();
@@ -245,7 +247,7 @@ MeshPtr FraxinusWorkflowState::getAirwaysTubes() const
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
-				if(iter->first.contains(airwaysFilterGetNameSuffixTubes()) & !iter->first.contains(airwaysFilterGetNameSuffixCenterline()))
+                if(iter->first.contains(airwaysFilterGetNameSuffixTubes()) && !iter->first.contains(airwaysFilterGetNameSuffixCenterline()))
 			return iter->second;
 	}
 	return MeshPtr();
@@ -270,17 +272,35 @@ ImagePtr FraxinusWorkflowState::getCTImage() const
 ImagePtr FraxinusWorkflowState::getCTImageCopied() const
 {
 	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
+
+    if(images.empty())
+        return ImagePtr();
+
 	std::map<QString, ImagePtr>::iterator it = images.begin();
-	ImagePtr image;
+    ImagePtr imageCopied;
 	for( ; it != images.end(); ++it)
 	{
 		if(it->first.contains("_copy"))
 		{
-			image = it->second;
+            imageCopied = it->second;
 			break;
 		}
 	}
-	return image;
+
+    if (!imageCopied)
+        imageCopied = createCopiedImage(images.begin()->second);
+
+    return imageCopied;
+}
+
+ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
+{
+    ImagePtr imageCopied = originalImage->copy();
+    imageCopied->setName(originalImage->getName()+"_copy");
+    imageCopied->setUid(originalImage->getUid()+"_copy");
+    mServices->patient()->insertData(imageCopied);
+
+    return imageCopied;
 }
 
 PointMetricPtr FraxinusWorkflowState::getTargetPoint() const
@@ -397,9 +417,9 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 
 void FraxinusWorkflowState::setupViewOptionsINVBWidget(int flyThrough3DViewGroupNumber)
 {
-	ImagePtr ctImage_copied = this->getCTImageCopied();
+    ImagePtr ctImage_copied = this->getCTImageCopied();
 	std::vector<DataPtr> volumeViewObjects;
-	volumeViewObjects.push_back(ctImage_copied);
+    volumeViewObjects.push_back(ctImage_copied);
 
     std::vector<DataPtr> tubeViewObjects;
     MeshPtr tubes = this->getAirwaysTubes();
@@ -497,16 +517,6 @@ void ImportWorkflowState::onEntry(QEvent * event)
 
 void ImportWorkflowState::onExit(QEvent * event)
 {
-	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
-	if (images.size() == 1)
-	{
-		ImagePtr image = images.begin()->second;
-		ImagePtr image_copy = image->copy();
-		image_copy->setName(image->getName()+"_copy");
-		image_copy->setUid(image->getUid()+"_copy");
-		mServices->patient()->insertData(image_copy);
-	}
-
 	ImagePtr ctImage = this->getCTImage();
 	if(ctImage)
 	{
@@ -576,6 +586,16 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 
 	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
 	QTimer::singleShot(0, this, SLOT(imageSelected()));
+
+    //Setting Pinpoint workflow active here, in case segmentation is run manuelly if automatic segmentation fails.
+    QObject* parentWorkFlow = this->parent();
+    QList<FraxinusWorkflowState *> allWorkflows = parentWorkFlow->findChildren<FraxinusWorkflowState *>();
+     for (int i = 0; i < allWorkflows.size(); i++)
+         if (allWorkflows[i]->getName() == "Set target")
+         {
+             allWorkflows[i]->enableAction(true);
+             break;
+         }
 }
 
 void ProcessWorkflowState::imageSelected()
@@ -599,7 +619,6 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 
 #ifndef __APPLE__
 	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
-        //airwaysFilter->setDefaultStraightCLTubesOption(true);
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
 	airwaysFilter->getOutputTypes();
 	airwaysFilter->getOptions();
@@ -638,9 +657,20 @@ void ProcessWorkflowState::finishedSlot()
 	MeshPtr airways = this->getAirwaysContour();
 	if(airways)
 	{
-		airways->setColor("#FFCCCC");
-		emit airwaysSegmented();
+        airways->setColor("#FFCCCC");
+        emit airwaysSegmented();
 	}
+    else
+    {
+        this->addDataToView();
+        QString message = "Ariway segmentation failed.\n\n"
+                          "Try:\n"
+                          "1. Click inside the airways (e.g. trachea).\n"
+                          "2. Select input.\n"
+                          "3. Select \"Use manual seed point\"\n"
+                          "4. Run the Airway segmantation filter again using the green start button. \n";
+        QMessageBox::warning(NULL,"Airway segmentation failed", message);
+    }
 }
 
 bool ProcessWorkflowState::canEnter() const
@@ -655,18 +685,35 @@ void ProcessWorkflowState::addDataToView()
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	MeshPtr airways = this->getAirwaysContour();
+    ImagePtr ctImage = this->getCTImage();
 
-	//Assuming 3D
+
+    //Assuming 3D
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
 	if(airways)
 		viewGroup0_3D->addData(airways->getUid());
+    else if(ctImage)
+    {
+        ctImage->setInitialWindowLevel(-1, -1);
+        this->setTransferfunction3D("Default", ctImage);
+        this->setTransferfunction2D("2D CT Lung", ctImage);
+        viewGroup0_3D->addData(ctImage->getUid());
+    }
+
+    //Assuming ACS
+    ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+    viewGroup1_2D->getGroup2DZoom()->set(0.2);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.2);
+    if(ctImage)
+        viewGroup1_2D->addData(ctImage->getUid());
+
 }
 
 // --------------------------------------------------------
 // --------------------------------------------------------
 
 PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr services) :
-	FraxinusWorkflowState(parent, "PinpointUid", "Pinpoint", services, false),
+    FraxinusWorkflowState(parent, "PinpointUid", "Set target", services, false),
 	mPointChanged(false)
 {
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
@@ -685,13 +732,15 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
 
-	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
+    connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	if(targetPoint)
 	{
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
-	}
+    }
+
+    this->setDefaultCameraStyle();
 }
 
 bool PinpointWorkflowState::canEnter() const
@@ -755,7 +804,7 @@ void PinpointWorkflowState::createRouteToTarget()
 	{
 		routeToTargetFilter->postProcess();
 		emit routeToTargetCreated();
-	}
+    }
 }
 
 void PinpointWorkflowState::addDataToView()
@@ -763,26 +812,29 @@ void PinpointWorkflowState::addDataToView()
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
 	ImagePtr ctImage = this->getCTImage();
-	ImagePtr ctImage_copied = this->getCTImageCopied();
+
+    MeshPtr airways = this->getAirwaysContour();
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
 
-	//assuming layout: LAYOUT_ACAS
-	ViewGroupDataPtr viewGroup0_2D = services->view()->getGroup(0);
-	this->setTransferfunction2D("2D CT Abdomen", ctImage_copied);
-	viewGroup0_2D->getGroup2DZoom()->set(0.3);
-	viewGroup0_2D->getGlobal2DZoom()->set(0.3);
-	if(ctImage_copied)
-		viewGroup0_2D->addData(ctImage_copied->getUid());
-
-	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
-	this->setTransferfunction2D("2D CT Lung", ctImage);
-	viewGroup1_2D->getGroup2DZoom()->set(0.3);
-	viewGroup1_2D->getGlobal2DZoom()->set(0.3);
-	if(ctImage)
-		viewGroup1_2D->addData(ctImage->getUid());
-
+    ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
+    if(airways)
+    {
+        viewGroup0_3D->addData(airways->getUid());
+        CameraControlPtr camera_control = services->view()->getCameraControl();
+        if(camera_control)
+        {
+            camera_control->setAnteriorView();
+            QTimer::singleShot(0, this, SLOT(setDefaultCameraStyle()));
+        }
+    }
+    ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+    this->setTransferfunction2D("2D CT Lung", ctImage);
+    viewGroup1_2D->getGroup2DZoom()->set(0.3);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.3);
+    if(ctImage)
+        viewGroup1_2D->addData(ctImage->getUid());
 }
 
 void PinpointWorkflowState::deleteOldRouteToTarget()
@@ -867,8 +919,8 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 		viewGroup0_3D->addData(distanceToTargetMetric->getUid());
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
-	viewGroup1_2D->getGroup2DZoom()->set(0.2);
-	viewGroup1_2D->getGlobal2DZoom()->set(0.2);
+    viewGroup1_2D->getGroup2DZoom()->set(0.4);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.4);
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
 
@@ -962,8 +1014,8 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
 	this->setTransferfunction2D("2D CT Lung", ctImage);
-	viewGroup1_2D->getGroup2DZoom()->set(0.2);
-	viewGroup1_2D->getGlobal2DZoom()->set(0.2);
+    viewGroup1_2D->getGroup2DZoom()->set(0.4);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.4);
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
 	if(distanceToTargetMetric)

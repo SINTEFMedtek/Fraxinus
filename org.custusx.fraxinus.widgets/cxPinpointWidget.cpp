@@ -17,7 +17,7 @@
 namespace cx {
 
 PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
-	BaseWidget(parent, "pinpoint_widget", "Pinpoint"),
+    BaseWidget(parent, "pinpoint_widget", "Set target"),
     mServices(services),
     mMetricManager(new MetricManager(services->view(), services->patient(), services->tracking(), services->spaceProvider(), services->file())),
 	mTargetMetricUid(this->getTargetMetricUid()),
@@ -27,7 +27,7 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 
     QPushButton *setPointMetric = new QPushButton("&Set target", this);
     connect(setPointMetric, &QPushButton::clicked, this, &PinpointWidget::setPointMetric);
-    QPushButton *centerToImage = new QPushButton(QIcon(":/icons/center_image.png"), "", this);
+    QPushButton *centerToImage = new QPushButton(QIcon(":/icons/center_image.png"), " Center Image", this);
     connect(centerToImage, &QPushButton::clicked, this, &PinpointWidget::centerToImage);
 	mPointMetricNameLineEdit = new QLineEdit(mTargetMetricName, this);
     connect(mPointMetricNameLineEdit, &QLineEdit::textEdited, this, &PinpointWidget::targetNameChanged);
@@ -37,10 +37,12 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
     QVBoxLayout *v_layout = new QVBoxLayout();
     QHBoxLayout *h_layout = new QHBoxLayout();
     h_layout->addWidget(mPointMetricNameLineEdit);
-    h_layout->addWidget(centerToImage);
     h_layout->addWidget(setPointMetric);
-    h_layout->addStretch();
+    h_layout->addSpacing(10);
+    v_layout->addSpacing(50);
     v_layout->addLayout(h_layout);
+    v_layout->addSpacing(30);
+    v_layout->addWidget(centerToImage);
     v_layout->addStretch();
 
 	this->setLayout(v_layout);
