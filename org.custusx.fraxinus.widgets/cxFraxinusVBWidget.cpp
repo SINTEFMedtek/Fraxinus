@@ -52,7 +52,7 @@ namespace cx {
 FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     VBWidget(services, parent),
 		mServices(services),
-		mRouteLenght(0),
+		mRouteLength(0),
 		mDistanceFromPathEndToTarget(0)
 {
     this->setObjectName(this->getWidgetName());
@@ -99,7 +99,7 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 
 		connect(mPlaybackSlider, &QSlider::valueChanged, this, &FraxinusVBWidget::playbackSliderChanged);
 		connect(mRouteToTarget.get(), &SelectDataStringPropertyBase::dataChanged,
-						this, &FraxinusVBWidget::calculateRouteLenght);
+						this, &FraxinusVBWidget::calculateRouteLength);
 }
 
 FraxinusVBWidget::~FraxinusVBWidget()
@@ -141,7 +141,7 @@ void FraxinusVBWidget::updateAirwaysOpacity(int cameraPositionInPercent)
 double FraxinusVBWidget::getRemainingRouteInsideAirways(int cameraPositionInPercent)
 {
 	double position = 1 - cameraPositionInPercent / 100.0;
-	double distance = mRouteLenght*position;
+	double distance = mRouteLength*position;
 	return distance;
 }
 
@@ -159,16 +159,13 @@ double FraxinusVBWidget::getTargetDistance()
 
 void FraxinusVBWidget::updateRttInfo(int cameraPositionInPercent)
 {
-	mStaticTotalLegth->setText(QString("Total route inside airways: <b>%1 mm</b> ").arg(mRouteLenght, 0, 'f', 0));
+	mStaticTotalLegth->setText(QString("Total route inside airways: <b>%1 mm</b> ").arg(mRouteLength, 0, 'f', 0));
 	mDistanceToTarget->setText(this->createDistanceFromPathToTargetText());
 
 	mRemainingRttLegth->setText(QString("Remaining route inside airways: %1 mm").
 															arg(getRemainingRouteInsideAirways(cameraPositionInPercent), 0, 'f', 0));
 	mDirectDistance->setText(QString("Distance to target: %1 mm").
 													 arg(this->getTargetDistance(), 0, 'f', 0));
-
-	//Additional information will probably need access to RouteToTarget object and/or its data
-	//double tracheaLength = RouteToTarget::getTracheaLength();
 }
 
 QString FraxinusVBWidget::createDistanceFromPathToTargetText()
@@ -189,16 +186,16 @@ QString FraxinusVBWidget::createDistanceFromPathToTargetText()
 	return distanceText;
 }
 
-void FraxinusVBWidget::calculateRouteLenght()
+void FraxinusVBWidget::calculateRouteLength()
 {
 	MeshPtr mesh = mRouteToTarget->getMesh();
 	if(!mesh)
 	{
-		mRouteLenght = 0;
+		mRouteLength = 0;
 		return;
 	}
 	std::vector< Eigen::Vector3d > route = RouteToTarget::getRoutePositions(mesh);
-	mRouteLenght = RouteToTarget::calculateRouteLength(route);
+	mRouteLength = RouteToTarget::calculateRouteLength(route);
 	this->calculateDistanceFromRouteEndToTarget(route.back());
 }
 

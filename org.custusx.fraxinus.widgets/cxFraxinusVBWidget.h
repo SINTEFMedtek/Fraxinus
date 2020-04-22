@@ -57,7 +57,7 @@ public:
 
 private slots:
     virtual void keyPressEvent(QKeyEvent* event);
-    void calculateRouteLenght();
+    void calculateRouteLength();
     void playbackSliderChanged(int cameraPositionInPercent);
 
 private:
