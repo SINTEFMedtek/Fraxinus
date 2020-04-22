@@ -58,19 +58,19 @@ public:
 private slots:
     virtual void keyPressEvent(QKeyEvent* event);
     void calculateRouteLenght();
-    void playbackSliderChanged(int cameraPosition);
+    void playbackSliderChanged(int cameraPositionInPercent);
 
 private:
     void displayVolume();
     void displayTubes();
     void displayDataObjects(std::vector<DataPtr> objects);
     void hideDataObjects(std::vector<DataPtr> objects);
-    void updateRttInfo(int cameraPosition);
-    void updateAirwaysOpacity(int cameraPosition);
+    void updateRttInfo(int cameraPositionInPercent);
+    void updateAirwaysOpacity(int cameraPositionInPercent);
     void calculateDistanceFromRouteEndToTarget(Eigen::Vector3d routeEndpoint);
     QString createDistanceFromPathToTargetText();
     double getTargetDistance();
-    double getRemainingRouteInsideAirways(int cameraPosition);
+    double getRemainingRouteInsideAirways(int cameraPositionInPercent);
 
     VisServicesPtr mServices;
     QRadioButton* mVolumeButton;

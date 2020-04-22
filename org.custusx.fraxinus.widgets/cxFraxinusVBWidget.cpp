@@ -107,19 +107,19 @@ FraxinusVBWidget::~FraxinusVBWidget()
 
 }
 
-void FraxinusVBWidget::playbackSliderChanged(int cameraPosition)
+void FraxinusVBWidget::playbackSliderChanged(int cameraPositionInPercent)
 {
 	//Using a single shot timer to wait for other prosesses to update values.
-	//Using a lambda function to add the cameraPosition parameter
-	QTimer::singleShot(0, this, [=](){this->updateRttInfo(cameraPosition);});
-	QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(cameraPosition);});
+	//Using a lambda function to add the cameraPositionInPercent parameter
+	QTimer::singleShot(0, this, [=](){this->updateRttInfo(cameraPositionInPercent);});
+	QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(cameraPositionInPercent);});
 }
 
-void FraxinusVBWidget::updateAirwaysOpacity(int cameraPosition)
+void FraxinusVBWidget::updateAirwaysOpacity(int cameraPositionInPercent)
 {
 	double distanceThreshold = 70;
 	double maxOpacity = 0.5;
-	double distance = getRemainingRouteInsideAirways(cameraPosition);
+	double distance = getRemainingRouteInsideAirways(cameraPositionInPercent);
 
 	foreach(DataPtr object, mTubeViewObjects)
 	{
@@ -138,9 +138,9 @@ void FraxinusVBWidget::updateAirwaysOpacity(int cameraPosition)
 	}
 }
 
-double FraxinusVBWidget::getRemainingRouteInsideAirways(int cameraPosition)
+double FraxinusVBWidget::getRemainingRouteInsideAirways(int cameraPositionInPercent)
 {
-	double position = 1 - cameraPosition / 100.0;
+	double position = 1 - cameraPositionInPercent / 100.0;
 	double distance = mRouteLenght*position;
 	return distance;
 }
@@ -157,13 +157,13 @@ double FraxinusVBWidget::getTargetDistance()
 	return distance;
 }
 
-void FraxinusVBWidget::updateRttInfo(int cameraPosition)
+void FraxinusVBWidget::updateRttInfo(int cameraPositionInPercent)
 {
 	mStaticTotalLegth->setText(QString("Total route inside airways: <b>%1 mm</b> ").arg(mRouteLenght, 0, 'f', 0));
 	mDistanceToTarget->setText(this->createDistanceFromPathToTargetText());
 
 	mRemainingRttLegth->setText(QString("Remaining route inside airways: %1 mm").
-															arg(getRemainingRouteInsideAirways(cameraPosition), 0, 'f', 0));
+															arg(getRemainingRouteInsideAirways(cameraPositionInPercent), 0, 'f', 0));
 	mDirectDistance->setText(QString("Distance to target: %1 mm").
 													 arg(this->getTargetDistance(), 0, 'f', 0));
 
