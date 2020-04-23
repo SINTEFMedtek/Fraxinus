@@ -894,7 +894,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	MeshPtr airways = this->getAirwaysContour();
     MeshPtr airwaysTubes = this->getAirwaysTubes();
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
+	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
@@ -915,8 +915,8 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 		viewGroup0_3D->addData(targetPoint->getUid());
 	if(extendedRouteToTarget)
 		viewGroup0_3D->addData(extendedRouteToTarget->getUid());
-	if(distanceToTargetMetric)
-		viewGroup0_3D->addData(distanceToTargetMetric->getUid());
+	//if(distanceToTargetMetric)
+	//	viewGroup0_3D->addData(distanceToTargetMetric->getUid());
 
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
     viewGroup1_2D->getGroup2DZoom()->set(0.4);
@@ -989,7 +989,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	MeshPtr airways = this->getAirwaysContour();
     MeshPtr airwaysTubes = this->getAirwaysTubes();
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
+	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
@@ -1018,8 +1018,8 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
     viewGroup1_2D->getGlobal2DZoom()->set(0.4);
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
-	if(distanceToTargetMetric)
-		viewGroup0_3D->addData(distanceToTargetMetric->getUid());
+	//if(distanceToTargetMetric)
+	//	viewGroup0_3D->addData(distanceToTargetMetric->getUid());
 
 	ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(mFlyThrough3DViewGroupNumber);
     this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
