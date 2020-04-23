@@ -236,7 +236,7 @@ MeshPtr FraxinusWorkflowState::getAirwaysContour() const
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
-        if(iter->first.contains(airwaysFilterGetNameSuffixAirways()) & iter->first.contains(ContourFilter::getNameSuffix()))
+        if(iter->first.contains(airwaysFilterGetNameSuffixAirways()) && iter->first.contains(ContourFilter::getNameSuffix()))
 			return iter->second;
 	}
 	return MeshPtr();
@@ -247,7 +247,7 @@ MeshPtr FraxinusWorkflowState::getAirwaysTubes() const
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
-				if(iter->first.contains(airwaysFilterGetNameSuffixTubes()) & !iter->first.contains(airwaysFilterGetNameSuffixCenterline()))
+                if(iter->first.contains(airwaysFilterGetNameSuffixTubes()) && !iter->first.contains(airwaysFilterGetNameSuffixCenterline()))
 			return iter->second;
 	}
 	return MeshPtr();
@@ -273,6 +273,9 @@ ImagePtr FraxinusWorkflowState::getCTImageCopied() const
 {
 	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
 
+    if(images.empty())
+        return ImagePtr();
+
 	std::map<QString, ImagePtr>::iterator it = images.begin();
     ImagePtr imageCopied;
 	for( ; it != images.end(); ++it)
@@ -285,13 +288,17 @@ ImagePtr FraxinusWorkflowState::getCTImageCopied() const
 	}
 
     if (!imageCopied)
-    {
-        ImagePtr image = images.begin()->second;
-        imageCopied = image->copy();
-        imageCopied->setName(image->getName()+"_copy");
-        imageCopied->setUid(image->getUid()+"_copy");
-        mServices->patient()->insertData(imageCopied);
-    }
+        imageCopied = createCopiedImage(images.begin()->second);
+
+    return imageCopied;
+}
+
+ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
+{
+    ImagePtr imageCopied = originalImage->copy();
+    imageCopied->setName(originalImage->getName()+"_copy");
+    imageCopied->setUid(originalImage->getUid()+"_copy");
+    mServices->patient()->insertData(imageCopied);
 
     return imageCopied;
 }
@@ -510,16 +517,6 @@ void ImportWorkflowState::onEntry(QEvent * event)
 
 void ImportWorkflowState::onExit(QEvent * event)
 {
-//	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
-//	if (images.size() == 1)
-//	{
-//		ImagePtr image = images.begin()->second;
-//		ImagePtr image_copy = image->copy();
-//		image_copy->setName(image->getName()+"_copy");
-//		image_copy->setUid(image->getUid()+"_copy");
-//		mServices->patient()->insertData(image_copy);
-//	}
-
 	ImagePtr ctImage = this->getCTImage();
 	if(ctImage)
 	{
@@ -666,7 +663,6 @@ void ProcessWorkflowState::finishedSlot()
     else
     {
         this->addDataToView();
-        //TO DO: Ask user to place cursor inside airways (seedpoint), and re-run filter.
         QString message = "Ariway segmentation failed.\n\n"
                           "Try:\n"
                           "1. Click inside the airways (e.g. trachea).\n"
@@ -687,7 +683,6 @@ bool ProcessWorkflowState::canEnter() const
 
 void ProcessWorkflowState::addDataToView()
 {
-    //TO DO: show CT in 2D slices as in Pinpointworkflow
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	MeshPtr airways = this->getAirwaysContour();
     ImagePtr ctImage = this->getCTImage();
@@ -707,8 +702,8 @@ void ProcessWorkflowState::addDataToView()
 
     //Assuming ACS
     ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
-    viewGroup1_2D->getGroup2DZoom()->set(0.1);
-    viewGroup1_2D->getGlobal2DZoom()->set(0.1);
+    viewGroup1_2D->getGroup2DZoom()->set(0.2);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.2);
     if(ctImage)
         viewGroup1_2D->addData(ctImage->getUid());
 
@@ -817,7 +812,6 @@ void PinpointWorkflowState::addDataToView()
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
 	ImagePtr ctImage = this->getCTImage();
-    //ImagePtr ctImage_copied = this->getCTImageCopied();
 
     MeshPtr airways = this->getAirwaysContour();
 
