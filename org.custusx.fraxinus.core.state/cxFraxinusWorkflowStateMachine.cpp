@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxLogger.h"
 #include "cxImage.h"
 #include"cxApplication.h"
+#include "cxDataLocations.h"
 
 namespace cx
 {
@@ -45,6 +46,10 @@ namespace cx
 FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr services) :
 	WorkflowStateMachine(services)
 {
+	//Some tests may trigger the state transitions making strange side-effects
+	if(DataLocations::isTestMode())
+		return;
+
 	mPatientWorkflowState = dynamic_cast<FraxinusWorkflowState*>(this->newState(new PatientWorkflowState(mParentState, services)));
     mImportWorkflowState = this->newState(new ImportWorkflowState(mParentState, services));
     mProcessWorkflowState = this->newState(new ProcessWorkflowState(mParentState, services));
