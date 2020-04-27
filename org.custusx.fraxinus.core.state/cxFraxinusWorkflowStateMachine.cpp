@@ -46,10 +46,6 @@ namespace cx
 FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr services) :
 	WorkflowStateMachine(services)
 {
-	//Some tests may trigger the state transitions making strange side-effects
-	if(DataLocations::isTestMode())
-		return;
-
 	mPatientWorkflowState = dynamic_cast<FraxinusWorkflowState*>(this->newState(new PatientWorkflowState(mParentState, services)));
     mImportWorkflowState = this->newState(new ImportWorkflowState(mParentState, services));
     mProcessWorkflowState = this->newState(new ProcessWorkflowState(mParentState, services));
@@ -67,6 +63,10 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	//set initial state on all levels
     this->setInitialState(mParentState);
     mParentState->setInitialState(mPatientWorkflowState);
+
+	//Some tests may trigger the state transitions making strange side-effects
+	if(DataLocations::isTestMode())
+		return;
 
 	//Create transitions
     mPatientWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
