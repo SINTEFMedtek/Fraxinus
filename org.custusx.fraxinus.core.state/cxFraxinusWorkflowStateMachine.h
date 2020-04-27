@@ -54,22 +54,22 @@ class FraxinusWorkflowState;
  */
 class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowStateMachine : public WorkflowStateMachine
 {
-Q_OBJECT
+	Q_OBJECT
 public:
-        FraxinusWorkflowStateMachine(VisServicesPtr services);
-        virtual ~FraxinusWorkflowStateMachine();
+	FraxinusWorkflowStateMachine(VisServicesPtr services);
+	virtual ~FraxinusWorkflowStateMachine();
 
 private slots:
-		void dataAddedOrRemovedSlot();
+	void dataAddedOrRemovedSlot();
 signals:
-		void dataAdded();
+	void dataAdded();
 private:
-		FraxinusWorkflowState* mPatientWorkflowState;
-		WorkflowState* mImportWorkflowState;
-		WorkflowState* mProcessWorkflowState;
-		WorkflowState* mPinpointWorkflowState;
-		WorkflowState* mVirtualBronchoscopyFlyThroughWorkflowState;
-		WorkflowState* mVirtualBronchoscopyCutPlanesWorkflowState;
+	FraxinusWorkflowState* mPatientWorkflowState;
+	WorkflowState* mImportWorkflowState;
+	WorkflowState* mProcessWorkflowState;
+	WorkflowState* mPinpointWorkflowState;
+	WorkflowState* mVirtualBronchoscopyFlyThroughWorkflowState;
+	WorkflowState* mVirtualBronchoscopyCutPlanesWorkflowState;
 };
 
 typedef boost::shared_ptr<FraxinusWorkflowStateMachine> CustusXWorkflowStateMachinePtr;
