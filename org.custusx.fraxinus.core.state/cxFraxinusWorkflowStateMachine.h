@@ -64,6 +64,8 @@ private slots:
 signals:
 	void dataAdded();
 private:
+	void CreateTransitions();
+
 	FraxinusWorkflowState* mPatientWorkflowState;
 	WorkflowState* mImportWorkflowState;
 	WorkflowState* mProcessWorkflowState;

@@ -64,22 +64,26 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	this->setInitialState(mParentState);
 	mParentState->setInitialState(mPatientWorkflowState);
 
-	//Some tests may trigger the state transitions making strange side-effects
-	if(DataLocations::isTestMode())
-		return;
-
-	//Create transitions
-	mPatientWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
-	//mPatientWorkflowState->addTransition(mServices->patient().get(), SIGNAL(patientChanged()), mProcessWorkflowState);
-	mImportWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
-	mProcessWorkflowState->addTransition(mProcessWorkflowState, SIGNAL(airwaysSegmented()), mPinpointWorkflowState);
-	mPinpointWorkflowState->addTransition(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState);
+	this->CreateTransitions();
 
 	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot);
 }
 
 FraxinusWorkflowStateMachine::~FraxinusWorkflowStateMachine()
 {}
+
+void FraxinusWorkflowStateMachine::CreateTransitions()
+{
+	//Some tests may trigger the state transitions making strange side-effects
+	if(DataLocations::isTestMode())
+		return;
+
+	mPatientWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
+	//mPatientWorkflowState->addTransition(mServices->patient().get(), SIGNAL(patientChanged()), mProcessWorkflowState);
+	mImportWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
+	mProcessWorkflowState->addTransition(mProcessWorkflowState, SIGNAL(airwaysSegmented()), mPinpointWorkflowState);
+	mPinpointWorkflowState->addTransition(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState);
+}
 
 void FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot()
 {
