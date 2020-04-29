@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxLogger.h"
 #include "cxImage.h"
 #include"cxApplication.h"
+#include "cxDataLocations.h"
 
 namespace cx
 {
@@ -46,35 +47,43 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	WorkflowStateMachine(services)
 {
 	mPatientWorkflowState = dynamic_cast<FraxinusWorkflowState*>(this->newState(new PatientWorkflowState(mParentState, services)));
-    mImportWorkflowState = this->newState(new ImportWorkflowState(mParentState, services));
-    mProcessWorkflowState = this->newState(new ProcessWorkflowState(mParentState, services));
-    mPinpointWorkflowState = this->newState(new PinpointWorkflowState(mParentState, services));
-    mVirtualBronchoscopyFlyThroughWorkflowState = this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
-    mVirtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
+	mImportWorkflowState = this->newState(new ImportWorkflowState(mParentState, services));
+	mProcessWorkflowState = this->newState(new ProcessWorkflowState(mParentState, services));
+	mPinpointWorkflowState = this->newState(new PinpointWorkflowState(mParentState, services));
+	mVirtualBronchoscopyFlyThroughWorkflowState = this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
+	mVirtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
 
-    //logic for enabling workflowsteps
-    connect(mServices->patient().get(), &PatientModelService::patientChanged, mImportWorkflowState, &ImportWorkflowState::canEnterSlot);
-    connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, mProcessWorkflowState, &ProcessWorkflowState::canEnterSlot);
-    connect(mProcessWorkflowState, SIGNAL(airwaysSegmented()), mPinpointWorkflowState, SLOT(canEnterSlot()));
-    connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState, SLOT(canEnterSlot()));
-    connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyCutPlanesWorkflowState, SLOT(canEnterSlot()));
+	//logic for enabling workflowsteps
+	connect(mServices->patient().get(), &PatientModelService::patientChanged, mImportWorkflowState, &ImportWorkflowState::canEnterSlot);
+	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, mProcessWorkflowState, &ProcessWorkflowState::canEnterSlot);
+	connect(mProcessWorkflowState, SIGNAL(airwaysSegmented()), mPinpointWorkflowState, SLOT(canEnterSlot()));
+	connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState, SLOT(canEnterSlot()));
+	connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyCutPlanesWorkflowState, SLOT(canEnterSlot()));
 
 	//set initial state on all levels
-    this->setInitialState(mParentState);
-    mParentState->setInitialState(mPatientWorkflowState);
+	this->setInitialState(mParentState);
+	mParentState->setInitialState(mPatientWorkflowState);
 
-	//Create transitions
-    mPatientWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
-    //mPatientWorkflowState->addTransition(mServices->patient().get(), SIGNAL(patientChanged()), mProcessWorkflowState);
-	mImportWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
-	mProcessWorkflowState->addTransition(mProcessWorkflowState, SIGNAL(airwaysSegmented()), mPinpointWorkflowState);
-	mPinpointWorkflowState->addTransition(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState);
+	this->CreateTransitions();
 
-    connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot);
+	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot);
 }
 
 FraxinusWorkflowStateMachine::~FraxinusWorkflowStateMachine()
 {}
+
+void FraxinusWorkflowStateMachine::CreateTransitions()
+{
+	//Some tests may trigger the state transitions making strange side-effects
+	if(DataLocations::isTestMode())
+		return;
+
+	mPatientWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
+	//mPatientWorkflowState->addTransition(mServices->patient().get(), SIGNAL(patientChanged()), mProcessWorkflowState);
+	mImportWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
+	mProcessWorkflowState->addTransition(mProcessWorkflowState, SIGNAL(airwaysSegmented()), mPinpointWorkflowState);
+	mPinpointWorkflowState->addTransition(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState);
+}
 
 void FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot()
 {

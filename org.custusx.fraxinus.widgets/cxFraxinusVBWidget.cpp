@@ -36,16 +36,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QKeyEvent>
 #include <QRadioButton>
 #include <QVBoxLayout>
+#include <QLabel>
+#include <QTimer>
 #include "cxVisServices.h"
 #include "cxViewService.h"
 #include "cxViewGroupData.h"
-
+#include "cxLogger.h"
+#include "cxRouteToTarget.h"
+#include "cxPinpointWidget.h"
+#include "cxPointMetric.h"
+#include "cxDistanceMetric.h"
 
 namespace cx {
 
 FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     VBWidget(services, parent),
-    mServices(services)
+		mServices(services),
+		mRouteLength(0),
+		mDistanceFromPathEndToTarget(0)
 {
     this->setObjectName(this->getWidgetName());
 
@@ -66,16 +74,139 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     viewVLayout->addWidget(mTubeButton);
     viewVLayout->addWidget(mVolumeButton);
     viewBox->setLayout(viewVLayout);
-    mVerticalLayout->insertWidget(mVerticalLayout->count()-1, viewBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+		mVerticalLayout->insertWidget(mVerticalLayout->count()-1, viewBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+
+    QVBoxLayout* routeVLayout = new QVBoxLayout();
+		mStaticTotalLegth = new QLabel();
+		mRemainingRttLegth = new QLabel();
+		mDirectDistance = new QLabel();
+		mDistanceToTarget = new QLabel();
+		mWarningLabel = new QLabel();
+		routeVLayout->addWidget(mStaticTotalLegth);
+		routeVLayout->addWidget(mDistanceToTarget);
+		routeVLayout->addWidget(mWarningLabel);
+		//routeVLayout->addSpacing(10);
+		routeVLayout->addWidget(mRemainingRttLegth);
+		routeVLayout->addWidget(mDirectDistance);
+
+    QGroupBox* routeBox = new QGroupBox(tr("Route length"));
+    routeBox->setLayout(routeVLayout);
+    mVerticalLayout->insertWidget(mVerticalLayout->count()-1, routeBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
     mVerticalLayout->addStretch(); //And add some more stretch
 
     connect(mTubeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayTubes);
     connect(mVolumeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayVolume);
+
+		connect(mPlaybackSlider, &QSlider::valueChanged, this, &FraxinusVBWidget::playbackSliderChanged);
+		connect(mRouteToTarget.get(), &SelectDataStringPropertyBase::dataChanged,
+						this, &FraxinusVBWidget::calculateRouteLength);
 }
 
 FraxinusVBWidget::~FraxinusVBWidget()
 {
 
+}
+
+void FraxinusVBWidget::playbackSliderChanged(int cameraPositionInPercent)
+{
+	//Using a single shot timer to wait for other prosesses to update values.
+	//Using a lambda function to add the cameraPositionInPercent parameter
+	QTimer::singleShot(0, this, [=](){this->updateRttInfo(cameraPositionInPercent);});
+	QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(cameraPositionInPercent);});
+}
+
+void FraxinusVBWidget::updateAirwaysOpacity(int cameraPositionInPercent)
+{
+	double distanceThreshold = 70;
+	double maxOpacity = 0.5;
+	double distance = getRemainingRouteInsideAirways(cameraPositionInPercent);
+
+	foreach(DataPtr object, mTubeViewObjects)
+	{
+		MeshPtr mesh = boost::dynamic_pointer_cast<Mesh>(object);
+		if(mesh)
+		{
+			QColor color = mesh->getColor();
+			color.setAlphaF(1);
+			if(distance < distanceThreshold)
+			{
+				double opacityFactor = maxOpacity*(distanceThreshold-distance)/distanceThreshold;
+				color.setAlphaF(1-opacityFactor);
+			}
+			mesh->setColor(color);
+		}
+	}
+}
+
+double FraxinusVBWidget::getRemainingRouteInsideAirways(int cameraPositionInPercent)
+{
+	double position = 1 - cameraPositionInPercent / 100.0;
+	double distance = mRouteLength*position;
+	return distance;
+}
+
+double FraxinusVBWidget::getTargetDistance()
+{
+	QString distanceMetricUid = PinpointWidget::getDistanceMetricUid();
+	DistanceMetricPtr distanceMetric = mServices->patient()->getData<DistanceMetric>(distanceMetricUid);
+
+	double distance = 0;
+	if(distanceMetric)
+		distance = distanceMetric->getDistance();
+
+	return distance;
+}
+
+void FraxinusVBWidget::updateRttInfo(int cameraPositionInPercent)
+{
+	mStaticTotalLegth->setText(QString("Total route inside airways: <b>%1 mm</b> ").arg(mRouteLength, 0, 'f', 0));
+	mDistanceToTarget->setText(this->createDistanceFromPathToTargetText());
+
+	mRemainingRttLegth->setText(QString("Remaining route inside airways: %1 mm").
+															arg(getRemainingRouteInsideAirways(cameraPositionInPercent), 0, 'f', 0));
+	mDirectDistance->setText(QString("Distance to target: %1 mm").
+													 arg(this->getTargetDistance(), 0, 'f', 0));
+}
+
+QString FraxinusVBWidget::createDistanceFromPathToTargetText()
+{
+	//Color the value red and print a warning if above this threshold
+	double threshold = 20;
+	QString distanceText = "Distance from route end to target: ";
+	mWarningLabel->clear();
+
+	if(mDistanceFromPathEndToTarget >= threshold)
+		distanceText += "<font color=\"#FF0000\">";
+	distanceText += QString("<b>%1 mm</b>").arg(mDistanceFromPathEndToTarget, 0, 'f', 0);
+	if(mDistanceFromPathEndToTarget >= threshold)
+	{
+		mWarningLabel->setText("<font color=\"#FF0000\">There are no segmented airways <br>close to target!</font>");
+		distanceText += "</font>";
+	}
+	return distanceText;
+}
+
+void FraxinusVBWidget::calculateRouteLength()
+{
+	MeshPtr mesh = mRouteToTarget->getMesh();
+	if(!mesh)
+	{
+		mRouteLength = 0;
+		return;
+	}
+	std::vector< Eigen::Vector3d > route = RouteToTarget::getRoutePositions(mesh);
+	mRouteLength = RouteToTarget::calculateRouteLength(route);
+	this->calculateDistanceFromRouteEndToTarget(route.back());
+}
+
+void FraxinusVBWidget::calculateDistanceFromRouteEndToTarget(Eigen::Vector3d routeEndpoint)
+{
+	QString pointMetricUid = PinpointWidget::getTargetMetricUid();
+	PointMetricPtr pointMetric = mServices->patient()->getData<PointMetric>(pointMetricUid);
+	Vector3D target = pointMetric->getCoordinate();
+
+	Vector3D direction = (target - routeEndpoint).normal();
+	mDistanceFromPathEndToTarget = dot(target - routeEndpoint, direction);
 }
 
 QString FraxinusVBWidget::getWidgetName()

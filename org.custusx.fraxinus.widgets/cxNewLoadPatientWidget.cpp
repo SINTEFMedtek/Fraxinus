@@ -40,14 +40,12 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, PatientModelServiceP
     connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
 
     QVBoxLayout* layout = new QVBoxLayout(this);
-    layout->addStretch();
+    layout->addSpacing(50);
     layout->addWidget(newButton);
     layout->addWidget(loadButton);
-    layout->addStretch();
+    layout->addSpacing(50);
 
     layout->addWidget(mSelectCTDataButton);
-    layout->addStretch();
-    layout->addStretch();
     layout->addStretch();
 
     layout->addWidget(restoreToFactorySettingsButton);

@@ -80,6 +80,7 @@ protected:
     MeshPtr getAirwaysContour() const;
 	MeshPtr getAirwaysTubes() const;
     ImagePtr getCTImageCopied() const;
+    ImagePtr createCopiedImage(ImagePtr originalImage) const;
     PointMetricPtr getTargetPoint() const;
 	PointMetricPtr getEndoscopePoint() const;
 	DistanceMetricPtr getDistanceToTargetMetric() const;
