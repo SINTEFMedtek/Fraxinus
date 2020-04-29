@@ -793,6 +793,8 @@ void PinpointWorkflowState::createRouteToTarget()
 	routeToTargetFilter->getOutputTypes();
 	routeToTargetFilter->getOptions();
 
+    routeToTargetFilter->setSmoothing(false);
+
 	PointMetricPtr targetPoint = this->getTargetPoint();
     MeshPtr centerline = this->getTubeCenterline();
 
