@@ -1,4 +1,4 @@
-/*=========================================================================
+    /*=========================================================================
 This file is part of CustusX, an Image Guided Therapy Application.
 
 Copyright (c) 2008-2014, SINTEF Department of Medical Technology
@@ -408,14 +408,14 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 	FraxinusVBWidget* widget = this->getVBWidget();
 
 	if(widget)
-	{
-		MeshPtr routeToTarget = this->getRouteToTarget();
-		if(routeToTarget)
-			widget->setRouteToTarget(routeToTarget->getUid());
-        if(!mRouteToTargetIsCreated)
-            createRouteToTarget();
+    {
+        this->createRouteToTarget();
         widget->setRoutePositions(mRouteToTargetPositions);
         widget->setCameraRotationAlongRoute(mRouteToTargetCameraRotations);
+
+        MeshPtr routeToTarget = this->getRouteToTarget();
+        if(routeToTarget)
+            widget->setRouteToTarget(routeToTarget->getUid());
 	}
 }
 
@@ -477,7 +477,6 @@ void FraxinusWorkflowState::createRouteToTarget()
         routeToTargetFilter->postProcess();
         mRouteToTargetPositions = routeToTargetFilter->getRoutePositions();
         mRouteToTargetCameraRotations = routeToTargetFilter->getCameraRotation();
-        mRouteToTargetIsCreated = true;
         emit routeToTargetCreated();
     }
 }
@@ -761,7 +760,7 @@ QIcon PinpointWorkflowState::getIcon() const
 void PinpointWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
-	this->addDataToView();
+    this->addDataToView();
 
     connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 
@@ -881,8 +880,8 @@ QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
     FraxinusWorkflowState::onEntry(event);
+	this->setupVBWidget(mFlyThrough3DViewGroupNumber); 
     this->addDataToView();
-	this->setupVBWidget(mFlyThrough3DViewGroupNumber);
 
     QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
 }
