@@ -1,4 +1,4 @@
-/*=========================================================================
+    /*=========================================================================
 This file is part of CustusX, an Image Guided Therapy Application.
 
 Copyright (c) 2008-2014, SINTEF Department of Medical Technology
@@ -408,10 +408,14 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 	FraxinusVBWidget* widget = this->getVBWidget();
 
 	if(widget)
-	{
-		MeshPtr routeToTarget = this->getRouteToTarget();
-		if(routeToTarget)
-			widget->setRouteToTarget(routeToTarget->getUid());
+    {
+        this->createRouteToTarget();
+        widget->setRoutePositions(mRouteToTargetPositions);
+        widget->setCameraRotationAlongRoute(mRouteToTargetCameraRotations);
+
+        MeshPtr routeToTarget = this->getRouteToTarget();
+        if(routeToTarget)
+            widget->setRouteToTarget(routeToTarget->getUid());
 	}
 }
 
@@ -449,6 +453,32 @@ void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber)
 	this->getVBWidget()->grabKeyboard(); //NB! This make this widget take all keyboard input. E.g. "R" doesn't work in this workflow step.
 	//Actually, "R" seems to be a special case since it is from VTK. Other key input might work, but maybe not if the menu bar is off.
 	//this->getVBWidget()->setFocus(); // Can't seem to get any affect from this regarding key input.
+}
+
+void FraxinusWorkflowState::createRouteToTarget()
+{
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+    RouteToTargetFilterPtr routeToTargetFilter = RouteToTargetFilterPtr(new RouteToTargetFilter(services, true));
+    std::vector<SelectDataStringPropertyBasePtr> input = routeToTargetFilter->getInputTypes();
+    routeToTargetFilter->getOutputTypes();
+    routeToTargetFilter->getOptions();
+
+    routeToTargetFilter->setSmoothing(false);
+
+    PointMetricPtr targetPoint = this->getTargetPoint();
+    MeshPtr centerline = this->getTubeCenterline();
+
+    input[0]->setValue(centerline->getUid());
+    input[1]->setValue(targetPoint->getUid());
+
+    routeToTargetFilter->setTargetName(targetPoint->getName());
+    if(routeToTargetFilter->execute())
+    {
+        routeToTargetFilter->postProcess();
+        mRouteToTargetPositions = routeToTargetFilter->getRoutePositions();
+        mRouteToTargetCameraRotations = routeToTargetFilter->getCameraRotation();
+        emit routeToTargetCreated();
+    }
 }
 
 void FraxinusWorkflowState::cleanupVBWidget()
@@ -730,7 +760,7 @@ QIcon PinpointWorkflowState::getIcon() const
 void PinpointWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
-	this->addDataToView();
+    this->addDataToView();
 
     connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 
@@ -785,29 +815,6 @@ void PinpointWorkflowState::pointChanged()
 	this->createRoute();
 }
 
-void PinpointWorkflowState::createRouteToTarget()
-{
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-    RouteToTargetFilterPtr routeToTargetFilter = RouteToTargetFilterPtr(new RouteToTargetFilter(services, true));
-	std::vector<SelectDataStringPropertyBasePtr> input = routeToTargetFilter->getInputTypes();
-	routeToTargetFilter->getOutputTypes();
-	routeToTargetFilter->getOptions();
-
-    routeToTargetFilter->setSmoothing(false);
-
-	PointMetricPtr targetPoint = this->getTargetPoint();
-    MeshPtr centerline = this->getTubeCenterline();
-
-	input[0]->setValue(centerline->getUid());
-	input[1]->setValue(targetPoint->getUid());
-
-	routeToTargetFilter->setTargetName(targetPoint->getName());
-	if(routeToTargetFilter->execute())
-	{
-		routeToTargetFilter->postProcess();
-		emit routeToTargetCreated();
-    }
-}
 
 void PinpointWorkflowState::addDataToView()
 {
@@ -873,8 +880,8 @@ QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
     FraxinusWorkflowState::onEntry(event);
+	this->setupVBWidget(mFlyThrough3DViewGroupNumber); 
     this->addDataToView();
-	this->setupVBWidget(mFlyThrough3DViewGroupNumber);
 
     QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
 }

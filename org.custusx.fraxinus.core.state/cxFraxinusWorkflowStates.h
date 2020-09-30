@@ -84,6 +84,9 @@ protected:
     PointMetricPtr getTargetPoint() const;
 	PointMetricPtr getEndoscopePoint() const;
 	DistanceMetricPtr getDistanceToTargetMetric() const;
+    void createRouteToTarget();
+    std::vector< Eigen::Vector3d > mRouteToTargetPositions;
+    std::vector< double > mRouteToTargetCameraRotations;
 
 
     void setTransferfunction3D(QString transferfunction, ImagePtr image);
@@ -102,6 +105,9 @@ protected slots:
 	virtual void setDefaultCameraStyle();
     virtual void setVBFlythroughCameraStyle();
     virtual void setVBCutplanesCameraStyle();
+
+signals:
+    void routeToTargetCreated();
 
 private:
     void onEntryDefault(QEvent *event);
@@ -178,14 +184,11 @@ public:
     virtual QIcon getIcon() const;
     virtual void onEntry(QEvent *event);
 	virtual bool canEnter() const;
-signals:
-	void routeToTargetCreated();
 private slots:
     void dataAddedOrRemovedSlot();
 	void createRoute();
 	void pointChanged();
 private:
-    void createRouteToTarget();
     void addDataToView();
 	void deleteOldRouteToTarget();
 

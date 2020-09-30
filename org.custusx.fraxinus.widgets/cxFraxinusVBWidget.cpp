@@ -46,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxPinpointWidget.h"
 #include "cxPointMetric.h"
 #include "cxDistanceMetric.h"
+#include "cxVBcameraPath.h"
 
 namespace cx {
 
@@ -111,11 +112,12 @@ void FraxinusVBWidget::playbackSliderChanged(int cameraPositionInPercent)
 {
 	//Using a single shot timer to wait for other prosesses to update values.
 	//Using a lambda function to add the cameraPositionInPercent parameter
-	QTimer::singleShot(0, this, [=](){this->updateRttInfo(cameraPositionInPercent);});
-	QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(cameraPositionInPercent);});
+    double cameraPositionInPercentAdjusted = positionPercentageAdjusted(cameraPositionInPercent);
+    QTimer::singleShot(0, this, [=](){this->updateRttInfo(cameraPositionInPercentAdjusted);});
+    QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(cameraPositionInPercentAdjusted);});
 }
 
-void FraxinusVBWidget::updateAirwaysOpacity(int cameraPositionInPercent)
+void FraxinusVBWidget::updateAirwaysOpacity(double cameraPositionInPercent)
 {
 	double distanceThreshold = 70;
 	double maxOpacity = 0.5;
@@ -138,7 +140,7 @@ void FraxinusVBWidget::updateAirwaysOpacity(int cameraPositionInPercent)
 	}
 }
 
-double FraxinusVBWidget::getRemainingRouteInsideAirways(int cameraPositionInPercent)
+double FraxinusVBWidget::getRemainingRouteInsideAirways(double cameraPositionInPercent)
 {
 	double position = 1 - cameraPositionInPercent / 100.0;
 	double distance = mRouteLength*position;
@@ -157,7 +159,7 @@ double FraxinusVBWidget::getTargetDistance()
 	return distance;
 }
 
-void FraxinusVBWidget::updateRttInfo(int cameraPositionInPercent)
+void FraxinusVBWidget::updateRttInfo(double cameraPositionInPercent)
 {
 	mStaticTotalLegth->setText(QString("Total route inside airways: <b>%1 mm</b> ").arg(mRouteLength, 0, 'f', 0));
 	mDistanceToTarget->setText(this->createDistanceFromPathToTargetText());
