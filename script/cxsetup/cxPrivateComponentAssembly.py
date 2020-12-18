@@ -39,6 +39,7 @@ class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
         super(LibraryAssembly, self).__init__(controlData)
 
         self.addComponent(cxPrivateComponents.Fraxinus())
+        self.addComponent(cxPrivateComponents.medtekAI())
         self.libraries.remove(self.custusx)
         self.addComponent(self.custusx)
 
