@@ -1,4 +1,4 @@
-/*=========================================================================
+    /*=========================================================================
 This file is part of CustusX, an Image Guided Therapy Application.
 
 Copyright (c) 2008-2014, SINTEF Department of Medical Technology
@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QString>
 #include <QAction>
 #include <QDialog>
+#include <QCheckBox>
 #include "cxTypeConversions.h"
 #include "cxRequestEnterStateTransition.h"
 #include "cxWorkflowState.h"
@@ -151,6 +152,7 @@ class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public Fraxin
 Q_OBJECT
 
 	void performAirwaysSegmentation(ImagePtr image);
+    void performMLSegmentation(ImagePtr image);
 public:
     ProcessWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~ProcessWorkflowState();
@@ -159,12 +161,14 @@ public:
 	virtual bool canEnter() const;
 
 signals:
-	void airwaysSegmented();
+    void segmentationFinished();
 
 private slots:
 	void imageSelected();
-    void runFilterSlot();
-    void finishedSlot();
+    void runAirwaysFilterSlot();
+    void runMLFilterSlot();
+    void airwaysFinishedSlot();
+    void MLFinishedSlot();
 
 private:
     virtual void addDataToView();
@@ -172,6 +176,27 @@ private:
     FilterTimedAlgorithmPtr mThread;
     TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
     QDialog dialog;
+    QDialog* mSegmentationSelectionInput;
+    QCheckBox* mCheckBoxAirways;
+    QCheckBox* mCheckBoxLungs;
+    QCheckBox* mCheckBoxLymphNodes;
+    QCheckBox* mCheckBoxPulmonarySystem;
+    QCheckBox* mCheckBoxMediumOrgans;
+    QCheckBox* mCheckBoxSmallOrgans;
+    QCheckBox* mCheckBoxNodules;
+    bool mLungsProcessed = false;
+    bool mLymphNodesProcessed = false;
+    bool mPulmonarySystemProcessed = false;
+    bool mMediumOrgansProcessed = false;
+    bool mSmallOrgansProcessed = false;
+    bool mNodulesProcessed = false;
+    bool mSegmentLungs;
+    bool mSegmentLymphNodes;
+    bool mSegmentPulmonarySystem;
+    bool mSegmentSmallOrgans;
+    bool mSegmentMediumOrgans;
+    bool mSegmentNodules;
+
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public FraxinusWorkflowState
