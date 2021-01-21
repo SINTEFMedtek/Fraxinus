@@ -236,27 +236,103 @@ MeshPtr FraxinusWorkflowState::getExtendedRouteToTarget() const
     return MeshPtr();
 }
 
-MeshPtr FraxinusWorkflowState::getAirwaysContour() const
+MeshPtr FraxinusWorkflowState::getAirwaysContour()
 {
-	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
-	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
-	{
-        if(iter->first.contains(airwaysFilterGetNameSuffixAirways()) && iter->first.contains(ContourFilter::getNameSuffix()))
-			return iter->second;
-	}
-	return MeshPtr();
+    return this->getMesh(airwaysFilterGetNameSuffixAirways(), ContourFilter::getNameSuffix());
 }
 
-MeshPtr FraxinusWorkflowState::getAirwaysTubes() const
+MeshPtr FraxinusWorkflowState::getAirwaysTubes()
 {
-	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
-	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
-	{
-                if(iter->first.contains(airwaysFilterGetNameSuffixTubes()) && !iter->first.contains(airwaysFilterGetNameSuffixCenterline()))
-			return iter->second;
-	}
-	return MeshPtr();
+    return this->getMesh(airwaysFilterGetNameSuffixTubes(), airwaysFilterGetNameSuffixCenterline());
 }
+
+MeshPtr FraxinusWorkflowState::getVessels()
+{
+    return this->getMesh(airwaysFilterGetNameSuffixVessels());
+}
+
+MeshPtr FraxinusWorkflowState::getMesh(QString str_1, QString str_2)
+{
+    std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
+    for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+    {
+        if(iter->first.contains(str_1))
+            if(iter->first.contains(str_2))
+                return iter->second;
+    }
+    return MeshPtr();
+}
+
+MeshPtr FraxinusWorkflowState::getLungs()
+{
+    return this->getMesh("_lungs");
+}
+
+MeshPtr FraxinusWorkflowState::getLymphNodes()
+{
+    return this->getMesh("_lymphNodes");
+}
+
+MeshPtr FraxinusWorkflowState::getNodules()
+{
+    return this->getMesh("_nodules");
+}
+
+MeshPtr FraxinusWorkflowState::getVenaCava()
+{
+    return this->getMesh("_mediumOrgansMediastinum.mhd", "VenaCava");
+}
+
+MeshPtr FraxinusWorkflowState::getAorticArch()
+{
+    return this->getMesh("_mediumOrgansMediastinum.mhd", "AorticArch");
+}
+
+MeshPtr FraxinusWorkflowState::getAscendingAorta()
+{
+    return this->getMesh("_mediumOrgansMediastinum.mhd", "AscendingAorta");
+}
+
+MeshPtr FraxinusWorkflowState::getSpine()
+{
+    return this->getMesh("_mediumOrgansMediastinum.mhd", "Spine");
+}
+
+MeshPtr FraxinusWorkflowState::getSubCarArt()
+{
+    return this->getMesh("_smallOrgansMediastinum.mhd", "SubCarArt");
+}
+
+MeshPtr FraxinusWorkflowState::getEsophagus()
+{
+    return this->getMesh("_smallOrgansMediastinum.mhd", "Esophagus");
+}
+
+MeshPtr FraxinusWorkflowState::getBrachiocephalicVeins()
+{
+    return this->getMesh("_smallOrgansMediastinum.mhd", "BrachiocephalicVeins");
+}
+
+MeshPtr FraxinusWorkflowState::getAzygos()
+{
+    return this->getMesh("_smallOrgansMediastinum.mhd", "Azygos");
+}
+
+MeshPtr FraxinusWorkflowState::getHeart()
+{
+    return this->getMesh("_pulmSystHeart.mhd", "Heart");
+}
+
+MeshPtr FraxinusWorkflowState::getPulmonaryVeins()
+{
+    return this->getMesh("_pulmSystHeart.mhd", "PulmonaryVeins");
+}
+
+MeshPtr FraxinusWorkflowState::getPulmonaryTrunk()
+{
+    return this->getMesh("_pulmSystHeart.mhd", "PulmonaryTrunk");
+}
+
 
 ImagePtr FraxinusWorkflowState::getCTImage() const
 {
@@ -625,6 +701,7 @@ void ProcessWorkflowState::onEntry(QEvent * event)
     //QDialog tar bare ett input, mens vi trenger flere knapper  eler checkboxes.
     mSegmentationSelectionInput = new QDialog();
     mSegmentationSelectionInput->setWindowTitle(tr("Select structures for segmentation"));
+    mSegmentationSelectionInput->setWindowFlag(Qt::WindowStaysOnTopHint);
 
     mCheckBoxAirways = new QCheckBox(tr("Airways"));
     mCheckBoxAirways->setChecked(true);
@@ -635,6 +712,7 @@ void ProcessWorkflowState::onEntry(QEvent * event)
     mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine"));
     mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos"));
     mCheckBoxNodules = new QCheckBox(tr("Lesions"));
+    mCheckBoxVessels = new QCheckBox(tr("Small Vessels"));
 
     QPushButton* OKbutton = new QPushButton(tr("&OK"));
     connect(OKbutton, SIGNAL(clicked()), this, SLOT(imageSelected()));
@@ -647,6 +725,7 @@ void ProcessWorkflowState::onEntry(QEvent * event)
     checkBoxLayout->addWidget(mCheckBoxMediumOrgans);
     checkBoxLayout->addWidget(mCheckBoxSmallOrgans);
     checkBoxLayout->addWidget(mCheckBoxNodules);
+    checkBoxLayout->addWidget(mCheckBoxVessels);
 
     QGridLayout* mainLayout = new QGridLayout;
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
@@ -697,10 +776,21 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
         return;
 
     DataPtr centerline = this->getCenterline();
+    DataPtr vessels = this->getVessels();
     if(centerline)
     {
-        this->performMLSegmentation(image);
-        return;
+        mAirwaysProcessed = true;
+        if(vessels)
+        {
+            mVesselsProcessed = true;
+            this->performMLSegmentation(image);
+            return;
+        }
+        else if(!mCheckBoxVessels->isChecked())
+        {
+            this->performMLSegmentation(image);
+            return;
+        }
     }
 
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
@@ -711,8 +801,20 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
 	airwaysFilter->getOutputTypes();
 	airwaysFilter->getOptions();
+    if(!vessels && !mAirwaysProcessed)
+    {
+        airwaysFilter->setVesselSegmentation(false);
+        airwaysFilter->setAirwaySegmentation(true);
+        mAirwaysProcessed = true;
+    }
+    else if(!mVesselsProcessed && mCheckBoxVessels->isChecked())
+    {
+        airwaysFilter->setVesselSegmentation(true);
+        airwaysFilter->setAirwaySegmentation(false);
+        mVesselsProcessed = true;
+    }
 
-	input[0]->setValue(image->getUid());
+    input[0]->setValue(image->getUid());
 	mCurrentFilter = airwaysFilter;
     this->runAirwaysFilterSlot();
 #endif
@@ -733,37 +835,37 @@ void ProcessWorkflowState::performMLSegmentation(ImagePtr image)
     scriptFilter->getOutputTypes();
     scriptFilter->getOptions();
 
-    if(mSegmentLungs && !mLungsProcessed)
+    if(mSegmentLungs && !mLungsProcessed && !this->getLungs())
     {
         CX_LOG_DEBUG() << "Segmenting Lungs";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_Lungs.ini");
         mLungsProcessed = true;
     }
-    else if(mSegmentLymphNodes && !mLymphNodesProcessed)
+    else if(mSegmentLymphNodes && !mLymphNodesProcessed && !this->getLymphNodes())
     {
         CX_LOG_DEBUG() << "Segmenting Lymph nodes";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_LymphNodes.ini");
         mLymphNodesProcessed = true;
     }
-    else if(mSegmentPulmonarySystem && !mPulmonarySystemProcessed)
+    else if(mSegmentPulmonarySystem && !mPulmonarySystemProcessed && !this->getHeart())
     {
         CX_LOG_DEBUG() << "Segmenting pulmonary system";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_PulmSystHeart.ini");
         mPulmonarySystemProcessed = true;
     }
-    else if(mSegmentMediumOrgans && !mMediumOrgansProcessed)
+    else if(mSegmentMediumOrgans && !mMediumOrgansProcessed && !this->getSpine())
     {
         CX_LOG_DEBUG() << "Segmenting Vena Cava, Aorta and Spine";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_MediumOrgansMediastinum.ini");
         mMediumOrgansProcessed = true;
     }
-    else if(mSegmentSmallOrgans && !mSmallOrgansProcessed)
+    else if(mSegmentSmallOrgans && !mSmallOrgansProcessed && !this->getEsophagus())
     {
         CX_LOG_DEBUG() << "Segmenting Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_SmallOrgansMediastinum.ini");
         mSmallOrgansProcessed = true;
     }
-    else if(mSegmentNodules && !mNodulesProcessed)
+    else if(mSegmentNodules && !mNodulesProcessed && !this->getEsophagus())
     {
         CX_LOG_DEBUG() << "Segmenting Lesions";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_Nodules.ini");
@@ -840,7 +942,10 @@ void ProcessWorkflowState::airwaysFinishedSlot()
                           "4. Run the Airway segmantation filter again using the green start button. \n";
         QMessageBox::warning(NULL,"Airway segmentation failed", message);
     }
-    this->performMLSegmentation(this->getCTImage());
+    if(!mVesselsProcessed && mCheckBoxVessels->isChecked())
+        this->performAirwaysSegmentation(this->getCTImage());
+    else
+        this->performMLSegmentation(this->getCTImage());
 }
 
 
