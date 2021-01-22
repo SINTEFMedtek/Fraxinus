@@ -243,7 +243,7 @@ MeshPtr FraxinusWorkflowState::getAirwaysContour()
 
 MeshPtr FraxinusWorkflowState::getAirwaysTubes()
 {
-    return this->getMesh(airwaysFilterGetNameSuffixTubes(), airwaysFilterGetNameSuffixCenterline());
+    return this->getMesh(airwaysFilterGetNameSuffixTubes(), airwaysFilterGetNameSuffixAirways());
 }
 
 MeshPtr FraxinusWorkflowState::getVessels()
@@ -280,57 +280,57 @@ MeshPtr FraxinusWorkflowState::getNodules()
 
 MeshPtr FraxinusWorkflowState::getVenaCava()
 {
-    return this->getMesh("_mediumOrgansMediastinum.mhd", "VenaCava");
+    return this->getMesh("_mediumOrgansMediastinum", "VenaCava");
 }
 
 MeshPtr FraxinusWorkflowState::getAorticArch()
 {
-    return this->getMesh("_mediumOrgansMediastinum.mhd", "AorticArch");
+    return this->getMesh("_mediumOrgansMediastinum", "AorticArch");
 }
 
 MeshPtr FraxinusWorkflowState::getAscendingAorta()
 {
-    return this->getMesh("_mediumOrgansMediastinum.mhd", "AscendingAorta");
+    return this->getMesh("_mediumOrgansMediastinum", "AscendingAorta");
 }
 
 MeshPtr FraxinusWorkflowState::getSpine()
 {
-    return this->getMesh("_mediumOrgansMediastinum.mhd", "Spine");
+    return this->getMesh("_mediumOrgansMediastinum", "Spine");
 }
 
 MeshPtr FraxinusWorkflowState::getSubCarArt()
 {
-    return this->getMesh("_smallOrgansMediastinum.mhd", "SubCarArt");
+    return this->getMesh("_smallOrgansMediastinum", "SubCarArt");
 }
 
 MeshPtr FraxinusWorkflowState::getEsophagus()
 {
-    return this->getMesh("_smallOrgansMediastinum.mhd", "Esophagus");
+    return this->getMesh("_smallOrgansMediastinum", "Esophagus");
 }
 
 MeshPtr FraxinusWorkflowState::getBrachiocephalicVeins()
 {
-    return this->getMesh("_smallOrgansMediastinum.mhd", "BrachiocephalicVeins");
+    return this->getMesh("_smallOrgansMediastinum", "BrachiocephalicVeins");
 }
 
 MeshPtr FraxinusWorkflowState::getAzygos()
 {
-    return this->getMesh("_smallOrgansMediastinum.mhd", "Azygos");
+    return this->getMesh("_smallOrgansMediastinum", "Azygos");
 }
 
 MeshPtr FraxinusWorkflowState::getHeart()
 {
-    return this->getMesh("_pulmSystHeart.mhd", "Heart");
+    return this->getMesh("_pulmSystHeart", "Heart");
 }
 
 MeshPtr FraxinusWorkflowState::getPulmonaryVeins()
 {
-    return this->getMesh("_pulmSystHeart.mhd", "PulmonaryVeins");
+    return this->getMesh("_pulmSystHeart", "PulmonaryVeins");
 }
 
 MeshPtr FraxinusWorkflowState::getPulmonaryTrunk()
 {
-    return this->getMesh("_pulmSystHeart.mhd", "PulmonaryTrunk");
+    return this->getMesh("_pulmSystHeart", "PulmonaryTrunk");
 }
 
 
@@ -510,15 +510,89 @@ void FraxinusWorkflowState::setupViewOptionsINVBWidget(int flyThrough3DViewGroup
     MeshPtr tubes = this->getAirwaysTubes();
     tubeViewObjects.push_back(tubes);
 
-	FraxinusVBWidget* widget = this->getVBWidget();
+    std::vector<DataPtr> lungObjects;
+    MeshPtr lungs = this->getLungs();
+    if(lungs)
+        lungObjects.push_back(lungs);
+
+    std::vector<DataPtr> lesionObjects;
+    MeshPtr lesions = this->getNodules();
+    if(lesions)
+        lesionObjects.push_back(this->getNodules());
+
+    std::vector<DataPtr> lymphNodeObjects;
+    MeshPtr lymphNodes = this->getLymphNodes();
+    if(lymphNodes)
+        lymphNodeObjects.push_back(lymphNodes);
+
+    std::vector<DataPtr> spineObjects;
+    MeshPtr spine = this->getSpine();
+    if(spine)
+        spineObjects.push_back(spine);
+
+    std::vector<DataPtr> largeVesselsObjects;
+    MeshPtr venaCava = this->getVenaCava();
+    if(venaCava)
+        largeVesselsObjects.push_back(venaCava);
+    MeshPtr aorticArch = this->getAorticArch();
+    if(aorticArch)
+        largeVesselsObjects.push_back(aorticArch);
+    MeshPtr ascendingAorta = this->getAscendingAorta();
+    if(ascendingAorta)
+        largeVesselsObjects.push_back(ascendingAorta);
+    MeshPtr subCarArt = this->getSubCarArt();
+    if(subCarArt)
+        largeVesselsObjects.push_back(subCarArt);
+    MeshPtr brachiocephalicVeins = this->getBrachiocephalicVeins();
+    if(brachiocephalicVeins)
+        largeVesselsObjects.push_back(brachiocephalicVeins);
+    MeshPtr azygos = this->getAzygos();
+    if(azygos)
+        largeVesselsObjects.push_back(azygos);
+
+    std::vector<DataPtr> smallVesselsObjects;
+    MeshPtr smallVessels = this->getVessels();
+    if(smallVessels)
+        smallVesselsObjects.push_back(smallVessels);
+
+    std::vector<DataPtr> heartObjects;
+    MeshPtr heart = this->getHeart();
+    if(heart)
+        heartObjects.push_back(heart);
+    MeshPtr pulmonaryTrunk = this->getPulmonaryTrunk();
+    if(pulmonaryTrunk)
+        heartObjects.push_back(pulmonaryTrunk);
+    MeshPtr pulmonaryVeins = this->getPulmonaryVeins();
+    if(pulmonaryVeins)
+        heartObjects.push_back(pulmonaryVeins);
+
+    std::vector<DataPtr> esophagusObjects;
+    MeshPtr esophagus = this->getEsophagus();
+    if(esophagus)
+        esophagusObjects.push_back(esophagus);
+
+    FraxinusVBWidget* widget = this->getVBWidget();
     foreach(DataPtr object, tubeViewObjects)
-    {
         widget->addObjectToTubeView(object);
-    }
     foreach(DataPtr object, volumeViewObjects)
-	{
 		widget->addObjectToVolumeView(object);
-    }
+    foreach(DataPtr object, lungObjects)
+        widget->addLungObject(object);
+    foreach(DataPtr object, lesionObjects)
+        widget->addLesionObject(object);
+    foreach(DataPtr object, lymphNodeObjects)
+        widget->addLymphNodeObject(object);
+    foreach(DataPtr object, spineObjects)
+        widget->addSpineObject(object);
+    foreach(DataPtr object, smallVesselsObjects)
+        widget->addSmallVesselObject(object);
+    foreach(DataPtr object, largeVesselsObjects)
+        widget->addLargeVesselObject(object);
+    foreach(DataPtr object, heartObjects)
+        widget->addHeartObject(object);
+    foreach(DataPtr object, esophagusObjects)
+        widget->addEsophagusObject(object);
+
 	widget->setViewGroupNumber(flyThrough3DViewGroupNumber);
 }
 

@@ -39,6 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class QRadioButton;
 class QLabel;
+class QPushButton;
 
 namespace cx {
 
@@ -53,12 +54,28 @@ public:
     void setViewGroupNumber(unsigned int viewGroupNumber);
     void addObjectToVolumeView(DataPtr object);
     void addObjectToTubeView(DataPtr object);
+    void addLungObject(DataPtr object);
+    void addLesionObject(DataPtr object);
+    void addLymphNodeObject(DataPtr object);
+    void addSpineObject(DataPtr object);
+    void addSmallVesselObject(DataPtr object);
+    void addLargeVesselObject(DataPtr object);
+    void addHeartObject(DataPtr object);
+    void addEsophagusObject(DataPtr object);
 
 
 private slots:
     virtual void keyPressEvent(QKeyEvent* event);
     void calculateRouteLength();
     void playbackSliderChanged(int cameraPositionInPercent);
+    void viewLungsSlot();
+    void viewLesionsSlot();
+    void viewLymphNodesSlot();
+    void viewSpineSlot();
+    void viewSmallVesselsSlot();
+    void viewLargeVesselsSlot();
+    void viewHeartSlot();
+    void viewEsophagusSlot();
 
 private:
     void displayVolume();
@@ -78,6 +95,14 @@ private:
     unsigned int mViewGroupNumber;
     std::vector<DataPtr> mVolumeViewObjects;
     std::vector<DataPtr> mTubeViewObjects;
+    std::vector<DataPtr> mLungsObjects;
+    std::vector<DataPtr> mLesionsObjects;
+    std::vector<DataPtr> mLymphNodesObjects;
+    std::vector<DataPtr> mSpineObjects;
+    std::vector<DataPtr> mSmallVesselsObjects;
+    std::vector<DataPtr> mLargeVesselsObjects;
+    std::vector<DataPtr> mHeartObjects;
+    std::vector<DataPtr> mEsophagusObjects;
     QLabel* mStaticTotalLegth;
     QLabel* mRemainingRttLegth;
     QLabel* mDirectDistance;
@@ -85,6 +110,31 @@ private:
     QLabel* mWarningLabel;
     double mRouteLength;
     double mDistanceFromPathEndToTarget;
+
+    QPushButton* mViewLungsButton;
+    QPalette mViewLungsButtonBackgroundColor;
+    bool mViewLungsEnabled = false;
+    QPushButton* mViewLesionsButton;
+    QPalette mViewLesionsButtonBackgroundColor;
+    bool mViewLesionsEnabled = false;
+    QPushButton* mViewLymphNodesButton;
+    QPalette mViewLymphNodesButtonBackgroundColor;
+    bool mViewLymphNodesEnabled = false;
+    QPushButton* mViewSpineButton;
+    QPalette mViewSpineButtonBackgroundColor;
+    bool mViewSpineEnabled = false;
+    QPushButton* mViewSmallVesselsButton;
+    QPalette mViewSmallVesselsButtonBackgroundColor;
+    bool mViewSmallVesselsEnabled = false;
+    QPushButton* mViewLargeVesselsButton;
+    QPalette mViewLargeVesselsButtonBackgroundColor;
+    bool mViewLargeVesselsEnabled = false;
+    QPushButton* mViewHeartButton;
+    QPalette mViewHeartButtonBackgroundColor;
+    bool mViewHeartEnabled = false;
+    QPushButton* mViewEsophagusButton;
+    QPalette mViewEsophagusButtonBackgroundColor;
+    bool mViewEsophagusEnabled = false;
 };
 
 
