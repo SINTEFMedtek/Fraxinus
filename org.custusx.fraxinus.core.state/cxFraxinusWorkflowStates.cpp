@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QAbstractButton>
 #include <QPushButton>
 #include <QListWidgetItem>
+#include <QLabel>
 #include "cxStateService.h"
 #include "cxSettings.h"
 #include "cxTrackingService.h"
@@ -70,6 +71,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxContourFilter.h"
 #include "cxFraxinusVBWidget.h"
 #include "cxGenericScriptFilter.h"
+#include "cxDisplayTimerWidget.h"
 
 #ifndef __APPLE__
 #include "cxAirwaysFilterService.h"
@@ -751,9 +753,9 @@ ProcessWorkflowState::ProcessWorkflowState(QState* parent, CoreServicesPtr servi
 {
 	mTimedAlgorithmProgressBar = new cx::TimedAlgorithmProgressBar;
 
-	QHBoxLayout *layout = new QHBoxLayout();
-	layout->addWidget(mTimedAlgorithmProgressBar);
-	dialog.setLayout(layout);
+    //QHBoxLayout *layout = new QHBoxLayout();
+    //layout->addWidget(mTimedAlgorithmProgressBar);
+    //dialog.setLayout(layout);
 }
 
 ProcessWorkflowState::~ProcessWorkflowState()
@@ -769,24 +771,38 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
 
+    this->createSelectSegmentationBox();
 
-    //TO DO: Lage dialogbox som tar input på hva som skal segmenteres.
-    //Har ikke funnet en god måte å gjøre dette på. De ulike subklassene til
-    //QDialog tar bare ett input, mens vi trenger flere knapper  eler checkboxes.
+	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
+    //QTimer::singleShot(0, this, SLOT(imageSelected()));
+
+    //Setting Pinpoint workflow active here, in case segmentation is run manuelly if automatic segmentation fails.
+    QObject* parentWorkFlow = this->parent();
+    QList<FraxinusWorkflowState *> allWorkflows = parentWorkFlow->findChildren<FraxinusWorkflowState *>();
+     for (int i = 0; i < allWorkflows.size(); i++)
+         if (allWorkflows[i]->getName() == "Set target")
+         {
+             allWorkflows[i]->enableAction(true);
+             break;
+         }
+}
+
+void ProcessWorkflowState::createSelectSegmentationBox()
+{
     mSegmentationSelectionInput = new QDialog();
     mSegmentationSelectionInput->setWindowTitle(tr("Select structures for segmentation"));
     mSegmentationSelectionInput->setWindowFlag(Qt::WindowStaysOnTopHint);
 
-    mCheckBoxAirways = new QCheckBox(tr("Airways"));
+    mCheckBoxAirways = new QCheckBox(tr("Airways (~1 min)"));
     mCheckBoxAirways->setChecked(true);
     mCheckBoxAirways->setDisabled(true);
-    mCheckBoxLungs = new QCheckBox(tr("Lungs"));
-    mCheckBoxLymphNodes = new QCheckBox(tr("Lymph Nodes"));
+    mCheckBoxLungs = new QCheckBox(tr("Lungs (~3 min)"));
+    mCheckBoxLymphNodes = new QCheckBox(tr("Lymph Nodes  (~10 min)"));
     mCheckBoxPulmonarySystem = new QCheckBox(tr("Pulmonary System"));
-    mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine"));
-    mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos"));
+    mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine  (~4 min)"));
+    mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~4 min)"));
     mCheckBoxNodules = new QCheckBox(tr("Lesions"));
-    mCheckBoxVessels = new QCheckBox(tr("Small Vessels"));
+    mCheckBoxVessels = new QCheckBox(tr("Small Vessels  (~3 min)"));
 
     QPushButton* OKbutton = new QPushButton(tr("&OK"));
     connect(OKbutton, SIGNAL(clicked()), this, SLOT(imageSelected()));
@@ -809,27 +825,13 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 
     mSegmentationSelectionInput->setLayout(mainLayout);
     mSegmentationSelectionInput->show();
-    //segmentationSelectionInput->raise();
     mSegmentationSelectionInput->activateWindow();
-
-
-
-	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
-    //QTimer::singleShot(0, this, SLOT(imageSelected()));
-
-    //Setting Pinpoint workflow active here, in case segmentation is run manuelly if automatic segmentation fails.
-    QObject* parentWorkFlow = this->parent();
-    QList<FraxinusWorkflowState *> allWorkflows = parentWorkFlow->findChildren<FraxinusWorkflowState *>();
-     for (int i = 0; i < allWorkflows.size(); i++)
-         if (allWorkflows[i]->getName() == "Set target")
-         {
-             allWorkflows[i]->enableAction(true);
-             break;
-         }
 }
 
 void ProcessWorkflowState::imageSelected()
 {
+    mSegmentAirways = mCheckBoxAirways->isChecked();
+    mSegmentVessels = mCheckBoxVessels->isChecked();
     mSegmentLungs = mCheckBoxLungs->isChecked();
     mSegmentLymphNodes = mCheckBoxLymphNodes->isChecked();
     mSegmentPulmonarySystem = mCheckBoxPulmonarySystem->isChecked();
@@ -838,9 +840,132 @@ void ProcessWorkflowState::imageSelected()
     mSegmentNodules = mCheckBoxNodules->isChecked();
     mSegmentationSelectionInput->close();
 
+    this->createProcessingInfo();
     ImagePtr image = this->getCTImage();
     this->performAirwaysSegmentation(image);
-    //this->performMLSegmentation(image);
+}
+
+void ProcessWorkflowState::createProcessingInfo()
+{
+    mSegmentationProcessingInfo = new QDialog();
+    mSegmentationProcessingInfo->setWindowTitle(tr("Segmentation Processing"));
+    mSegmentationProcessingInfo->setWindowFlag(Qt::WindowStaysOnTopHint);
+
+    QGridLayout* gridLayout = new QGridLayout;
+    gridLayout->setColumnMinimumWidth(0,500);
+    gridLayout->setColumnMinimumWidth(1,100);
+    gridLayout->setVerticalSpacing(100);
+
+    if (mSegmentAirways)
+    {
+        QWidget* timerWidget = new QWidget;
+        mAirwaysTimerWidget = new DisplayTimerWidget(timerWidget);
+        mAirwaysTimerWidget->setFontSize(3);
+        mAirwaysTimerWidget->setFixedWidth(50);
+        mAirwaysTimerWidget->show();
+        QLabel* label = new QLabel("Airways");
+        label->setAlignment(Qt::AlignTop);
+        gridLayout->addWidget(label,0,0,8,2);
+        gridLayout->addWidget(timerWidget,0,1,8,2);
+        if(this->getCenterline())
+            mAirwaysTimerWidget->stop();
+    }
+    if (mSegmentVessels)
+    {
+        QWidget* timerWidget = new QWidget;
+        mVesselsTimerWidget = new DisplayTimerWidget(timerWidget);
+        mVesselsTimerWidget->setFontSize(3);
+        mVesselsTimerWidget->setFixedWidth(50);
+        QLabel* label = new QLabel("Small Vessels");
+        label->setAlignment(Qt::AlignTop);
+        gridLayout->addWidget(label,1,0,8,2);
+        gridLayout->addWidget(timerWidget,1,1,8,2);
+        if(this->getVessels())
+            mVesselsTimerWidget->stop();
+    }
+    if (mSegmentLungs)
+    {
+        QWidget* timerWidget = new QWidget;
+        mLungsTimerWidget = new DisplayTimerWidget(timerWidget);
+        mLungsTimerWidget->setFontSize(3);
+        mLungsTimerWidget->setFixedWidth(50);
+        QLabel* label = new QLabel("Lungs");
+        label->setAlignment(Qt::AlignTop);
+        gridLayout->addWidget(label,2,0,8,3);
+        gridLayout->addWidget(timerWidget,2,1,8,3);
+        if(this->getLungs())
+            mLungsTimerWidget->stop();
+    }
+    if (mSegmentLymphNodes)
+    {
+        QWidget* timerWidget = new QWidget;
+        mLymphNodesTimerWidget = new DisplayTimerWidget(timerWidget);
+        mLymphNodesTimerWidget->setFontSize(3);
+        mLymphNodesTimerWidget->setFixedWidth(50);
+        QLabel* label = new QLabel("Lymph Nodes");
+        label->setAlignment(Qt::AlignTop);
+        gridLayout->addWidget(label,3,0,8,3);
+        gridLayout->addWidget(timerWidget,3,1,8,3);
+        if(this->getLymphNodes())
+            mLymphNodesTimerWidget->stop();
+    }
+    if (mSegmentPulmonarySystem)
+    {
+        QWidget* timerWidget = new QWidget;
+        mPulmonarySystemTimerWidget = new DisplayTimerWidget(timerWidget);
+        mPulmonarySystemTimerWidget->setFontSize(3);
+        mPulmonarySystemTimerWidget->setFixedWidth(50);
+        QLabel* label = new QLabel("Pulmonary System");
+        label->setAlignment(Qt::AlignTop);
+        gridLayout->addWidget(label,4,0,8,3);
+        gridLayout->addWidget(timerWidget,4,1,8,3);
+        if(this->getHeart())
+            mPulmonarySystemTimerWidget->stop();
+    }
+    if (mSegmentMediumOrgans)
+    {
+        QWidget* timerWidget = new QWidget;
+        mMediumOrgansTimerWidget = new DisplayTimerWidget(timerWidget);
+        mMediumOrgansTimerWidget->setFontSize(3);
+        mMediumOrgansTimerWidget->setFixedWidth(50);
+        QLabel* label = new QLabel("Vena Cava, Aorta, Spine");
+        label->setAlignment(Qt::AlignTop);
+        gridLayout->addWidget(label,5,0,8,3);
+        gridLayout->addWidget(timerWidget,5,1,8,3);
+        if(this->getSpine())
+            mMediumOrgansTimerWidget->stop();
+    }
+    if (mSegmentSmallOrgans)
+    {
+        QWidget* timerWidget = new QWidget;
+        mSmallOrgansTimerWidget = new DisplayTimerWidget(timerWidget);
+        mSmallOrgansTimerWidget->setFontSize(3);
+        mSmallOrgansTimerWidget->setFixedWidth(50);
+        QLabel* label = new QLabel("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos");
+        label->setAlignment(Qt::AlignTop);
+        gridLayout->addWidget(label,6,0,8,3);
+        gridLayout->addWidget(timerWidget,6,1,8,3);
+        if(this->getEsophagus())
+            mSmallOrgansTimerWidget->stop();
+    }
+    if (mSegmentNodules)
+    {
+        QWidget* timerWidget = new QWidget;
+        mNodulesTimerWidget = new DisplayTimerWidget(timerWidget);
+        mNodulesTimerWidget->setFontSize(3);
+        mNodulesTimerWidget->setFixedWidth(50);
+        QLabel* label = new QLabel("Lesions");
+        label->setAlignment(Qt::AlignTop);
+        gridLayout->addWidget(label,7,0,8,3);
+        gridLayout->addWidget(timerWidget,7,1,8,3);
+        if(this->getNodules())
+            mNodulesTimerWidget->stop();
+    }
+
+
+    mSegmentationProcessingInfo->setLayout(gridLayout);
+    mSegmentationProcessingInfo->show();
+    mSegmentationProcessingInfo->activateWindow();
 }
 
 void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
@@ -868,7 +993,7 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
     }
 
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	dialog.show();
+    //dialog.show();
 
 #ifndef __APPLE__
 	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
@@ -877,12 +1002,18 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 	airwaysFilter->getOptions();
     if(!vessels && !mAirwaysProcessed)
     {
+        mActiveTimerWidget = mAirwaysTimerWidget;
+        if(mActiveTimerWidget)
+            mActiveTimerWidget->start();
         airwaysFilter->setVesselSegmentation(false);
         airwaysFilter->setAirwaySegmentation(true);
         mAirwaysProcessed = true;
     }
     else if(!mVesselsProcessed && mCheckBoxVessels->isChecked())
     {
+        mActiveTimerWidget = mVesselsTimerWidget;
+        if(mActiveTimerWidget)
+            mActiveTimerWidget->start();
         airwaysFilter->setVesselSegmentation(true);
         airwaysFilter->setAirwaySegmentation(false);
         mVesselsProcessed = true;
@@ -902,7 +1033,7 @@ void ProcessWorkflowState::performMLSegmentation(ImagePtr image)
         return;
 
     VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-    dialog.show();
+    //dialog.show();
 
     GenericScriptFilterPtr scriptFilter = GenericScriptFilterPtr(new GenericScriptFilter(services));
     std::vector <cx::SelectDataStringPropertyBasePtr> input = scriptFilter->getInputTypes();
@@ -911,36 +1042,54 @@ void ProcessWorkflowState::performMLSegmentation(ImagePtr image)
 
     if(mSegmentLungs && !mLungsProcessed && !this->getLungs())
     {
+        mActiveTimerWidget = mLungsTimerWidget;
+        if(mActiveTimerWidget)
+            mActiveTimerWidget->start();
         CX_LOG_DEBUG() << "Segmenting Lungs";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_Lungs.ini");
         mLungsProcessed = true;
     }
     else if(mSegmentLymphNodes && !mLymphNodesProcessed && !this->getLymphNodes())
     {
+        mActiveTimerWidget = mLymphNodesTimerWidget;
+        if(mActiveTimerWidget)
+            mActiveTimerWidget->start();
         CX_LOG_DEBUG() << "Segmenting Lymph nodes";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_LymphNodes.ini");
         mLymphNodesProcessed = true;
     }
     else if(mSegmentPulmonarySystem && !mPulmonarySystemProcessed && !this->getHeart())
     {
+        mActiveTimerWidget = mPulmonarySystemTimerWidget;
+        if(mActiveTimerWidget)
+            mActiveTimerWidget->start();
         CX_LOG_DEBUG() << "Segmenting pulmonary system";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_PulmSystHeart.ini");
         mPulmonarySystemProcessed = true;
     }
     else if(mSegmentMediumOrgans && !mMediumOrgansProcessed && !this->getSpine())
     {
+        mActiveTimerWidget = mMediumOrgansTimerWidget;
+        if(mActiveTimerWidget)
+            mActiveTimerWidget->start();
         CX_LOG_DEBUG() << "Segmenting Vena Cava, Aorta and Spine";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_MediumOrgansMediastinum.ini");
         mMediumOrgansProcessed = true;
     }
     else if(mSegmentSmallOrgans && !mSmallOrgansProcessed && !this->getEsophagus())
     {
+        mActiveTimerWidget = mSmallOrgansTimerWidget;
+        if(mActiveTimerWidget)
+            mActiveTimerWidget->start();
         CX_LOG_DEBUG() << "Segmenting Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_SmallOrgansMediastinum.ini");
         mSmallOrgansProcessed = true;
     }
     else if(mSegmentNodules && !mNodulesProcessed && !this->getEsophagus())
     {
+        mActiveTimerWidget = mNodulesTimerWidget;
+        if(mActiveTimerWidget)
+            mActiveTimerWidget->start();
         CX_LOG_DEBUG() << "Segmenting Lesions";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_Nodules.ini");
         mNodulesProcessed = true;
@@ -948,6 +1097,7 @@ void ProcessWorkflowState::performMLSegmentation(ImagePtr image)
     else
     {
         emit segmentationFinished();
+        mSegmentationProcessingInfo->close();
         return;
     } 
 
@@ -998,7 +1148,9 @@ void ProcessWorkflowState::airwaysFinishedSlot()
 	mTimedAlgorithmProgressBar->detach(mThread);
     disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(airwaysFinishedSlot()));
 	mThread.reset();
-	dialog.hide();
+    //dialog.hide();
+    if(mActiveTimerWidget)
+        mActiveTimerWidget->stop();
 	MeshPtr airways = this->getAirwaysContour();
 	if(airways)
 	{
@@ -1017,11 +1169,14 @@ void ProcessWorkflowState::airwaysFinishedSlot()
         QMessageBox::warning(NULL,"Airway segmentation failed", message);
     }
     if(!mVesselsProcessed && mCheckBoxVessels->isChecked())
+    {
         this->performAirwaysSegmentation(this->getCTImage());
+    }
     else
+    {
         this->performMLSegmentation(this->getCTImage());
+    }
 }
-
 
 void ProcessWorkflowState::MLFinishedSlot()
 {
@@ -1029,7 +1184,9 @@ void ProcessWorkflowState::MLFinishedSlot()
     mTimedAlgorithmProgressBar->detach(mThread);
     disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(MLFinishedSlot()));
     mThread.reset();
-    dialog.hide();
+    //dialog.hide();
+    if(mActiveTimerWidget)
+        mActiveTimerWidget->stop();
 
     this->performMLSegmentation(this->getCTImage());
 }
@@ -1067,7 +1224,6 @@ void ProcessWorkflowState::addDataToView()
     viewGroup1_2D->getGlobal2DZoom()->set(0.2);
     if(ctImage)
         viewGroup1_2D->addData(ctImage->getUid());
-
 }
 
 // --------------------------------------------------------

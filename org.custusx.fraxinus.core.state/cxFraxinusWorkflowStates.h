@@ -167,8 +167,6 @@ class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public Fraxin
 {
 Q_OBJECT
 
-	void performAirwaysSegmentation(ImagePtr image);
-    void performMLSegmentation(ImagePtr image);
 public:
     ProcessWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~ProcessWorkflowState();
@@ -187,12 +185,27 @@ private slots:
     void MLFinishedSlot();
 
 private:
+    void createSelectSegmentationBox();
+    void createProcessingInfo();
+    void performAirwaysSegmentation(ImagePtr image);
+    void performMLSegmentation(ImagePtr image);
     virtual void addDataToView();
+
     FilterPtr mCurrentFilter;
     FilterTimedAlgorithmPtr mThread;
     TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
     QDialog dialog;
     QDialog* mSegmentationSelectionInput;
+    QDialog* mSegmentationProcessingInfo;
+    DisplayTimerWidget* mAirwaysTimerWidget;
+    DisplayTimerWidget* mLungsTimerWidget;
+    DisplayTimerWidget* mLymphNodesTimerWidget;
+    DisplayTimerWidget* mPulmonarySystemTimerWidget;
+    DisplayTimerWidget* mMediumOrgansTimerWidget;
+    DisplayTimerWidget* mSmallOrgansTimerWidget;
+    DisplayTimerWidget* mNodulesTimerWidget;
+    DisplayTimerWidget* mVesselsTimerWidget;
+    DisplayTimerWidget* mActiveTimerWidget;
     QCheckBox* mCheckBoxAirways;
     QCheckBox* mCheckBoxLungs;
     QCheckBox* mCheckBoxLymphNodes;
@@ -209,6 +222,8 @@ private:
     bool mMediumOrgansProcessed = false;
     bool mSmallOrgansProcessed = false;
     bool mNodulesProcessed = false;
+    bool mSegmentAirways;
+    bool mSegmentVessels;
     bool mSegmentLungs;
     bool mSegmentLymphNodes;
     bool mSegmentPulmonarySystem;
