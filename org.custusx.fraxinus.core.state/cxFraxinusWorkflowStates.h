@@ -179,6 +179,7 @@ signals:
 
 private slots:
 	void imageSelected();
+    void cancel();
     void runAirwaysFilterSlot();
     void runMLFilterSlot();
     void airwaysFinishedSlot();

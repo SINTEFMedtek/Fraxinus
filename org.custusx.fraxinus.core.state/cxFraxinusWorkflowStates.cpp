@@ -807,6 +807,9 @@ void ProcessWorkflowState::createSelectSegmentationBox()
     QPushButton* OKbutton = new QPushButton(tr("&OK"));
     connect(OKbutton, SIGNAL(clicked()), this, SLOT(imageSelected()));
 
+    QPushButton* Cancelbutton = new QPushButton(tr("&Cancel"));
+    connect(Cancelbutton, SIGNAL(clicked()), this, SLOT(cancel()));
+
     QVBoxLayout* checkBoxLayout = new QVBoxLayout;
     checkBoxLayout->addWidget(mCheckBoxAirways);
     checkBoxLayout->addWidget(mCheckBoxLungs);
@@ -820,8 +823,8 @@ void ProcessWorkflowState::createSelectSegmentationBox()
     QGridLayout* mainLayout = new QGridLayout;
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
     mainLayout->addLayout(checkBoxLayout, 0, 0);
-    mainLayout->addWidget(OKbutton, 1, 1);
-    mainLayout->setRowStretch(2, 1);
+    mainLayout->addWidget(Cancelbutton, 1, 1);
+    mainLayout->addWidget(OKbutton, 1, 2);
 
     mSegmentationSelectionInput->setLayout(mainLayout);
     mSegmentationSelectionInput->show();
@@ -845,6 +848,11 @@ void ProcessWorkflowState::imageSelected()
     this->performAirwaysSegmentation(image);
 }
 
+void ProcessWorkflowState::cancel()
+{
+    mSegmentationSelectionInput->close();
+}
+
 void ProcessWorkflowState::createProcessingInfo()
 {
     mSegmentationProcessingInfo = new QDialog();
@@ -854,7 +862,6 @@ void ProcessWorkflowState::createProcessingInfo()
     QGridLayout* gridLayout = new QGridLayout;
     gridLayout->setColumnMinimumWidth(0,500);
     gridLayout->setColumnMinimumWidth(1,100);
-    gridLayout->setVerticalSpacing(100);
 
     if (mSegmentAirways)
     {
@@ -864,9 +871,8 @@ void ProcessWorkflowState::createProcessingInfo()
         mAirwaysTimerWidget->setFixedWidth(50);
         mAirwaysTimerWidget->show();
         QLabel* label = new QLabel("Airways");
-        label->setAlignment(Qt::AlignTop);
-        gridLayout->addWidget(label,0,0,8,2);
-        gridLayout->addWidget(timerWidget,0,1,8,2);
+        gridLayout->addWidget(label,0,0,Qt::AlignRight);
+        gridLayout->addWidget(timerWidget,0,1);
         if(this->getCenterline())
             mAirwaysTimerWidget->stop();
     }
@@ -877,9 +883,8 @@ void ProcessWorkflowState::createProcessingInfo()
         mVesselsTimerWidget->setFontSize(3);
         mVesselsTimerWidget->setFixedWidth(50);
         QLabel* label = new QLabel("Small Vessels");
-        label->setAlignment(Qt::AlignTop);
-        gridLayout->addWidget(label,1,0,8,2);
-        gridLayout->addWidget(timerWidget,1,1,8,2);
+        gridLayout->addWidget(label,1,0,Qt::AlignRight);
+        gridLayout->addWidget(timerWidget,1,1);
         if(this->getVessels())
             mVesselsTimerWidget->stop();
     }
@@ -890,9 +895,8 @@ void ProcessWorkflowState::createProcessingInfo()
         mLungsTimerWidget->setFontSize(3);
         mLungsTimerWidget->setFixedWidth(50);
         QLabel* label = new QLabel("Lungs");
-        label->setAlignment(Qt::AlignTop);
-        gridLayout->addWidget(label,2,0,8,3);
-        gridLayout->addWidget(timerWidget,2,1,8,3);
+        gridLayout->addWidget(label,2,0,Qt::AlignRight);
+        gridLayout->addWidget(timerWidget,2,1);
         if(this->getLungs())
             mLungsTimerWidget->stop();
     }
@@ -903,9 +907,8 @@ void ProcessWorkflowState::createProcessingInfo()
         mLymphNodesTimerWidget->setFontSize(3);
         mLymphNodesTimerWidget->setFixedWidth(50);
         QLabel* label = new QLabel("Lymph Nodes");
-        label->setAlignment(Qt::AlignTop);
-        gridLayout->addWidget(label,3,0,8,3);
-        gridLayout->addWidget(timerWidget,3,1,8,3);
+        gridLayout->addWidget(label,3,0,Qt::AlignRight);
+        gridLayout->addWidget(timerWidget,3,1);
         if(this->getLymphNodes())
             mLymphNodesTimerWidget->stop();
     }
@@ -916,9 +919,8 @@ void ProcessWorkflowState::createProcessingInfo()
         mPulmonarySystemTimerWidget->setFontSize(3);
         mPulmonarySystemTimerWidget->setFixedWidth(50);
         QLabel* label = new QLabel("Pulmonary System");
-        label->setAlignment(Qt::AlignTop);
-        gridLayout->addWidget(label,4,0,8,3);
-        gridLayout->addWidget(timerWidget,4,1,8,3);
+        gridLayout->addWidget(label,4,0,Qt::AlignRight);
+        gridLayout->addWidget(timerWidget,4,1);
         if(this->getHeart())
             mPulmonarySystemTimerWidget->stop();
     }
@@ -929,9 +931,8 @@ void ProcessWorkflowState::createProcessingInfo()
         mMediumOrgansTimerWidget->setFontSize(3);
         mMediumOrgansTimerWidget->setFixedWidth(50);
         QLabel* label = new QLabel("Vena Cava, Aorta, Spine");
-        label->setAlignment(Qt::AlignTop);
-        gridLayout->addWidget(label,5,0,8,3);
-        gridLayout->addWidget(timerWidget,5,1,8,3);
+        gridLayout->addWidget(label,5,0,Qt::AlignRight);
+        gridLayout->addWidget(timerWidget,5,1);
         if(this->getSpine())
             mMediumOrgansTimerWidget->stop();
     }
@@ -942,9 +943,8 @@ void ProcessWorkflowState::createProcessingInfo()
         mSmallOrgansTimerWidget->setFontSize(3);
         mSmallOrgansTimerWidget->setFixedWidth(50);
         QLabel* label = new QLabel("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos");
-        label->setAlignment(Qt::AlignTop);
-        gridLayout->addWidget(label,6,0,8,3);
-        gridLayout->addWidget(timerWidget,6,1,8,3);
+        gridLayout->addWidget(label,6,0,Qt::AlignRight);
+        gridLayout->addWidget(timerWidget,6,1);
         if(this->getEsophagus())
             mSmallOrgansTimerWidget->stop();
     }
@@ -955,8 +955,7 @@ void ProcessWorkflowState::createProcessingInfo()
         mNodulesTimerWidget->setFontSize(3);
         mNodulesTimerWidget->setFixedWidth(50);
         QLabel* label = new QLabel("Lesions");
-        label->setAlignment(Qt::AlignTop);
-        gridLayout->addWidget(label,7,0,8,3);
+        gridLayout->addWidget(label,7,0,Qt::AlignRight);
         gridLayout->addWidget(timerWidget,7,1,8,3);
         if(this->getNodules())
             mNodulesTimerWidget->stop();
