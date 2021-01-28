@@ -574,28 +574,30 @@ void FraxinusWorkflowState::setupViewOptionsINVBWidget(int flyThrough3DViewGroup
         esophagusObjects.push_back(esophagus);
 
     FraxinusVBWidget* widget = this->getVBWidget();
+    StructuresSelectionWidget* structuresSelectionWidget = widget->getStructuresSelectionWidget();
     foreach(DataPtr object, tubeViewObjects)
         widget->addObjectToTubeView(object);
     foreach(DataPtr object, volumeViewObjects)
 		widget->addObjectToVolumeView(object);
     foreach(DataPtr object, lungObjects)
-        widget->addLungObject(object);
+        structuresSelectionWidget->addLungObject(object);
     foreach(DataPtr object, lesionObjects)
-        widget->addLesionObject(object);
+        structuresSelectionWidget->addLesionObject(object);
     foreach(DataPtr object, lymphNodeObjects)
-        widget->addLymphNodeObject(object);
+        structuresSelectionWidget->addLymphNodeObject(object);
     foreach(DataPtr object, spineObjects)
-        widget->addSpineObject(object);
+        structuresSelectionWidget->addSpineObject(object);
     foreach(DataPtr object, smallVesselsObjects)
-        widget->addSmallVesselObject(object);
+        structuresSelectionWidget->addSmallVesselObject(object);
     foreach(DataPtr object, largeVesselsObjects)
-        widget->addLargeVesselObject(object);
+        structuresSelectionWidget->addLargeVesselObject(object);
     foreach(DataPtr object, heartObjects)
-        widget->addHeartObject(object);
+        structuresSelectionWidget->addHeartObject(object);
     foreach(DataPtr object, esophagusObjects)
-        widget->addEsophagusObject(object);
+        structuresSelectionWidget->addEsophagusObject(object);
 
 	widget->setViewGroupNumber(flyThrough3DViewGroupNumber);
+    structuresSelectionWidget->setViewGroupNumber(flyThrough3DViewGroupNumber);
 }
 
 

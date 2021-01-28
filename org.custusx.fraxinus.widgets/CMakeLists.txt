@@ -18,6 +18,7 @@ set(PLUGIN_SRCS
     cxPinpointWidget.cpp
     cxNewLoadPatientWidget.cpp
     cxFraxinusVBWidget.cpp
+    cxStructuresSelectionWidget.cpp
 )
 
 # Make sure OpenCL kernel files are copied to the installer
@@ -45,6 +46,7 @@ set(PLUGIN_MOC_SRCS
     cxPinpointWidget.h
     cxNewLoadPatientWidget.h
     cxFraxinusVBWidget.h
+    cxStructuresSelectionWidget.h
 )
 
 # Qt Designer files which should be processed by Qts uic

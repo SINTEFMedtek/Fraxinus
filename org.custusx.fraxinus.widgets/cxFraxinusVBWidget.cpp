@@ -48,6 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxPointMetric.h"
 #include "cxDistanceMetric.h"
 #include "cxVBcameraPath.h"
+#include "cxStructuresSelectionWidget.h"
 
 namespace cx {
 
@@ -95,68 +96,14 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     routeBox->setLayout(routeVLayout);
     mVerticalLayout->insertWidget(mVerticalLayout->count()-1, routeBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
 
+    mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this);
     QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
-    QVBoxLayout* structuresLayout = new QVBoxLayout;
-
-    mViewLungsButton = new QPushButton("Lungs");
-    mViewLungsButtonBackgroundColor = mViewLungsButton->palette();
-    mViewLungsButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
-    mViewLungsButton->setPalette(mViewLungsButtonBackgroundColor);
-    structuresLayout->addWidget(mViewLungsButton);
-    mViewLungsButton->setEnabled(false);
-
-    mViewLesionsButton = new QPushButton("Lesions");
-    mViewLesionsButtonBackgroundColor = mViewLesionsButton->palette();
-    mViewLesionsButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
-    mViewLesionsButton->setPalette(mViewLesionsButtonBackgroundColor);
-    structuresLayout->addWidget(mViewLesionsButton);
-    mViewLesionsButton->setEnabled(false);
-
-    mViewLymphNodesButton = new QPushButton("Lymph Nodes");
-    mViewLymphNodesButtonBackgroundColor = mViewLymphNodesButton->palette();
-    mViewLymphNodesButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
-    mViewLymphNodesButton->setPalette(mViewLymphNodesButtonBackgroundColor);
-    structuresLayout->addWidget(mViewLymphNodesButton);
-    mViewLymphNodesButton->setEnabled(false);
-
-    mViewSpineButton = new QPushButton("Spine");
-    mViewSpineButtonBackgroundColor = mViewSpineButton->palette();
-    mViewSpineButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
-    mViewSpineButton->setPalette(mViewSpineButtonBackgroundColor);
-    structuresLayout->addWidget(mViewSpineButton);
-    mViewSpineButton->setEnabled(false);
-
-    mViewLargeVesselsButton = new QPushButton("Large Vessels");
-    mViewLargeVesselsButtonBackgroundColor = mViewLargeVesselsButton->palette();
-    mViewLargeVesselsButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
-    mViewLargeVesselsButton->setPalette(mViewLargeVesselsButtonBackgroundColor);
-    structuresLayout->addWidget(mViewLargeVesselsButton);
-    mViewLargeVesselsButton->setEnabled(false);
-
-    mViewSmallVesselsButton = new QPushButton("Small Vessels");
-    mViewSmallVesselsButtonBackgroundColor = mViewSmallVesselsButton->palette();
-    mViewSmallVesselsButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
-    mViewSmallVesselsButton->setPalette(mViewSmallVesselsButtonBackgroundColor);
-    structuresLayout->addWidget(mViewSmallVesselsButton);
-    mViewSmallVesselsButton->setEnabled(false);
-
-    mViewHeartButton = new QPushButton("Heart");
-    mViewHeartButtonBackgroundColor = mViewHeartButton->palette();
-    mViewHeartButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
-    mViewHeartButton->setPalette(mViewHeartButtonBackgroundColor);
-    structuresLayout->addWidget(mViewHeartButton);
-    mViewHeartButton->setEnabled(false);
-
-    mViewEsophagusButton = new QPushButton("Esophagus");
-    mViewEsophagusButtonBackgroundColor = mViewEsophagusButton->palette();
-    mViewEsophagusButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
-    mViewEsophagusButton->setPalette(mViewEsophagusButtonBackgroundColor);
-    structuresLayout->addWidget(mViewEsophagusButton);
-    mViewEsophagusButton->setEnabled(false);
-
+    QVBoxLayout* structuresLayout = new QVBoxLayout();
+    structuresLayout->addWidget(mStructuresSelectionWidget);
     structuresBox->setLayout(structuresLayout);
     mVerticalLayout->insertWidget(mVerticalLayout->count()-1, structuresBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
     mVerticalLayout->addStretch(); //And add some more stretch
+
 
     connect(mTubeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayTubes);
     connect(mVolumeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayVolume);
@@ -164,16 +111,6 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     connect(mPlaybackSlider, &QSlider::valueChanged, this, &FraxinusVBWidget::playbackSliderChanged);
     connect(mRouteToTarget.get(), &SelectDataStringPropertyBase::dataChanged,
 						this, &FraxinusVBWidget::calculateRouteLength);
-
-    connect(mViewLungsButton, &QPushButton::clicked, this, &FraxinusVBWidget::viewLungsSlot);
-    connect(mViewLesionsButton, &QPushButton::clicked, this, &FraxinusVBWidget::viewLesionsSlot);
-    connect(mViewLymphNodesButton, &QPushButton::clicked, this, &FraxinusVBWidget::viewLymphNodesSlot);
-    connect(mViewSpineButton, &QPushButton::clicked, this, &FraxinusVBWidget::viewSpineSlot);
-    connect(mViewSmallVesselsButton, &QPushButton::clicked, this, &FraxinusVBWidget::viewSmallVesselsSlot);
-    connect(mViewLargeVesselsButton, &QPushButton::clicked, this, &FraxinusVBWidget::viewLargeVesselsSlot);
-    connect(mViewHeartButton, &QPushButton::clicked, this, &FraxinusVBWidget::viewHeartSlot);
-    connect(mViewEsophagusButton, &QPushButton::clicked, this, &FraxinusVBWidget::viewEsophagusSlot);
-
 }
 
 FraxinusVBWidget::~FraxinusVBWidget()
@@ -370,214 +307,10 @@ void FraxinusVBWidget::addObjectToTubeView(DataPtr object)
     mTubeViewObjects.push_back(object);
 }
 
-void FraxinusVBWidget::addLungObject(DataPtr object)
+StructuresSelectionWidget* FraxinusVBWidget::getStructuresSelectionWidget()
 {
-    mViewLungsButton->setEnabled(true);
-    mLungsObjects.push_back(object);
-    mViewLungsButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-    mViewLungsButton->setPalette(mViewLungsButtonBackgroundColor);
+    return mStructuresSelectionWidget;
 }
-
-void FraxinusVBWidget::addLesionObject(DataPtr object)
-{
-    mViewLesionsButton->setEnabled(true);
-    mLesionsObjects.push_back(object);
-    mViewLesionsButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-    mViewLesionsButton->setPalette(mViewLesionsButtonBackgroundColor);
-}
-
-void FraxinusVBWidget::addLymphNodeObject(DataPtr object)
-{
-    mViewLymphNodesButton->setEnabled(true);
-    mLymphNodesObjects.push_back(object);
-    mViewLymphNodesButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-    mViewLymphNodesButton->setPalette(mViewLymphNodesButtonBackgroundColor);
-}
-
-void FraxinusVBWidget::addSpineObject(DataPtr object)
-{
-    mViewSpineButton->setEnabled(true);
-    mSpineObjects.push_back(object);
-    mViewSpineButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-    mViewSpineButton->setPalette(mViewSpineButtonBackgroundColor);
-}
-
-void FraxinusVBWidget::addSmallVesselObject(DataPtr object)
-{
-    mViewSmallVesselsButton->setEnabled(true);
-    mSmallVesselsObjects.push_back(object);
-    mViewSmallVesselsButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-    mViewSmallVesselsButton->setPalette(mViewSmallVesselsButtonBackgroundColor);
-}
-
-void FraxinusVBWidget::addLargeVesselObject(DataPtr object)
-{
-    mViewLargeVesselsButton->setEnabled(true);
-    mLargeVesselsObjects.push_back(object);
-    mViewLargeVesselsButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-    mViewLargeVesselsButton->setPalette(mViewLargeVesselsButtonBackgroundColor);
-}
-
-void FraxinusVBWidget::addHeartObject(DataPtr object)
-{
-    mViewHeartButton->setEnabled(true);
-    mHeartObjects.push_back(object);
-    mViewHeartButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-    mViewHeartButton->setPalette(mViewHeartButtonBackgroundColor);
-}
-
-void FraxinusVBWidget::addEsophagusObject(DataPtr object)
-{
-    mViewEsophagusButton->setEnabled(true);
-    mEsophagusObjects.push_back(object);
-    mViewEsophagusButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-    mViewEsophagusButton->setPalette(mViewEsophagusButtonBackgroundColor);
-}
-
-void FraxinusVBWidget::viewLungsSlot()
-{
-    mViewLungsEnabled = !mViewLungsEnabled;
-
-    if(mViewLungsEnabled)
-    {
-        this->displayDataObjects(mLungsObjects);
-        mViewLungsButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
-        mViewLungsButton->setPalette(mViewLungsButtonBackgroundColor);
-    }
-    else
-    {
-        this->hideDataObjects(mLungsObjects);
-        mViewLungsButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-        mViewLungsButton->setPalette(mViewLungsButtonBackgroundColor);
-    }
-}
-
-void FraxinusVBWidget::viewLesionsSlot()
-{
-    mViewLesionsEnabled = !mViewLesionsEnabled;
-
-    if(mViewLesionsEnabled)
-    {
-        this->displayDataObjects(mLesionsObjects);
-        mViewLesionsButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
-        mViewLesionsButton->setPalette(mViewLesionsButtonBackgroundColor);
-    }
-    else
-    {
-        this->hideDataObjects(mLesionsObjects);
-        mViewLesionsButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-        mViewLesionsButton->setPalette(mViewLesionsButtonBackgroundColor);
-    }
-}
-
-void FraxinusVBWidget::viewLymphNodesSlot()
-{
-    mViewLymphNodesEnabled = !mViewLymphNodesEnabled;
-
-    if(mViewLymphNodesEnabled)
-    {
-        this->displayDataObjects(mLymphNodesObjects);
-        mViewLymphNodesButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
-        mViewLymphNodesButton->setPalette(mViewLymphNodesButtonBackgroundColor);
-    }
-    else
-    {
-        this->hideDataObjects(mLymphNodesObjects);
-        mViewLymphNodesButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-        mViewLymphNodesButton->setPalette(mViewLymphNodesButtonBackgroundColor);
-    }
-}
-
-void FraxinusVBWidget::viewSpineSlot()
-{
-    mViewSpineEnabled = !mViewSpineEnabled;
-
-    if(mViewSpineEnabled)
-    {
-        this->displayDataObjects(mSpineObjects);
-        mViewSpineButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
-        mViewSpineButton->setPalette(mViewSpineButtonBackgroundColor);
-    }
-    else
-    {
-        this->hideDataObjects(mSpineObjects);
-        mViewSpineButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-        mViewSpineButton->setPalette(mViewSpineButtonBackgroundColor);
-    }
-}
-
-void FraxinusVBWidget::viewSmallVesselsSlot()
-{
-    mViewSmallVesselsEnabled = !mViewSmallVesselsEnabled;
-
-    if(mViewSmallVesselsEnabled)
-    {
-        this->displayDataObjects(mSmallVesselsObjects);
-        mViewSmallVesselsButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
-        mViewSmallVesselsButton->setPalette(mViewSmallVesselsButtonBackgroundColor);
-    }
-    else
-    {
-        this->hideDataObjects(mSmallVesselsObjects);
-        mViewSmallVesselsButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-        mViewSmallVesselsButton->setPalette(mViewSmallVesselsButtonBackgroundColor);
-    }
-}
-
-void FraxinusVBWidget::viewLargeVesselsSlot()
-{
-    mViewLargeVesselsEnabled = !mViewLargeVesselsEnabled;
-
-    if(mViewLargeVesselsEnabled)
-    {
-        this->displayDataObjects(mLargeVesselsObjects);
-        mViewLargeVesselsButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
-        mViewLargeVesselsButton->setPalette(mViewLargeVesselsButtonBackgroundColor);
-    }
-    else
-    {
-        this->hideDataObjects(mLargeVesselsObjects);
-        mViewLargeVesselsButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-        mViewLargeVesselsButton->setPalette(mViewLargeVesselsButtonBackgroundColor);
-    }
-}
-
-void FraxinusVBWidget::viewHeartSlot()
-{
-    mViewHeartEnabled = !mViewHeartEnabled;
-
-    if(mViewHeartEnabled)
-    {
-        this->displayDataObjects(mHeartObjects);
-        mViewHeartButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
-        mViewHeartButton->setPalette(mViewHeartButtonBackgroundColor);
-    }
-    else
-    {
-        this->hideDataObjects(mHeartObjects);
-        mViewHeartButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-        mViewHeartButton->setPalette(mViewHeartButtonBackgroundColor);
-    }
-}
-
-void FraxinusVBWidget::viewEsophagusSlot()
-{
-    mViewEsophagusEnabled = !mViewEsophagusEnabled;
-
-    if(mViewEsophagusEnabled)
-    {
-        this->displayDataObjects(mEsophagusObjects);
-        mViewEsophagusButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
-        mViewEsophagusButton->setPalette(mViewEsophagusButtonBackgroundColor);
-    }
-    else
-    {
-        this->hideDataObjects(mEsophagusObjects);
-        mViewEsophagusButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-        mViewEsophagusButton->setPalette(mViewEsophagusButtonBackgroundColor);
-    }
-}
-
 
 
 } //namespace cx
