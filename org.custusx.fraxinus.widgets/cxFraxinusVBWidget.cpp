@@ -39,6 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QLabel>
 #include <QTimer>
 #include <QPushButton>
+#include <QApplication>
+#include <QMainWindow>
 #include "cxVisServices.h"
 #include "cxViewService.h"
 #include "cxViewGroupData.h"
@@ -97,6 +99,7 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     mVerticalLayout->insertWidget(mVerticalLayout->count()-1, routeBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
 
     mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this);
+    //mStructuresSelectionWidget = this->getStructturesSelectionWidget();
     QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
     QVBoxLayout* structuresLayout = new QVBoxLayout();
     structuresLayout->addWidget(mStructuresSelectionWidget);
@@ -307,7 +310,7 @@ void FraxinusVBWidget::addObjectToTubeView(DataPtr object)
     mTubeViewObjects.push_back(object);
 }
 
-StructuresSelectionWidget* FraxinusVBWidget::getStructuresSelectionWidget()
+StructuresSelectionWidget* FraxinusVBWidget::getStructturesSelectionWidget()
 {
     return mStructuresSelectionWidget;
 }

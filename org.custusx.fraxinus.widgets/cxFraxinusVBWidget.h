@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class QRadioButton;
 class QLabel;
 class QPushButton;
+class QMainWindow;
 
 namespace cx {
 
@@ -55,7 +56,7 @@ public:
     void setViewGroupNumber(unsigned int viewGroupNumber);
     void addObjectToVolumeView(DataPtr object);
     void addObjectToTubeView(DataPtr object);
-    StructuresSelectionWidget* getStructuresSelectionWidget();
+    StructuresSelectionWidget *getStructturesSelectionWidget();
 
 
 private slots:

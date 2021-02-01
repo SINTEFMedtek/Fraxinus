@@ -18,6 +18,7 @@ set(PLUGIN_SRCS
     cxPinpointWidget.cpp
     cxNewLoadPatientWidget.cpp
     cxFraxinusVBWidget.cpp
+    cxProcedurePlanningWidget.cpp
     cxStructuresSelectionWidget.cpp
 )
 
@@ -46,6 +47,7 @@ set(PLUGIN_MOC_SRCS
     cxPinpointWidget.h
     cxNewLoadPatientWidget.h
     cxFraxinusVBWidget.h
+    cxProcedurePlanningWidget.h
     cxStructuresSelectionWidget.h
 )
 

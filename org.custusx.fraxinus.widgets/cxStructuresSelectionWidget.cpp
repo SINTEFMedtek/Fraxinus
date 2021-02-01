@@ -31,23 +31,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxStructuresSelectionWidget.h"
-#include <QButtonGroup>
 #include <QGroupBox>
-#include <QKeyEvent>
-#include <QRadioButton>
 #include <QVBoxLayout>
-#include <QLabel>
-#include <QTimer>
 #include <QPushButton>
 #include "cxVisServices.h"
 #include "cxViewService.h"
 #include "cxViewGroupData.h"
 #include "cxLogger.h"
-#include "cxRouteToTarget.h"
-#include "cxPinpointWidget.h"
-#include "cxPointMetric.h"
-#include "cxDistanceMetric.h"
-#include "cxVBcameraPath.h"
 
 namespace cx {
 
@@ -56,7 +46,6 @@ StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QW
         mServices(services)
 {
 
-    QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
     QVBoxLayout* structuresLayout = new QVBoxLayout;
 
     mViewLungsButton = new QPushButton("Lungs");
@@ -115,6 +104,7 @@ StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QW
     structuresLayout->addWidget(mViewEsophagusButton);
     mViewEsophagusButton->setEnabled(false);
 
+    //structuresLayout->addStretch();
     this->setLayout(structuresLayout);
 //    structuresBox->setLayout(structuresLayout);
 //    mVerticalLayout->insertWidget(mVerticalLayout->count()-1, structuresBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.

@@ -72,6 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusVBWidget.h"
 #include "cxGenericScriptFilter.h"
 #include "cxDisplayTimerWidget.h"
+#include "cxProcedurePlanningWidget.h"
 
 #ifndef __APPLE__
 #include "cxAirwaysFilterService.h"
@@ -454,6 +455,22 @@ FraxinusVBWidget* FraxinusWorkflowState::getVBWidget()
 	return mainWindow->findChild<FraxinusVBWidget*>(widgetName);
 }
 
+StructuresSelectionWidget* FraxinusWorkflowState::getStructturesSelectionWidget()
+{
+    QMainWindow* mainWindow = this->getMainWindow();
+
+    QString widgetName(StructuresSelectionWidget::getWidgetName());
+    return mainWindow->findChild<StructuresSelectionWidget*>(widgetName);
+}
+
+ProcedurePlanningWidget* FraxinusWorkflowState::getProcedurePlanningWidget()
+{
+    QMainWindow* mainWindow = this->getMainWindow();
+
+    QString widgetName(ProcedurePlanningWidget::getWidgetName());
+    return mainWindow->findChild<ProcedurePlanningWidget*>(widgetName);
+}
+
 PinpointWidget* FraxinusWorkflowState::getPinpointWidget()
 {
 	QMainWindow* mainWindow = this->getMainWindow();
@@ -511,6 +528,24 @@ void FraxinusWorkflowState::setupViewOptionsINVBWidget(int flyThrough3DViewGroup
     std::vector<DataPtr> tubeViewObjects;
     MeshPtr tubes = this->getAirwaysTubes();
     tubeViewObjects.push_back(tubes);
+
+    FraxinusVBWidget* widget = this->getVBWidget();
+    foreach(DataPtr object, tubeViewObjects)
+        widget->addObjectToTubeView(object);
+    foreach(DataPtr object, volumeViewObjects)
+		widget->addObjectToVolumeView(object);
+
+    FraxinusVBWidget* VBWidget = this->getVBWidget();
+    if (VBWidget)
+        this->setupViewOptionsForStructuresSelection(VBWidget->getStructturesSelectionWidget(), flyThrough3DViewGroupNumber);
+
+	widget->setViewGroupNumber(flyThrough3DViewGroupNumber);
+
+}
+
+void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSelectionWidget* widget, int viewGroupNumber)
+{
+    //StructuresSelectionWidget* widget = this->getStructturesSelectionWidget();
 
     std::vector<DataPtr> lungObjects;
     MeshPtr lungs = this->getLungs();
@@ -573,31 +608,25 @@ void FraxinusWorkflowState::setupViewOptionsINVBWidget(int flyThrough3DViewGroup
     if(esophagus)
         esophagusObjects.push_back(esophagus);
 
-    FraxinusVBWidget* widget = this->getVBWidget();
-    StructuresSelectionWidget* structuresSelectionWidget = widget->getStructuresSelectionWidget();
-    foreach(DataPtr object, tubeViewObjects)
-        widget->addObjectToTubeView(object);
-    foreach(DataPtr object, volumeViewObjects)
-		widget->addObjectToVolumeView(object);
+    CX_LOG_DEBUG() << "Adding lung object - lungObjects.size(): " << lungObjects.size();
     foreach(DataPtr object, lungObjects)
-        structuresSelectionWidget->addLungObject(object);
+        widget->addLungObject(object);
     foreach(DataPtr object, lesionObjects)
-        structuresSelectionWidget->addLesionObject(object);
+        widget->addLesionObject(object);
     foreach(DataPtr object, lymphNodeObjects)
-        structuresSelectionWidget->addLymphNodeObject(object);
+        widget->addLymphNodeObject(object);
     foreach(DataPtr object, spineObjects)
-        structuresSelectionWidget->addSpineObject(object);
+        widget->addSpineObject(object);
     foreach(DataPtr object, smallVesselsObjects)
-        structuresSelectionWidget->addSmallVesselObject(object);
+        widget->addSmallVesselObject(object);
     foreach(DataPtr object, largeVesselsObjects)
-        structuresSelectionWidget->addLargeVesselObject(object);
+        widget->addLargeVesselObject(object);
     foreach(DataPtr object, heartObjects)
-        structuresSelectionWidget->addHeartObject(object);
+        widget->addHeartObject(object);
     foreach(DataPtr object, esophagusObjects)
-        structuresSelectionWidget->addEsophagusObject(object);
+        widget->addEsophagusObject(object);
 
-	widget->setViewGroupNumber(flyThrough3DViewGroupNumber);
-    structuresSelectionWidget->setViewGroupNumber(flyThrough3DViewGroupNumber);
+    widget->setViewGroupNumber(viewGroupNumber);
 }
 
 
@@ -612,6 +641,13 @@ void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber)
 	this->getVBWidget()->grabKeyboard(); //NB! This make this widget take all keyboard input. E.g. "R" doesn't work in this workflow step.
 	//Actually, "R" seems to be a special case since it is from VTK. Other key input might work, but maybe not if the menu bar is off.
 	//this->getVBWidget()->setFocus(); // Can't seem to get any affect from this regarding key input.
+}
+
+void FraxinusWorkflowState::setupProcedurePlanningWidget(int viewGroupNumber)
+{
+    ProcedurePlanningWidget* procedurePlanningWidget = this->getProcedurePlanningWidget();
+    if (procedurePlanningWidget)
+        this->setupViewOptionsForStructuresSelection(procedurePlanningWidget->getStructuresSelectionWidget(), viewGroupNumber);
 }
 
 void FraxinusWorkflowState::createRouteToTarget()
@@ -872,7 +908,7 @@ void ProcessWorkflowState::createProcessingInfo()
         mAirwaysTimerWidget->setFontSize(3);
         mAirwaysTimerWidget->setFixedWidth(50);
         mAirwaysTimerWidget->show();
-        QLabel* label = new QLabel("Airways");
+        QLabel* label = new QLabel("Airways:");
         gridLayout->addWidget(label,0,0,Qt::AlignRight);
         gridLayout->addWidget(timerWidget,0,1);
         if(this->getCenterline())
@@ -884,7 +920,7 @@ void ProcessWorkflowState::createProcessingInfo()
         mVesselsTimerWidget = new DisplayTimerWidget(timerWidget);
         mVesselsTimerWidget->setFontSize(3);
         mVesselsTimerWidget->setFixedWidth(50);
-        QLabel* label = new QLabel("Small Vessels");
+        QLabel* label = new QLabel("Small Vessels:");
         gridLayout->addWidget(label,1,0,Qt::AlignRight);
         gridLayout->addWidget(timerWidget,1,1);
         if(this->getVessels())
@@ -896,7 +932,7 @@ void ProcessWorkflowState::createProcessingInfo()
         mLungsTimerWidget = new DisplayTimerWidget(timerWidget);
         mLungsTimerWidget->setFontSize(3);
         mLungsTimerWidget->setFixedWidth(50);
-        QLabel* label = new QLabel("Lungs");
+        QLabel* label = new QLabel("Lungs:");
         gridLayout->addWidget(label,2,0,Qt::AlignRight);
         gridLayout->addWidget(timerWidget,2,1);
         if(this->getLungs())
@@ -908,7 +944,7 @@ void ProcessWorkflowState::createProcessingInfo()
         mLymphNodesTimerWidget = new DisplayTimerWidget(timerWidget);
         mLymphNodesTimerWidget->setFontSize(3);
         mLymphNodesTimerWidget->setFixedWidth(50);
-        QLabel* label = new QLabel("Lymph Nodes");
+        QLabel* label = new QLabel("Lymph Nodes:");
         gridLayout->addWidget(label,3,0,Qt::AlignRight);
         gridLayout->addWidget(timerWidget,3,1);
         if(this->getLymphNodes())
@@ -920,7 +956,7 @@ void ProcessWorkflowState::createProcessingInfo()
         mPulmonarySystemTimerWidget = new DisplayTimerWidget(timerWidget);
         mPulmonarySystemTimerWidget->setFontSize(3);
         mPulmonarySystemTimerWidget->setFixedWidth(50);
-        QLabel* label = new QLabel("Pulmonary System");
+        QLabel* label = new QLabel("Pulmonary System:");
         gridLayout->addWidget(label,4,0,Qt::AlignRight);
         gridLayout->addWidget(timerWidget,4,1);
         if(this->getHeart())
@@ -932,7 +968,7 @@ void ProcessWorkflowState::createProcessingInfo()
         mMediumOrgansTimerWidget = new DisplayTimerWidget(timerWidget);
         mMediumOrgansTimerWidget->setFontSize(3);
         mMediumOrgansTimerWidget->setFixedWidth(50);
-        QLabel* label = new QLabel("Vena Cava, Aorta, Spine");
+        QLabel* label = new QLabel("Vena Cava, Aorta, Spine:");
         gridLayout->addWidget(label,5,0,Qt::AlignRight);
         gridLayout->addWidget(timerWidget,5,1);
         if(this->getSpine())
@@ -944,7 +980,7 @@ void ProcessWorkflowState::createProcessingInfo()
         mSmallOrgansTimerWidget = new DisplayTimerWidget(timerWidget);
         mSmallOrgansTimerWidget->setFontSize(3);
         mSmallOrgansTimerWidget->setFixedWidth(50);
-        QLabel* label = new QLabel("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos");
+        QLabel* label = new QLabel("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos:");
         gridLayout->addWidget(label,6,0,Qt::AlignRight);
         gridLayout->addWidget(timerWidget,6,1);
         if(this->getEsophagus())
@@ -956,7 +992,7 @@ void ProcessWorkflowState::createProcessingInfo()
         mNodulesTimerWidget = new DisplayTimerWidget(timerWidget);
         mNodulesTimerWidget->setFontSize(3);
         mNodulesTimerWidget->setFixedWidth(50);
-        QLabel* label = new QLabel("Lesions");
+        QLabel* label = new QLabel("Lesions:");
         gridLayout->addWidget(label,7,0,Qt::AlignRight);
         gridLayout->addWidget(timerWidget,7,1,8,3);
         if(this->getNodules())
@@ -1188,6 +1224,8 @@ void ProcessWorkflowState::MLFinishedSlot()
     //dialog.hide();
     if(mActiveTimerWidget)
         mActiveTimerWidget->stop();
+
+    //TO DO: Check that the segmentation succeesed by looking for mesh.
 
     this->performMLSegmentation(this->getCTImage());
 }
@@ -1536,6 +1574,69 @@ bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
 	MeshPtr centerline = this->getCenterline();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	return targetPoint && centerline && routeToTarget;
+}
+
+// --------------------------------------------------------
+// --------------------------------------------------------
+
+ProcedurePlanningWorkflowState::ProcedurePlanningWorkflowState(QState* parent, CoreServicesPtr services) :
+    FraxinusWorkflowState(parent, "ProcedurePlanningUid", "Procedure Plannig", services, true)
+  , m3DViewGroupNumber(0)
+  , m2DViewGroupNumber(1)
+{
+
+}
+
+ProcedurePlanningWorkflowState::~ProcedurePlanningWorkflowState()
+{}
+
+QIcon ProcedurePlanningWorkflowState::getIcon() const
+{
+    return QIcon(":/icons/icons/airwaysegmentation.svg");// TO DO: change icon
+}
+
+void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
+{
+    FraxinusWorkflowState::onEntry(event);
+    this->addDataToView();
+    this->setupProcedurePlanningWidget(m3DViewGroupNumber);
+//    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+//    if(services)
+//        services->view()->zoomCamera3D(m3DViewGroupNumber, 1);
+
+    QTimer::singleShot(0, this, SLOT(setDefaultCameraStyle()));
+}
+
+void ProcedurePlanningWorkflowState::onExit(QEvent * event)
+{
+    WorkflowState::onExit(event);
+}
+
+void ProcedurePlanningWorkflowState::addDataToView()
+{
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+
+    ImagePtr ctImage = this->getCTImage();
+    MeshPtr airwaysTubes = this->getAirwaysTubes();
+    PointMetricPtr targetPoint = this->getTargetPoint();
+
+    ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);
+    this->setTransferfunction3D("Default", ctImage);
+    if(targetPoint)
+        viewGroup0_3D->addData(targetPoint->getUid());
+    if(airwaysTubes)
+        viewGroup0_3D->addData(airwaysTubes->getUid());
+
+    ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(m2DViewGroupNumber);
+    viewGroup1_2D->getGroup2DZoom()->set(0.4);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.4);
+    if(ctImage)
+        viewGroup1_2D->addData(ctImage->getUid());
+}
+
+bool ProcedurePlanningWorkflowState::canEnter() const
+{
+    return mServices->patient()->isPatientValid();;
 }
 
 } //namespace cx

@@ -52,6 +52,7 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	mPinpointWorkflowState = this->newState(new PinpointWorkflowState(mParentState, services));
 	mVirtualBronchoscopyFlyThroughWorkflowState = this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
 	mVirtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
+    mProcedurePlanningWorkflowState = this->newState(new ProcedurePlanningWorkflowState(mParentState, services));
 
 	//logic for enabling workflowsteps
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, mImportWorkflowState, &ImportWorkflowState::canEnterSlot);

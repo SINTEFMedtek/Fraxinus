@@ -58,6 +58,8 @@ typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 typedef boost::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
 class FraxinusVBWidget;
 class PinpointWidget;
+class StructuresSelectionWidget;
+class ProcedurePlanningWidget;
 
 
 class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public WorkflowState
@@ -77,6 +79,8 @@ protected:
     MeshPtr getExtendedRouteToTarget() const;
 	QMainWindow *getMainWindow();
 	FraxinusVBWidget *getVBWidget();
+    StructuresSelectionWidget *getStructturesSelectionWidget();
+    ProcedurePlanningWidget *getProcedurePlanningWidget();
 	PinpointWidget *getPinpointWidget();
     MeshPtr getAirwaysContour();
     MeshPtr getAirwaysTubes();
@@ -110,8 +114,10 @@ protected:
     void setTransferfunction2D(QString transferfunction, ImagePtr image);
     void setRTTInVBWidget();
 	void setupViewOptionsINVBWidget(int flyThrough3DViewGroupNumber);
-	void setupVBWidget(int flyThrough3DViewGroupNumber);
-	void cleanupVBWidget();
+    void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, int viewGroupNumber);
+    void setupVBWidget(int flyThrough3DViewGroupNumber);
+    void cleanupVBWidget();
+    void setupProcedurePlanningWidget(int viewGroupNumber);
 
     InteractiveClipperPtr enableInvertedClipper(QString clipper_name, bool on);
     void removeAllDataFromClipper(InteractiveClipperPtr clipper);
@@ -287,6 +293,24 @@ public:
 private:
     void addDataToView();
 	int mFlyThrough3DViewGroupNumber;
+};
+
+class org_custusx_fraxinus_core_state_EXPORT ProcedurePlanningWorkflowState: public FraxinusWorkflowState
+{
+Q_OBJECT
+
+public:
+    ProcedurePlanningWorkflowState(QState* parent, CoreServicesPtr services);
+    virtual ~ProcedurePlanningWorkflowState();
+    virtual QIcon getIcon() const;
+    virtual void onEntry(QEvent* event);
+    void onExit(QEvent *event);
+    virtual bool canEnter() const;
+
+private:
+    void addDataToView();
+    int m3DViewGroupNumber;
+    int m2DViewGroupNumber;
 };
 
 /**
