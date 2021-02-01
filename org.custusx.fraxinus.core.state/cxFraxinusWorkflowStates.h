@@ -196,6 +196,7 @@ private:
     void createProcessingInfo();
     void performAirwaysSegmentation(ImagePtr image);
     void performMLSegmentation(ImagePtr image);
+    bool checkIfSegmentationSucceeded();
     virtual void addDataToView();
 
     FilterPtr mCurrentFilter;
@@ -237,6 +238,7 @@ private:
     bool mSegmentSmallOrgans;
     bool mSegmentMediumOrgans;
     bool mSegmentNodules;
+    QString mCurrentSegmentationType;
 
 };
 

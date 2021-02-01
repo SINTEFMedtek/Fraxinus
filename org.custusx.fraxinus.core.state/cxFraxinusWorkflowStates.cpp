@@ -1022,7 +1022,7 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
             this->performMLSegmentation(image);
             return;
         }
-        else if(!mCheckBoxVessels->isChecked())
+        else if(!mSegmentVessels)
         {
             this->performMLSegmentation(image);
             return;
@@ -1037,22 +1037,24 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
 	airwaysFilter->getOutputTypes();
 	airwaysFilter->getOptions();
-    if(!vessels && !mAirwaysProcessed)
+    if(!mAirwaysProcessed  && mSegmentAirways)
     {
         mActiveTimerWidget = mAirwaysTimerWidget;
         if(mActiveTimerWidget)
             mActiveTimerWidget->start();
         airwaysFilter->setVesselSegmentation(false);
         airwaysFilter->setAirwaySegmentation(true);
+        mCurrentSegmentationType = "Airways";
         mAirwaysProcessed = true;
     }
-    else if(!mVesselsProcessed && mCheckBoxVessels->isChecked())
+    else if(!mVesselsProcessed && mSegmentVessels)
     {
         mActiveTimerWidget = mVesselsTimerWidget;
         if(mActiveTimerWidget)
             mActiveTimerWidget->start();
         airwaysFilter->setVesselSegmentation(true);
         airwaysFilter->setAirwaySegmentation(false);
+        mCurrentSegmentationType = "Vessels";
         mVesselsProcessed = true;
     }
 
@@ -1084,6 +1086,7 @@ void ProcessWorkflowState::performMLSegmentation(ImagePtr image)
             mActiveTimerWidget->start();
         CX_LOG_DEBUG() << "Segmenting Lungs";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_Lungs.ini");
+        mCurrentSegmentationType = "Lungs";
         mLungsProcessed = true;
     }
     else if(mSegmentLymphNodes && !mLymphNodesProcessed && !this->getLymphNodes())
@@ -1093,6 +1096,7 @@ void ProcessWorkflowState::performMLSegmentation(ImagePtr image)
             mActiveTimerWidget->start();
         CX_LOG_DEBUG() << "Segmenting Lymph nodes";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_LymphNodes.ini");
+        mCurrentSegmentationType = "LymphNodes";
         mLymphNodesProcessed = true;
     }
     else if(mSegmentPulmonarySystem && !mPulmonarySystemProcessed && !this->getHeart())
@@ -1102,6 +1106,7 @@ void ProcessWorkflowState::performMLSegmentation(ImagePtr image)
             mActiveTimerWidget->start();
         CX_LOG_DEBUG() << "Segmenting pulmonary system";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_PulmSystHeart.ini");
+        mCurrentSegmentationType = "PulmonarySystem";
         mPulmonarySystemProcessed = true;
     }
     else if(mSegmentMediumOrgans && !mMediumOrgansProcessed && !this->getSpine())
@@ -1111,6 +1116,7 @@ void ProcessWorkflowState::performMLSegmentation(ImagePtr image)
             mActiveTimerWidget->start();
         CX_LOG_DEBUG() << "Segmenting Vena Cava, Aorta and Spine";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_MediumOrgansMediastinum.ini");
+        mCurrentSegmentationType = "MediumOrgans";
         mMediumOrgansProcessed = true;
     }
     else if(mSegmentSmallOrgans && !mSmallOrgansProcessed && !this->getEsophagus())
@@ -1120,19 +1126,22 @@ void ProcessWorkflowState::performMLSegmentation(ImagePtr image)
             mActiveTimerWidget->start();
         CX_LOG_DEBUG() << "Segmenting Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_SmallOrgansMediastinum.ini");
+        mCurrentSegmentationType = "SmallOrgans";
         mSmallOrgansProcessed = true;
     }
-    else if(mSegmentNodules && !mNodulesProcessed && !this->getEsophagus())
+    else if(mSegmentNodules && !mNodulesProcessed && !this->getNodules())
     {
         mActiveTimerWidget = mNodulesTimerWidget;
         if(mActiveTimerWidget)
             mActiveTimerWidget->start();
         CX_LOG_DEBUG() << "Segmenting Lesions";
         scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_Nodules.ini");
+        mCurrentSegmentationType = "Nodules";
         mNodulesProcessed = true;
     }
     else
     {
+        mCurrentSegmentationType = "";
         emit segmentationFinished();
         mSegmentationProcessingInfo->close();
         return;
@@ -1186,31 +1195,40 @@ void ProcessWorkflowState::airwaysFinishedSlot()
     disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(airwaysFinishedSlot()));
 	mThread.reset();
     //dialog.hide();
-    if(mActiveTimerWidget)
-        mActiveTimerWidget->stop();
-	MeshPtr airways = this->getAirwaysContour();
-	if(airways)
-	{
-        airways->setColor("#FFCCCC");
-        //emit airwaysSegmented();
-	}
-    else
+    if(mCurrentSegmentationType == "Airways")
     {
-        this->addDataToView();
-        QString message = "Ariway segmentation failed.\n\n"
-                          "Try:\n"
-                          "1. Click inside the airways (e.g. trachea).\n"
-                          "2. Select input.\n"
-                          "3. Select \"Use manual seed point\"\n"
-                          "4. Run the Airway segmantation filter again using the green start button. \n";
-        QMessageBox::warning(NULL,"Airway segmentation failed", message);
+        MeshPtr airways = this->getAirwaysContour();
+        if(airways)
+        {
+            airways->setColor("#FFCCCC");
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->stop();
+        }
+        else
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->failed();
+            this->addDataToView();
+            QString message = "Ariway segmentation failed.\n\n"
+                              "Try:\n"
+                              "1. Click inside the airways (e.g. trachea).\n"
+                              "2. Select input.\n"
+                              "3. Select \"Use manual seed point\"\n"
+                              "4. Run the Airway segmantation filter again using the green start button. \n";
+            QMessageBox::warning(NULL,"Airway segmentation failed", message);
+        }
+        if(!mVesselsProcessed && mCheckBoxVessels->isChecked())
+        {
+            this->performAirwaysSegmentation(this->getCTImage());
+        }
+        else
+        {
+            this->performMLSegmentation(this->getCTImage());
+        }
     }
-    if(!mVesselsProcessed && mCheckBoxVessels->isChecked())
+    else if(mCurrentSegmentationType == "Vessels")
     {
-        this->performAirwaysSegmentation(this->getCTImage());
-    }
-    else
-    {
+        this->checkIfSegmentationSucceeded();
         this->performMLSegmentation(this->getCTImage());
     }
 }
@@ -1225,9 +1243,118 @@ void ProcessWorkflowState::MLFinishedSlot()
     if(mActiveTimerWidget)
         mActiveTimerWidget->stop();
 
-    //TO DO: Check that the segmentation succeesed by looking for mesh.
+    this->checkIfSegmentationSucceeded();
 
     this->performMLSegmentation(this->getCTImage());
+}
+
+bool ProcessWorkflowState::checkIfSegmentationSucceeded()
+{
+    if(mCurrentSegmentationType == "Airways")
+    {
+        if(this->getAirwaysContour())
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->stop();
+        }
+        else
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->failed();
+        }
+    }
+    else if(mCurrentSegmentationType == "Vessels")
+    {
+        if(this->getVessels())
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->stop();
+        }
+        else
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->failed();
+        }
+    }
+    else if(mCurrentSegmentationType == "Lungs")
+    {
+        if(this->getLungs())
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->stop();
+        }
+        else
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->failed();
+        }
+    }
+    else if(mCurrentSegmentationType == "LymphNodes")
+    {
+        if(this->getLymphNodes())
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->stop();
+        }
+        else
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->failed();
+        }
+    }
+    else if(mCurrentSegmentationType == "PulmonarySystem")
+    {
+        if(this->getHeart())
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->stop();
+        }
+        else
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->failed();
+        }
+    }
+    else if(mCurrentSegmentationType == "MediumOrgans")
+    {
+        if(this->getSpine())
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->stop();
+        }
+        else
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->failed();
+        }
+    }
+    else if(mCurrentSegmentationType == "SmallOrgans")
+    {
+        if(this->getEsophagus())
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->stop();
+        }
+        else
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->failed();
+        }
+    }
+    else if(mCurrentSegmentationType == "Nodules")
+    {
+        if(this->getNodules())
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->stop();
+        }
+        else
+        {
+            if(mActiveTimerWidget)
+                mActiveTimerWidget->failed();
+        }
+    }
+
 }
 
 bool ProcessWorkflowState::canEnter() const
