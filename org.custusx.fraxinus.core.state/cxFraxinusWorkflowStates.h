@@ -178,6 +178,7 @@ public:
     virtual ~ProcessWorkflowState();
     virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
+    void onExit(QEvent *event);
 	virtual bool canEnter() const;
 
 signals:

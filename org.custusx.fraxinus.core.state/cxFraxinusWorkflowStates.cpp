@@ -155,7 +155,7 @@ void FraxinusWorkflowState::onEntryDefault(QEvent * event)
 	if(camera_control)
 	{
         camera_control->setSuperiorView();
-	}
+    }
 
 	//Hack to make sure camera style is set correnyly
 	//This is needed as set camera style needs the views to be shown before trying to set style
@@ -894,7 +894,7 @@ void ProcessWorkflowState::cancel()
 void ProcessWorkflowState::createProcessingInfo()
 {
     mSegmentationProcessingInfo = new QDialog();
-    mSegmentationProcessingInfo->setWindowTitle(tr("Segmentation Processing"));
+    mSegmentationProcessingInfo->setWindowTitle(tr("Segmentation status"));
     mSegmentationProcessingInfo->setWindowFlag(Qt::WindowStaysOnTopHint);
 
     QGridLayout* gridLayout = new QGridLayout;
@@ -1390,6 +1390,14 @@ void ProcessWorkflowState::addDataToView()
     viewGroup1_2D->getGlobal2DZoom()->set(0.2);
     if(ctImage)
         viewGroup1_2D->addData(ctImage->getUid());
+}
+
+void ProcessWorkflowState::onExit(QEvent * event)
+{
+    if(mSegmentationSelectionInput)
+        mSegmentationSelectionInput->close();
+
+    WorkflowState::onExit(event);
 }
 
 // --------------------------------------------------------
