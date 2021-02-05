@@ -171,7 +171,6 @@ double FraxinusVBWidget::getTargetDistance()
 
 	return distance;
 }
-
 void FraxinusVBWidget::updateRttInfo(double cameraPositionInPercent)
 {
 	mStaticTotalLegth->setText(QString("Total route inside airways: <b>%1 mm</b> ").arg(mRouteLength, 0, 'f', 0));

@@ -1564,7 +1564,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	MeshPtr airways = this->getAirwaysContour();
     MeshPtr airwaysTubes = this->getAirwaysTubes();
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
+    //DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 
 
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);

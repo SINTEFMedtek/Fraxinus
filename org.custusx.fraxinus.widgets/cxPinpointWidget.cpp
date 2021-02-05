@@ -73,8 +73,11 @@ void PinpointWidget::setPointMetric()
 	if(!mServices->patient()->getData(this->getEndoscopeMetricUid()))
 		this->createEndoscopeMetric();
 
-	if(!mServices->patient()->getData(this->getDistanceMetricUid()))
-		this->createDistanceMetric();
+    DistanceMetricPtr distanceMetric = boost::dynamic_pointer_cast<DistanceMetric>(mServices->patient()->getData(this->getDistanceMetricUid()));
+    if(!distanceMetric)
+        this->createDistanceMetric();
+    else if(!distanceMetric->isValid())
+        this->createDistanceMetric();
 
 	emit targetMetricSet();
 }
