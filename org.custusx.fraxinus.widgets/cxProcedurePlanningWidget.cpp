@@ -33,10 +33,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxProcedurePlanningWidget.h"
 #include <QGroupBox>
 #include <QVBoxLayout>
+#include <QPushButton>
 #include "cxVisServices.h"
 #include "cxLogger.h"
 #include "cxStructuresSelectionWidget.h"
 #include "cxFraxinusVBWidget.h"
+#include "cxApplication.h"
 
 namespace cx {
 
@@ -45,6 +47,8 @@ ProcedurePlanningWidget::ProcedurePlanningWidget(VisServicesPtr services, QWidge
     mServices(services)
 {
 
+    QPushButton *centerToImage = new QPushButton(QIcon(":/icons/center_image.png"), " Center Image", this);
+    connect(centerToImage, &QPushButton::clicked, this, &ProcedurePlanningWidget::centerToImage);
     mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this); // NEW OR GET??? Må trolig lage en widget til ProcedurePlanning og en til VBWidget. Problemet er at widgeten må ha riktig parent.
     //mStructuresSelectionWidget = FraxinusVBWidget::getStructturesSelectionWidget();
     QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
@@ -52,6 +56,8 @@ ProcedurePlanningWidget::ProcedurePlanningWidget(VisServicesPtr services, QWidge
     structuresLayout->addWidget(mStructuresSelectionWidget);
     structuresBox->setLayout(structuresLayout);
     QVBoxLayout* verticalLayout = new QVBoxLayout;
+    verticalLayout->addSpacing(25);
+    verticalLayout->addWidget(centerToImage);
     verticalLayout->addSpacing(50);
     verticalLayout->addWidget(structuresBox);
     //verticalLayout->addWidget(mStructuresSelectionWidget);
@@ -74,6 +80,11 @@ QString ProcedurePlanningWidget::getWidgetName()
 StructuresSelectionWidget* ProcedurePlanningWidget::getStructuresSelectionWidget()
 {
     return mStructuresSelectionWidget;
+}
+
+void ProcedurePlanningWidget::centerToImage()
+{
+    triggerMainWindowActionWithObjectName("CenterToImageCenter");
 }
 
 

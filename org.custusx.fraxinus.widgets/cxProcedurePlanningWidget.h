@@ -55,6 +55,9 @@ public:
     static QString getWidgetName();
     StructuresSelectionWidget* getStructuresSelectionWidget();
 
+private slots:
+    void centerToImage();
+
 private:
     StructuresSelectionWidget* mStructuresSelectionWidget;
     VisServicesPtr mServices;
