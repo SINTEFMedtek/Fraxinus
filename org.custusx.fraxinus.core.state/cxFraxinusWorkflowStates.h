@@ -214,7 +214,7 @@ private:
     DisplayTimerWidget* mSmallOrgansTimerWidget;
     DisplayTimerWidget* mNodulesTimerWidget;
     DisplayTimerWidget* mVesselsTimerWidget;
-    DisplayTimerWidget* mActiveTimerWidget;
+    DisplayTimerWidget* mActiveTimerWidget = NULL;
     QCheckBox* mCheckBoxAirways;
     QCheckBox* mCheckBoxLungs;
     QCheckBox* mCheckBoxLymphNodes;

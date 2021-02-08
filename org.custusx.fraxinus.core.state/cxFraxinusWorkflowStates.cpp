@@ -809,7 +809,8 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
 
-    this->createSelectSegmentationBox();
+    if(!mActiveTimerWidget) // check that segmentation is not already running
+        this->createSelectSegmentationBox();
 
 	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
     //QTimer::singleShot(0, this, SLOT(imageSelected()));
@@ -1141,6 +1142,7 @@ void ProcessWorkflowState::performMLSegmentation(ImagePtr image)
     }
     else
     {
+        mActiveTimerWidget = NULL;
         mCurrentSegmentationType = "";
         emit segmentationFinished();
         mSegmentationProcessingInfo->close();
