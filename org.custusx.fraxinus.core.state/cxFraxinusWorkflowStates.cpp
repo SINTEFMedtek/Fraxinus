@@ -455,7 +455,7 @@ FraxinusVBWidget* FraxinusWorkflowState::getVBWidget()
 	return mainWindow->findChild<FraxinusVBWidget*>(widgetName);
 }
 
-StructuresSelectionWidget* FraxinusWorkflowState::getStructturesSelectionWidget()
+StructuresSelectionWidget* FraxinusWorkflowState::getStructturesSelectionWidget() //Not used -- delete?
 {
     QMainWindow* mainWindow = this->getMainWindow();
 
@@ -537,7 +537,7 @@ void FraxinusWorkflowState::setupViewOptionsINVBWidget(int flyThrough3DViewGroup
 
     FraxinusVBWidget* VBWidget = this->getVBWidget();
     if (VBWidget)
-        this->setupViewOptionsForStructuresSelection(VBWidget->getStructturesSelectionWidget(), flyThrough3DViewGroupNumber);
+        this->setupViewOptionsForStructuresSelection(VBWidget->getStructuresSelectionWidget(), flyThrough3DViewGroupNumber);
 
 	widget->setViewGroupNumber(flyThrough3DViewGroupNumber);
 
@@ -1546,6 +1546,14 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 	this->setupVBWidget(mFlyThrough3DViewGroupNumber); 
     this->addDataToView();
 
+    FraxinusVBWidget* FraxinusVBWidgetPtr = this->getVBWidget();
+    if(FraxinusVBWidgetPtr)
+    {
+        StructuresSelectionWidget* structureSelectionWidget = FraxinusVBWidgetPtr->getStructuresSelectionWidget();
+        if(structureSelectionWidget)
+            structureSelectionWidget->onEntry();
+    }
+
     QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
 }
 
@@ -1640,6 +1648,14 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
     FraxinusWorkflowState::onEntry(event);
     this->addDataToView();
 	this->setupVBWidget(mFlyThrough3DViewGroupNumber);
+
+    FraxinusVBWidget* FraxinusVBWidgetPtr = this->getVBWidget();
+    if(FraxinusVBWidgetPtr)
+    {
+        StructuresSelectionWidget* structureSelectionWidget = FraxinusVBWidgetPtr->getStructuresSelectionWidget();
+        if(structureSelectionWidget)
+            structureSelectionWidget->onEntry();
+    }
 
 	QTimer::singleShot(0, this, SLOT(setVBCutplanesCameraStyle()));
 }
@@ -1737,6 +1753,13 @@ void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
     FraxinusWorkflowState::onEntry(event);
     this->addDataToView();
     this->setupProcedurePlanningWidget(m3DViewGroupNumber);
+    ProcedurePlanningWidget* procedurePlanningWidget = this->getProcedurePlanningWidget();
+    if(procedurePlanningWidget)
+    {
+        StructuresSelectionWidget* structureSelectionWidget = procedurePlanningWidget->getStructuresSelectionWidget();
+        if(structureSelectionWidget)
+            structureSelectionWidget->onEntry();
+    }
 //    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 //    if(services)
 //        services->view()->zoomCamera3D(m3DViewGroupNumber, 1);

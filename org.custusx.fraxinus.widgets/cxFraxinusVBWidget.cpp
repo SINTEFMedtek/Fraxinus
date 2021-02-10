@@ -309,7 +309,7 @@ void FraxinusVBWidget::addObjectToTubeView(DataPtr object)
     mTubeViewObjects.push_back(object);
 }
 
-StructuresSelectionWidget* FraxinusVBWidget::getStructturesSelectionWidget()
+StructuresSelectionWidget* FraxinusVBWidget::getStructuresSelectionWidget()
 {
     return mStructuresSelectionWidget;
 }

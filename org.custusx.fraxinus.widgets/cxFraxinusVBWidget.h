@@ -56,7 +56,7 @@ public:
     void setViewGroupNumber(unsigned int viewGroupNumber);
     void addObjectToVolumeView(DataPtr object);
     void addObjectToTubeView(DataPtr object);
-    StructuresSelectionWidget *getStructturesSelectionWidget();
+    StructuresSelectionWidget *getStructuresSelectionWidget();
 
 
 private slots:

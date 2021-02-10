@@ -60,6 +60,7 @@ public:
     void addLargeVesselObject(DataPtr object);
     void addHeartObject(DataPtr object);
     void addEsophagusObject(DataPtr object);
+    void onEntry();
 
 
 private slots:

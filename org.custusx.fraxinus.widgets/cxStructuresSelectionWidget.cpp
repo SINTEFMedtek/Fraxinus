@@ -375,6 +375,51 @@ void StructuresSelectionWidget::viewEsophagusSlot()
     }
 }
 
+void StructuresSelectionWidget::onEntry()
+{
+    if(mViewLungsButton->isEnabled())
+    {
+        mViewLungsEnabled = !mViewLungsEnabled;
+        this->viewLungsSlot();
+    }
+    if(mViewLesionsButton->isEnabled())
+    {
+        mViewLesionsEnabled = !mViewLesionsEnabled;
+        this->viewLesionsSlot();
+    }
+    if(mViewLymphNodesButton->isEnabled())
+    {
+        mViewLymphNodesEnabled = !mViewLymphNodesEnabled;
+        this->viewLymphNodesSlot();
+    }
+    if(mViewSpineButton->isEnabled())
+    {
+        mViewSpineEnabled = !mViewSpineEnabled;
+        this->viewSpineSlot();
+    }
+    if(mViewSmallVesselsButton->isEnabled())
+    {
+        mViewSmallVesselsEnabled = !mViewSmallVesselsEnabled;
+        this->viewSmallVesselsSlot();
+    }
+    if(mViewLargeVesselsButton->isEnabled())
+    {
+        mViewLargeVesselsEnabled = !mViewLargeVesselsEnabled;
+        this->viewLargeVesselsSlot();
+    }
+    if(mViewHeartButton->isEnabled())
+    {
+        mViewHeartEnabled = !mViewHeartEnabled;
+        this->viewHeartSlot();
+    }
+    if(mViewEsophagusButton->isEnabled())
+    {
+        mViewEsophagusEnabled = !mViewEsophagusEnabled;
+        this->viewEsophagusSlot();
+    }
+
+}
+
 
 
 } //namespace cx
