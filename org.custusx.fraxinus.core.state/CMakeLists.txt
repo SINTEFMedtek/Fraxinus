@@ -29,12 +29,15 @@ set(PLUGIN_SRCS
     cxVBCameraZoomSetting3D.cpp
 )
 
-# Make sure OpenCL kernel files are copied to the installer
-# Install OpenCL kernels
-install(DIRECTORY ${FAST_SOURCE_DIR}
-        DESTINATION ${CX_INSTALL_CONFIG_DIR}/FAST/
-        FILES_MATCHING PATTERN "*.cl"
-)
+
+if(NOT CX_APPLE)
+    # Make sure OpenCL kernel files are copied to the installer
+    # Install OpenCL kernels
+    install(DIRECTORY ${FAST_SOURCE_DIR}
+            DESTINATION ${CX_INSTALL_CONFIG_DIR}/FAST/
+            FILES_MATCHING PATTERN "*.cl"
+    )
+endif()
 
 #Compute the plugin dependencies
 ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
@@ -64,8 +67,10 @@ set(PLUGIN_UI_FORMS
 set(PLUGIN_resources
 )
 
-find_package(FAST REQUIRED)
-link_directories("${FAST_DIR}/lib/")
+if(NOT CX_APPLE)
+    find_package(FAST REQUIRED)
+    link_directories("${FAST_DIR}/lib/")
+endif()
 
 #Compute the plugin dependencies
 ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
@@ -74,7 +79,7 @@ set(PLUGIN_target_libraries
     ${PLUGIN_target_libraries}
 
     PRIVATE
-    FAST
+    #FAST
     cxPluginUtilities
     Qt5::Widgets
     cxResource
@@ -90,6 +95,7 @@ set(PLUGIN_target_libraries
 if(NOT CX_APPLE)
   set(PLUGIN_target_libraries
     ${PLUGIN_target_libraries}
+    FAST
     org_custusx_filter_airways
     )
 endif()
