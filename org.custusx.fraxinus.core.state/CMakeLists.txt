@@ -5,7 +5,9 @@
 
 project(org_custusx_fraxinus_core_state)
 
-cx_initialize_FAST()
+if(NOT CX_APPLE)
+    cx_initialize_FAST()
+endif()
 
 set(PLUGIN_export_directive "${PROJECT_NAME}_EXPORT")
 
