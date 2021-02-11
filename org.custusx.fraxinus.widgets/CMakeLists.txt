@@ -1,6 +1,8 @@
 project(org_custusx_fraxinus_widgets)
 
-cx_initialize_FAST()
+if(NOT CX_APPLE)
+    cx_initialize_FAST()
+endif()
 
 #### Enable C++11
 set (CMAKE_CXX_STANDARD 11)
@@ -22,12 +24,14 @@ set(PLUGIN_SRCS
     cxStructuresSelectionWidget.cpp
 )
 
-# Make sure OpenCL kernel files are copied to the installer
-# Install OpenCL kernels
-install(DIRECTORY ${FAST_SOURCE_DIR}
-        DESTINATION ${CX_INSTALL_CONFIG_DIR}/FAST/
-        FILES_MATCHING PATTERN "*.cl"
-)
+if(NOT CX_APPLE)
+    # Make sure OpenCL kernel files are copied to the installer
+    # Install OpenCL kernels
+    install(DIRECTORY ${FAST_SOURCE_DIR}
+            DESTINATION ${CX_INSTALL_CONFIG_DIR}/FAST/
+            FILES_MATCHING PATTERN "*.cl"
+    )
+endif()
 
 #Compute the plugin dependencies
 ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
@@ -67,7 +71,7 @@ set(PLUGIN_target_libraries
     cxGUIExtenderService
     cxPluginUtilities
     Qt5::Widgets
-    FAST
+    #FAST
     cxResourceVisualization #todo: remove (for VisServices, for FilterSetupWidget)
     cxGui #todo: remove (for FilterSetupWidget)
     cxResourceWidgets
@@ -81,6 +85,7 @@ set(PLUGIN_target_libraries
 if(NOT CX_APPLE)
   set(PLUGIN_target_libraries
     ${PLUGIN_target_libraries}
+    FAST
     org_custusx_filter_airways
     )
 endif()
