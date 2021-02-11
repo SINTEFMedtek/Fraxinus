@@ -830,7 +830,7 @@ void ProcessWorkflowState::createSelectSegmentationBox()
 {
     mSegmentationSelectionInput = new QDialog();
     mSegmentationSelectionInput->setWindowTitle(tr("Select structures for segmentation"));
-    mSegmentationSelectionInput->setWindowFlag(Qt::WindowStaysOnTopHint);
+    mSegmentationSelectionInput->setWindowFlags(Qt::WindowStaysOnTopHint);
 
     mCheckBoxAirways = new QCheckBox(tr("Airways (~1 min)"));
     mCheckBoxAirways->setChecked(true);
@@ -896,7 +896,7 @@ void ProcessWorkflowState::createProcessingInfo()
 {
     mSegmentationProcessingInfo = new QDialog();
     mSegmentationProcessingInfo->setWindowTitle(tr("Segmentation status"));
-    mSegmentationProcessingInfo->setWindowFlag(Qt::WindowStaysOnTopHint);
+    mSegmentationProcessingInfo->setWindowFlags(Qt::WindowStaysOnTopHint);
 
     QGridLayout* gridLayout = new QGridLayout;
     gridLayout->setColumnMinimumWidth(0,500);
