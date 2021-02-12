@@ -30,15 +30,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
-#ifndef PROCEDUREPLANNINGWIDGET_H
-#define PROCEDUREPLANNINGWIDGET_H
+#ifndef FRAXINUSPATIENTORIENTATIONWIDGET_H
+#define FRAXINUSPATIENTORIENTATIONWIDGET_H
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
-#include <cxStructuresSelectionWidget.h>
-#include <cxFraxinusPatientOrientationWidget.h>
 #include "cxBaseWidget.h"
+#include "cxVector3D.h"
 #include "cxForwardDeclarations.h"
+#include "vtkForwardDeclarations.h"
 
 class QRadioButton;
 class QLabel;
@@ -46,27 +46,34 @@ class QPushButton;
 
 namespace cx {
 
-class org_custusx_fraxinus_widgets_EXPORT ProcedurePlanningWidget : public BaseWidget
+class org_custusx_fraxinus_widgets_EXPORT FraxinusPatientOrientationWidget : public BaseWidget
 {
     Q_OBJECT
 public:
-    ProcedurePlanningWidget(VisServicesPtr services, QWidget *parent = 0);
-    virtual ~ProcedurePlanningWidget();
+    FraxinusPatientOrientationWidget(VisServicesPtr services, QWidget *parent = 0);
+    virtual ~FraxinusPatientOrientationWidget();
 
     static QString getWidgetName();
-    StructuresSelectionWidget* getStructuresSelectionWidget();
 
 private slots:
-    void centerToImage();
+    void setAnteriorViewSlot();
+    void setPosteriorViewSlot();
+    void setLeftViewSlot();
+    void setRightViewSlot();
 
 private:
-    StructuresSelectionWidget* mStructuresSelectionWidget;
-    FraxinusPatientOrientationWidget* mFraxinusPatientOrientationWidget;
     VisServicesPtr mServices;
+    QActionGroup* mStandard3DViewActions; // actions for setting camera in fixed direction.
+    QPushButton* mAnteriorButton;
+    QPushButton* mPosteriorButton;
+    QPushButton* mLeftButton;
+    QPushButton* mRightButton;
+
+    void setStandard3DViewAction(Vector3D viewDirection);
 };
 
 
 } //namespace cx
 
 
-#endif //PROCEDUREPLANNINGWIDGET_H
+#endif //FRAXINUSPATIENTORIENTATIONWIDGET_H

@@ -39,6 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxStructuresSelectionWidget.h"
 #include "cxFraxinusVBWidget.h"
 #include "cxApplication.h"
+#include "cxFraxinusPatientOrientationWidget.h"
 
 namespace cx {
 
@@ -49,18 +50,26 @@ ProcedurePlanningWidget::ProcedurePlanningWidget(VisServicesPtr services, QWidge
 
     QPushButton *centerToImage = new QPushButton(QIcon(":/icons/center_image.png"), " Center Image", this);
     connect(centerToImage, &QPushButton::clicked, this, &ProcedurePlanningWidget::centerToImage);
-    mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this); // NEW OR GET??? Må trolig lage en widget til ProcedurePlanning og en til VBWidget. Problemet er at widgeten må ha riktig parent.
-    //mStructuresSelectionWidget = FraxinusVBWidget::getStructturesSelectionWidget();
+
+    mFraxinusPatientOrientationWidget = new FraxinusPatientOrientationWidget(mServices, this);
+    QGroupBox* orientationBox = new QGroupBox(tr("Set orientation"));
+    QVBoxLayout* orientationLayout = new QVBoxLayout();
+    orientationLayout->addWidget(mFraxinusPatientOrientationWidget);
+    orientationBox->setLayout(orientationLayout);
+
+    mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this);
     QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
     QVBoxLayout* structuresLayout = new QVBoxLayout();
     structuresLayout->addWidget(mStructuresSelectionWidget);
     structuresBox->setLayout(structuresLayout);
+
     QVBoxLayout* verticalLayout = new QVBoxLayout;
     verticalLayout->addSpacing(25);
     verticalLayout->addWidget(centerToImage);
+    verticalLayout->addSpacing(25);
+    verticalLayout->addWidget(orientationBox);
     verticalLayout->addSpacing(50);
     verticalLayout->addWidget(structuresBox);
-    //verticalLayout->addWidget(mStructuresSelectionWidget);
     verticalLayout->addStretch();
 
     this->setLayout(verticalLayout);
