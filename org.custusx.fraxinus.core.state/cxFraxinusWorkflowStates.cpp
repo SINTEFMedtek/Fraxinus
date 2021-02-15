@@ -524,7 +524,7 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 	}
 }
 
-void FraxinusWorkflowState::setupViewOptionsINVBWidget(int flyThrough3DViewGroupNumber)
+void FraxinusWorkflowState::setupViewOptionsINVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
 {
     ImagePtr ctImage_copied = this->getCTImageCopied();
 	std::vector<DataPtr> volumeViewObjects;
@@ -541,17 +541,20 @@ void FraxinusWorkflowState::setupViewOptionsINVBWidget(int flyThrough3DViewGroup
 		widget->addObjectToVolumeView(object);
 
     FraxinusVBWidget* VBWidget = this->getVBWidget();
+    std::vector<unsigned int> viewGroupNumbers;
+    viewGroupNumbers.push_back(flyThrough3DViewGroupNumber);
+    if (surfaceModel3DViewGroupNumber >= 0)
+        viewGroupNumbers.push_back(surfaceModel3DViewGroupNumber);
     if (VBWidget)
-        this->setupViewOptionsForStructuresSelection(VBWidget->getStructuresSelectionWidget(), flyThrough3DViewGroupNumber);
+        this->setupViewOptionsForStructuresSelection(VBWidget->getStructuresSelectionWidget(), viewGroupNumbers);
+
 
 	widget->setViewGroupNumber(flyThrough3DViewGroupNumber);
 
 }
 
-void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSelectionWidget* widget, int viewGroupNumber)
+void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSelectionWidget* widget, std::vector<unsigned int> viewGroupNumbers)
 {
-    //StructuresSelectionWidget* widget = this->getStructturesSelectionWidget();
-
     std::vector<DataPtr> lungObjects;
     MeshPtr lungs = this->getLungs();
     if(lungs)
@@ -645,14 +648,15 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
     foreach(DataPtr object, esophagusObjects)
         widget->addEsophagusObject(object);
 
-    widget->setViewGroupNumber(viewGroupNumber);
+    widget->setViewGroupNumbers(viewGroupNumbers);
+
 }
 
 
-void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber)
+void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
 {
 	this->setRTTInVBWidget();
-	this->setupViewOptionsINVBWidget(flyThrough3DViewGroupNumber);
+    this->setupViewOptionsINVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber);
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	if(services)
 		services->view()->zoomCamera3D(flyThrough3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
@@ -664,9 +668,11 @@ void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber)
 
 void FraxinusWorkflowState::setupProcedurePlanningWidget(int viewGroupNumber)
 {
+    std::vector<unsigned int> viewGroupNumbers;
+    viewGroupNumbers.push_back(viewGroupNumber);
     ProcedurePlanningWidget* procedurePlanningWidget = this->getProcedurePlanningWidget();
     if (procedurePlanningWidget)
-        this->setupViewOptionsForStructuresSelection(procedurePlanningWidget->getStructuresSelectionWidget(), viewGroupNumber);
+        this->setupViewOptionsForStructuresSelection(procedurePlanningWidget->getStructuresSelectionWidget(), viewGroupNumbers);
 }
 
 void FraxinusWorkflowState::createRouteToTarget()
@@ -1562,7 +1568,7 @@ QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 {
     FraxinusWorkflowState::onEntry(event);
-	this->setupVBWidget(mFlyThrough3DViewGroupNumber); 
+    this->setupVBWidget(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);
     this->addDataToView();
 
     FraxinusVBWidget* FraxinusVBWidgetPtr = this->getVBWidget();
@@ -1650,6 +1656,7 @@ bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, VisServicesPtr services) :
 	FraxinusWorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services, false)
   , mFlyThrough3DViewGroupNumber(2)
+  , mSurfaceModel3DViewGroupNumber(0)
 {
 
 }
@@ -1666,7 +1673,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 {
     FraxinusWorkflowState::onEntry(event);
     this->addDataToView();
-	this->setupVBWidget(mFlyThrough3DViewGroupNumber);
+    this->setupVBWidget(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);
 
     FraxinusVBWidget* FraxinusVBWidgetPtr = this->getVBWidget();
     if(FraxinusVBWidgetPtr)

@@ -159,15 +159,20 @@ QString StructuresSelectionWidget::getWidgetName()
 
 void StructuresSelectionWidget::displayDataObjects(std::vector<DataPtr> objects)
 {
+    CX_LOG_DEBUG() << "mViewGroupNumbers.size(): " << mViewGroupNumbers.size();
     foreach(DataPtr object, objects)
     {
         if(!object)
             continue;
-        ViewGroupDataPtr viewGroup = mServices->view()->getGroup(mViewGroupNumber);
-        if(viewGroup)
-            viewGroup->addData(object->getUid());
-        else
-            CX_LOG_WARNING() << "In StructuresSelectionWidget::displayDataObjects: Cannot find view group for data view.";
+        for(int i=0; i<mViewGroupNumbers.size(); i++)
+        {
+            CX_LOG_DEBUG() << "Adding for group number " << mViewGroupNumbers[i];
+            ViewGroupDataPtr viewGroup = mServices->view()->getGroup(mViewGroupNumbers[i]);
+            if(viewGroup)
+                viewGroup->addData(object->getUid());
+            else
+                CX_LOG_WARNING() << "In StructuresSelectionWidget::displayDataObjects: Cannot find view group for data view.";
+        }
     }
 }
 
@@ -177,17 +182,20 @@ void StructuresSelectionWidget::hideDataObjects(std::vector<DataPtr> objects)
     {
         if(!object)
             continue;
-        ViewGroupDataPtr viewGroup = mServices->view()->getGroup(mViewGroupNumber);
-        if(viewGroup)
-            viewGroup->removeData(object->getUid());
-        else
-            CX_LOG_WARNING() << "In StructuresSelectionWidget::hideDataObjects: Cannot find view group for data view.";
+        for(int i=0; i<mViewGroupNumbers.size(); i++)
+        {
+            ViewGroupDataPtr viewGroup = mServices->view()->getGroup(mViewGroupNumbers[i]);
+            if(viewGroup)
+                viewGroup->removeData(object->getUid());
+            else
+                CX_LOG_WARNING() << "In StructuresSelectionWidget::hideDataObjects: Cannot find view group for data view.";
+        }
     }
 }
 
-void StructuresSelectionWidget::setViewGroupNumber(unsigned int viewGroupNumber)
+void StructuresSelectionWidget::setViewGroupNumbers(std::vector<unsigned int> viewGroupNumbers)
 {
-    mViewGroupNumber = viewGroupNumber;
+    mViewGroupNumbers = viewGroupNumbers;
 }
 
 

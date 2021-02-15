@@ -114,9 +114,9 @@ protected:
     void setTransferfunction3D(QString transferfunction, ImagePtr image);
     void setTransferfunction2D(QString transferfunction, ImagePtr image);
     void setRTTInVBWidget();
-	void setupViewOptionsINVBWidget(int flyThrough3DViewGroupNumber);
-    void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, int viewGroupNumber);
-    void setupVBWidget(int flyThrough3DViewGroupNumber);
+    void setupViewOptionsINVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+    void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
+    void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
     void cleanupVBWidget();
     void setupProcedurePlanningWidget(int viewGroupNumber);
 
@@ -297,6 +297,7 @@ public:
 private:
     void addDataToView();
 	int mFlyThrough3DViewGroupNumber;
+    int mSurfaceModel3DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ProcedurePlanningWorkflowState: public FraxinusWorkflowState

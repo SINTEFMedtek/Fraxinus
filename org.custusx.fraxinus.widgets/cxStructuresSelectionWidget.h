@@ -51,7 +51,7 @@ public:
     virtual ~StructuresSelectionWidget();
 
     static QString getWidgetName();
-    void setViewGroupNumber(unsigned int viewGroupNumber);
+    void setViewGroupNumbers(std::vector<unsigned int> viewGroupNumbers);
     void addLungObject(DataPtr object);
     void addLesionObject(DataPtr object);
     void addLymphNodeObject(DataPtr object);
@@ -84,7 +84,7 @@ private:
     void hideDataObjects(std::vector<DataPtr> objects);
 
     VisServicesPtr mServices;
-    unsigned int mViewGroupNumber;
+    std::vector<unsigned int> mViewGroupNumbers;
     std::vector<DataPtr> mLungsObjects;
     std::vector<DataPtr> mLesionsObjects;
     std::vector<DataPtr> mLymphNodesObjects;
