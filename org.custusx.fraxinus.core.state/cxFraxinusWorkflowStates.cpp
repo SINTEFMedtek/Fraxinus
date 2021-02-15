@@ -296,6 +296,11 @@ MeshPtr FraxinusWorkflowState::getAscendingAorta()
     return this->getMesh("_mediumOrgansMediastinum", "AscendingAorta");
 }
 
+MeshPtr FraxinusWorkflowState::getDescendingAorta()
+{
+    return this->getMesh("_mediumOrgansMediastinum", "DescendingAorta");
+}
+
 MeshPtr FraxinusWorkflowState::getSpine()
 {
     return this->getMesh("_mediumOrgansMediastinum", "Spine");
@@ -567,25 +572,34 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
     if(spine)
         spineObjects.push_back(spine);
 
-    std::vector<DataPtr> largeVesselsObjects;
+    std::vector<DataPtr> VenaCavaObjects;
     MeshPtr venaCava = this->getVenaCava();
     if(venaCava)
-        largeVesselsObjects.push_back(venaCava);
-    MeshPtr aorticArch = this->getAorticArch();
-    if(aorticArch)
-        largeVesselsObjects.push_back(aorticArch);
-    MeshPtr ascendingAorta = this->getAscendingAorta();
-    if(ascendingAorta)
-        largeVesselsObjects.push_back(ascendingAorta);
-    MeshPtr subCarArt = this->getSubCarArt();
-    if(subCarArt)
-        largeVesselsObjects.push_back(subCarArt);
+        VenaCavaObjects.push_back(venaCava);
     MeshPtr brachiocephalicVeins = this->getBrachiocephalicVeins();
     if(brachiocephalicVeins)
-        largeVesselsObjects.push_back(brachiocephalicVeins);
+        VenaCavaObjects.push_back(brachiocephalicVeins);
+
+    std::vector<DataPtr> AortaObjects;
+    MeshPtr aorticArch = this->getAorticArch();
+    if(aorticArch)
+        AortaObjects.push_back(aorticArch);
+    MeshPtr ascendingAorta = this->getAscendingAorta();
+    if(ascendingAorta)
+        AortaObjects.push_back(ascendingAorta);
+    MeshPtr descendingAorta = this->getDescendingAorta();
+    if(descendingAorta)
+        AortaObjects.push_back(descendingAorta);
+
+    std::vector<DataPtr> AzygosObjects;
     MeshPtr azygos = this->getAzygos();
     if(azygos)
-        largeVesselsObjects.push_back(azygos);
+        AzygosObjects.push_back(azygos);
+
+    std::vector<DataPtr> SubclavianObjects;
+    MeshPtr subCarArt = this->getSubCarArt();
+    if(subCarArt)
+        SubclavianObjects.push_back(subCarArt);
 
     std::vector<DataPtr> smallVesselsObjects;
     MeshPtr smallVessels = this->getVessels();
@@ -608,7 +622,6 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
     if(esophagus)
         esophagusObjects.push_back(esophagus);
 
-    CX_LOG_DEBUG() << "Adding lung object - lungObjects.size(): " << lungObjects.size();
     foreach(DataPtr object, lungObjects)
         widget->addLungObject(object);
     foreach(DataPtr object, lesionObjects)
@@ -619,8 +632,14 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
         widget->addSpineObject(object);
     foreach(DataPtr object, smallVesselsObjects)
         widget->addSmallVesselObject(object);
-    foreach(DataPtr object, largeVesselsObjects)
-        widget->addLargeVesselObject(object);
+    foreach(DataPtr object, VenaCavaObjects)
+        widget->addVenaCavaObject(object);
+    foreach(DataPtr object, AzygosObjects)
+        widget->addAzygosObject(object);
+    foreach(DataPtr object, AortaObjects)
+        widget->addAortaObject(object);
+    foreach(DataPtr object, SubclavianObjects)
+        widget->addSubclavianObject(object);
     foreach(DataPtr object, heartObjects)
         widget->addHeartObject(object);
     foreach(DataPtr object, esophagusObjects)

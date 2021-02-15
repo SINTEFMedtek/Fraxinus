@@ -69,21 +69,35 @@ StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QW
     structuresLayout->addWidget(mViewLymphNodesButton);
     mViewLymphNodesButton->setEnabled(false);
 
-    mViewSpineButton = new QPushButton("Spine");
-    mViewSpineButtonBackgroundColor = mViewSpineButton->palette();
-    mViewSpineButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
-    mViewSpineButton->setPalette(mViewSpineButtonBackgroundColor);
-    structuresLayout->addWidget(mViewSpineButton);
-    mViewSpineButton->setEnabled(false);
+    mViewVenaCavaButton = new QPushButton("Vena Cava");
+    mViewVenaCavaButtonBackgroundColor = mViewVenaCavaButton->palette();
+    mViewVenaCavaButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
+    mViewVenaCavaButton->setPalette(mViewVenaCavaButtonBackgroundColor);
+    structuresLayout->addWidget(mViewVenaCavaButton);
+    mViewVenaCavaButton->setEnabled(false);
 
-    mViewLargeVesselsButton = new QPushButton("Large Vessels");
-    mViewLargeVesselsButtonBackgroundColor = mViewLargeVesselsButton->palette();
-    mViewLargeVesselsButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
-    mViewLargeVesselsButton->setPalette(mViewLargeVesselsButtonBackgroundColor);
-    structuresLayout->addWidget(mViewLargeVesselsButton);
-    mViewLargeVesselsButton->setEnabled(false);
+    mViewAzygosButton = new QPushButton("Vena Azygos");
+    mViewAzygosButtonBackgroundColor = mViewAzygosButton->palette();
+    mViewAzygosButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
+    mViewAzygosButton->setPalette(mViewAzygosButtonBackgroundColor);
+    structuresLayout->addWidget(mViewAzygosButton);
+    mViewAzygosButton->setEnabled(false);
 
-    mViewSmallVesselsButton = new QPushButton("Small Vessels");
+    mViewAortaButton = new QPushButton("Aorta");
+    mViewAortaButtonBackgroundColor = mViewAortaButton->palette();
+    mViewAortaButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
+    mViewAortaButton->setPalette(mViewAortaButtonBackgroundColor);
+    structuresLayout->addWidget(mViewAortaButton);
+    mViewAortaButton->setEnabled(false);
+
+    mViewSubclavianButton = new QPushButton("Subclavian Artery");
+    mViewSubclavianButtonBackgroundColor = mViewSubclavianButton->palette();
+    mViewSubclavianButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
+    mViewSubclavianButton->setPalette(mViewSubclavianButtonBackgroundColor);
+    structuresLayout->addWidget(mViewSubclavianButton);
+    mViewSubclavianButton->setEnabled(false);
+
+    mViewSmallVesselsButton = new QPushButton("Pulmonary Vessels");
     mViewSmallVesselsButtonBackgroundColor = mViewSmallVesselsButton->palette();
     mViewSmallVesselsButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
     mViewSmallVesselsButton->setPalette(mViewSmallVesselsButtonBackgroundColor);
@@ -104,6 +118,13 @@ StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QW
     structuresLayout->addWidget(mViewEsophagusButton);
     mViewEsophagusButton->setEnabled(false);
 
+    mViewSpineButton = new QPushButton("Spine");
+    mViewSpineButtonBackgroundColor = mViewSpineButton->palette();
+    mViewSpineButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
+    mViewSpineButton->setPalette(mViewSpineButtonBackgroundColor);
+    structuresLayout->addWidget(mViewSpineButton);
+    mViewSpineButton->setEnabled(false);
+
     //structuresLayout->addStretch();
     this->setLayout(structuresLayout);
 //    structuresBox->setLayout(structuresLayout);
@@ -115,7 +136,10 @@ StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QW
     connect(mViewLymphNodesButton, &QPushButton::clicked, this, &StructuresSelectionWidget::viewLymphNodesSlot);
     connect(mViewSpineButton, &QPushButton::clicked, this, &StructuresSelectionWidget::viewSpineSlot);
     connect(mViewSmallVesselsButton, &QPushButton::clicked, this, &StructuresSelectionWidget::viewSmallVesselsSlot);
-    connect(mViewLargeVesselsButton, &QPushButton::clicked, this, &StructuresSelectionWidget::viewLargeVesselsSlot);
+    connect(mViewVenaCavaButton, &QPushButton::clicked, this, &StructuresSelectionWidget::viewVenaCavaSlot);
+    connect(mViewAzygosButton, &QPushButton::clicked, this, &StructuresSelectionWidget::viewAzygosSlot);
+    connect(mViewAortaButton, &QPushButton::clicked, this, &StructuresSelectionWidget::viewAortaSlot);
+    connect(mViewSubclavianButton, &QPushButton::clicked, this, &StructuresSelectionWidget::viewSubclavianSlot);
     connect(mViewHeartButton, &QPushButton::clicked, this, &StructuresSelectionWidget::viewHeartSlot);
     connect(mViewEsophagusButton, &QPushButton::clicked, this, &StructuresSelectionWidget::viewEsophagusSlot);
 
@@ -207,12 +231,36 @@ void StructuresSelectionWidget::addSmallVesselObject(DataPtr object)
     mViewSmallVesselsButton->setPalette(mViewSmallVesselsButtonBackgroundColor);
 }
 
-void StructuresSelectionWidget::addLargeVesselObject(DataPtr object)
+void StructuresSelectionWidget::addVenaCavaObject(DataPtr object)
 {
-    mViewLargeVesselsButton->setEnabled(true);
-    mLargeVesselsObjects.push_back(object);
-    mViewLargeVesselsButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-    mViewLargeVesselsButton->setPalette(mViewLargeVesselsButtonBackgroundColor);
+    mViewVenaCavaButton->setEnabled(true);
+    mVenaCavaObjects.push_back(object);
+    mViewVenaCavaButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+    mViewVenaCavaButton->setPalette(mViewVenaCavaButtonBackgroundColor);
+}
+
+void StructuresSelectionWidget::addAzygosObject(DataPtr object)
+{
+    mViewAzygosButton->setEnabled(true);
+    mAzygosObjects.push_back(object);
+    mViewAzygosButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+    mViewAzygosButton->setPalette(mViewAzygosButtonBackgroundColor);
+}
+
+void StructuresSelectionWidget::addAortaObject(DataPtr object)
+{
+    mViewAortaButton->setEnabled(true);
+    mAortaObjects.push_back(object);
+    mViewAortaButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+    mViewAortaButton->setPalette(mViewAortaButtonBackgroundColor);
+}
+
+void StructuresSelectionWidget::addSubclavianObject(DataPtr object)
+{
+    mViewSubclavianButton->setEnabled(true);
+    mSubclavianObjects.push_back(object);
+    mViewSubclavianButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+    mViewSubclavianButton->setPalette(mViewSubclavianButtonBackgroundColor);
 }
 
 void StructuresSelectionWidget::addHeartObject(DataPtr object)
@@ -321,21 +369,75 @@ void StructuresSelectionWidget::viewSmallVesselsSlot()
     }
 }
 
-void StructuresSelectionWidget::viewLargeVesselsSlot()
+void StructuresSelectionWidget::viewVenaCavaSlot()
 {
-    mViewLargeVesselsEnabled = !mViewLargeVesselsEnabled;
+    mViewVenaCavaEnabled = !mViewVenaCavaEnabled;
 
-    if(mViewLargeVesselsEnabled)
+    if(mViewVenaCavaEnabled)
     {
-        this->displayDataObjects(mLargeVesselsObjects);
-        mViewLargeVesselsButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
-        mViewLargeVesselsButton->setPalette(mViewLargeVesselsButtonBackgroundColor);
+        this->displayDataObjects(mVenaCavaObjects);
+        mViewVenaCavaButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
+        mViewVenaCavaButton->setPalette(mViewVenaCavaButtonBackgroundColor);
     }
     else
     {
-        this->hideDataObjects(mLargeVesselsObjects);
-        mViewLargeVesselsButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-        mViewLargeVesselsButton->setPalette(mViewLargeVesselsButtonBackgroundColor);
+        this->hideDataObjects(mVenaCavaObjects);
+        mViewVenaCavaButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+        mViewVenaCavaButton->setPalette(mViewVenaCavaButtonBackgroundColor);
+    }
+}
+
+void StructuresSelectionWidget::viewAzygosSlot()
+{
+    mViewAzygosEnabled = !mViewAzygosEnabled;
+
+    if(mViewAzygosEnabled)
+    {
+        this->displayDataObjects(mAzygosObjects);
+        mViewAzygosButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
+        mViewAzygosButton->setPalette(mViewAzygosButtonBackgroundColor);
+    }
+    else
+    {
+        this->hideDataObjects(mAzygosObjects);
+        mViewAzygosButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+        mViewAzygosButton->setPalette(mViewAzygosButtonBackgroundColor);
+    }
+}
+
+void StructuresSelectionWidget::viewAortaSlot()
+{
+    mViewAortaEnabled = !mViewAortaEnabled;
+
+    if(mViewAortaEnabled)
+    {
+        this->displayDataObjects(mAortaObjects);
+        mViewAortaButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
+        mViewAortaButton->setPalette(mViewAortaButtonBackgroundColor);
+    }
+    else
+    {
+        this->hideDataObjects(mAortaObjects);
+        mViewAortaButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+        mViewAortaButton->setPalette(mViewAortaButtonBackgroundColor);
+    }
+}
+
+void StructuresSelectionWidget::viewSubclavianSlot()
+{
+    mViewSubclavianEnabled = !mViewSubclavianEnabled;
+
+    if(mViewSubclavianEnabled)
+    {
+        this->displayDataObjects(mSubclavianObjects);
+        mViewSubclavianButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
+        mViewSubclavianButton->setPalette(mViewSubclavianButtonBackgroundColor);
+    }
+    else
+    {
+        this->hideDataObjects(mSubclavianObjects);
+        mViewSubclavianButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+        mViewSubclavianButton->setPalette(mViewSubclavianButtonBackgroundColor);
     }
 }
 
@@ -402,10 +504,25 @@ void StructuresSelectionWidget::onEntry()
         mViewSmallVesselsEnabled = !mViewSmallVesselsEnabled;
         this->viewSmallVesselsSlot();
     }
-    if(mViewLargeVesselsButton->isEnabled())
+    if(mViewVenaCavaButton->isEnabled())
     {
-        mViewLargeVesselsEnabled = !mViewLargeVesselsEnabled;
-        this->viewLargeVesselsSlot();
+        mViewVenaCavaEnabled = !mViewVenaCavaEnabled;
+        this->viewVenaCavaSlot();
+    }
+    if(mViewAzygosButton->isEnabled())
+    {
+        mViewAzygosEnabled = !mViewAzygosEnabled;
+        this->viewAzygosSlot();
+    }
+    if(mViewAortaButton->isEnabled())
+    {
+        mViewAortaEnabled = !mViewAortaEnabled;
+        this->viewAortaSlot();
+    }
+    if(mViewSubclavianButton->isEnabled())
+    {
+        mViewSubclavianEnabled = !mViewSubclavianEnabled;
+        this->viewSubclavianSlot();
     }
     if(mViewHeartButton->isEnabled())
     {

@@ -57,7 +57,10 @@ public:
     void addLymphNodeObject(DataPtr object);
     void addSpineObject(DataPtr object);
     void addSmallVesselObject(DataPtr object);
-    void addLargeVesselObject(DataPtr object);
+    void addVenaCavaObject(DataPtr object);
+    void addAzygosObject(DataPtr object);
+    void addAortaObject(DataPtr object);
+    void addSubclavianObject(DataPtr object);
     void addHeartObject(DataPtr object);
     void addEsophagusObject(DataPtr object);
     void onEntry();
@@ -69,7 +72,10 @@ private slots:
     void viewLymphNodesSlot();
     void viewSpineSlot();
     void viewSmallVesselsSlot();
-    void viewLargeVesselsSlot();
+    void viewVenaCavaSlot();
+    void viewAzygosSlot();
+    void viewAortaSlot();
+    void viewSubclavianSlot();
     void viewHeartSlot();
     void viewEsophagusSlot();
 
@@ -84,7 +90,10 @@ private:
     std::vector<DataPtr> mLymphNodesObjects;
     std::vector<DataPtr> mSpineObjects;
     std::vector<DataPtr> mSmallVesselsObjects;
-    std::vector<DataPtr> mLargeVesselsObjects;
+    std::vector<DataPtr> mVenaCavaObjects;
+    std::vector<DataPtr> mAzygosObjects;
+    std::vector<DataPtr> mAortaObjects;
+    std::vector<DataPtr> mSubclavianObjects;
     std::vector<DataPtr> mHeartObjects;
     std::vector<DataPtr> mEsophagusObjects;
 
@@ -103,9 +112,18 @@ private:
     QPushButton* mViewSmallVesselsButton;
     QPalette mViewSmallVesselsButtonBackgroundColor;
     bool mViewSmallVesselsEnabled = false;
-    QPushButton* mViewLargeVesselsButton;
-    QPalette mViewLargeVesselsButtonBackgroundColor;
-    bool mViewLargeVesselsEnabled = false;
+    QPushButton* mViewVenaCavaButton;
+    QPalette mViewVenaCavaButtonBackgroundColor;
+    bool mViewVenaCavaEnabled = false;
+    QPushButton* mViewAzygosButton;
+    QPalette mViewAzygosButtonBackgroundColor;
+    bool mViewAzygosEnabled = false;
+    QPushButton* mViewAortaButton;
+    QPalette mViewAortaButtonBackgroundColor;
+    bool mViewAortaEnabled = false;
+    QPushButton* mViewSubclavianButton;
+    QPalette mViewSubclavianButtonBackgroundColor;
+    bool mViewSubclavianEnabled = false;
     QPushButton* mViewHeartButton;
     QPalette mViewHeartButtonBackgroundColor;
     bool mViewHeartEnabled = false;

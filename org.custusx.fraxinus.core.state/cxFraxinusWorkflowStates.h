@@ -92,6 +92,7 @@ protected:
     MeshPtr getVenaCava();
     MeshPtr getAorticArch();
     MeshPtr getAscendingAorta();
+    MeshPtr getDescendingAorta();
     MeshPtr getSpine();
     MeshPtr getSubCarArt();
     MeshPtr getEsophagus();
