@@ -125,11 +125,7 @@ StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QW
     structuresLayout->addWidget(mViewSpineButton);
     mViewSpineButton->setEnabled(false);
 
-    //structuresLayout->addStretch();
     this->setLayout(structuresLayout);
-//    structuresBox->setLayout(structuresLayout);
-//    mVerticalLayout->insertWidget(mVerticalLayout->count()-1, structuresBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
-//    mVerticalLayout->addStretch(); //And add some more stretch
 
     connect(mViewLungsButton, &QPushButton::clicked, this, &StructuresSelectionWidget::viewLungsSlot);
     connect(mViewLesionsButton, &QPushButton::clicked, this, &StructuresSelectionWidget::viewLesionsSlot);
@@ -159,14 +155,12 @@ QString StructuresSelectionWidget::getWidgetName()
 
 void StructuresSelectionWidget::displayDataObjects(std::vector<DataPtr> objects)
 {
-    CX_LOG_DEBUG() << "mViewGroupNumbers.size(): " << mViewGroupNumbers.size();
     foreach(DataPtr object, objects)
     {
         if(!object)
             continue;
         for(int i=0; i<mViewGroupNumbers.size(); i++)
         {
-            CX_LOG_DEBUG() << "Adding for group number " << mViewGroupNumbers[i];
             ViewGroupDataPtr viewGroup = mServices->view()->getGroup(mViewGroupNumbers[i]);
             if(viewGroup)
                 viewGroup->addData(object->getUid());
@@ -544,7 +538,5 @@ void StructuresSelectionWidget::onEntry()
     }
 
 }
-
-
 
 } //namespace cx

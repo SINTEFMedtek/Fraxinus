@@ -1033,7 +1033,6 @@ void ProcessWorkflowState::createProcessingInfo()
 
 void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 {
-    CX_LOG_DEBUG() << "ProcessWorkflowState::performAirwaysSegmentation()";
     if(!image)
         return;
 
@@ -1093,7 +1092,6 @@ void ProcessWorkflowState::performAirwaysSegmentation(ImagePtr image)
 
 void ProcessWorkflowState::performMLSegmentation(ImagePtr image)
 {
-    CX_LOG_DEBUG() << "ProcessWorkflowState::performMLSegmentation()";
     if(!image)
         return;
 
@@ -1181,7 +1179,6 @@ void ProcessWorkflowState::performMLSegmentation(ImagePtr image)
 
 void ProcessWorkflowState::runAirwaysFilterSlot()
 {
-    CX_LOG_DEBUG() << "ProcessWorkflowState::runAirwaysFilterSlot()";
 	if (!mCurrentFilter)
 		return;
 
@@ -1199,7 +1196,6 @@ void ProcessWorkflowState::runAirwaysFilterSlot()
 
 void ProcessWorkflowState::runMLFilterSlot()
 {
-    CX_LOG_DEBUG() << "ProcessWorkflowState::runMLFilterSlot()";
     if (!mCurrentFilter)
         return;
     if (mThread)
@@ -1217,7 +1213,6 @@ void ProcessWorkflowState::runMLFilterSlot()
 
 void ProcessWorkflowState::airwaysFinishedSlot()
 {
-    CX_LOG_DEBUG() << "ProcessWorkflowState::airwaysFinishedSlot()";
 	mTimedAlgorithmProgressBar->detach(mThread);
     disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(airwaysFinishedSlot()));
 	mThread.reset();
@@ -1262,7 +1257,6 @@ void ProcessWorkflowState::airwaysFinishedSlot()
 
 void ProcessWorkflowState::MLFinishedSlot()
 {
-    CX_LOG_DEBUG() << "ProcessWorkflowState::MLFinishedSlot()";
     mTimedAlgorithmProgressBar->detach(mThread);
     disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(MLFinishedSlot()));
     mThread.reset();
