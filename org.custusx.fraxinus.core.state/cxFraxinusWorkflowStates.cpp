@@ -826,7 +826,7 @@ ProcessWorkflowState::~ProcessWorkflowState()
 
 QIcon ProcessWorkflowState::getIcon() const
 {
-	return QIcon(":/icons/icons/airwaysegmentation.svg");
+    return QIcon(":/icons/icons/processing.svg");
 }
 
 void ProcessWorkflowState::onEntry(QEvent * event)

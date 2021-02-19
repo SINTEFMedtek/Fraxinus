@@ -7,5 +7,6 @@
         <file>icons/routetotarget.svg</file>
         <file>icons/vbflythrough.svg</file>
         <file>icons/vbcutplane.svg</file>
+        <file>icons/processing.svg</file>
     </qresource>
 </RCC>
