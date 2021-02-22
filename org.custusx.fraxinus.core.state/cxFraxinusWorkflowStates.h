@@ -300,6 +300,23 @@ private:
     int mSurfaceModel3DViewGroupNumber;
 };
 
+class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyAnyplaneWorkflowState: public FraxinusWorkflowState
+{
+Q_OBJECT
+
+public:
+    VirtualBronchoscopyAnyplaneWorkflowState(QState* parent, CoreServicesPtr services);
+    virtual ~VirtualBronchoscopyAnyplaneWorkflowState();
+    virtual QIcon getIcon() const;
+    virtual void onEntry(QEvent* event);
+    void onExit(QEvent *event);
+    virtual bool canEnter() const;
+private:
+    void addDataToView();
+    int mFlyThrough3DViewGroupNumber;
+    int mSurfaceModel3DViewGroupNumber;
+};
+
 class org_custusx_fraxinus_core_state_EXPORT ProcedurePlanningWorkflowState: public FraxinusWorkflowState
 {
 Q_OBJECT

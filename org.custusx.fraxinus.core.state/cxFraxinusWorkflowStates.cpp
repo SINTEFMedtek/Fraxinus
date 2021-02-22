@@ -1752,6 +1752,110 @@ bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
 // --------------------------------------------------------
 // --------------------------------------------------------
 
+VirtualBronchoscopyAnyplaneWorkflowState::VirtualBronchoscopyAnyplaneWorkflowState(QState* parent, CoreServicesPtr services)
+  : FraxinusWorkflowState(parent, "VirtualBronchoscopyAnyplaneUid", "Virtual Bronchoscopy Anyplane", services, false)
+  , mFlyThrough3DViewGroupNumber(2)
+  , mSurfaceModel3DViewGroupNumber(0)
+{
+
+}
+
+VirtualBronchoscopyAnyplaneWorkflowState::~VirtualBronchoscopyAnyplaneWorkflowState()
+{}
+
+QIcon VirtualBronchoscopyAnyplaneWorkflowState::getIcon() const
+{
+    return QIcon(":/icons/icons/vbflythrough.svg");
+}
+
+void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
+{
+    FraxinusWorkflowState::onEntry(event);
+    this->setupVBWidget(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);
+    this->addDataToView();
+
+    FraxinusVBWidget* FraxinusVBWidgetPtr = this->getVBWidget();
+    if(FraxinusVBWidgetPtr)
+    {
+        StructuresSelectionWidget* structureSelectionWidget = FraxinusVBWidgetPtr->getStructuresSelectionWidget();
+        if(structureSelectionWidget)
+            structureSelectionWidget->onEntry();
+    }
+
+    QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
+}
+
+void VirtualBronchoscopyAnyplaneWorkflowState::onExit(QEvent * event)
+{
+    this->cleanupVBWidget();
+    WorkflowState::onExit(event);
+}
+
+void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
+{
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+
+    ImagePtr ctImage = this->getCTImage();
+    ImagePtr ctImage_copied = this->getCTImageCopied();
+    MeshPtr routeToTarget = this->getRouteToTarget();
+    MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
+    MeshPtr airways = this->getAirwaysContour();
+    MeshPtr airwaysTubes = this->getAirwaysTubes();
+    PointMetricPtr targetPoint = this->getTargetPoint();
+    //DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
+
+
+    InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
+    clipper->addData(this->getCTImage());
+
+    ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(mSurfaceModel3DViewGroupNumber);
+    this->setTransferfunction3D("Default", ctImage);
+    if(ctImage)
+        viewGroup0_3D->addData(ctImage->getUid());
+    if(airways)
+    {
+        QColor c = airways->getColor();
+        c.setAlphaF(1);
+        airways->setColor(c);
+        viewGroup0_3D->addData(airways->getUid());
+    }
+    if(targetPoint)
+        viewGroup0_3D->addData(targetPoint->getUid());
+    if(extendedRouteToTarget)
+        viewGroup0_3D->addData(extendedRouteToTarget->getUid());
+    //if(distanceToTargetMetric)
+    //	viewGroup0_3D->addData(distanceToTargetMetric->getUid());
+
+    ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+    viewGroup1_2D->getGroup2DZoom()->set(0.4);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.4);
+
+    if(ctImage)
+        viewGroup1_2D->addData(ctImage->getUid());
+
+    ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(mFlyThrough3DViewGroupNumber);
+    this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
+    if(targetPoint)
+        viewGroup2_3D->addData(targetPoint->getUid());
+    if(airwaysTubes)
+        viewGroup2_3D->addData(airwaysTubes->getUid());
+    if(extendedRouteToTarget)
+        viewGroup2_3D->addData(extendedRouteToTarget->getUid());
+    if(routeToTarget)
+        viewGroup2_3D->addData(routeToTarget->getUid());
+}
+
+bool VirtualBronchoscopyAnyplaneWorkflowState::canEnter() const
+{
+    PointMetricPtr targetPoint = this->getTargetPoint();
+    MeshPtr centerline = this->getCenterline();
+    MeshPtr routeToTarget = this->getRouteToTarget();
+    return targetPoint && centerline && routeToTarget;
+}
+
+// --------------------------------------------------------
+// --------------------------------------------------------
+
 ProcedurePlanningWorkflowState::ProcedurePlanningWorkflowState(QState* parent, CoreServicesPtr services) :
     FraxinusWorkflowState(parent, "ProcedurePlanningUid", "Procedure Plannig", services, true)
   , m3DViewGroupNumber(0)

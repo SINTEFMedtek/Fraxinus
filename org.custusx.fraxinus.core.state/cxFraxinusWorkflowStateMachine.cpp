@@ -52,6 +52,7 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	mPinpointWorkflowState = this->newState(new PinpointWorkflowState(mParentState, services));
 	mVirtualBronchoscopyFlyThroughWorkflowState = this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
 	mVirtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
+    mVirtualBronchoscopyAnyplaneWorkflowState = this->newState(new VirtualBronchoscopyAnyplaneWorkflowState(mParentState, services));
     mProcedurePlanningWorkflowState = this->newState(new ProcedurePlanningWorkflowState(mParentState, services));
 
 	//logic for enabling workflowsteps
@@ -60,6 +61,7 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
     connect(mProcessWorkflowState, SIGNAL(segmentationFinished()), mPinpointWorkflowState, SLOT(canEnterSlot()));
 	connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState, SLOT(canEnterSlot()));
 	connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyCutPlanesWorkflowState, SLOT(canEnterSlot()));
+    connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyAnyplaneWorkflowState, SLOT(canEnterSlot()));
 
 	//set initial state on all levels
 	this->setInitialState(mParentState);

@@ -128,6 +128,16 @@ ApplicationsParser::ApplicationsParser()
     //-----------------------------------------------------
 
     //-----------------------------------------------------
+    // VIRTUAL BRONCHOSCOPY ANYPLANE
+    desktop = Desktop("LAYOUT_VB_3D_ANY", QByteArray::fromBase64(""));
+    toolbars.clear();
+    toolbars << standardToolbars;
+    this->addToolbarsToDesktop(desktop, toolbars);
+    desktop.addPreset(FraxinusVBWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+    mWorkflowDefaultDesktops["VirtualBronchoscopyAnyplaneUid"] = desktop;
+    //-----------------------------------------------------
+
+    //-----------------------------------------------------
     // VIRTUAL BRONCHOSCOPY PROCEDURE PLANNING
     desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
     toolbars.clear();
