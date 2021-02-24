@@ -524,7 +524,7 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 	}
 }
 
-void FraxinusWorkflowState::setupViewOptionsINVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
+void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
 {
     ImagePtr ctImage_copied = this->getCTImageCopied();
 	std::vector<DataPtr> volumeViewObjects;
@@ -656,7 +656,7 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
 {
 	this->setRTTInVBWidget();
-    this->setupViewOptionsINVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber);
+		this->setupViewOptionsInVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber);
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	if(services)
 		services->view()->zoomCamera3D(flyThrough3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());

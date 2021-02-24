@@ -114,7 +114,7 @@ protected:
     void setTransferfunction3D(QString transferfunction, ImagePtr image);
     void setTransferfunction2D(QString transferfunction, ImagePtr image);
     void setRTTInVBWidget();
-    void setupViewOptionsINVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+    void setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
     void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
     void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
     void cleanupVBWidget();
