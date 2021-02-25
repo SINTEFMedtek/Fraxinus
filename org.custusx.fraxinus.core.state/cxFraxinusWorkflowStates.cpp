@@ -1269,7 +1269,7 @@ void ProcessWorkflowState::MLFinishedSlot()
     this->performMLSegmentation(this->getCTImage());
 }
 
-bool ProcessWorkflowState::checkIfSegmentationSucceeded()
+void ProcessWorkflowState::checkIfSegmentationSucceeded()
 {
     if(mCurrentSegmentationType == "Airways")
     {

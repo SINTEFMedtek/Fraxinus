@@ -198,7 +198,7 @@ private:
     void createProcessingInfo();
     void performAirwaysSegmentation(ImagePtr image);
     void performMLSegmentation(ImagePtr image);
-    bool checkIfSegmentationSucceeded();
+    void checkIfSegmentationSucceeded();
     virtual void addDataToView();
 
     FilterPtr mCurrentFilter;
