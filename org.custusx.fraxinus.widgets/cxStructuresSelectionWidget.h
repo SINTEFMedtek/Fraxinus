@@ -43,6 +43,19 @@ class QPushButton;
 
 namespace cx {
 
+struct org_custusx_fraxinus_widgets_EXPORT SelectableStructure
+{
+  QString mName;
+  QPushButton* mButton;
+  QPalette mButtonBackgroundColor;
+  bool mViewEnabled = false;
+  std::vector<DataPtr> mObjects;
+  QMetaObject::Connection mConnection;
+
+  SelectableStructure(QString name);
+  SelectableStructure();
+};
+
 class org_custusx_fraxinus_widgets_EXPORT StructuresSelectionWidget : public BaseWidget
 {
     Q_OBJECT
@@ -52,32 +65,12 @@ public:
 
     static QString getWidgetName();
     void setViewGroupNumbers(std::vector<unsigned int> viewGroupNumbers);
-    void addLungObject(DataPtr object);
-    void addLesionObject(DataPtr object);
-    void addLymphNodeObject(DataPtr object);
-    void addSpineObject(DataPtr object);
-    void addSmallVesselObject(DataPtr object);
-    void addVenaCavaObject(DataPtr object);
-    void addAzygosObject(DataPtr object);
-    void addAortaObject(DataPtr object);
-    void addSubclavianObject(DataPtr object);
-    void addHeartObject(DataPtr object);
-    void addEsophagusObject(DataPtr object);
+    void addObject(QString name, DataPtr object);
     void onEntry();
 
 
 private slots:
-    void viewLungsSlot();
-    void viewLesionsSlot();
-    void viewLymphNodesSlot();
-    void viewSpineSlot();
-    void viewSmallVesselsSlot();
-    void viewVenaCavaSlot();
-    void viewAzygosSlot();
-    void viewAortaSlot();
-    void viewSubclavianSlot();
-    void viewHeartSlot();
-    void viewEsophagusSlot();
+    void viewStructureSlot(QString name);
 
 private:
     void displayDataObjects(std::vector<DataPtr> objects);
@@ -97,39 +90,7 @@ private:
     std::vector<DataPtr> mHeartObjects;
     std::vector<DataPtr> mEsophagusObjects;
 
-    QPushButton* mViewLungsButton;
-    QPalette mViewLungsButtonBackgroundColor;
-    bool mViewLungsEnabled = false;
-    QPushButton* mViewLesionsButton;
-    QPalette mViewLesionsButtonBackgroundColor;
-    bool mViewLesionsEnabled = false;
-    QPushButton* mViewLymphNodesButton;
-    QPalette mViewLymphNodesButtonBackgroundColor;
-    bool mViewLymphNodesEnabled = false;
-    QPushButton* mViewSpineButton;
-    QPalette mViewSpineButtonBackgroundColor;
-    bool mViewSpineEnabled = false;
-    QPushButton* mViewSmallVesselsButton;
-    QPalette mViewSmallVesselsButtonBackgroundColor;
-    bool mViewSmallVesselsEnabled = false;
-    QPushButton* mViewVenaCavaButton;
-    QPalette mViewVenaCavaButtonBackgroundColor;
-    bool mViewVenaCavaEnabled = false;
-    QPushButton* mViewAzygosButton;
-    QPalette mViewAzygosButtonBackgroundColor;
-    bool mViewAzygosEnabled = false;
-    QPushButton* mViewAortaButton;
-    QPalette mViewAortaButtonBackgroundColor;
-    bool mViewAortaEnabled = false;
-    QPushButton* mViewSubclavianButton;
-    QPalette mViewSubclavianButtonBackgroundColor;
-    bool mViewSubclavianEnabled = false;
-    QPushButton* mViewHeartButton;
-    QPalette mViewHeartButtonBackgroundColor;
-    bool mViewHeartEnabled = false;
-    QPushButton* mViewEsophagusButton;
-    QPalette mViewEsophagusButtonBackgroundColor;
-    bool mViewEsophagusEnabled = false;
+    QMap<QString, SelectableStructure> mSelectableStructuresMap;
 };
 
 

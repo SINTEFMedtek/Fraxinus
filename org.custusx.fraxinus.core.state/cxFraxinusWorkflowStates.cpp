@@ -626,27 +626,27 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
         esophagusObjects.push_back(esophagus);
 
     foreach(DataPtr object, lungObjects)
-        widget->addLungObject(object);
+        widget->addObject("Lungs", object);
     foreach(DataPtr object, lesionObjects)
-        widget->addLesionObject(object);
+        widget->addObject("Lesions", object);
     foreach(DataPtr object, lymphNodeObjects)
-        widget->addLymphNodeObject(object);
+        widget->addObject("Lymph Nodes", object);
     foreach(DataPtr object, spineObjects)
-        widget->addSpineObject(object);
+        widget->addObject("Spine", object);
     foreach(DataPtr object, smallVesselsObjects)
-        widget->addSmallVesselObject(object);
+        widget->addObject("Pulmonary Vessels", object);
     foreach(DataPtr object, VenaCavaObjects)
-        widget->addVenaCavaObject(object);
+        widget->addObject("Vena Cava", object);
     foreach(DataPtr object, AzygosObjects)
-        widget->addAzygosObject(object);
+        widget->addObject("Vena Azygos", object);
     foreach(DataPtr object, AortaObjects)
-        widget->addAortaObject(object);
+        widget->addObject("Aorta", object);
     foreach(DataPtr object, SubclavianObjects)
-        widget->addSubclavianObject(object);
+        widget->addObject("Subclavian Artery", object);
     foreach(DataPtr object, heartObjects)
-        widget->addHeartObject(object);
+        widget->addObject("Heart", object);
     foreach(DataPtr object, esophagusObjects)
-        widget->addEsophagusObject(object);
+        widget->addObject("Esophagus", object);
 
     widget->setViewGroupNumbers(viewGroupNumbers);
 
