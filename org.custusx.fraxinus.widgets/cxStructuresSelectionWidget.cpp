@@ -99,7 +99,7 @@ QString StructuresSelectionWidget::getWidgetName()
 
 void StructuresSelectionWidget::displayDataObjects(std::vector<DataPtr> objects)
 {
-    foreach(DataPtr object, objects)
+  for(DataPtr object : objects)
     {
         if(!object)
             continue;
@@ -116,7 +116,7 @@ void StructuresSelectionWidget::displayDataObjects(std::vector<DataPtr> objects)
 
 void StructuresSelectionWidget::hideDataObjects(std::vector<DataPtr> objects)
 {
-    foreach(DataPtr object, objects)
+  for(DataPtr object : objects)
     {
         if(!object)
             continue;
