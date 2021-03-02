@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxViewService.h"
 #include "cxViewGroupData.h"
 #include "cxLogger.h"
+#include "cxEnumConversion.h"
 
 namespace cx {
 
@@ -56,12 +57,9 @@ StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QW
 {
   QVBoxLayout* structuresLayout = new QVBoxLayout;
 
-  QStringList structuresList;
-  structuresList << "Lungs" << "Lesions" << "Lymph Nodes" <<"Vena Cava" << "Vena Azygos" << "Aorta"
-                 << "Subclavian Artery" << "Pulmonary Vessels" << "Heart" << "Esophagus" << "Spine";
-  for(int i = 0; i < structuresList.size(); ++i)
+  for(int i = lsFIRST_STRUCTURE_BUTTON; i <= lsLAST_STRUCTURE_BUTTON; ++i)
   {
-    QString name = structuresList[i];
+    QString name = enum2string(LUNG_STRUCTURES(i));
     SelectableStructure structure(name);
 
     structure.mButton = new QPushButton(name);
@@ -73,9 +71,9 @@ StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QW
     structuresLayout->addWidget(structure.mButton);
 
     //Need to store the connection to be able to disconnect, because of the lambda function
-    structure.mConnection = connect(structure.mButton, &QPushButton::clicked, this, [=]() { this->viewStructureSlot(name); });
+    structure.mConnection = connect(structure.mButton, &QPushButton::clicked, this, [=]() { this->viewStructureSlot(LUNG_STRUCTURES(i)); });
 
-    mSelectableStructuresMap.insert(name, structure);
+    mSelectableStructuresMap.insert(LUNG_STRUCTURES(i), structure);
   }
 
     this->setLayout(structuresLayout);
@@ -83,7 +81,7 @@ StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QW
 
 StructuresSelectionWidget::~StructuresSelectionWidget()
 {
-  QMapIterator<QString, SelectableStructure> i(mSelectableStructuresMap);
+  QMapIterator<LUNG_STRUCTURES, SelectableStructure> i(mSelectableStructuresMap);
   while(i.hasNext())
   {
     i.next();
@@ -138,7 +136,7 @@ void StructuresSelectionWidget::setViewGroupNumbers(std::vector<unsigned int> vi
     mViewGroupNumbers = viewGroupNumbers;
 }
 
-void StructuresSelectionWidget::addObject(QString name, DataPtr object)
+void StructuresSelectionWidget::addObject(LUNG_STRUCTURES name, DataPtr object)
 {
   SelectableStructure structure = mSelectableStructuresMap.take(name);
   structure.mButton->setEnabled(true);
@@ -148,7 +146,7 @@ void StructuresSelectionWidget::addObject(QString name, DataPtr object)
   mSelectableStructuresMap.insert(name, structure);
 }
 
-void StructuresSelectionWidget::viewStructureSlot(QString name)
+void StructuresSelectionWidget::viewStructureSlot(LUNG_STRUCTURES name)
 {
   mSelectableStructuresMap[name].mViewEnabled = !mSelectableStructuresMap[name].mViewEnabled;
   if(mSelectableStructuresMap[name].mViewEnabled)
@@ -167,14 +165,13 @@ void StructuresSelectionWidget::viewStructureSlot(QString name)
 
 void StructuresSelectionWidget::onEntry()
 {
-  QMapIterator<QString, SelectableStructure> i(mSelectableStructuresMap);
+  QMapIterator<LUNG_STRUCTURES, SelectableStructure> i(mSelectableStructuresMap);
   while(i.hasNext())
   {
     i.next();
     if(i.value().mButton->isEnabled())
     {
       mSelectableStructuresMap[i.key()].mViewEnabled = !i.value().mViewEnabled;
-      //i.value().mViewEnabled = !i.value().mViewEnabled;
       this->viewStructureSlot(i.key());
     }
   }

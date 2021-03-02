@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cxStructuresSelectionWidget.h>
 #include "cxBaseWidget.h"
 #include "cxForwardDeclarations.h"
+#include "cxDefinitions.h"
 
 class QPushButton;
 
@@ -65,12 +66,12 @@ public:
 
     static QString getWidgetName();
     void setViewGroupNumbers(std::vector<unsigned int> viewGroupNumbers);
-    void addObject(QString name, DataPtr object);
+    void addObject(LUNG_STRUCTURES name, DataPtr object);
     void onEntry();
 
 
 private slots:
-    void viewStructureSlot(QString name);
+    void viewStructureSlot(LUNG_STRUCTURES name);
 
 private:
     void displayDataObjects(std::vector<DataPtr> objects);
@@ -90,7 +91,7 @@ private:
     std::vector<DataPtr> mHeartObjects;
     std::vector<DataPtr> mEsophagusObjects;
 
-    QMap<QString, SelectableStructure> mSelectableStructuresMap;
+    QMap<LUNG_STRUCTURES, SelectableStructure> mSelectableStructuresMap;
 };
 
 
