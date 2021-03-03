@@ -327,14 +327,6 @@ FraxinusVBWidget* FraxinusWorkflowState::getVBWidget()
 	return mainWindow->findChild<FraxinusVBWidget*>(widgetName);
 }
 
-StructuresSelectionWidget* FraxinusWorkflowState::getStructturesSelectionWidget() //Not used -- delete?
-{
-	QMainWindow* mainWindow = this->getMainWindow();
-	
-	QString widgetName(StructuresSelectionWidget::getWidgetName());
-	return mainWindow->findChild<StructuresSelectionWidget*>(widgetName);
-}
-
 ProcedurePlanningWidget* FraxinusWorkflowState::getProcedurePlanningWidget()
 {
 	QMainWindow* mainWindow = this->getMainWindow();

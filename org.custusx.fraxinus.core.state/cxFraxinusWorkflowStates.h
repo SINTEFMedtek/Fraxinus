@@ -77,7 +77,6 @@ protected:
     MeshPtr getExtendedRouteToTarget() const;
 	QMainWindow *getMainWindow();
 	FraxinusVBWidget *getVBWidget();
-    StructuresSelectionWidget *getStructturesSelectionWidget();
     ProcedurePlanningWidget *getProcedurePlanningWidget();
 	PinpointWidget *getPinpointWidget();
     ImagePtr getCTImageCopied() const;
