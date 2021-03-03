@@ -18,6 +18,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include <QCheckBox>
 #include "cxFilterTimedAlgorithm.h"
 #include "cxTimedAlgorithmProgressBar.h"
+#include "cxDefinitions.h"
 
 namespace cx
 {
@@ -114,8 +115,7 @@ private:
 	bool mSegmentSmallOrgans;
 	bool mSegmentMediumOrgans;
 	bool mSegmentNodules;
-	//QString mCurrentSegmentationType;
-	QString mCurrentSegmentationType;	
+	LUNG_STRUCTURES mCurrentSegmentationType;	
 };
 }//cx
 #endif // CXFRAXINUSSEGMENTATIONS_H

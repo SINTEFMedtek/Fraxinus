@@ -466,7 +466,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 			mActiveTimerWidget->start();
 		CX_LOG_DEBUG() << "Segmenting Vena Cava, Aorta and Spine";
 		scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_MediumOrgansMediastinum.ini");
-		mCurrentSegmentationType = "MediumOrgans";
+		mCurrentSegmentationType = lsMEDIUM_ORGANS;
 		mMediumOrgansProcessed = true;
 	}
 	else if(mSegmentSmallOrgans && !mSmallOrgansProcessed && !this->getEsophagus())
@@ -476,7 +476,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 			mActiveTimerWidget->start();
 		CX_LOG_DEBUG() << "Segmenting Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos";
 		scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_SmallOrgansMediastinum.ini");
-		mCurrentSegmentationType = "SmallOrgans";
+		mCurrentSegmentationType = lsSMALL_ORGANS;
 		mSmallOrgansProcessed = true;
 	}
 	else if(mSegmentNodules && !mNodulesProcessed && !this->getNodules())
@@ -486,13 +486,13 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 			mActiveTimerWidget->start();
 		CX_LOG_DEBUG() << "Segmenting Lesions";
 		scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_Nodules.ini");
-		mCurrentSegmentationType = "Nodules";
+		mCurrentSegmentationType = lsNODULES;
 		mNodulesProcessed = true;
 	}
 	else
 	{
 		mActiveTimerWidget = NULL;
-		mCurrentSegmentationType = "";
+		mCurrentSegmentationType = lsUNKNOWN;
 		emit segmentationFinished();
 		mSegmentationProcessingInfo->close();
 		return;
@@ -543,7 +543,7 @@ void FraxinusSegmentations::airwaysFinishedSlot()
 	disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(airwaysFinishedSlot()));
 	mThread.reset();
 	//dialog.hide();
-	if(mCurrentSegmentationType == "Airways")
+	if(mCurrentSegmentationType == lsAIRWAYS)
 	{
 		MeshPtr airways = this->getAirwaysContour();
 		if(airways)
@@ -574,7 +574,7 @@ void FraxinusSegmentations::airwaysFinishedSlot()
 			this->performMLSegmentation(this->getCTImage());
 		}
 	}
-	else if(mCurrentSegmentationType == "Vessels")
+	else if(mCurrentSegmentationType == lsVESSELS)
 	{
 		this->checkIfSegmentationSucceeded();
 		this->performMLSegmentation(this->getCTImage());
@@ -597,7 +597,7 @@ void FraxinusSegmentations::MLFinishedSlot()
 
 void FraxinusSegmentations::checkIfSegmentationSucceeded()
 {
-	if(mCurrentSegmentationType == "Airways")
+	if(mCurrentSegmentationType == lsAIRWAYS)
 	{
 		if(this->getAirwaysContour())
 		{
@@ -610,7 +610,7 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 				mActiveTimerWidget->failed();
 		}
 	}
-	else if(mCurrentSegmentationType == "Vessels")
+	else if(mCurrentSegmentationType == lsVESSELS)
 	{
 		if(this->getVessels())
 		{
@@ -623,7 +623,7 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 				mActiveTimerWidget->failed();
 		}
 	}
-	else if(mCurrentSegmentationType == "Lungs")
+	else if(mCurrentSegmentationType == lsLUNG)
 	{
 		if(this->getLungs())
 		{
@@ -636,7 +636,7 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 				mActiveTimerWidget->failed();
 		}
 	}
-	else if(mCurrentSegmentationType == "LymphNodes")
+	else if(mCurrentSegmentationType == lsLYMPH_NODES)
 	{
 		if(this->getLymphNodes())
 		{
@@ -662,7 +662,7 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 				mActiveTimerWidget->failed();
 		}
 	}
-	else if(mCurrentSegmentationType == "MediumOrgans")
+	else if(mCurrentSegmentationType == lsMEDIUM_ORGANS)
 	{
 		if(this->getSpine())
 		{
@@ -675,7 +675,7 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 				mActiveTimerWidget->failed();
 		}
 	}
-	else if(mCurrentSegmentationType == "SmallOrgans")
+	else if(mCurrentSegmentationType == lsSMALL_ORGANS)
 	{
 		if(this->getEsophagus())
 		{
@@ -688,7 +688,7 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 				mActiveTimerWidget->failed();
 		}
 	}
-	else if(mCurrentSegmentationType == "Nodules")
+	else if(mCurrentSegmentationType == lsNODULES)
 	{
 		if(this->getNodules())
 		{
