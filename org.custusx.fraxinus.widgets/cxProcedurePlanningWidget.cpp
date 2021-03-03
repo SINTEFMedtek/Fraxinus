@@ -64,11 +64,11 @@ ProcedurePlanningWidget::ProcedurePlanningWidget(VisServicesPtr services, QWidge
     structuresBox->setLayout(structuresLayout);
 
     QVBoxLayout* verticalLayout = new QVBoxLayout;
-    verticalLayout->addSpacing(25);
+    verticalLayout->addStretch();
     verticalLayout->addWidget(centerToImage);
-    verticalLayout->addSpacing(25);
+    verticalLayout->addStretch();
     verticalLayout->addWidget(orientationBox);
-    verticalLayout->addSpacing(50);
+    verticalLayout->addStretch();
     verticalLayout->addWidget(structuresBox);
     verticalLayout->addStretch();
 

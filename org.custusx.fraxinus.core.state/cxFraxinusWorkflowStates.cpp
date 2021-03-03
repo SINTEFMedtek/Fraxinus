@@ -524,7 +524,7 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 	}
 }
 
-void FraxinusWorkflowState::setupViewOptionsINVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
+void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
 {
     ImagePtr ctImage_copied = this->getCTImageCopied();
 	std::vector<DataPtr> volumeViewObjects;
@@ -626,27 +626,27 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
         esophagusObjects.push_back(esophagus);
 
     foreach(DataPtr object, lungObjects)
-        widget->addLungObject(object);
+        widget->addObject(lsLUNG, object);
     foreach(DataPtr object, lesionObjects)
-        widget->addLesionObject(object);
+        widget->addObject(lsLESIONS, object);
     foreach(DataPtr object, lymphNodeObjects)
-        widget->addLymphNodeObject(object);
+        widget->addObject(lsLYMPH_NODES, object);
     foreach(DataPtr object, spineObjects)
-        widget->addSpineObject(object);
+        widget->addObject(lsSPINE, object);
     foreach(DataPtr object, smallVesselsObjects)
-        widget->addSmallVesselObject(object);
+        widget->addObject(lsPULMONARY_VESSELS, object);
     foreach(DataPtr object, VenaCavaObjects)
-        widget->addVenaCavaObject(object);
+        widget->addObject(lsVENA_CAVA, object);
     foreach(DataPtr object, AzygosObjects)
-        widget->addAzygosObject(object);
+        widget->addObject(lsVENA_AZYGOS, object);
     foreach(DataPtr object, AortaObjects)
-        widget->addAortaObject(object);
+        widget->addObject(lsAORTA, object);
     foreach(DataPtr object, SubclavianObjects)
-        widget->addSubclavianObject(object);
+        widget->addObject(lsSUBCLAVIAN_ARTERY, object);
     foreach(DataPtr object, heartObjects)
-        widget->addHeartObject(object);
+        widget->addObject(lsHEART, object);
     foreach(DataPtr object, esophagusObjects)
-        widget->addEsophagusObject(object);
+        widget->addObject(lsESOPHAGUS, object);
 
     widget->setViewGroupNumbers(viewGroupNumbers);
 
@@ -656,7 +656,7 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
 {
 	this->setRTTInVBWidget();
-    this->setupViewOptionsINVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber);
+		this->setupViewOptionsInVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber);
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	if(services)
 		services->view()->zoomCamera3D(flyThrough3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
@@ -1270,7 +1270,7 @@ void ProcessWorkflowState::MLFinishedSlot()
     this->performMLSegmentation(this->getCTImage());
 }
 
-bool ProcessWorkflowState::checkIfSegmentationSucceeded()
+void ProcessWorkflowState::checkIfSegmentationSucceeded()
 {
     if(mCurrentSegmentationType == "Airways")
     {

@@ -99,7 +99,6 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     mVerticalLayout->insertWidget(mVerticalLayout->count()-1, routeBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
 
     mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this);
-    //mStructuresSelectionWidget = this->getStructturesSelectionWidget();
     QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
     QVBoxLayout* structuresLayout = new QVBoxLayout();
     structuresLayout->addWidget(mStructuresSelectionWidget);
