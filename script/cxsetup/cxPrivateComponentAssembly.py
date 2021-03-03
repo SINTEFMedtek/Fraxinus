@@ -40,6 +40,7 @@ class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
 
         self.addComponent(cxPrivateComponents.Fraxinus())
         self.addComponent(cxPrivateComponents.medtekAI())
+	#self.addComponent(cxPrivateComponents.thoraxCTdata())
         self.libraries.remove(self.custusx)
         self.addComponent(self.custusx)
 
