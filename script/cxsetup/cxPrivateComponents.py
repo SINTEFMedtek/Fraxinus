@@ -57,6 +57,7 @@ class medtekAI(cx.build.cxComponents.CppComponent):
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
         self._getBuilder().gitCheckoutSha('d8646bd6968e6d05884e48e04d79bce88f507e1a')
+	self.unzip()
     def configure(self):
         pass
     def build(self):
@@ -66,4 +67,10 @@ class medtekAI(cx.build.cxComponents.CppComponent):
     def useInIntegrationTesting(self):
         'use during integration test'
         return True
+    def thoraxCTdataFolder(self):
+        return 'ThoraxCT'
+    def thoraxCTdataPath(self):
+        return '%s/%s/%s' % (self.controlData.getWorkingPath(), 'CX/CX/data', self.thoraxCTdataFolder())
+    def url_link(self):
+        return 'https://datadryad.org/stash/downloads/file_stream/15551' #Patient016.zip
 # ---------------------------------------------------------
