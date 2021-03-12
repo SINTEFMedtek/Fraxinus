@@ -80,15 +80,15 @@ ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
 set(PLUGIN_target_libraries 
     PUBLIC
     ${PLUGIN_target_libraries}
+    Qt5::Widgets
+    cxResourceFilter
 
-    PRIVATE
+    #PRIVATE
     #FAST
     cxPluginUtilities
-    Qt5::Widgets
     cxResource
     cxResourceWidgets
     cxResourceVisualization
-    cxResourceFilter
     cxGui
     org_custusx_filter_routetotarget
     org_custusx_virtualbronchoscopy
@@ -125,3 +125,5 @@ target_include_directories(org_custusx_fraxinus_core_state
     .
     ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+add_subdirectory(testing)

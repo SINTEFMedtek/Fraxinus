@@ -59,6 +59,7 @@ public:
 	void createProcessingInfo();
 	void performAirwaysSegmentation(ImagePtr image);
 	void performMLSegmentation(ImagePtr image);
+	QString getFilterScriptsPath();
 	void checkIfSegmentationSucceeded();
 	void close();
 	

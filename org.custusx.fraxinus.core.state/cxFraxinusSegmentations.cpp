@@ -24,6 +24,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxMesh.h"
 #include "cxRouteToTargetFilterService.h"
 #include "cxGenericScriptFilter.h"
+#include "cxDataLocations.h"
 
 namespace cx
 {
@@ -416,6 +417,13 @@ void FraxinusSegmentations::performAirwaysSegmentation(ImagePtr image)
 	
 }
 
+QString FraxinusSegmentations::getFilterScriptsPath()
+{
+	QString configPath = DataLocations::getRootConfigPath();
+	QString retval = configPath + "/profiles/Laboratory/filter_scripts/";
+	return retval;
+}
+
 void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 {
 	if(!image)
@@ -435,7 +443,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 		if(mActiveTimerWidget)
 			mActiveTimerWidget->start();
 		CX_LOG_DEBUG() << "Segmenting Lungs";
-		scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_Lungs.ini");
+		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_Lungs.ini");
 		mCurrentSegmentationType = lsLUNG;
 		mLungsProcessed = true;
 	}
@@ -445,7 +453,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 		if(mActiveTimerWidget)
 			mActiveTimerWidget->start();
 		CX_LOG_DEBUG() << "Segmenting Lymph nodes";
-		scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_LymphNodes.ini");
+		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_LymphNodes.ini");
 		mCurrentSegmentationType = lsLYMPH_NODES;
 		mLymphNodesProcessed = true;
 	}
@@ -455,7 +463,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 		if(mActiveTimerWidget)
 			mActiveTimerWidget->start();
 		CX_LOG_DEBUG() << "Segmenting pulmonary system";
-		scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_PulmSystHeart.ini");
+		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_PulmSystHeart.ini");
 		mCurrentSegmentationType = lsPULMONARY_SYSTEM;
 		mPulmonarySystemProcessed = true;
 	}
@@ -465,7 +473,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 		if(mActiveTimerWidget)
 			mActiveTimerWidget->start();
 		CX_LOG_DEBUG() << "Segmenting Vena Cava, Aorta and Spine";
-		scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_MediumOrgansMediastinum.ini");
+		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_MediumOrgansMediastinum.ini");
 		mCurrentSegmentationType = lsMEDIUM_ORGANS;
 		mMediumOrgansProcessed = true;
 	}
@@ -475,7 +483,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 		if(mActiveTimerWidget)
 			mActiveTimerWidget->start();
 		CX_LOG_DEBUG() << "Segmenting Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos";
-		scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_SmallOrgansMediastinum.ini");
+		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_SmallOrgansMediastinum.ini");
 		mCurrentSegmentationType = lsSMALL_ORGANS;
 		mSmallOrgansProcessed = true;
 	}
@@ -485,7 +493,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 		if(mActiveTimerWidget)
 			mActiveTimerWidget->start();
 		CX_LOG_DEBUG() << "Segmenting Lesions";
-		scriptFilter->setParameterFilePath("/home/ehof/dev/fraxinus/CX/CX/config/profiles/Laboratory/filter_scripts/python_Nodules.ini");
+		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_Nodules.ini");
 		mCurrentSegmentationType = lsNODULES;
 		mNodulesProcessed = true;
 	}
