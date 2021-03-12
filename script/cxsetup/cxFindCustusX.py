@@ -8,7 +8,7 @@
 #
 #####################################################
      
-import cxCustusXFinder
+from . import cxCustusXFinder
 
 finder = cxCustusXFinder.CustusXFinder()    
 finder.checkoutMasterIfNotFound()

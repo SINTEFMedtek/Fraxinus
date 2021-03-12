@@ -3,7 +3,7 @@
 import platform
 
 import cx.build.cxComponents
-import cxCustusXFinder
+from . import cxCustusXFinder
 
 class Fraxinus(cx.build.cxComponents.CppComponent):
     def name(self):
@@ -13,7 +13,7 @@ class Fraxinus(cx.build.cxComponents.CppComponent):
     def path(self):
         return '%s/%s' % (self.controlData.getWorkingPath(), self.sourceFolder())    
     def sourceFolder(self):
-	return cxCustusXFinder.RepoLocations().getPrivateRepoFolder()
+        return cxCustusXFinder.RepoLocations().getPrivateRepoFolder()
     def update(self):
         self._getBuilder().gitCheckoutDefaultBranch()    
     def configure(self):
