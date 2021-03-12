@@ -181,6 +181,12 @@ void FraxinusWorkflowState::setVBCutplanesCameraStyle()
 	this->setCameraStyleInGroup(cstTOOL_STYLE, 2);
 }
 
+void FraxinusWorkflowState::setAnyplaneCameraStyle()
+{
+    this->setCameraStyleInGroup(cstDEFAULT_STYLE, 0);
+    this->setCameraStyleInGroup(cstTOOL_STYLE, 2);
+}
+
 void FraxinusWorkflowState::onEntry(QEvent * event)
 {
 	this->onEntryDefault(event);
@@ -1783,7 +1789,19 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
             structureSelectionWidget->onEntry();
     }
 
-    QTimer::singleShot(0, this, SLOT(setVBFlythroughCameraStyle()));
+    QTimer::singleShot(0, this, SLOT(setAnyplaneCameraStyle()));
+
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+    CameraControlPtr camera_control = services->view()->getCameraControl();
+    if(camera_control)
+    {
+        ViewPtr viewSurface_3D = services->view()->get3DView(mSurfaceModel3DViewGroupNumber);
+        camera_control->setView(viewSurface_3D);
+        camera_control->setAnteriorView();
+        viewSurface_3D->setZoomFactor(1.5);
+    }
+    else
+        CX_LOG_DEBUG() << "Cannot find camera control.";
 }
 
 void VirtualBronchoscopyAnyplaneWorkflowState::onExit(QEvent * event)
@@ -1806,13 +1824,10 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
     //DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 
 
-    InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
-    clipper->addData(this->getCTImage());
-
     ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(mSurfaceModel3DViewGroupNumber);
     this->setTransferfunction3D("Default", ctImage);
-    if(ctImage)
-        viewGroup0_3D->addData(ctImage->getUid());
+//    if(ctImage)
+//        viewGroup0_3D->addData(ctImage->getUid());
     if(airways)
     {
         QColor c = airways->getColor();
@@ -1835,7 +1850,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
         viewGroup1_2D->addData(ctImage->getUid());
 
     ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(mFlyThrough3DViewGroupNumber);
-    this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
+    //this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
     if(targetPoint)
         viewGroup2_3D->addData(targetPoint->getUid());
     if(airwaysTubes)
@@ -1885,6 +1900,16 @@ void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
         if(structureSelectionWidget)
             structureSelectionWidget->onEntry();
     }
+
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+    CameraControlPtr camera_control = services->view()->getCameraControl();
+    if(camera_control)
+    {
+        ViewPtr view_3D = services->view()->get3DView(m3DViewGroupNumber);
+        camera_control->setView(view_3D);
+        camera_control->setAnteriorView();
+    }
+
 //    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 //    if(services)
 //        services->view()->zoomCamera3D(m3DViewGroupNumber, 1);

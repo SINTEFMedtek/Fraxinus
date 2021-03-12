@@ -129,6 +129,7 @@ protected slots:
 	virtual void setDefaultCameraStyle();
     virtual void setVBFlythroughCameraStyle();
     virtual void setVBCutplanesCameraStyle();
+    virtual void setAnyplaneCameraStyle();
 
 signals:
     void routeToTargetCreated();
