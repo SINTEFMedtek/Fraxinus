@@ -1815,7 +1815,6 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
     VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
     ImagePtr ctImage = this->getCTImage();
-    ImagePtr ctImage_copied = this->getCTImageCopied();
     MeshPtr routeToTarget = this->getRouteToTarget();
     MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
     MeshPtr airways = this->getAirwaysContour();
@@ -1831,7 +1830,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
     if(airways)
     {
         QColor c = airways->getColor();
-        c.setAlphaF(1);
+        c.setAlphaF(0.6);
         airways->setColor(c);
         viewGroup0_3D->addData(airways->getUid());
     }
@@ -1839,6 +1838,8 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
         viewGroup0_3D->addData(targetPoint->getUid());
     if(extendedRouteToTarget)
         viewGroup0_3D->addData(extendedRouteToTarget->getUid());
+    if(routeToTarget)
+        viewGroup0_3D->addData(routeToTarget->getUid());
     //if(distanceToTargetMetric)
     //	viewGroup0_3D->addData(distanceToTargetMetric->getUid());
 
