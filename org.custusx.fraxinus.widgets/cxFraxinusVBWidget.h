@@ -68,6 +68,8 @@ private slots:
 private:
     void displayVolume();
     void displayTubes();
+    void airwayOpacityOn();
+    void airwayOpacityOff();
     void displayDataObjects(std::vector<DataPtr> objects);
     void hideDataObjects(std::vector<DataPtr> objects);
     void updateRttInfo(double cameraPositionInPercent);
@@ -76,11 +78,15 @@ private:
     QString createDistanceFromPathToTargetText();
     double getTargetDistance();
     double getRemainingRouteInsideAirways(double cameraPositionInPercent);
+    void setAirwayOpacity(bool opacity);
 
     StructuresSelectionWidget* mStructuresSelectionWidget;
     VisServicesPtr mServices;
     QRadioButton* mVolumeButton;
     QRadioButton* mTubeButton;
+    QRadioButton* mOpacityOnButton;
+    QRadioButton* mOpacityOffButton;
+    double mMaxAirwayOpacityValue;
     unsigned int mViewGroupNumber;
     std::vector<DataPtr> mVolumeViewObjects;
     std::vector<DataPtr> mTubeViewObjects;

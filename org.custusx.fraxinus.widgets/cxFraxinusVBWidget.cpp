@@ -58,7 +58,8 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     VBWidget(services, parent),
 		mServices(services),
 		mRouteLength(0),
-		mDistanceFromPathEndToTarget(0)
+        mDistanceFromPathEndToTarget(0),
+        mMaxAirwayOpacityValue(1)
 {
     this->setObjectName(this->getWidgetName());
 
@@ -74,11 +75,25 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     displaySelectorGroup->addButton(mTubeButton);
     displaySelectorGroup->addButton(mVolumeButton);
 
+    // Selector for airway tube opacity
+    QButtonGroup *opacitySelectorGroup = new QButtonGroup(this);
+    mOpacityOnButton = new QRadioButton(tr("Opacity on"));
+    mOpacityOffButton = new QRadioButton(tr("Opacity off"));
+    mOpacityOffButton->setChecked(true);
+    opacitySelectorGroup->addButton(mOpacityOnButton);
+    opacitySelectorGroup->addButton(mOpacityOffButton);
+
     QGroupBox* viewBox = new QGroupBox(tr("View"));
-    QVBoxLayout* viewVLayout = new QVBoxLayout;
-    viewVLayout->addWidget(mTubeButton);
-    viewVLayout->addWidget(mVolumeButton);
-    viewBox->setLayout(viewVLayout);
+//    QVBoxLayout* viewVLayout = new QVBoxLayout;
+//    viewVLayout->addWidget(mTubeButton);
+//    viewVLayout->addWidget(mVolumeButton);
+//    viewBox->setLayout(viewVLayout);
+    QGridLayout* gridLayout = new QGridLayout;
+    gridLayout->addWidget(mTubeButton,0,0);
+    gridLayout->addWidget(mVolumeButton,1,0);
+    gridLayout->addWidget(mOpacityOnButton,0,1);
+    gridLayout->addWidget(mOpacityOffButton,1,1);
+    viewBox->setLayout(gridLayout);
 		mVerticalLayout->insertWidget(mVerticalLayout->count()-1, viewBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
 
     QVBoxLayout* routeVLayout = new QVBoxLayout();
@@ -109,6 +124,8 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 
     connect(mTubeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayTubes);
     connect(mVolumeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayVolume);
+    connect(mOpacityOnButton, &QRadioButton::clicked, this, &FraxinusVBWidget::airwayOpacityOn);
+    connect(mOpacityOffButton, &QRadioButton::clicked, this, &FraxinusVBWidget::airwayOpacityOff);
 
     connect(mPlaybackSlider, &QSlider::valueChanged, this, &FraxinusVBWidget::playbackSliderChanged);
     connect(mRouteToTarget.get(), &SelectDataStringPropertyBase::dataChanged,
@@ -141,11 +158,12 @@ void FraxinusVBWidget::updateAirwaysOpacity(double cameraPositionInPercent)
 		if(mesh)
 		{
 			QColor color = mesh->getColor();
-			color.setAlphaF(1);
+            color.setAlphaF(mMaxAirwayOpacityValue);
 			if(distance < distanceThreshold)
 			{
 				double opacityFactor = maxOpacity*(distanceThreshold-distance)/distanceThreshold;
-				color.setAlphaF(1-opacityFactor);
+                if(1-opacityFactor < mMaxAirwayOpacityValue)
+                    color.setAlphaF(1-opacityFactor);
 			}
 			mesh->setColor(color);
 		}
@@ -264,12 +282,26 @@ void FraxinusVBWidget::displayVolume()
 {
     this->hideDataObjects(mTubeViewObjects);
     this->displayDataObjects(mVolumeViewObjects);
+    mOpacityOnButton->hide();
+    mOpacityOffButton->hide();
 }
 
 void FraxinusVBWidget::displayTubes()
 {
     this->hideDataObjects(mVolumeViewObjects);
     this->displayDataObjects(mTubeViewObjects);
+    mOpacityOnButton->show();
+    mOpacityOffButton->show();
+}
+
+void FraxinusVBWidget::airwayOpacityOn()
+{
+    this->setAirwayOpacity(true);
+}
+
+void FraxinusVBWidget::airwayOpacityOff()
+{
+    this->setAirwayOpacity(false);
 }
 
 void FraxinusVBWidget::displayDataObjects(std::vector<DataPtr> objects)
@@ -306,6 +338,27 @@ void FraxinusVBWidget::addObjectToVolumeView(DataPtr object)
 void FraxinusVBWidget::addObjectToTubeView(DataPtr object)
 {
     mTubeViewObjects.push_back(object);
+}
+
+void FraxinusVBWidget::setAirwayOpacity(bool opacity)
+{
+    double opacityValueOff = 1.0;
+    double opacityValueOn = 0.6;
+    if(opacity)
+        mMaxAirwayOpacityValue = opacityValueOn;
+    else
+        mMaxAirwayOpacityValue = opacityValueOff;
+
+    foreach(DataPtr object, mTubeViewObjects)
+    {
+        MeshPtr mesh = boost::dynamic_pointer_cast<Mesh>(object);
+        if(mesh)
+        {
+            QColor color = mesh->getColor();
+            color.setAlphaF(mMaxAirwayOpacityValue);
+            mesh->setColor(color);
+        }
+    }
 }
 
 StructuresSelectionWidget* FraxinusVBWidget::getStructuresSelectionWidget()
