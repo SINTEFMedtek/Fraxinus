@@ -1136,8 +1136,8 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
     ImagePtr ctImage = this->getCTImage();
     MeshPtr routeToTarget = this->getRouteToTarget();
     MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-    MeshPtr airways = this->getAirwaysContour();
-    MeshPtr airwaysTubes = this->getAirwaysTubes();
+    MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
+    MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
     PointMetricPtr targetPoint = this->getTargetPoint();
     //DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 
@@ -1184,7 +1184,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 bool VirtualBronchoscopyAnyplaneWorkflowState::canEnter() const
 {
     PointMetricPtr targetPoint = this->getTargetPoint();
-    MeshPtr centerline = this->getCenterline();
+    MeshPtr centerline = mFraxinusSegmentations->getCenterline();
     MeshPtr routeToTarget = this->getRouteToTarget();
     return targetPoint && centerline && routeToTarget;
 }
