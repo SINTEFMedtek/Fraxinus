@@ -64,10 +64,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxProcedurePlanningWidget.h"
 #include "cxFraxinusSegmentations.h"
 
-#ifndef __APPLE__
-#include "cxAirwaysFilterService.h"
-#endif
-
 namespace cx
 {
 

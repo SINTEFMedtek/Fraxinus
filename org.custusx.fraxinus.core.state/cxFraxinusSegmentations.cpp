@@ -26,6 +26,10 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxGenericScriptFilter.h"
 #include "cxDataLocations.h"
 
+#ifndef __APPLE__
+#include "cxAirwaysFilterService.h"
+#endif
+
 namespace cx
 {
 
