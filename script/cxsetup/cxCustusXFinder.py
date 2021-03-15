@@ -13,11 +13,11 @@ import sys
 import subprocess
 import pprint
 import argparse
-import cxRepoHandler
+from . import cxRepoHandler
 
 import argparse
 
-class RepoLocations:
+class RepoLocations(object):
     '''
     '''    
     def getRootPath(self):
@@ -79,7 +79,7 @@ class RepoLocations:
 ###########################################################    
 
 
-class CustusXFinder:
+class CustusXFinder(object):
     '''
     '''    
     def __init__(self, silent=True):
@@ -88,7 +88,7 @@ class CustusXFinder:
                     
     def getCustusXRepo(self, forceCheckout):
         root = self.locations.getRootPath()
-        print '===== ensure CustusX is checked out [root: %s] ===' % root
+        print('===== ensure CustusX is checked out [root: %s] ===' % root)
         cx_name = self.locations.getPublicRepoFolder()
 
         cx_root = '%s/%s' % (root, cx_name)
@@ -105,15 +105,15 @@ class CustusXFinder:
         repo.setBranchDefault(defaultBranch)
         repo.syncToGitRef()
         
-        print '===== ensure CustusX is checked out completed [location: %s] ===' % cx_repo_path
+        print('===== ensure CustusX is checked out completed [location: %s] ===' % cx_repo_path)
         
     def addCustusXPythonScriptFolderToPath(self):
         cx_path = "%s/install" % (self.locations.getPublicRepoPath())
         if os.path.exists(cx_path):
             sys.path.append(cx_path)
-            print "Added %s to pythonpath" % cx_path
+            print("Added %s to pythonpath" % cx_path)
         else:
-            print "ERROR: Could not locate CustusX python script folder %s" % cx_path
+            print("ERROR: Could not locate CustusX python script folder %s" % cx_path)
             
     def checkoutMasterIfNotFound(self):
         self.getCustusXRepo(forceCheckout=False)

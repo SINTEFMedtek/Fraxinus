@@ -47,8 +47,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxWorkflowState.h"
 #include "boost/shared_ptr.hpp"
 #include "cxViewService.h"
-#include "cxFilterTimedAlgorithm.h"
-#include "cxTimedAlgorithmProgressBar.h"
 
 class QMainWindow;
 
@@ -56,6 +54,7 @@ namespace cx
 {
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 typedef boost::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
+typedef boost::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
 class FraxinusVBWidget;
 class PinpointWidget;
 class StructuresSelectionWidget;
@@ -73,34 +72,13 @@ public:
 	ImagePtr getCTImage() const;
 
 protected:
-    MeshPtr getCenterline() const;
     MeshPtr getTubeCenterline() const;
     MeshPtr getRouteToTarget() const;
     MeshPtr getExtendedRouteToTarget() const;
 	QMainWindow *getMainWindow();
 	FraxinusVBWidget *getVBWidget();
-    StructuresSelectionWidget *getStructturesSelectionWidget();
     ProcedurePlanningWidget *getProcedurePlanningWidget();
 	PinpointWidget *getPinpointWidget();
-    MeshPtr getAirwaysContour();
-    MeshPtr getAirwaysTubes();
-    MeshPtr getVessels();
-    MeshPtr getMesh(QString str_1, QString str_2 = "");
-    MeshPtr getLungs();
-    MeshPtr getLymphNodes();
-    MeshPtr getNodules();
-    MeshPtr getVenaCava();
-    MeshPtr getAorticArch();
-    MeshPtr getAscendingAorta();
-    MeshPtr getDescendingAorta();
-    MeshPtr getSpine();
-    MeshPtr getSubCarArt();
-    MeshPtr getEsophagus();
-    MeshPtr getBrachiocephalicVeins();
-    MeshPtr getAzygos();
-    MeshPtr getHeart();
-    MeshPtr getPulmonaryVeins();
-    MeshPtr getPulmonaryTrunk();
     ImagePtr getCTImageCopied() const;
     ImagePtr createCopiedImage(ImagePtr originalImage) const;
     PointMetricPtr getTargetPoint() const;
@@ -109,6 +87,7 @@ protected:
     void createRouteToTarget();
     std::vector< Eigen::Vector3d > mRouteToTargetPositions;
     std::vector< double > mRouteToTargetCameraRotations;
+		FraxinusSegmentationsPtr mFraxinusSegmentations;
 
 
     void setTransferfunction3D(QString transferfunction, ImagePtr image);
@@ -183,66 +162,8 @@ public:
     void onExit(QEvent *event);
 	virtual bool canEnter() const;
 
-signals:
-    void segmentationFinished();
-
-private slots:
-	void imageSelected();
-    void cancel();
-    void runAirwaysFilterSlot();
-    void runMLFilterSlot();
-    void airwaysFinishedSlot();
-    void MLFinishedSlot();
-
 private:
-    void createSelectSegmentationBox();
-    void createProcessingInfo();
-    void performAirwaysSegmentation(ImagePtr image);
-    void performMLSegmentation(ImagePtr image);
-    void checkIfSegmentationSucceeded();
     virtual void addDataToView();
-
-    FilterPtr mCurrentFilter;
-    FilterTimedAlgorithmPtr mThread;
-    TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
-    QDialog dialog;
-    QDialog* mSegmentationSelectionInput;
-    QDialog* mSegmentationProcessingInfo;
-    DisplayTimerWidget* mAirwaysTimerWidget;
-    DisplayTimerWidget* mLungsTimerWidget;
-    DisplayTimerWidget* mLymphNodesTimerWidget;
-    DisplayTimerWidget* mPulmonarySystemTimerWidget;
-    DisplayTimerWidget* mMediumOrgansTimerWidget;
-    DisplayTimerWidget* mSmallOrgansTimerWidget;
-    DisplayTimerWidget* mNodulesTimerWidget;
-    DisplayTimerWidget* mVesselsTimerWidget;
-    DisplayTimerWidget* mActiveTimerWidget = NULL;
-    QCheckBox* mCheckBoxAirways;
-    QCheckBox* mCheckBoxLungs;
-    QCheckBox* mCheckBoxLymphNodes;
-    QCheckBox* mCheckBoxPulmonarySystem;
-    QCheckBox* mCheckBoxMediumOrgans;
-    QCheckBox* mCheckBoxSmallOrgans;
-    QCheckBox* mCheckBoxNodules;
-    QCheckBox* mCheckBoxVessels;
-    bool mAirwaysProcessed = false;
-    bool mVesselsProcessed = false;
-    bool mLungsProcessed = false;
-    bool mLymphNodesProcessed = false;
-    bool mPulmonarySystemProcessed = false;
-    bool mMediumOrgansProcessed = false;
-    bool mSmallOrgansProcessed = false;
-    bool mNodulesProcessed = false;
-    bool mSegmentAirways;
-    bool mSegmentVessels;
-    bool mSegmentLungs;
-    bool mSegmentLymphNodes;
-    bool mSegmentPulmonarySystem;
-    bool mSegmentSmallOrgans;
-    bool mSegmentMediumOrgans;
-    bool mSegmentNodules;
-    QString mCurrentSegmentationType;
-
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public FraxinusWorkflowState
