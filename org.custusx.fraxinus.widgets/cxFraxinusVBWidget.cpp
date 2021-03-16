@@ -141,9 +141,9 @@ void FraxinusVBWidget::playbackSliderChanged(int cameraPositionInPercent)
 {
 	//Using a single shot timer to wait for other prosesses to update values.
 	//Using a lambda function to add the cameraPositionInPercent parameter
-    double cameraPositionInPercentAdjusted = positionPercentageAdjusted(cameraPositionInPercent);
-    QTimer::singleShot(0, this, [=](){this->updateRttInfo(cameraPositionInPercentAdjusted);});
-    QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(cameraPositionInPercentAdjusted);});
+    mCameraPositionInPercentAdjusted = positionPercentageAdjusted(cameraPositionInPercent);
+    QTimer::singleShot(0, this, [=](){this->updateRttInfo(mCameraPositionInPercentAdjusted);});
+    QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(mCameraPositionInPercentAdjusted);});
 }
 
 void FraxinusVBWidget::updateAirwaysOpacity(double cameraPositionInPercent)
@@ -349,16 +349,7 @@ void FraxinusVBWidget::setAirwayOpacity(bool opacity)
     else
         mMaxAirwayOpacityValue = opacityValueOff;
 
-    foreach(DataPtr object, mTubeViewObjects)
-    {
-        MeshPtr mesh = boost::dynamic_pointer_cast<Mesh>(object);
-        if(mesh)
-        {
-            QColor color = mesh->getColor();
-            color.setAlphaF(mMaxAirwayOpacityValue);
-            mesh->setColor(color);
-        }
-    }
+    this->updateAirwaysOpacity(mCameraPositionInPercentAdjusted);
 }
 
 StructuresSelectionWidget* FraxinusVBWidget::getStructuresSelectionWidget()

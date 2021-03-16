@@ -97,6 +97,7 @@ private:
     QLabel* mWarningLabel;
     double mRouteLength;
     double mDistanceFromPathEndToTarget;
+    double mCameraPositionInPercentAdjusted;
 
 };
 
