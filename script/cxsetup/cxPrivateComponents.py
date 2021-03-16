@@ -57,7 +57,7 @@ class medtekAI(cx.build.cxComponents.CppComponent):
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
         self._getBuilder().gitCheckoutSha('d8646bd6968e6d05884e48e04d79bce88f507e1a')
-	self.unzip()
+        self.unzip()
     def configure(self):
         pass
     def build(self):
