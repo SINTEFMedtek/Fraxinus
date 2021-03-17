@@ -390,6 +390,9 @@ void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroup
 	tubeViewObjects.push_back(tubes);
 	
 	FraxinusVBWidget* VBWidget = this->getVBWidget();
+	if (!VBWidget)
+		return;
+	
 	for(DataPtr object : tubeViewObjects)
 		VBWidget->addObjectToTubeView(object);
 	for(DataPtr object : volumeViewObjects)
@@ -399,8 +402,7 @@ void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroup
 	viewGroupNumbers.push_back(flyThrough3DViewGroupNumber);
 	if (surfaceModel3DViewGroupNumber >= 0)
 		viewGroupNumbers.push_back(surfaceModel3DViewGroupNumber);
-	if (VBWidget)
-		this->setupViewOptionsForStructuresSelection(VBWidget->getStructuresSelectionWidget(), viewGroupNumbers);
+	this->setupViewOptionsForStructuresSelection(VBWidget->getStructuresSelectionWidget(), viewGroupNumbers);
 	
 	VBWidget->setViewGroupNumber(flyThrough3DViewGroupNumber);
 	
