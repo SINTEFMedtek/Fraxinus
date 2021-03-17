@@ -68,8 +68,6 @@ private:
     QPushButton* mPosteriorButton;
     QPushButton* mLeftButton;
     QPushButton* mRightButton;
-
-    void setStandard3DViewAction(Vector3D viewDirection);
 };
 
 
