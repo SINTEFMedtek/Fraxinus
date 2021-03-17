@@ -777,6 +777,16 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	{
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
+
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+    CameraControlPtr camera_control = services->view()->getCameraControl();
+    if(camera_control)
+    {
+        int viewGroupNumber3D = 0;
+        ViewPtr view_3D = services->view()->get3DView(viewGroupNumber3D);
+        camera_control->setView(view_3D);
+        camera_control->setAnteriorView();
+    }
 	
 	this->setDefaultCameraStyle();
 }
@@ -948,6 +958,8 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	viewGroup1_2D->getGlobal2DZoom()->set(0.4);
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
+    if(targetPoint)
+        viewGroup1_2D->addData(targetPoint->getUid());
 	
 	ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(mFlyThrough3DViewGroupNumber);
 	this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
@@ -1052,6 +1064,8 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	viewGroup1_2D->getGlobal2DZoom()->set(0.4);
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
+    if(targetPoint)
+        viewGroup1_2D->addData(targetPoint->getUid());
 	//if(distanceToTargetMetric)
 	//	viewGroup0_3D->addData(distanceToTargetMetric->getUid());
 	
@@ -1108,8 +1122,6 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
             structureSelectionWidget->onEntry();
     }
 
-    QTimer::singleShot(0, this, SLOT(setAnyplaneCameraStyle()));
-
     VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
     CameraControlPtr camera_control = services->view()->getCameraControl();
     if(camera_control)
@@ -1119,8 +1131,8 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
         camera_control->setAnteriorView();
         viewSurface_3D->setZoomFactor(1.5);
     }
-    else
-        CX_LOG_DEBUG() << "Cannot find camera control.";
+
+    QTimer::singleShot(0, this, SLOT(setAnyplaneCameraStyle()));
 }
 
 void VirtualBronchoscopyAnyplaneWorkflowState::onExit(QEvent * event)
@@ -1168,6 +1180,8 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 
     if(ctImage)
         viewGroup1_2D->addData(ctImage->getUid());
+    if(targetPoint)
+        viewGroup1_2D->addData(targetPoint->getUid());
 
     ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(mFlyThrough3DViewGroupNumber);
     //this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
