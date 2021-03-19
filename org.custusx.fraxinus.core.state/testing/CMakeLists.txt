@@ -15,18 +15,19 @@ if(BUILD_TESTING)
     )
     set(CXTEST_PLUGINALGORITHM_SOURCES
         cxtestFraxinusSegmentation.cpp
+        cxtestExportDummyClassForLinkingOnWindowsInLibWithoutExportedClass.cpp
     )
 
     qt5_wrap_cpp(CXTEST_SOURCES_TO_MOC ${CXTEST_SOURCES_TO_MOC})
-    add_library(cxtestFraxinusCoreState ${CXTEST_PLUGINALGORITHM_SOURCES} ${CXTEST_SOURCES_TO_MOC})
+    add_library(cxtest_org_custusx_fraxinus_core_state ${CXTEST_PLUGINALGORITHM_SOURCES} ${CXTEST_SOURCES_TO_MOC})
     include(GenerateExportHeader)
-    generate_export_header(cxtestFraxinusCoreState)
-    target_include_directories(cxtestFraxinusCoreState
+    generate_export_header(cxtest_org_custusx_fraxinus_core_state)
+    target_include_directories(cxtest_org_custusx_fraxinus_core_state
         PUBLIC
         .
         ${CMAKE_CURRENT_BINARY_DIR}
     )
-    target_link_libraries(cxtestFraxinusCoreState
+    target_link_libraries(cxtest_org_custusx_fraxinus_core_state
         PRIVATE
         org_custusx_fraxinus_core_state
         #cxResource
@@ -34,9 +35,9 @@ if(BUILD_TESTING)
         #cxResourceFilter
         #cxResourceVisualization
         cxCatch
-        #cxtestUtilities
+        cxtestUtilities
         #cxLogicManager
     )
-    cx_add_tests_to_catch(cxtestFraxinusCoreState)
+    cx_add_tests_to_catch(cxtest_org_custusx_fraxinus_core_state)
 
 endif(BUILD_TESTING)
