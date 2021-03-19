@@ -21,7 +21,7 @@ if(BUILD_TESTING)
     add_library(cxtestFraxinusCoreState ${CXTEST_PLUGINALGORITHM_SOURCES} ${CXTEST_SOURCES_TO_MOC})
     include(GenerateExportHeader)
     generate_export_header(cxtestFraxinusCoreState)
-    target_include_directories(cxtestFilter
+    target_include_directories(cxtestFraxinusCoreState
         PUBLIC
         .
         ${CMAKE_CURRENT_BINARY_DIR}
