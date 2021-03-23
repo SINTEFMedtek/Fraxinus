@@ -57,12 +57,12 @@ void FraxinusMainWindowApplicationComponent::addAdditionalDefaultLayouts()
 		viewService->addDefaultLayout(layout);
 	}
     {
-        LayoutData layout = LayoutData::create("LAYOUT_VB_3D_ANY", "VB 3D ANY", 3, 2);
-        layout.setView(2, View::VIEW_3D, LayoutRegion(0, 0, 2, 1));
-        layout.setView(0, View::VIEW_3D, LayoutRegion(0, 1, 1, 1));
-        layout.setView(1, ptAXIAL, LayoutRegion(1, 1, 1, 1));
-        layout.setView(1, ptINVERSEANYPLANE, LayoutRegion(2, 1, 1, 1));
-        layout.setView(1, ptRADIALPLANE, LayoutRegion(2, 0, 1, 1));
+        LayoutData layout = LayoutData::create("LAYOUT_VB_3D_ANY", "VB 3D ANY", 2, 3);
+        layout.setView(2, View::VIEW_3D, LayoutRegion(0, 0, 1, 1));
+        layout.setView(0, View::VIEW_3D, LayoutRegion(0, 2, 2, 1));
+        layout.setView(1, ptAXIAL, LayoutRegion(0, 1, 1, 1));
+        layout.setView(1, ptINVERSEANYPLANE, LayoutRegion(1, 1, 1, 1));
+        layout.setView(1, ptRADIALPLANE, LayoutRegion(1, 0, 1, 1));
         viewService->addDefaultLayout(layout);
     }
 	{
