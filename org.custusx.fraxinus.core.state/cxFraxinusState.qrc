@@ -8,5 +8,8 @@
         <file>icons/vbflythrough.svg</file>
         <file>icons/vbcutplane.svg</file>
         <file>icons/processing.svg</file>
+        <file>icons/vb_1.svg</file>
+        <file>icons/vb_2.svg</file>
+        <file>icons/vb_3.svg</file>
     </qresource>
 </RCC>
