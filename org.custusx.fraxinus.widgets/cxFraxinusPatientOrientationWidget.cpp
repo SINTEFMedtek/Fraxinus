@@ -98,61 +98,40 @@ QString FraxinusPatientOrientationWidget::getWidgetName()
     return "fraxinus_patient_orientation_widget";
 }
 
-void FraxinusPatientOrientationWidget::setStandard3DViewAction(Vector3D viewDirection)
-{
-    vtkRendererPtr renderer = mServices->view()->get3DView()->getRenderer();
-
-    if (!renderer)
-        return;
-    vtkCameraPtr camera = renderer->GetActiveCamera();
-
-    renderer->ResetCamera();
-
-    Vector3D focus(camera->GetFocalPoint());
-    Vector3D pos = focus - 500 * viewDirection;
-    Vector3D vup(0, 0, 1);
-
-    Vector3D left = cross(vup, viewDirection);
-    if (similar(left.length(), 0.0))
-        left = Vector3D(1, 0, 0);
-    vup = cross(viewDirection, left).normal();
-
-    camera->SetPosition(pos.begin());
-    camera->SetViewUp(vup.begin());
-
-    renderer->ResetCamera(); // let vtk do the zooming base work
-    camera->Dolly(1.5); // zoom in a bit more than the default vtk value
-    renderer->ResetCameraClippingRange();
-}
-
 void FraxinusPatientOrientationWidget::setAnteriorViewSlot()
 {
-    this->setStandard3DViewAction(Vector3D(0,1,0));
+    CameraControlPtr cameraControl = mServices->view()->getCameraControl();
+    cameraControl->setStandard3DView(CameraControl::AnteriorDirection());
 }
 
 void FraxinusPatientOrientationWidget::setPosteriorViewSlot()
 {
-    this->setStandard3DViewAction(Vector3D(0,-1,0));
+    CameraControlPtr cameraControl = mServices->view()->getCameraControl();
+    cameraControl->setStandard3DView(CameraControl::PosteriorDirection());
 }
 
 void FraxinusPatientOrientationWidget::setLeftViewSlot()
 {
-    this->setStandard3DViewAction(Vector3D(-1,0,0));
+    CameraControlPtr cameraControl = mServices->view()->getCameraControl();
+    cameraControl->setStandard3DView(CameraControl::LeftDirection());
 }
 
 void FraxinusPatientOrientationWidget::setRightViewSlot()
 {
-    this->setStandard3DViewAction(Vector3D(1,0,0));
+    CameraControlPtr cameraControl = mServices->view()->getCameraControl();
+    cameraControl->setStandard3DView(CameraControl::RightDirection());
 }
 
 void FraxinusPatientOrientationWidget::setSuperiorViewSlot()
 {
-    this->setStandard3DViewAction(Vector3D(0,0,-1));
+    CameraControlPtr cameraControl = mServices->view()->getCameraControl();
+    cameraControl->setStandard3DView(CameraControl::SuperiorDirection());
 }
 
 void FraxinusPatientOrientationWidget::setInferiorViewSlot()
 {
-    this->setStandard3DViewAction(Vector3D(0,0,1));
+    CameraControlPtr cameraControl = mServices->view()->getCameraControl();
+    cameraControl->setStandard3DView(CameraControl::InferiorDirection());
 }
 
 
