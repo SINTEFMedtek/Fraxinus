@@ -58,16 +58,22 @@ FraxinusPatientOrientationWidget::FraxinusPatientOrientationWidget(VisServicesPt
     mPosteriorButton = new QPushButton(QIcon(":/icons/camera_view_P.png"), "Posterior", this);
     mLeftButton = new QPushButton(QIcon(":/icons/camera_view_L.png"), "Left", this);
     mRightButton = new QPushButton(QIcon(":/icons/camera_view_R.png"), "Right", this);
+    mSuperiorButton = new QPushButton(QIcon(":/icons/camera_view_S.png"), "Superior", this);
+    mInferiorButton = new QPushButton(QIcon(":/icons/camera_view_I.png"), "Inferior", this);
 
     mAnteriorButton->setStyleSheet("Text-align:left");
     mPosteriorButton->setStyleSheet("Text-align:left");
     mLeftButton->setStyleSheet("Text-align:left");
     mRightButton->setStyleSheet("Text-align:left");
+    mSuperiorButton->setStyleSheet("Text-align:left");
+    mInferiorButton->setStyleSheet("Text-align:left");
 
     orientationsLayout->addWidget(mAnteriorButton);
     orientationsLayout->addWidget(mPosteriorButton);
     orientationsLayout->addWidget(mLeftButton);
     orientationsLayout->addWidget(mRightButton);
+    orientationsLayout->addWidget(mSuperiorButton);
+    orientationsLayout->addWidget(mInferiorButton);
 
     this->setLayout(orientationsLayout);
 
@@ -75,6 +81,8 @@ FraxinusPatientOrientationWidget::FraxinusPatientOrientationWidget(VisServicesPt
     connect(mPosteriorButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setPosteriorViewSlot);
     connect(mLeftButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setLeftViewSlot);
     connect(mRightButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setRightViewSlot);
+    connect(mSuperiorButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setSuperiorViewSlot);
+    connect(mInferiorButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setInferiorViewSlot);
 
 
 }
@@ -135,6 +143,16 @@ void FraxinusPatientOrientationWidget::setLeftViewSlot()
 void FraxinusPatientOrientationWidget::setRightViewSlot()
 {
     this->setStandard3DViewAction(Vector3D(1,0,0));
+}
+
+void FraxinusPatientOrientationWidget::setSuperiorViewSlot()
+{
+    this->setStandard3DViewAction(Vector3D(0,0,-1));
+}
+
+void FraxinusPatientOrientationWidget::setInferiorViewSlot()
+{
+    this->setStandard3DViewAction(Vector3D(0,0,1));
 }
 
 

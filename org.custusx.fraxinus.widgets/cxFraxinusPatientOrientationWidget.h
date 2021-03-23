@@ -60,6 +60,8 @@ private slots:
     void setPosteriorViewSlot();
     void setLeftViewSlot();
     void setRightViewSlot();
+    void setSuperiorViewSlot();
+    void setInferiorViewSlot();
 
 private:
     VisServicesPtr mServices;
@@ -68,6 +70,8 @@ private:
     QPushButton* mPosteriorButton;
     QPushButton* mLeftButton;
     QPushButton* mRightButton;
+    QPushButton* mSuperiorButton;
+    QPushButton* mInferiorButton;
 
     void setStandard3DViewAction(Vector3D viewDirection);
 };
