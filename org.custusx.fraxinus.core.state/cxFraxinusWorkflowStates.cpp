@@ -549,7 +549,18 @@ void FraxinusWorkflowState::createRouteToTarget()
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	MeshPtr centerline = this->getTubeCenterline();
 	
-	input[0]->setValue(centerline->getUid());
+    if(!targetPoint)
+    {
+        CX_LOG_WARNING() << "In FraxinusWorkflowState::createRouteToTarget: Cannot create route, no target point found";
+        return;
+    }
+    if(!centerline)
+    {
+        CX_LOG_WARNING() << "In FraxinusWorkflowState::createRouteToTarget: Cannot create route, no airway centerline found";
+        return;
+    }
+
+    input[0]->setValue(centerline->getUid());
 	input[1]->setValue(targetPoint->getUid());
 	
 	routeToTargetFilter->setTargetName(targetPoint->getName());
