@@ -843,6 +843,7 @@ void PinpointWorkflowState::addDataToView()
 	ImagePtr ctImage = this->getCTImage();
 	
 	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
+        MeshPtr nodules = mFraxinusSegmentations->getNodules();
 	
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
@@ -858,7 +859,15 @@ void PinpointWorkflowState::addDataToView()
 			QTimer::singleShot(0, this, SLOT(setDefaultCameraStyle()));
 		}
 	}
-	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+
+        ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+
+        if(nodules)
+        {
+            viewGroup0_3D->addData(nodules->getUid());
+            viewGroup1_2D->addData(nodules->getUid());
+        }
+
 	this->setTransferfunction2D("2D CT Lung", ctImage);
 	viewGroup1_2D->getGroup2DZoom()->set(0.3);
 	viewGroup1_2D->getGlobal2DZoom()->set(0.3);
@@ -931,6 +940,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
 	PointMetricPtr targetPoint = this->getTargetPoint();
+        MeshPtr nodules = mFraxinusSegmentations->getNodules();
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 	
 	
@@ -962,6 +972,9 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 		viewGroup1_2D->addData(ctImage->getUid());
     if(targetPoint)
         viewGroup1_2D->addData(targetPoint->getUid());
+    if(nodules)
+        viewGroup1_2D->addData(nodules->getUid());
+
 	
 	ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(mFlyThrough3DViewGroupNumber);
 	this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
@@ -1037,6 +1050,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
 	PointMetricPtr targetPoint = this->getTargetPoint();
+        MeshPtr nodules = mFraxinusSegmentations->getNodules();
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 	
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
@@ -1068,6 +1082,8 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 		viewGroup1_2D->addData(ctImage->getUid());
     if(targetPoint)
         viewGroup1_2D->addData(targetPoint->getUid());
+    if(nodules)
+        viewGroup1_2D->addData(nodules->getUid());
 	//if(distanceToTargetMetric)
 	//	viewGroup0_3D->addData(distanceToTargetMetric->getUid());
 	
@@ -1153,6 +1169,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
     MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
     MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
     PointMetricPtr targetPoint = this->getTargetPoint();
+    MeshPtr nodules = mFraxinusSegmentations->getNodules();
     //DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 
 
@@ -1195,6 +1212,8 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
         viewGroup2_3D->addData(extendedRouteToTarget->getUid());
     if(routeToTarget)
         viewGroup2_3D->addData(routeToTarget->getUid());
+    if(nodules)
+        viewGroup1_2D->addData(nodules->getUid());
 }
 
 bool VirtualBronchoscopyAnyplaneWorkflowState::canEnter() const
