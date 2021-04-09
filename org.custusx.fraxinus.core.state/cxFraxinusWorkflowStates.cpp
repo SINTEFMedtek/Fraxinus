@@ -107,6 +107,15 @@ void FraxinusWorkflowState::removeAllDataFromClipper(InteractiveClipperPtr clipp
 	}
 }
 
+void FraxinusWorkflowState::setPointPickerIn3Dview(bool active)
+{
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+    int viewGroupNumber3D = 0;
+    ViewGroupData::Options options = services->view()->getGroup(viewGroupNumber3D)->getOptions();
+    options.mShowPointPickerProbe = active;
+    services->view()->getGroup(viewGroupNumber3D)->setOptions(options);
+}
+
 ImagePtr FraxinusWorkflowState::getActiveImage()
 {
 	ActiveDataPtr activeData = mServices->patient()->getActiveData();
@@ -806,7 +815,8 @@ void PinpointWorkflowState::onEntry(QEvent * event)
         camera_control->setView(view_3D);
         camera_control->setAnteriorView();
     }
-	
+
+    this->setPointPickerIn3Dview(true);
 	this->setDefaultCameraStyle();
 }
 
@@ -903,6 +913,13 @@ void PinpointWorkflowState::deleteOldRouteToTarget()
 			mServices->patient()->removeData(iter->second->getUid());
 	}
 }
+
+void PinpointWorkflowState::onExit(QEvent * event)
+{
+    this->setPointPickerIn3Dview(false);
+    WorkflowState::onExit(event);
+}
+
 
 // --------------------------------------------------------
 // --------------------------------------------------------

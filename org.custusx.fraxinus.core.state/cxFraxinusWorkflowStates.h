@@ -93,6 +93,7 @@ protected:
 
     void setTransferfunction3D(QString transferfunction, ImagePtr image);
     void setTransferfunction2D(QString transferfunction, ImagePtr image);
+    void setPointPickerIn3Dview(bool active);
     void setRTTInVBWidget();
     void setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
     void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
@@ -179,7 +180,8 @@ public:
     virtual ~PinpointWorkflowState();
     virtual QIcon getIcon() const;
     virtual void onEntry(QEvent *event);
-	virtual bool canEnter() const;
+    void onExit(QEvent *event);
+    virtual bool canEnter() const;
 private slots:
     void dataAddedOrRemovedSlot();
 	void createRoute();
