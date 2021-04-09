@@ -70,7 +70,7 @@ namespace cx
 FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction) :
 	WorkflowState(parent, uid, name, services, enableAction)
 {
-    mFraxinusSegmentations = new FraxinusSegmentations(services);
+    mFraxinusSegmentations = FraxinusSegmentationsPtr(new FraxinusSegmentations(services));
 	
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &FraxinusWorkflowState::canEnterSlot);
 }
@@ -703,7 +703,7 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 
     //TODO: connect to mFraxinusSegmentations, to run addDataToView() if airways segmentation fails? - Is this needed?
     mFraxinusSegmentations->createSelectSegmentationBox();
-    connect(mFraxinusSegmentations, SIGNAL(segmentationFinished()), this, SLOT(segmentationFinishedSlot()));
+    connect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished, this, &ProcessWorkflowState::segmentationFinishedSlot);
 	
 	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
     //QTimer::singleShot(0, this, SLOT(imageSelected()));

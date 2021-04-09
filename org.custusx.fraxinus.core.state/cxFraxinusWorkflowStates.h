@@ -88,7 +88,7 @@ protected:
     void createRouteToTarget();
     std::vector< Eigen::Vector3d > mRouteToTargetPositions;
     std::vector< double > mRouteToTargetCameraRotations;
-    FraxinusSegmentations* mFraxinusSegmentations;
+    FraxinusSegmentationsPtr mFraxinusSegmentations;
 
 
     void setTransferfunction3D(QString transferfunction, ImagePtr image);
