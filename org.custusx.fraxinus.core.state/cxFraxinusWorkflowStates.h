@@ -47,6 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxWorkflowState.h"
 #include "boost/shared_ptr.hpp"
 #include "cxViewService.h"
+#include "cxFraxinusSegmentations.h"
 
 class QMainWindow;
 
@@ -87,7 +88,7 @@ protected:
     void createRouteToTarget();
     std::vector< Eigen::Vector3d > mRouteToTargetPositions;
     std::vector< double > mRouteToTargetCameraRotations;
-		FraxinusSegmentationsPtr mFraxinusSegmentations;
+    FraxinusSegmentations* mFraxinusSegmentations;
 
 
     void setTransferfunction3D(QString transferfunction, ImagePtr image);
@@ -161,7 +162,10 @@ public:
 	virtual void onEntry(QEvent* event);
     void onExit(QEvent *event);
 	virtual bool canEnter() const;
-
+signals:
+  void segmentationFinished();
+private slots:
+    void segmentationFinishedSlot();
 private:
     virtual void addDataToView();
 };

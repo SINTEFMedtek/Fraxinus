@@ -70,7 +70,7 @@ namespace cx
 FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction) :
 	WorkflowState(parent, uid, name, services, enableAction)
 {
-	mFraxinusSegmentations = FraxinusSegmentationsPtr(new FraxinusSegmentations(services));
+    mFraxinusSegmentations = new FraxinusSegmentations(services);
 	
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &FraxinusWorkflowState::canEnterSlot);
 }
@@ -700,22 +700,28 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
-	
-	//TODO: connect to mFraxinusSegmentations, to run addDataToView() if airways segmentation fails? - Is this needed?
-	mFraxinusSegmentations->createSelectSegmentationBox();
+
+    //TODO: connect to mFraxinusSegmentations, to run addDataToView() if airways segmentation fails? - Is this needed?
+    mFraxinusSegmentations->createSelectSegmentationBox();
+    connect(mFraxinusSegmentations, SIGNAL(segmentationFinished()), this, SLOT(segmentationFinishedSlot()));
 	
 	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
     //QTimer::singleShot(0, this, SLOT(imageSelected()));
 	
 	//Setting Pinpoint workflow active here, in case segmentation is run manuelly if automatic segmentation fails.
 	QObject* parentWorkFlow = this->parent();
-	QList<FraxinusWorkflowState *> allWorkflows = parentWorkFlow->findChildren<FraxinusWorkflowState *>();
+    QList<FraxinusWorkflowState *> allWorkflows = parentWorkFlow->findChildren<FraxinusWorkflowState *>();
 	for (int i = 0; i < allWorkflows.size(); i++)
 		if (allWorkflows[i]->getName() == "Set target")
 		{
-			allWorkflows[i]->enableAction(true);
+            allWorkflows[i]->enableAction(true);
 			break;
-		}
+        }
+}
+
+void ProcessWorkflowState::segmentationFinishedSlot()
+{
+    emit segmentationFinished();
 }
 
 bool ProcessWorkflowState::canEnter() const
