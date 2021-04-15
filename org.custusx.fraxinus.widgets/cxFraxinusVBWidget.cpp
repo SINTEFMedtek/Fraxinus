@@ -311,7 +311,6 @@ void FraxinusVBWidget::displayDataObjects(std::vector<DataPtr> objects)
         if(!object)
             continue;
         mServices->view()->getGroup(mViewGroupNumber)->addData(object->getUid());
-        CX_LOG_DEBUG() << "Display data object. Uid: " << object->getUid();
     }
 }
 

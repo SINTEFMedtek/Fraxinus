@@ -1274,7 +1274,7 @@ ProcedurePlanningWorkflowState::~ProcedurePlanningWorkflowState()
 
 QIcon ProcedurePlanningWorkflowState::getIcon() const
 {
-	return QIcon(":/icons/icons/airwaysegmentation.svg");// TO DO: change icon
+    return QIcon(":/icons/icons/lungs.svg");
 }
 
 void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
