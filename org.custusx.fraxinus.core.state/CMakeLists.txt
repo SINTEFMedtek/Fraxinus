@@ -5,7 +5,9 @@
 
 project(org_custusx_fraxinus_core_state)
 
-cx_initialize_FAST()
+if(NOT CX_APPLE)
+    cx_initialize_FAST()
+endif()
 
 set(PLUGIN_export_directive "${PROJECT_NAME}_EXPORT")
 
@@ -25,14 +27,19 @@ set(PLUGIN_SRCS
     cxApplicationsParser.cpp
     cxVBCameraZoomSetting3D.h
     cxVBCameraZoomSetting3D.cpp
+    cxFraxinusSegmentations.h
+    cxFraxinusSegmentations.cpp
 )
 
-# Make sure OpenCL kernel files are copied to the installer
-# Install OpenCL kernels
-install(DIRECTORY ${FAST_SOURCE_DIR}
-        DESTINATION ${CX_INSTALL_CONFIG_DIR}/FAST/
-        FILES_MATCHING PATTERN "*.cl"
-)
+
+if(NOT CX_APPLE)
+    # Make sure OpenCL kernel files are copied to the installer
+    # Install OpenCL kernels
+    install(DIRECTORY ${FAST_SOURCE_DIR}
+            DESTINATION ${CX_INSTALL_CONFIG_DIR}/FAST/
+            FILES_MATCHING PATTERN "*.cl"
+    )
+endif()
 
 #Compute the plugin dependencies
 ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
@@ -52,6 +59,7 @@ set(PLUGIN_MOC_SRCS
     cxFraxinusWorkflowStates.h
     cxStateServiceImpl.h
     cxStatePluginActivator.h
+    cxFraxinusSegmentations.h
 )
 
 # Qt Designer files which should be processed by Qts uic
@@ -62,23 +70,25 @@ set(PLUGIN_UI_FORMS
 set(PLUGIN_resources
 )
 
-find_package(FAST REQUIRED)
-link_directories("${FAST_DIR}/lib/")
+if(NOT CX_APPLE)
+    find_package(FAST REQUIRED)
+    link_directories("${FAST_DIR}/lib/")
+endif()
 
 #Compute the plugin dependencies
 ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
 set(PLUGIN_target_libraries 
     PUBLIC
     ${PLUGIN_target_libraries}
-
-    PRIVATE
-    FAST
-    cxPluginUtilities
     Qt5::Widgets
+    cxResourceFilter
+
+    #PRIVATE
+    #FAST
+    cxPluginUtilities
     cxResource
     cxResourceWidgets
     cxResourceVisualization
-    cxResourceFilter
     cxGui
     org_custusx_filter_routetotarget
     org_custusx_virtualbronchoscopy
@@ -88,6 +98,7 @@ set(PLUGIN_target_libraries
 if(NOT CX_APPLE)
   set(PLUGIN_target_libraries
     ${PLUGIN_target_libraries}
+    FAST
     org_custusx_filter_airways
     )
 endif()
@@ -114,3 +125,5 @@ target_include_directories(org_custusx_fraxinus_core_state
     .
     ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+add_subdirectory(testing)

@@ -38,6 +38,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QTimer>
+#include <QPushButton>
+#include <QApplication>
+#include <QMainWindow>
 #include "cxVisServices.h"
 #include "cxViewService.h"
 #include "cxViewGroupData.h"
@@ -47,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxPointMetric.h"
 #include "cxDistanceMetric.h"
 #include "cxVBcameraPath.h"
+#include "cxStructuresSelectionWidget.h"
 
 namespace cx {
 
@@ -54,7 +58,8 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     VBWidget(services, parent),
 		mServices(services),
 		mRouteLength(0),
-		mDistanceFromPathEndToTarget(0)
+        mDistanceFromPathEndToTarget(0),
+        mMaxAirwayOpacityValue(1)
 {
     this->setObjectName(this->getWidgetName());
 
@@ -70,11 +75,25 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     displaySelectorGroup->addButton(mTubeButton);
     displaySelectorGroup->addButton(mVolumeButton);
 
+    // Selector for airway tube opacity
+    QButtonGroup *opacitySelectorGroup = new QButtonGroup(this);
+    mOpacityOnButton = new QRadioButton(tr("Opacity on"));
+    mOpacityOffButton = new QRadioButton(tr("Opacity off"));
+    mOpacityOffButton->setChecked(true);
+    opacitySelectorGroup->addButton(mOpacityOnButton);
+    opacitySelectorGroup->addButton(mOpacityOffButton);
+
     QGroupBox* viewBox = new QGroupBox(tr("View"));
-    QVBoxLayout* viewVLayout = new QVBoxLayout;
-    viewVLayout->addWidget(mTubeButton);
-    viewVLayout->addWidget(mVolumeButton);
-    viewBox->setLayout(viewVLayout);
+//    QVBoxLayout* viewVLayout = new QVBoxLayout;
+//    viewVLayout->addWidget(mTubeButton);
+//    viewVLayout->addWidget(mVolumeButton);
+//    viewBox->setLayout(viewVLayout);
+    QGridLayout* gridLayout = new QGridLayout;
+    gridLayout->addWidget(mTubeButton,0,0);
+    gridLayout->addWidget(mVolumeButton,1,0);
+    gridLayout->addWidget(mOpacityOnButton,0,1);
+    gridLayout->addWidget(mOpacityOffButton,1,1);
+    viewBox->setLayout(gridLayout);
 		mVerticalLayout->insertWidget(mVerticalLayout->count()-1, viewBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
 
     QVBoxLayout* routeVLayout = new QVBoxLayout();
@@ -93,13 +112,23 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     QGroupBox* routeBox = new QGroupBox(tr("Route length"));
     routeBox->setLayout(routeVLayout);
     mVerticalLayout->insertWidget(mVerticalLayout->count()-1, routeBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+
+    mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this);
+    QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
+    QVBoxLayout* structuresLayout = new QVBoxLayout();
+    structuresLayout->addWidget(mStructuresSelectionWidget);
+    structuresBox->setLayout(structuresLayout);
+    mVerticalLayout->insertWidget(mVerticalLayout->count()-1, structuresBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
     mVerticalLayout->addStretch(); //And add some more stretch
+
 
     connect(mTubeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayTubes);
     connect(mVolumeButton, &QRadioButton::clicked, this, &FraxinusVBWidget::displayVolume);
+    connect(mOpacityOnButton, &QRadioButton::clicked, this, &FraxinusVBWidget::airwayOpacityOn);
+    connect(mOpacityOffButton, &QRadioButton::clicked, this, &FraxinusVBWidget::airwayOpacityOff);
 
-		connect(mPlaybackSlider, &QSlider::valueChanged, this, &FraxinusVBWidget::playbackSliderChanged);
-		connect(mRouteToTarget.get(), &SelectDataStringPropertyBase::dataChanged,
+    connect(mPlaybackSlider, &QSlider::valueChanged, this, &FraxinusVBWidget::playbackSliderChanged);
+    connect(mRouteToTarget.get(), &SelectDataStringPropertyBase::dataChanged,
 						this, &FraxinusVBWidget::calculateRouteLength);
 }
 
@@ -112,9 +141,9 @@ void FraxinusVBWidget::playbackSliderChanged(int cameraPositionInPercent)
 {
 	//Using a single shot timer to wait for other prosesses to update values.
 	//Using a lambda function to add the cameraPositionInPercent parameter
-    double cameraPositionInPercentAdjusted = positionPercentageAdjusted(cameraPositionInPercent);
-    QTimer::singleShot(0, this, [=](){this->updateRttInfo(cameraPositionInPercentAdjusted);});
-    QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(cameraPositionInPercentAdjusted);});
+    mCameraPositionInPercentAdjusted = positionPercentageAdjusted(cameraPositionInPercent);
+    QTimer::singleShot(0, this, [=](){this->updateRttInfo(mCameraPositionInPercentAdjusted);});
+    QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(mCameraPositionInPercentAdjusted);});
 }
 
 void FraxinusVBWidget::updateAirwaysOpacity(double cameraPositionInPercent)
@@ -129,11 +158,12 @@ void FraxinusVBWidget::updateAirwaysOpacity(double cameraPositionInPercent)
 		if(mesh)
 		{
 			QColor color = mesh->getColor();
-			color.setAlphaF(1);
+            color.setAlphaF(mMaxAirwayOpacityValue);
 			if(distance < distanceThreshold)
 			{
 				double opacityFactor = maxOpacity*(distanceThreshold-distance)/distanceThreshold;
-				color.setAlphaF(1-opacityFactor);
+                if(1-opacityFactor < mMaxAirwayOpacityValue)
+                    color.setAlphaF(1-opacityFactor);
 			}
 			mesh->setColor(color);
 		}
@@ -158,7 +188,6 @@ double FraxinusVBWidget::getTargetDistance()
 
 	return distance;
 }
-
 void FraxinusVBWidget::updateRttInfo(double cameraPositionInPercent)
 {
 	mStaticTotalLegth->setText(QString("Total route inside airways: <b>%1 mm</b> ").arg(mRouteLength, 0, 'f', 0));
@@ -253,12 +282,26 @@ void FraxinusVBWidget::displayVolume()
 {
     this->hideDataObjects(mTubeViewObjects);
     this->displayDataObjects(mVolumeViewObjects);
+    mOpacityOnButton->hide();
+    mOpacityOffButton->hide();
 }
 
 void FraxinusVBWidget::displayTubes()
 {
     this->hideDataObjects(mVolumeViewObjects);
     this->displayDataObjects(mTubeViewObjects);
+    mOpacityOnButton->show();
+    mOpacityOffButton->show();
+}
+
+void FraxinusVBWidget::airwayOpacityOn()
+{
+    this->setAirwayOpacity(true);
+}
+
+void FraxinusVBWidget::airwayOpacityOff()
+{
+    this->setAirwayOpacity(false);
 }
 
 void FraxinusVBWidget::displayDataObjects(std::vector<DataPtr> objects)
@@ -296,6 +339,22 @@ void FraxinusVBWidget::addObjectToTubeView(DataPtr object)
     mTubeViewObjects.push_back(object);
 }
 
+void FraxinusVBWidget::setAirwayOpacity(bool opacity)
+{
+    double opacityValueOff = 1.0;
+    double opacityValueOn = 0.6;
+    if(opacity)
+        mMaxAirwayOpacityValue = opacityValueOn;
+    else
+        mMaxAirwayOpacityValue = opacityValueOff;
+
+    this->updateAirwaysOpacity(mCameraPositionInPercentAdjusted);
+}
+
+StructuresSelectionWidget* FraxinusVBWidget::getStructuresSelectionWidget()
+{
+    return mStructuresSelectionWidget;
+}
 
 
 } //namespace cx

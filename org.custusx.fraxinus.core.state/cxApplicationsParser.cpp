@@ -51,6 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxProfile.h"
 
 #include "cxFraxinusVBWidget.h"
+#include "cxProcedurePlanningWidget.h"
 #include "cxLogger.h"
 
 
@@ -124,6 +125,26 @@ ApplicationsParser::ApplicationsParser()
 	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset(FraxinusVBWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["VirtualBronchoscopyCutPlanesUid"] = desktop;
+    //-----------------------------------------------------
+
+    //-----------------------------------------------------
+    // VIRTUAL BRONCHOSCOPY ANYPLANE
+    desktop = Desktop("LAYOUT_VB_3D_ANY", QByteArray::fromBase64(""));
+    toolbars.clear();
+    toolbars << standardToolbars;
+    this->addToolbarsToDesktop(desktop, toolbars);
+    desktop.addPreset(FraxinusVBWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+    mWorkflowDefaultDesktops["VirtualBronchoscopyAnyplaneUid"] = desktop;
+    //-----------------------------------------------------
+
+    //-----------------------------------------------------
+    // VIRTUAL BRONCHOSCOPY PROCEDURE PLANNING
+    desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+    toolbars.clear();
+    toolbars << standardToolbars;
+    this->addToolbarsToDesktop(desktop, toolbars);
+    desktop.addPreset(ProcedurePlanningWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+    mWorkflowDefaultDesktops["ProcedurePlanningUid"] = desktop;
     //-----------------------------------------------------
 
 }

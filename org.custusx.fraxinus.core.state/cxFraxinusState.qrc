@@ -1,11 +1,15 @@
 <RCC>
     <qresource prefix="/icons">
-        <file>icons/airwaysegmentation.svg</file>
         <file>icons/import.svg</file>
         <file>icons/patient.svg</file>
         <file>icons/pinpoint.svg</file>
         <file>icons/routetotarget.svg</file>
         <file>icons/vbflythrough.svg</file>
         <file>icons/vbcutplane.svg</file>
+        <file>icons/processing.svg</file>
+        <file>icons/vb_1.svg</file>
+        <file>icons/vb_2.svg</file>
+        <file>icons/vb_3.svg</file>
+        <file>icons/lungs.svg</file>
     </qresource>
 </RCC>

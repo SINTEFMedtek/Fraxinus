@@ -4,11 +4,11 @@ import platform
 
 import cx.build.cxComponents
 import cx.build.cxComponentAssembly
-import cxPrivateComponents
+from . import cxPrivateComponents
 import cx.build.cxInstallData
 import cx.utils.cxSSH
-import cxCustusXFinder
-import cxRepoHandler
+from . import cxCustusXFinder
+from . import cxRepoHandler
 
 class PrivateControlData(cx.build.cxInstallData.Common):
     def __init__(self):
@@ -31,14 +31,16 @@ class PrivateControlData(cx.build.cxInstallData.Common):
 
 class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
     '''
-	Contains all components
+    Contains all components
     '''
     def __init__(self):
-	''
+        ''
         controlData = PrivateControlData()
         super(LibraryAssembly, self).__init__(controlData)
 
         self.addComponent(cxPrivateComponents.Fraxinus())
+        self.addComponent(cxPrivateComponents.medtekAI())
+	#self.addComponent(cxPrivateComponents.thoraxCTdata())
         self.libraries.remove(self.custusx)
         self.addComponent(self.custusx)
 

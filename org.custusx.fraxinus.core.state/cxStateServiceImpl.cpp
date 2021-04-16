@@ -149,6 +149,9 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("View/showMetricNamesInCorner", true);
     this->fillDefault("View3D/showManualTool", true);
 	this->fillDefault("View3D/sphereRadius", 1.3);
+    this->fillDefault("View/showDataText", false);
+    this->fillDefault("Navigation/followTooltipBoundary", 0.5);
+    this->fillDefault("Navigation/anyplaneViewOffset", 0.5);
 
     this->resetSegmentationSettings();
 }

@@ -30,79 +30,72 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
-#ifndef FRAXINUSVBWIDGET_H
-#define FRAXINUSVBWIDGET_H
+#ifndef STRUCTURESSELECTIONWIDGET_H
+#define STRUCTURESSELECTIONWIDGET_H
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
-#include <cxVBWidget.h>
 #include <cxStructuresSelectionWidget.h>
+#include "cxBaseWidget.h"
+#include "cxForwardDeclarations.h"
+#include "cxDefinitions.h"
 
-class QRadioButton;
-class QLabel;
 class QPushButton;
-class QMainWindow;
 
 namespace cx {
 
-class org_custusx_fraxinus_widgets_EXPORT FraxinusVBWidget : public VBWidget
+struct org_custusx_fraxinus_widgets_EXPORT SelectableStructure
+{
+  QString mName;
+  QPushButton* mButton;
+  QPalette mButtonBackgroundColor;
+  bool mViewEnabled = false;
+  std::vector<DataPtr> mObjects;
+  QMetaObject::Connection mConnection;
+
+  SelectableStructure(QString name);
+  SelectableStructure();
+};
+
+class org_custusx_fraxinus_widgets_EXPORT StructuresSelectionWidget : public BaseWidget
 {
     Q_OBJECT
 public:
-    FraxinusVBWidget(VisServicesPtr services, QWidget *parent = 0);
-    virtual ~FraxinusVBWidget();
+    StructuresSelectionWidget(VisServicesPtr services, QWidget *parent = 0);
+    virtual ~StructuresSelectionWidget();
 
     static QString getWidgetName();
-    void setViewGroupNumber(unsigned int viewGroupNumber);
-    void addObjectToVolumeView(DataPtr object);
-    void addObjectToTubeView(DataPtr object);
-    StructuresSelectionWidget *getStructuresSelectionWidget();
+    void setViewGroupNumbers(std::vector<unsigned int> viewGroupNumbers);
+    void addObject(LUNG_STRUCTURES name, DataPtr object);
+    void onEntry();
 
 
 private slots:
-    virtual void keyPressEvent(QKeyEvent* event);
-    void calculateRouteLength();
-    void playbackSliderChanged(int cameraPositionInPercent);
-
+    void viewStructureSlot(LUNG_STRUCTURES name);
 
 private:
-    void displayVolume();
-    void displayTubes();
-    void airwayOpacityOn();
-    void airwayOpacityOff();
     void displayDataObjects(std::vector<DataPtr> objects);
     void hideDataObjects(std::vector<DataPtr> objects);
-    void updateRttInfo(double cameraPositionInPercent);
-    void updateAirwaysOpacity(double cameraPositionInPercent);
-    void calculateDistanceFromRouteEndToTarget(Eigen::Vector3d routeEndpoint);
-    QString createDistanceFromPathToTargetText();
-    double getTargetDistance();
-    double getRemainingRouteInsideAirways(double cameraPositionInPercent);
-    void setAirwayOpacity(bool opacity);
 
-    StructuresSelectionWidget* mStructuresSelectionWidget;
     VisServicesPtr mServices;
-    QRadioButton* mVolumeButton;
-    QRadioButton* mTubeButton;
-    QRadioButton* mOpacityOnButton;
-    QRadioButton* mOpacityOffButton;
-    double mMaxAirwayOpacityValue;
-    unsigned int mViewGroupNumber;
-    std::vector<DataPtr> mVolumeViewObjects;
-    std::vector<DataPtr> mTubeViewObjects;
-    QLabel* mStaticTotalLegth;
-    QLabel* mRemainingRttLegth;
-    QLabel* mDirectDistance;
-    QLabel* mDistanceToTarget;
-    QLabel* mWarningLabel;
-    double mRouteLength;
-    double mDistanceFromPathEndToTarget;
-    double mCameraPositionInPercentAdjusted;
+    std::vector<unsigned int> mViewGroupNumbers;
+    std::vector<DataPtr> mLungsObjects;
+    std::vector<DataPtr> mLesionsObjects;
+    std::vector<DataPtr> mLymphNodesObjects;
+    std::vector<DataPtr> mSpineObjects;
+    std::vector<DataPtr> mSmallVesselsObjects;
+    std::vector<DataPtr> mVenaCavaObjects;
+    std::vector<DataPtr> mAzygosObjects;
+    std::vector<DataPtr> mAortaObjects;
+    std::vector<DataPtr> mSubclavianObjects;
+    std::vector<DataPtr> mHeartObjects;
+    std::vector<DataPtr> mEsophagusObjects;
 
+    QMap<LUNG_STRUCTURES, SelectableStructure> mSelectableStructuresMap;
 };
 
 
 } //namespace cx
 
 
-#endif //FRAXINUSVBWIDGET_H
+#endif //STRUCTURESSELECTIONWIDGET_H

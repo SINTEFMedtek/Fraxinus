@@ -1,4 +1,4 @@
-/*=========================================================================
+    /*=========================================================================
 This file is part of CustusX, an Image Guided Therapy Application.
 
 Copyright (c) 2008-2014, SINTEF Department of Medical Technology
@@ -41,13 +41,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QString>
 #include <QAction>
 #include <QDialog>
+#include <QCheckBox>
 #include "cxTypeConversions.h"
 #include "cxRequestEnterStateTransition.h"
 #include "cxWorkflowState.h"
 #include "boost/shared_ptr.hpp"
 #include "cxViewService.h"
-#include "cxFilterTimedAlgorithm.h"
-#include "cxTimedAlgorithmProgressBar.h"
+#include "cxFraxinusSegmentations.h"
 
 class QMainWindow;
 
@@ -55,8 +55,11 @@ namespace cx
 {
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 typedef boost::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
+typedef boost::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
 class FraxinusVBWidget;
 class PinpointWidget;
+class StructuresSelectionWidget;
+class ProcedurePlanningWidget;
 
 
 class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public WorkflowState
@@ -70,15 +73,13 @@ public:
 	ImagePtr getCTImage() const;
 
 protected:
-    MeshPtr getCenterline() const;
     MeshPtr getTubeCenterline() const;
     MeshPtr getRouteToTarget() const;
     MeshPtr getExtendedRouteToTarget() const;
 	QMainWindow *getMainWindow();
 	FraxinusVBWidget *getVBWidget();
+    ProcedurePlanningWidget *getProcedurePlanningWidget();
 	PinpointWidget *getPinpointWidget();
-    MeshPtr getAirwaysContour() const;
-	MeshPtr getAirwaysTubes() const;
     ImagePtr getCTImageCopied() const;
     ImagePtr createCopiedImage(ImagePtr originalImage) const;
     PointMetricPtr getTargetPoint() const;
@@ -87,14 +88,18 @@ protected:
     void createRouteToTarget();
     std::vector< Eigen::Vector3d > mRouteToTargetPositions;
     std::vector< double > mRouteToTargetCameraRotations;
+    FraxinusSegmentationsPtr mFraxinusSegmentations;
 
 
     void setTransferfunction3D(QString transferfunction, ImagePtr image);
     void setTransferfunction2D(QString transferfunction, ImagePtr image);
+    void setPointPickerIn3Dview(bool active);
     void setRTTInVBWidget();
-	void setupViewOptionsINVBWidget(int flyThrough3DViewGroupNumber);
-	void setupVBWidget(int flyThrough3DViewGroupNumber);
-	void cleanupVBWidget();
+    void setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+    void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
+    void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+    void cleanupVBWidget();
+    void setupProcedurePlanningWidget(int viewGroupNumber);
 
     InteractiveClipperPtr enableInvertedClipper(QString clipper_name, bool on);
     void removeAllDataFromClipper(InteractiveClipperPtr clipper);
@@ -105,6 +110,7 @@ protected slots:
 	virtual void setDefaultCameraStyle();
     virtual void setVBFlythroughCameraStyle();
     virtual void setVBCutplanesCameraStyle();
+    virtual void setAnyplaneCameraStyle();
 
 signals:
     void routeToTargetCreated();
@@ -150,28 +156,19 @@ class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public Fraxin
 {
 Q_OBJECT
 
-	void performAirwaysSegmentation(ImagePtr image);
 public:
     ProcessWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~ProcessWorkflowState();
     virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
+    void onExit(QEvent *event);
 	virtual bool canEnter() const;
-
 signals:
-	void airwaysSegmented();
-
+  void segmentationFinished();
 private slots:
-	void imageSelected();
-    void runFilterSlot();
-    void finishedSlot();
-
+    void segmentationFinishedSlot();
 private:
     virtual void addDataToView();
-    FilterPtr mCurrentFilter;
-    FilterTimedAlgorithmPtr mThread;
-    TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
-    QDialog dialog;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public FraxinusWorkflowState
@@ -183,7 +180,8 @@ public:
     virtual ~PinpointWorkflowState();
     virtual QIcon getIcon() const;
     virtual void onEntry(QEvent *event);
-	virtual bool canEnter() const;
+    void onExit(QEvent *event);
+    virtual bool canEnter() const;
 private slots:
     void dataAddedOrRemovedSlot();
 	void createRoute();
@@ -227,6 +225,42 @@ public:
 private:
     void addDataToView();
 	int mFlyThrough3DViewGroupNumber;
+    int mSurfaceModel3DViewGroupNumber;
+};
+
+class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyAnyplaneWorkflowState: public FraxinusWorkflowState
+{
+Q_OBJECT
+
+public:
+    VirtualBronchoscopyAnyplaneWorkflowState(QState* parent, CoreServicesPtr services);
+    virtual ~VirtualBronchoscopyAnyplaneWorkflowState();
+    virtual QIcon getIcon() const;
+    virtual void onEntry(QEvent* event);
+    void onExit(QEvent *event);
+    virtual bool canEnter() const;
+private:
+    void addDataToView();
+    int mFlyThrough3DViewGroupNumber;
+    int mSurfaceModel3DViewGroupNumber;
+};
+
+class org_custusx_fraxinus_core_state_EXPORT ProcedurePlanningWorkflowState: public FraxinusWorkflowState
+{
+Q_OBJECT
+
+public:
+    ProcedurePlanningWorkflowState(QState* parent, CoreServicesPtr services);
+    virtual ~ProcedurePlanningWorkflowState();
+    virtual QIcon getIcon() const;
+    virtual void onEntry(QEvent* event);
+    void onExit(QEvent *event);
+    virtual bool canEnter() const;
+
+private:
+    void addDataToView();
+    int m3DViewGroupNumber;
+    int m2DViewGroupNumber;
 };
 
 /**
