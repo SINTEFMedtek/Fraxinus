@@ -85,7 +85,7 @@ MeshPtr FraxinusSegmentations::getAirwaysContour()
 
 MeshPtr FraxinusSegmentations::getAirwaysTubes()
 {
-	return this->getMesh(airwaysFilterGetNameSuffixTubes(), airwaysFilterGetNameSuffixAirways());
+    return this->getMesh(airwaysFilterGetNameSuffixTubes(), airwaysFilterGetNameSuffixAirways(), airwaysFilterGetNameSuffixCenterline());
 }
 
 MeshPtr FraxinusSegmentations::getVessels()
@@ -93,14 +93,15 @@ MeshPtr FraxinusSegmentations::getVessels()
 	return this->getMesh(airwaysFilterGetNameSuffixVessels());
 }
 
-MeshPtr FraxinusSegmentations::getMesh(QString str_1, QString str_2)
+MeshPtr FraxinusSegmentations::getMesh(QString contain_str_1, QString contain_str_2, QString not_contain_str)
 {
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
-		if(iter->first.contains(str_1))
-			if(iter->first.contains(str_2))
-				return iter->second;
+        if(iter->first.contains(contain_str_1))
+            if(iter->first.contains(contain_str_2))
+                if(!iter->first.contains(not_contain_str))
+                    return iter->second;
 	}
 	return MeshPtr();
 }
