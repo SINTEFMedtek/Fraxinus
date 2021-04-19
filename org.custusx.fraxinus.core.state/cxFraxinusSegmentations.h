@@ -38,7 +38,7 @@ public:
 	MeshPtr getAirwaysContour();
 	MeshPtr getAirwaysTubes();
 	MeshPtr getVessels();
-    MeshPtr getMesh(QString contain_str_1, QString contain_str_2 = "", QString not_contain_str="");
+    MeshPtr getMesh(QString contain_str_1, QString contain_str_2 = "", QString not_contain_str="defaultNotContainingString");
 	MeshPtr getLungs();
 	MeshPtr getLymphNodes();
 	MeshPtr getNodules();
