@@ -572,7 +572,6 @@ void FraxinusWorkflowState::createRouteToTarget()
     input[0]->setValue(centerline->getUid());
 	input[1]->setValue(targetPoint->getUid());
 	
-	routeToTargetFilter->setTargetName(targetPoint->getName());
 	if(routeToTargetFilter->execute())
 	{
 		routeToTargetFilter->postProcess();
