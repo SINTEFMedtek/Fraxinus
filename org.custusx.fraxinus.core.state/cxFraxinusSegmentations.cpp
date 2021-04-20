@@ -100,7 +100,7 @@ MeshPtr FraxinusSegmentations::getMesh(QString contain_str_1, QString contain_st
 	{
         if(iter->first.contains(contain_str_1))
             if(iter->first.contains(contain_str_2))
-                if(!iter->first.contains(not_contain_str))
+                if(not_contain_str.isEmpty() || !iter->first.contains(not_contain_str))
                     return iter->second;
 	}
 	return MeshPtr();
