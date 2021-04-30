@@ -74,6 +74,9 @@ private:
 	WorkflowState* mVirtualBronchoscopyCutPlanesWorkflowState;
     WorkflowState* mVirtualBronchoscopyAnyplaneWorkflowState;
     WorkflowState* mProcedurePlanningWorkflowState;
+    WorkflowState* mTrackingWorkflowState;
+    WorkflowState* mRegistrationWorkflowState;
+    WorkflowState* mNavigationWorkflowState;
 };
 
 typedef boost::shared_ptr<FraxinusWorkflowStateMachine> CustusXWorkflowStateMachinePtr;

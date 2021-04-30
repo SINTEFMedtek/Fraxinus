@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cxFraxinusWorkflowStateMachine.h"
 #include "cxFraxinusWorkflowStates.h"
+#include "cxFraxinusWorkflowStatesNavigation.h"
 #include "cxVisServices.h"
 #include "cxPatientModelService.h"
 #include "cxActiveData.h"
@@ -54,6 +55,9 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	mVirtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
     mVirtualBronchoscopyAnyplaneWorkflowState = this->newState(new VirtualBronchoscopyAnyplaneWorkflowState(mParentState, services));
     mProcedurePlanningWorkflowState = this->newState(new ProcedurePlanningWorkflowState(mParentState, services));
+    mTrackingWorkflowState = this->newState(new TrackingWorkflowState(mParentState, services));
+    mRegistrationWorkflowState = this->newState(new RegistrationWorkflowState(mParentState, services));
+    mNavigationWorkflowState = this->newState(new NavigationWorkflowState(mParentState, services));
 
 	//logic for enabling workflowsteps
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, mImportWorkflowState, &ImportWorkflowState::canEnterSlot);

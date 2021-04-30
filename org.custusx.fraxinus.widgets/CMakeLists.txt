@@ -23,6 +23,7 @@ set(PLUGIN_SRCS
     cxProcedurePlanningWidget.cpp
     cxStructuresSelectionWidget.cpp
     cxFraxinusPatientOrientationWidget.cpp
+    cxFraxinusTrackingWidget.cpp
 )
 
 if(NOT CX_APPLE)
@@ -55,6 +56,7 @@ set(PLUGIN_MOC_SRCS
     cxProcedurePlanningWidget.h
     cxStructuresSelectionWidget.h
     cxFraxinusPatientOrientationWidget.h
+    cxFraxinusTrackingWidget.h
 )
 
 # Qt Designer files which should be processed by Qts uic

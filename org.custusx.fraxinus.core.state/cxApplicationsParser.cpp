@@ -52,6 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cxFraxinusVBWidget.h"
 #include "cxProcedurePlanningWidget.h"
+#include "cxFraxinusTrackingWidget.h"
 #include "cxLogger.h"
 
 
@@ -147,6 +148,37 @@ ApplicationsParser::ApplicationsParser()
     mWorkflowDefaultDesktops["ProcedurePlanningUid"] = desktop;
     //-----------------------------------------------------
 
+    //-----------------------------------------------------
+    // TRACKING
+    desktop = Desktop("LAYOUT_3D", QByteArray::fromBase64(""));
+    toolbars.clear();
+    toolbars << standardToolbars;
+    this->addToolbarsToDesktop(desktop, toolbars);
+    desktop.addPreset(FraxinusTrackingWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+    desktop.addPreset("help_widget", Qt::RightDockWidgetArea, false);
+    mWorkflowDefaultDesktops["TrackingUid"] = desktop;
+    //-----------------------------------------------------
+
+    //-----------------------------------------------------
+    // REGISTRATION
+    desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+    toolbars.clear();
+    toolbars << standardToolbars;
+    this->addToolbarsToDesktop(desktop, toolbars);
+    desktop.addPreset("import_widget", Qt::LeftDockWidgetArea, true);
+  //desktop.addPreset("dicom_widget", Qt::LeftDockWidgetArea, true);
+    mWorkflowDefaultDesktops["RegistrationUid"] = desktop;
+    //-----------------------------------------------------
+
+    //-----------------------------------------------------
+    // NAVIGATION
+    desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+    toolbars.clear();
+    toolbars << standardToolbars;
+    this->addToolbarsToDesktop(desktop, toolbars);
+    desktop.addPreset("Airway Segmentation Filter Widget", Qt::LeftDockWidgetArea, true);
+    mWorkflowDefaultDesktops["NavigationUid"] = desktop;
+    //-----------------------------------------------------
 }
 
 void ApplicationsParser::addToolbarsToDesktop(Desktop& desktop, QStringList toolbars)

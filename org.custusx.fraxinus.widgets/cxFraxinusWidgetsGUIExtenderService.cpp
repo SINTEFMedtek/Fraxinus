@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxNewLoadPatientWidget.h"
 #include "cxFraxinusVBWidget.h"
 #include "cxProcedurePlanningWidget.h"
+#include "cxFraxinusTrackingWidget.h"
 
 namespace cx
 {
@@ -58,6 +59,7 @@ std::vector<GUIExtenderService::CategorizedWidget> FraxinusWidgetsGUIExtenderSer
     retval.push_back(GUIExtenderService::CategorizedWidget(new NewLoadPatientWidget(NULL, services->patient()),"Fraxinus"));
     retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusVBWidget(services, NULL),"Fraxinus"));
     retval.push_back(GUIExtenderService::CategorizedWidget(new ProcedurePlanningWidget(services, NULL),"Fraxinus"));
+    retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusTrackingWidget(services, NULL),"Fraxinus"));
 
 	return retval;
 }

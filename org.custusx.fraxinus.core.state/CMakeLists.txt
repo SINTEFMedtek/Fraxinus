@@ -22,6 +22,8 @@ set(PLUGIN_SRCS
     cxFraxinusWorkflowStateMachine.cpp
     cxFraxinusWorkflowStates.h
     cxFraxinusWorkflowStates.cpp
+    cxFraxinusWorkflowStatesNavigation.h
+    cxFraxinusWorkflowStatesNavigation.cpp
     cxStatePluginActivator.cpp
     cxApplicationsParser.h
     cxApplicationsParser.cpp
@@ -57,6 +59,7 @@ endif(WIN32)
 set(PLUGIN_MOC_SRCS
     cxFraxinusWorkflowStateMachine.h
     cxFraxinusWorkflowStates.h
+    cxFraxinusWorkflowStatesNavigation.h
     cxStateServiceImpl.h
     cxStatePluginActivator.h
     cxFraxinusSegmentations.h
