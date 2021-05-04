@@ -34,28 +34,59 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QGroupBox>
 #include <QVBoxLayout>
 #include <QPushButton>
+#include <QComboBox>
+#include <QLabel>
+#include <QListWidgetItem>
 #include "cxVisServices.h"
 #include "cxLogger.h"
 #include "cxFraxinusTrackingWidget.h"
 #include "cxApplication.h"
+#include "cxTrackingService.h"
+#include "cxTrackerConfigurationImpl.h"
+//#include "cxToolListWidget.h"
 
 
 namespace cx {
 
-FraxinusTrackingWidget::FraxinusTrackingWidget(VisServicesPtr services, QWidget* parent):
+FraxinusTrackingWidget::FraxinusTrackingWidget(TrackingServicePtr trackingService, QWidget* parent):
     BaseWidget(parent, this->getWidgetName(), "Tracking"),
-    mServices(services)
+    mTrackingService(trackingService)
 {
+    TrackerConfigurationPtr config = mTrackingService->getConfiguration();
+    //mConfigFilesComboBox->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Expanding);
 
-    QPushButton *centerToImage = new QPushButton(QIcon(":/icons/center_image.png"), " Center Image", this);
-    connect(centerToImage, &QPushButton::clicked, this, &FraxinusTrackingWidget::centerToImage);
+    QStringList applications;
+    QString application("Bronchoscopy");
+    applications.append(application);
+    QStringList trackingSystems;
+    QString trackingSystem("Aurora");
+    trackingSystems.append(trackingSystem);
+    this->addToolsToComboBoxes(4, config, applications, trackingSystems);
+
+    mStartTrackingButton = new QPushButton("Start Tracking", this);
+    connect(mStartTrackingButton, &QPushButton::clicked, this, &FraxinusTrackingWidget::startTrackingClickedSlot);
+    mStopTrackingButton = new QPushButton("Start Tracking", this);
+    connect(mStopTrackingButton, &QPushButton::clicked, this, &FraxinusTrackingWidget::stopTrackingClickedSlot);
 
     QVBoxLayout* verticalLayout = new QVBoxLayout;
-    verticalLayout->addStretch();
-    verticalLayout->addWidget(centerToImage);
-    verticalLayout->addStretch();
+    QGridLayout* gridLayout = new QGridLayout();
+
+    for (int i=0; i<mToolFilesComboBoxs.size(); i++)
+    {
+        QString label= "Tool ";
+        label.append(QString::number(i+1));
+        gridLayout->addWidget(new QLabel(label), i, 0);
+        gridLayout->addWidget(mToolFilesComboBoxs[i], i, 1);
+    }
+    verticalLayout->addSpacing(50);
+    gridLayout->addWidget(mStartTrackingButton, mToolFilesComboBoxs.size(), 0);
+    gridLayout->addWidget(mStopTrackingButton, mToolFilesComboBoxs.size(), 1);
+    verticalLayout->addLayout(gridLayout);
 
     this->setLayout(verticalLayout);
+
+    connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::updateButtonStatusSlot);
+    this->updateButtonStatusSlot();
 }
 
 FraxinusTrackingWidget::~FraxinusTrackingWidget()
@@ -63,17 +94,51 @@ FraxinusTrackingWidget::~FraxinusTrackingWidget()
 
 }
 
-
 QString FraxinusTrackingWidget::getWidgetName()
 {
     return "fraxinus_tracking_widget";
 }
 
-
-void FraxinusTrackingWidget::centerToImage()
+void FraxinusTrackingWidget::addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr config, QStringList applicationsFilter, QStringList trackingsystemsFilter)
 {
-    triggerMainWindowActionWithObjectName("CenterToImageCenter");
+    QStringList toolPathList = config->getToolsGivenFilter(applicationsFilter, trackingsystemsFilter);
+
+    mToolFilesComboBoxs.clear();
+    for(int i=0; i<numberOfTools; i++)
+    {
+        mToolFilesComboBoxs.push_back(new QComboBox());
+
+        for(QString toolPath : toolPathList)
+        {
+            QString toolName = config->getTool(toolPath).mName;
+            mToolFilesComboBoxs[i]->addItem(toolName);
+            int index = mToolFilesComboBoxs[i]->findText(toolName);
+            mToolFilesComboBoxs[i]->setItemData(index, toolPath, Qt::ToolTipRole);
+        }
+    }
 }
+
+void FraxinusTrackingWidget::startTrackingClickedSlot(bool checked)
+{
+    Q_UNUSED(checked);
+    mTrackingService->setState(Tool::tsTRACKING);
+}
+
+void FraxinusTrackingWidget::stopTrackingClickedSlot(bool checked)
+{
+    Q_UNUSED(checked);
+    mTrackingService->setState(Tool::tsINITIALIZED);
+}
+
+void FraxinusTrackingWidget::updateButtonStatusSlot()
+{
+    Tool::State state = mTrackingService->getState();
+
+    mStartTrackingButton->setEnabled(state < Tool::tsTRACKING);
+    mStopTrackingButton->setEnabled(state >= Tool::tsTRACKING);
+
+}
+
 
 
 } //namespace cx

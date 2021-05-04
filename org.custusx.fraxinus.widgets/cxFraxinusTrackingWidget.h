@@ -39,10 +39,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cxFraxinusPatientOrientationWidget.h>
 #include "cxBaseWidget.h"
 #include "cxForwardDeclarations.h"
+#include "cxTrackerConfiguration.h"
 
 class QRadioButton;
 class QLabel;
 class QPushButton;
+class QComboBox;
 
 namespace cx {
 
@@ -50,16 +52,23 @@ class org_custusx_fraxinus_widgets_EXPORT FraxinusTrackingWidget : public BaseWi
 {
     Q_OBJECT
 public:
-    FraxinusTrackingWidget(VisServicesPtr services, QWidget *parent = 0);
+    FraxinusTrackingWidget(TrackingServicePtr trackingService, QWidget *parent = 0);
     virtual ~FraxinusTrackingWidget();
 
     static QString getWidgetName();
 
 private slots:
-    void centerToImage();
+    void startTrackingClickedSlot(bool);
+    void stopTrackingClickedSlot(bool);
+    void updateButtonStatusSlot();
 
 private:
-    VisServicesPtr mServices;
+    TrackingServicePtr mTrackingService;
+    std::vector<QComboBox*> mToolFilesComboBoxs;
+    QPushButton* mStartTrackingButton;
+    QPushButton* mStopTrackingButton;
+
+    void addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr configuration, QStringList applicationsFilter, QStringList trackingsystemsFilter);
 };
 
 
