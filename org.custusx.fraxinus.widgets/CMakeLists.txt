@@ -25,6 +25,7 @@ set(PLUGIN_SRCS
     cxFraxinusPatientOrientationWidget.cpp
     cxFraxinusTrackingWidget.cpp
     cxFraxinusRegistrationWidget.cpp
+#    cxFraxinusNavigationWidget.cpp
 )
 
 if(NOT CX_APPLE)
@@ -59,6 +60,7 @@ set(PLUGIN_MOC_SRCS
     cxFraxinusPatientOrientationWidget.h
     cxFraxinusTrackingWidget.h
     cxFraxinusRegistrationWidget.h
+#    cxFraxinusNavigationWidget.h
 )
 
 # Qt Designer files which should be processed by Qts uic
@@ -86,7 +88,7 @@ set(PLUGIN_target_libraries
     org_custusx_filter_routetotarget
     org_custusx_virtualbronchoscopy
     org_custusx_registration
-    org_custusx_registration_bronchoscopy
+    org_custusx_registration_method_bronchoscopy
     org_custusx_acquisition
     cxLogicManager
     )
