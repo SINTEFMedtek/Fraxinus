@@ -33,12 +33,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusWidgetsGUIExtenderService.h"
 #include "ctkPluginContext.h"
 #include "cxFiltersWidget.h"
-#include "cxVisServices.h"
+#include "cxRegServices.h"
 #include "cxPinpointWidget.h"
 #include "cxNewLoadPatientWidget.h"
 #include "cxFraxinusVBWidget.h"
 #include "cxProcedurePlanningWidget.h"
 #include "cxFraxinusTrackingWidget.h"
+#include "cxFraxinusRegistrationWidget.h"
 
 namespace cx
 {
@@ -50,7 +51,7 @@ FraxinusWidgetsGUIExtenderService::FraxinusWidgetsGUIExtenderService(ctkPluginCo
 
 std::vector<GUIExtenderService::CategorizedWidget> FraxinusWidgetsGUIExtenderService::createWidgets() const
 {
-    VisServicesPtr services = VisServices::create(mContext);
+    RegServicesPtr services = RegServices::create(mContext);
 
     std::vector<CategorizedWidget> retval;
     retval.push_back(GUIExtenderService::CategorizedWidget(new FiltersWidget(services, NULL, QStringList("Route to target"), "fraxinus_routetotargetwidget"),"Fraxinus"));
@@ -60,6 +61,7 @@ std::vector<GUIExtenderService::CategorizedWidget> FraxinusWidgetsGUIExtenderSer
     retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusVBWidget(services, NULL),"Fraxinus"));
     retval.push_back(GUIExtenderService::CategorizedWidget(new ProcedurePlanningWidget(services, NULL),"Fraxinus"));
     retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusTrackingWidget(services->tracking(), NULL),"Fraxinus"));
+    retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusRegistrationWidget(services, services, NULL),"Fraxinus"));
 
 	return retval;
 }

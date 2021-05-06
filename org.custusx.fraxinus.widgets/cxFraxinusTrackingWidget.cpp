@@ -39,7 +39,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QListWidgetItem>
 #include "cxVisServices.h"
 #include "cxLogger.h"
-#include "cxFraxinusTrackingWidget.h"
 #include "cxApplication.h"
 #include "cxTrackingService.h"
 #include "cxTrackerConfigurationImpl.h"
@@ -61,7 +60,8 @@ FraxinusTrackingWidget::FraxinusTrackingWidget(TrackingServicePtr trackingServic
     QStringList trackingSystems;
     QString trackingSystem("Aurora");
     trackingSystems.append(trackingSystem);
-    this->addToolsToComboBoxes(4, config, applications, trackingSystems);
+    int numberOfTools = 4;
+    this->addToolsToComboBoxes(numberOfTools, config, applications, trackingSystems);
 
     mStartTrackingButton = new QPushButton("Start Tracking", this);
     connect(mStartTrackingButton, &QPushButton::clicked, this, &FraxinusTrackingWidget::startTrackingClickedSlot);

@@ -53,6 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusVBWidget.h"
 #include "cxProcedurePlanningWidget.h"
 #include "cxFraxinusTrackingWidget.h"
+#include "cxFraxinusRegistrationWidget.h"
 #include "cxLogger.h"
 
 
@@ -165,8 +166,7 @@ ApplicationsParser::ApplicationsParser()
     toolbars.clear();
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset("import_widget", Qt::LeftDockWidgetArea, true);
-  //desktop.addPreset("dicom_widget", Qt::LeftDockWidgetArea, true);
+    desktop.addPreset(FraxinusRegistrationWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["RegistrationUid"] = desktop;
     //-----------------------------------------------------
 
