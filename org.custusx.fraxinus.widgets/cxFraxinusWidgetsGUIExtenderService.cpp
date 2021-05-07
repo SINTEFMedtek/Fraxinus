@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxProcedurePlanningWidget.h"
 #include "cxFraxinusTrackingWidget.h"
 #include "cxFraxinusRegistrationWidget.h"
+#include "cxFraxinusNavigationWidget.h"
 
 namespace cx
 {
@@ -62,6 +63,7 @@ std::vector<GUIExtenderService::CategorizedWidget> FraxinusWidgetsGUIExtenderSer
     retval.push_back(GUIExtenderService::CategorizedWidget(new ProcedurePlanningWidget(services, NULL),"Fraxinus"));
     retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusTrackingWidget(services->tracking(), NULL),"Fraxinus"));
     retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusRegistrationWidget(services, services, NULL),"Fraxinus"));
+    retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusNavigationWidget(services, NULL),"Fraxinus"));
 
 	return retval;
 }

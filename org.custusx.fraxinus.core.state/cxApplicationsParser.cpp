@@ -54,6 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxProcedurePlanningWidget.h"
 #include "cxFraxinusTrackingWidget.h"
 #include "cxFraxinusRegistrationWidget.h"
+#include "cxFraxinusNavigationWidget.h"
 #include "cxLogger.h"
 
 
@@ -176,7 +177,7 @@ ApplicationsParser::ApplicationsParser()
     toolbars.clear();
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset("Airway Segmentation Filter Widget", Qt::LeftDockWidgetArea, true);
+    desktop.addPreset(FraxinusNavigationWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
     mWorkflowDefaultDesktops["NavigationUid"] = desktop;
     //-----------------------------------------------------
 }

@@ -56,6 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxTransferFunctions3DPresets.h"
 #include "cxApplication.h"
 #include "cxSyncedValue.h"
+#include "cxFraxinusNavigationWidget.h"
 
 namespace cx
 {
@@ -162,7 +163,8 @@ void RegistrationWorkflowState::addDataToView()
 // --------------------------------------------------------
 
 NavigationWorkflowState::NavigationWorkflowState(QState* parent, CoreServicesPtr services) :
-    FraxinusWorkflowState(parent, "NavigationUid", "Navigation", services, false)
+    FraxinusWorkflowState(parent, "NavigationUid", "Navigation", services, false),
+    m3DViewGroupNumber(0)
 {
 }
 
@@ -174,33 +176,39 @@ QIcon NavigationWorkflowState::getIcon() const
 	return QIcon(":/icons/icons/processing.svg");
 }
 
+FraxinusNavigationWidget* NavigationWorkflowState::getFraxinusNavigationWidget()
+{
+    QMainWindow* mainWindow = this->getMainWindow();
+
+    QString widgetName(FraxinusNavigationWidget::getWidgetName());
+    return mainWindow->findChild<FraxinusNavigationWidget*>(widgetName);
+}
+
 void NavigationWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
-	this->addDataToView();
+    this->addDataToView();
 
-    //TODO: connect to mFraxinusSegmentations, to run addDataToView() if airways segmentation fails? - Is this needed?
-    mFraxinusSegmentations->createSelectSegmentationBox();
-    connect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished, this, &NavigationWorkflowState::segmentationFinishedSlot);
-	
-	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
-    //QTimer::singleShot(0, this, SLOT(imageSelected()));
-	
-	//Setting Pinpoint workflow active here, in case segmentation is run manuelly if automatic segmentation fails.
-	QObject* parentWorkFlow = this->parent();
-    QList<FraxinusWorkflowState *> allWorkflows = parentWorkFlow->findChildren<FraxinusWorkflowState *>();
-	for (int i = 0; i < allWorkflows.size(); i++)
-		if (allWorkflows[i]->getName() == "Set target")
-		{
-            allWorkflows[i]->enableAction(true);
-			break;
-        }
+    this->setupFraxinusNavigationWidget(m3DViewGroupNumber);
+    FraxinusNavigationWidget* fraxinusNavigationWidget = this->getFraxinusNavigationWidget();
+    if(fraxinusNavigationWidget)
+    {
+        fraxinusNavigationWidget->setCenterline(this->getTubeCenterline());
+        StructuresSelectionWidget* structureSelectionWidget = fraxinusNavigationWidget->getStructuresSelectionWidget();
+        if(structureSelectionWidget)
+            structureSelectionWidget->onEntry();
+    }
 }
 
-void NavigationWorkflowState::segmentationFinishedSlot()
+void NavigationWorkflowState::setupFraxinusNavigationWidget(int viewGroupNumber)
 {
-    emit segmentationFinished();
+    std::vector<unsigned int> viewGroupNumbers;
+    viewGroupNumbers.push_back(viewGroupNumber);
+    FraxinusNavigationWidget* fraxinusNavigationWidget = this->getFraxinusNavigationWidget();
+    if (fraxinusNavigationWidget)
+        this->setupViewOptionsForStructuresSelection(fraxinusNavigationWidget->getStructuresSelectionWidget(), viewGroupNumbers);
 }
+
 
 bool NavigationWorkflowState::canEnter() const
 {

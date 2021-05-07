@@ -53,6 +53,7 @@ namespace cx
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 typedef boost::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
 class FraxinusTrackingWidget;
+class FraxinusNavigationWidget;
 
 
 class org_custusx_fraxinus_core_state_EXPORT TrackingWorkflowState: public FraxinusWorkflowState
@@ -94,7 +95,9 @@ public:
     NavigationWorkflowState(QState* parent, CoreServicesPtr services);
     virtual ~NavigationWorkflowState();
     virtual QIcon getIcon() const;
+    FraxinusNavigationWidget* getFraxinusNavigationWidget();
 	virtual void onEntry(QEvent* event);
+    void setupFraxinusNavigationWidget(int viewGroupNumber);
     void onExit(QEvent *event);
 	virtual bool canEnter() const;
 signals:
@@ -103,6 +106,7 @@ private slots:
     void segmentationFinishedSlot();
 private:
     virtual void addDataToView();
+    int m3DViewGroupNumber;
 };
 
 
