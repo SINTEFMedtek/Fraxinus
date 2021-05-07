@@ -53,6 +53,7 @@ namespace cx
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 typedef boost::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
 class FraxinusTrackingWidget;
+class FraxinusRegistrationWidget;
 class FraxinusNavigationWidget;
 
 
@@ -79,12 +80,14 @@ public:
     RegistrationWorkflowState(QState* parent, VisServicesPtr services);
     virtual ~RegistrationWorkflowState();
     virtual QIcon getIcon() const;
+    FraxinusRegistrationWidget* getFraxinusRegistrationWidget();
 	virtual bool canEnter() const;
 	virtual void onEntry(QEvent *event);
     virtual void onExit(QEvent * event);
 
 private:
     virtual void addDataToView();
+    int m3DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT NavigationWorkflowState: public FraxinusWorkflowState

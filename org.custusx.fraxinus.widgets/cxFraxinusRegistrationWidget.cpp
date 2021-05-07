@@ -72,8 +72,8 @@ FraxinusRegistrationWidget::FraxinusRegistrationWidget(VisServicesPtr services, 
     connect(mSetOrientationButton, &QPushButton::clicked, this, &FraxinusRegistrationWidget::setOrientationClickedSlot);
     mRegistrationButton = new QPushButton("Registration", this);
     connect(mRegistrationButton, &QPushButton::clicked, this, &FraxinusRegistrationWidget::registrationClickedSlot);
-    mRejectRegistrationButton = new QPushButton("Reject Registration", this);
-    connect(mRejectRegistrationButton, &QPushButton::clicked, this, &FraxinusRegistrationWidget::rejectRegistrationClickedSlot);
+//    mRejectRegistrationButton = new QPushButton("Reject Registration", this);
+//    connect(mRejectRegistrationButton, &QPushButton::clicked, this, &FraxinusRegistrationWidget::rejectRegistrationClickedSlot);
 
     mSelectCenterlineWidget = StringPropertySelectMesh::New(mServices->patient());
     mSelectCenterlineWidget->setValueName("CT airway centerline: ");
@@ -84,15 +84,19 @@ FraxinusRegistrationWidget::FraxinusRegistrationWidget(VisServicesPtr services, 
     mRecordTrackingWidget->getSessionSelector()->setDisplayName("Bronchoscope path");
 
     QVBoxLayout* verticalLayout = new QVBoxLayout;
-   // QGridLayout* gridLayout = new QGridLayout();
 
+    verticalLayout->addStretch();
     verticalLayout->addWidget(mSetOrientationButton);
+    verticalLayout->addStretch();
     verticalLayout->addWidget(new DataSelectWidget(mServices->view(), mServices->patient(), this, mSelectCenterlineWidget));
-
+    verticalLayout->addStretch();
     verticalLayout->addWidget(mRecordTrackingWidget);
+    verticalLayout->addStretch();
     verticalLayout->addWidget(mRegistrationButton);
-    verticalLayout->addWidget(mRejectRegistrationButton);
-    //verticalLayout->addLayout(gridLayout);
+    verticalLayout->addStretch();
+    //verticalLayout->addWidget(mRejectRegistrationButton);
+    verticalLayout->addStretch();
+    verticalLayout->addStretch();
 
     this->setLayout(verticalLayout);
 
@@ -106,6 +110,11 @@ FraxinusRegistrationWidget::~FraxinusRegistrationWidget()
 QString FraxinusRegistrationWidget::getWidgetName()
 {
     return "fraxinus_registration_widget";
+}
+
+QString FraxinusRegistrationWidget::setDefaultCenterlineMesh(MeshPtr mesh)
+{
+    mSelectCenterlineWidget->setValue(mesh->getUid());
 }
 
 void FraxinusRegistrationWidget::processCenterline()

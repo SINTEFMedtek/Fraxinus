@@ -56,7 +56,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxTransferFunctions3DPresets.h"
 #include "cxApplication.h"
 #include "cxSyncedValue.h"
+#include "cxCameraControl.h"
 #include "cxFraxinusNavigationWidget.h"
+#include "cxFraxinusRegistrationWidget.h"
 
 namespace cx
 {
@@ -103,7 +105,8 @@ void TrackingWorkflowState::addDataToView()
 // --------------------------------------------------------
 
 RegistrationWorkflowState::RegistrationWorkflowState(QState* parent, VisServicesPtr services) :
-    FraxinusWorkflowState(parent, "RegistrationUid", "Registration", services, false)
+    FraxinusWorkflowState(parent, "RegistrationUid", "Registration", services, false),
+    m3DViewGroupNumber(0)
 {
 }
 
@@ -114,6 +117,14 @@ void RegistrationWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
+
+    FraxinusRegistrationWidget* fraxinusRegistrationWidget = this->getFraxinusRegistrationWidget();
+    if(fraxinusRegistrationWidget)
+    {
+        MeshPtr tubeCenterline = this->getTubeCenterline();
+        if (tubeCenterline)
+            fraxinusRegistrationWidget->setDefaultCenterlineMesh(tubeCenterline);
+    }
 }
 
 void RegistrationWorkflowState::onExit(QEvent * event)
@@ -131,6 +142,14 @@ QIcon RegistrationWorkflowState::getIcon() const
 	return QIcon(":/icons/icons/import.svg");
 }
 
+FraxinusRegistrationWidget* RegistrationWorkflowState::getFraxinusRegistrationWidget()
+{
+    QMainWindow* mainWindow = this->getMainWindow();
+
+    QString widgetName(FraxinusRegistrationWidget::getWidgetName());
+    return mainWindow->findChild<FraxinusRegistrationWidget*>(widgetName);
+}
+
 bool RegistrationWorkflowState::canEnter() const
 {
     return mServices->patient()->isPatientValid(); //TO DO: Check if tracking is enabled
@@ -140,23 +159,41 @@ void RegistrationWorkflowState::addDataToView()
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	
-	ImagePtr ctImage = this->getCTImage();
-	
+    MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
+    MeshPtr airwaysTubesCenterline = this->getTubeCenterline();
+
 	//Assuming 3D ACS
-	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
-	if(ctImage)
-	{
-		ctImage->setInitialWindowLevel(-1, -1);
-		this->setTransferfunction3D("Default", ctImage);
-		this->setTransferfunction2D("2D CT Lung", ctImage);
-		viewGroup0_3D->addData(ctImage->getUid());
-	}
+    ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);
+
+    if(airwaysTubes)
+    {
+        QColor color = airwaysTubes->getColor();
+        double opacity = 0.3;
+        color.setAlphaF(opacity);
+        airwaysTubes->setColor(color);
+        viewGroup0_3D->addData(airwaysTubes->getUid());
+    }
+
+    if(airwaysTubesCenterline)
+        viewGroup0_3D->addData(airwaysTubesCenterline->getUid());
 	
 	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
-	viewGroup1_2D->getGroup2DZoom()->set(0.1);
-	viewGroup1_2D->getGlobal2DZoom()->set(0.1);
+    viewGroup1_2D->getGroup2DZoom()->set(0.2);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.2);
+
+    ImagePtr ctImage = this->getCTImage();
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
+
+    CameraControlPtr camera_control = services->view()->getCameraControl();
+    if(camera_control)
+    {
+        ViewPtr view_3D = services->view()->get3DView(m3DViewGroupNumber);
+        camera_control->setView(view_3D);
+        camera_control->setAnteriorView();
+        view_3D->setZoomFactor(1.5);
+    }
+    this->setDefaultCameraStyle();
 }
 
 // --------------------------------------------------------
