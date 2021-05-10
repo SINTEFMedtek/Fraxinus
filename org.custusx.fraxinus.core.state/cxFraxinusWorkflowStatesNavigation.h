@@ -103,10 +103,7 @@ public:
     void setupFraxinusNavigationWidget(int viewGroupNumber);
     void onExit(QEvent *event);
 	virtual bool canEnter() const;
-signals:
-  void segmentationFinished();
-private slots:
-    void segmentationFinishedSlot();
+
 private:
     virtual void addDataToView();
     int m3DViewGroupNumber;
