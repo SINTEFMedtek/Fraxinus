@@ -112,7 +112,7 @@ QString FraxinusRegistrationWidget::getWidgetName()
     return "fraxinus_registration_widget";
 }
 
-QString FraxinusRegistrationWidget::setDefaultCenterlineMesh(MeshPtr mesh)
+void FraxinusRegistrationWidget::setDefaultCenterlineMesh(MeshPtr mesh)
 {
     mSelectCenterlineWidget->setValue(mesh->getUid());
 }

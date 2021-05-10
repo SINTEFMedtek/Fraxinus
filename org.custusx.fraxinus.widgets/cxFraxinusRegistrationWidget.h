@@ -64,7 +64,7 @@ public:
     virtual ~FraxinusRegistrationWidget();
 
     static QString getWidgetName();
-    QString setDefaultCenterlineMesh(MeshPtr mesh);
+    void setDefaultCenterlineMesh(MeshPtr mesh);
 
 private slots:
     void setOrientationClickedSlot();
