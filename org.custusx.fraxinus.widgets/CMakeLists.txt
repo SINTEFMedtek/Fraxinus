@@ -26,6 +26,7 @@ set(PLUGIN_SRCS
     cxFraxinusTrackingWidget.cpp
     cxFraxinusRegistrationWidget.cpp
     cxFraxinusNavigationWidget.cpp
+    cxViewSelectionWidget.cpp
 )
 
 if(NOT CX_APPLE)
@@ -61,6 +62,7 @@ set(PLUGIN_MOC_SRCS
     cxFraxinusTrackingWidget.h
     cxFraxinusRegistrationWidget.h
     cxFraxinusNavigationWidget.h
+    cxViewSelectionWidget.h
 )
 
 # Qt Designer files which should be processed by Qts uic

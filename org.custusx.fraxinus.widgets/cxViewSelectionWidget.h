@@ -30,68 +30,57 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
-#ifndef FRAXINUSVBWIDGET_H
-#define FRAXINUSVBWIDGET_H
-
+#ifndef VIEWSELECTIONWIDGET_H
+#define VIEWSELECTIONWIDGET_H
 
 #include "org_custusx_fraxinus_widgets_Export.h"
-#include <cxVBWidget.h>
-#include <cxStructuresSelectionWidget.h>
-#include <cxViewSelectionWidget.h>
+#include "cxBaseWidget.h"
+#include "cxForwardDeclarations.h"
+#include "cxDefinitions.h"
 
 class QRadioButton;
-class QLabel;
-class QPushButton;
-class QMainWindow;
 
 namespace cx {
 
-typedef boost::shared_ptr<class Data> DataPtr;
-
-class org_custusx_fraxinus_widgets_EXPORT FraxinusVBWidget : public VBWidget
+class org_custusx_fraxinus_widgets_EXPORT ViewSelectionWidget : public BaseWidget
 {
     Q_OBJECT
 public:
-    FraxinusVBWidget(VisServicesPtr services, QWidget *parent = 0);
-    virtual ~FraxinusVBWidget();
+    ViewSelectionWidget(VisServicesPtr services, QWidget *parent = 0);
+    virtual ~ViewSelectionWidget();
 
     static QString getWidgetName();
-    void setViewGroupNumber(unsigned int viewGroupNumber);
     void addObjectToVolumeView(DataPtr object);
     void addObjectToTubeView(DataPtr object);
-    StructuresSelectionWidget *getStructuresSelectionWidget();
-
-
-private slots:
-    virtual void keyPressEvent(QKeyEvent* event);
-    void calculateRouteLength();
-    void playbackSliderChanged(int cameraPositionInPercent);
-
+    double getOpacity();
+    void setViewGroupNumber(unsigned int viewGroupNumber);
+    void displayVolume();
+    void displayTubes();
+    bool isVolumeButtonChecked();
+    bool isTubeButtonChecked();
+    void setVolumeButtonChecked(bool checked);
+    void setTubeButtonChecked(bool checked);
 
 private:
-    void updateRttInfo(double cameraPositionInPercent);
-    void updateAirwaysOpacity(double cameraPositionInPercent);
-    void calculateDistanceFromRouteEndToTarget(Eigen::Vector3d routeEndpoint);
-    QString createDistanceFromPathToTargetText();
-    double getTargetDistance();
-    double getRemainingRouteInsideAirways(double cameraPositionInPercent);
+    void airwayOpacityOn();
+    void airwayOpacityOff();
+    void displayDataObjects(std::vector<DataPtr> objects);
+    void hideDataObjects(std::vector<DataPtr> objects);
+    void setAirwayOpacity(bool opacity);
 
-    ViewSelectionWidget* mViewSelectionWidget;
-    StructuresSelectionWidget* mStructuresSelectionWidget;
     VisServicesPtr mServices;
+    QRadioButton* mVolumeButton;
+    QRadioButton* mTubeButton;
+    QRadioButton* mOpacityOnButton;
+    QRadioButton* mOpacityOffButton;
+    double mOpacityValue;
+    std::vector<DataPtr> mVolumeViewObjects;
     std::vector<DataPtr> mTubeViewObjects;
-    QLabel* mStaticTotalLegth;
-    QLabel* mRemainingRttLegth;
-    QLabel* mDirectDistance;
-    QLabel* mDistanceToTarget;
-    QLabel* mWarningLabel;
-    double mRouteLength;
-    double mDistanceFromPathEndToTarget;
-    double mCameraPositionInPercentAdjusted;
+    unsigned int mViewGroupNumber = 0;
 
 };
 
 } //namespace cx
 
 
-#endif //FRAXINUSVBWIDGET_H
+#endif //VIEWSELECTIONWIDGET_H

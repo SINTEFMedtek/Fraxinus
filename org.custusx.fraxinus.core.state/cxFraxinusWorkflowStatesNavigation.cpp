@@ -59,6 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxCameraControl.h"
 #include "cxFraxinusNavigationWidget.h"
 #include "cxFraxinusRegistrationWidget.h"
+#include "cxVBCameraZoomSetting3D.h"
 
 namespace cx
 {
@@ -201,7 +202,8 @@ void RegistrationWorkflowState::addDataToView()
 
 NavigationWorkflowState::NavigationWorkflowState(QState* parent, CoreServicesPtr services) :
     FraxinusWorkflowState(parent, "NavigationUid", "Navigation", services, false),
-    m3DViewGroupNumber(0)
+    mFlyThrough3DViewGroupNumber(2),
+    mSurfaceModel3DViewGroupNumber(0)
 {
 }
 
@@ -224,9 +226,10 @@ FraxinusNavigationWidget* NavigationWorkflowState::getFraxinusNavigationWidget()
 void NavigationWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
+    //this->setupVBWidget(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);
+    this->setupFraxinusNavigationWidget(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);
     this->addDataToView();
 
-    this->setupFraxinusNavigationWidget(m3DViewGroupNumber);
     FraxinusNavigationWidget* fraxinusNavigationWidget = this->getFraxinusNavigationWidget();
     if(fraxinusNavigationWidget)
     {
@@ -235,15 +238,32 @@ void NavigationWorkflowState::onEntry(QEvent * event)
         if(structureSelectionWidget)
             structureSelectionWidget->onEntry();
     }
+
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+    CameraControlPtr camera_control = services->view()->getCameraControl();
+    if(camera_control)
+    {
+        ViewPtr viewSurface_3D = services->view()->get3DView(mSurfaceModel3DViewGroupNumber);
+        camera_control->setView(viewSurface_3D);
+        camera_control->setAnteriorView();
+        viewSurface_3D->setZoomFactor(1.5);
+    }
+
+    QTimer::singleShot(0, this, SLOT(setAnyplaneCameraStyle()));
 }
 
-void NavigationWorkflowState::setupFraxinusNavigationWidget(int viewGroupNumber)
+void NavigationWorkflowState::setupFraxinusNavigationWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
 {
     std::vector<unsigned int> viewGroupNumbers;
-    viewGroupNumbers.push_back(viewGroupNumber);
+    viewGroupNumbers.push_back(flyThrough3DViewGroupNumber);
+    viewGroupNumbers.push_back(surfaceModel3DViewGroupNumber);
     FraxinusNavigationWidget* fraxinusNavigationWidget = this->getFraxinusNavigationWidget();
     if (fraxinusNavigationWidget)
         this->setupViewOptionsForStructuresSelection(fraxinusNavigationWidget->getStructuresSelectionWidget(), viewGroupNumbers);
+
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+    if(services)
+        services->view()->zoomCamera3D(flyThrough3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
 }
 
 
@@ -258,28 +278,58 @@ bool NavigationWorkflowState::canEnter() const
 void NavigationWorkflowState::addDataToView()
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
-	ImagePtr ctImage = this->getCTImage();
-	
-	
-	//Assuming 3D
-	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
-	if(airways)
-		viewGroup0_3D->addData(airways->getUid());
-	else if(ctImage)
-	{
-		ctImage->setInitialWindowLevel(-1, -1);
-		this->setTransferfunction3D("Default", ctImage);
-		this->setTransferfunction2D("2D CT Lung", ctImage);
-		viewGroup0_3D->addData(ctImage->getUid());
-	}
-	
-	//Assuming ACS
-	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
-	viewGroup1_2D->getGroup2DZoom()->set(0.2);
-	viewGroup1_2D->getGlobal2DZoom()->set(0.2);
-	if(ctImage)
-		viewGroup1_2D->addData(ctImage->getUid());
+
+    ImagePtr ctImage = this->getCTImage();
+    MeshPtr routeToTarget = this->getRouteToTarget();
+    MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
+    MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
+    MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
+    PointMetricPtr targetPoint = this->getTargetPoint();
+    MeshPtr nodules = mFraxinusSegmentations->getNodules();
+    //DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
+
+
+    ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(mSurfaceModel3DViewGroupNumber);
+    this->setTransferfunction3D("Default", ctImage);
+//    if(ctImage)
+//        viewGroup0_3D->addData(ctImage->getUid());
+    if(airways)
+    {
+        QColor c = airways->getColor();
+        c.setAlphaF(0.6);
+        airways->setColor(c);
+        viewGroup0_3D->addData(airways->getUid());
+    }
+    if(targetPoint)
+        viewGroup0_3D->addData(targetPoint->getUid());
+    if(extendedRouteToTarget)
+        viewGroup0_3D->addData(extendedRouteToTarget->getUid());
+    if(routeToTarget)
+        viewGroup0_3D->addData(routeToTarget->getUid());
+    //if(distanceToTargetMetric)
+    //	viewGroup0_3D->addData(distanceToTargetMetric->getUid());
+
+    ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+    viewGroup1_2D->getGroup2DZoom()->set(0.4);
+    viewGroup1_2D->getGlobal2DZoom()->set(0.4);
+
+    if(ctImage)
+        viewGroup1_2D->addData(ctImage->getUid());
+    if(targetPoint)
+        viewGroup1_2D->addData(targetPoint->getUid());
+
+    ViewGroupDataPtr viewGroup2_3D = services->view()->getGroup(mFlyThrough3DViewGroupNumber);
+    //this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
+    if(targetPoint)
+        viewGroup2_3D->addData(targetPoint->getUid());
+    if(airwaysTubes)
+        viewGroup2_3D->addData(airwaysTubes->getUid());
+    if(extendedRouteToTarget)
+        viewGroup2_3D->addData(extendedRouteToTarget->getUid());
+    if(routeToTarget)
+        viewGroup2_3D->addData(routeToTarget->getUid());
+    if(nodules)
+        viewGroup1_2D->addData(nodules->getUid());
 }
 
 void NavigationWorkflowState::onExit(QEvent * event)

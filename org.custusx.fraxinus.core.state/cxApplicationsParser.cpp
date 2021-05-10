@@ -157,7 +157,6 @@ ApplicationsParser::ApplicationsParser()
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
     desktop.addPreset(FraxinusTrackingWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
-    desktop.addPreset("help_widget", Qt::RightDockWidgetArea, false);
     mWorkflowDefaultDesktops["TrackingUid"] = desktop;
     //-----------------------------------------------------
 
@@ -173,7 +172,7 @@ ApplicationsParser::ApplicationsParser()
 
     //-----------------------------------------------------
     // NAVIGATION
-    desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+    desktop = Desktop("LAYOUT_VB_3D_ANY", QByteArray::fromBase64(""));
     toolbars.clear();
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);

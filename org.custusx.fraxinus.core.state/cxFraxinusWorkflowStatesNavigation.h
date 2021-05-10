@@ -100,13 +100,14 @@ public:
     virtual QIcon getIcon() const;
     FraxinusNavigationWidget* getFraxinusNavigationWidget();
 	virtual void onEntry(QEvent* event);
-    void setupFraxinusNavigationWidget(int viewGroupNumber);
+    void setupFraxinusNavigationWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
     void onExit(QEvent *event);
 	virtual bool canEnter() const;
 
 private:
     virtual void addDataToView();
-    int m3DViewGroupNumber;
+    int mFlyThrough3DViewGroupNumber;
+    int mSurfaceModel3DViewGroupNumber;
 };
 
 
