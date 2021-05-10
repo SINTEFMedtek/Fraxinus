@@ -69,19 +69,23 @@ FraxinusTrackingWidget::FraxinusTrackingWidget(TrackingServicePtr trackingServic
     connect(mStopTrackingButton, &QPushButton::clicked, this, &FraxinusTrackingWidget::stopTrackingClickedSlot);
 
     QVBoxLayout* verticalLayout = new QVBoxLayout;
-    QGridLayout* gridLayout = new QGridLayout();
+    QGridLayout* gridLayoutTools = new QGridLayout();
+    QGridLayout* gridLayoutButtons = new QGridLayout();
 
     for (int i=0; i<mToolFilesComboBoxs.size(); i++)
     {
         QString label= "Tool ";
         label.append(QString::number(i+1));
-        gridLayout->addWidget(new QLabel(label), i, 0);
-        gridLayout->addWidget(mToolFilesComboBoxs[i], i, 1);
+        gridLayoutTools->addWidget(new QLabel(label), i, 0);
+        gridLayoutTools->addWidget(mToolFilesComboBoxs[i], i, 1);
     }
+    gridLayoutButtons->addWidget(mStartTrackingButton, 0, 0);
+    gridLayoutButtons->addWidget(mStopTrackingButton, 0, 1);
+    verticalLayout->setAlignment(Qt::AlignTop);
     verticalLayout->addSpacing(50);
-    gridLayout->addWidget(mStartTrackingButton, mToolFilesComboBoxs.size(), 0);
-    gridLayout->addWidget(mStopTrackingButton, mToolFilesComboBoxs.size(), 1);
-    verticalLayout->addLayout(gridLayout);
+    verticalLayout->addLayout(gridLayoutTools);
+    verticalLayout->addSpacing(50);
+    verticalLayout->addLayout(gridLayoutButtons);
 
     this->setLayout(verticalLayout);
 
