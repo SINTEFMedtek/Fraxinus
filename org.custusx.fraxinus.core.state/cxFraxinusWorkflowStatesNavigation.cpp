@@ -234,6 +234,7 @@ void NavigationWorkflowState::onEntry(QEvent * event)
     if(fraxinusNavigationWidget)
     {
         fraxinusNavigationWidget->setCenterline(this->getTubeCenterline());
+        fraxinusNavigationWidget->updateDataOnEntry();
         StructuresSelectionWidget* structureSelectionWidget = fraxinusNavigationWidget->getStructuresSelectionWidget();
         if(structureSelectionWidget)
             structureSelectionWidget->onEntry();
@@ -259,7 +260,24 @@ void NavigationWorkflowState::setupFraxinusNavigationWidget(int flyThrough3DView
     viewGroupNumbers.push_back(surfaceModel3DViewGroupNumber);
     FraxinusNavigationWidget* fraxinusNavigationWidget = this->getFraxinusNavigationWidget();
     if (fraxinusNavigationWidget)
+    {
         this->setupViewOptionsForStructuresSelection(fraxinusNavigationWidget->getStructuresSelectionWidget(), viewGroupNumbers);
+
+        ImagePtr ctImage_copied = this->getCTImageCopied();
+        std::vector<DataPtr> volumeViewObjects;
+        volumeViewObjects.push_back(ctImage_copied);
+
+        std::vector<DataPtr> tubeViewObjects;
+        MeshPtr tubes = mFraxinusSegmentations->getAirwaysTubes();
+        tubeViewObjects.push_back(tubes);
+
+        for(DataPtr object : tubeViewObjects)
+            fraxinusNavigationWidget->addObjectToTubeView(object);
+        for(DataPtr object : volumeViewObjects)
+            fraxinusNavigationWidget->addObjectToVolumeView(object);
+
+        fraxinusNavigationWidget->setViewGroupNumber(flyThrough3DViewGroupNumber);
+    }
 
     VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
     if(services)
@@ -334,8 +352,6 @@ void NavigationWorkflowState::addDataToView()
 
 void NavigationWorkflowState::onExit(QEvent * event)
 {
-	mFraxinusSegmentations->close();
-	
 	WorkflowState::onExit(event);
 }
 

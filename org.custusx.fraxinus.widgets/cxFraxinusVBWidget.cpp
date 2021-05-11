@@ -74,17 +74,17 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
     mVerticalLayout->insertWidget(mVerticalLayout->count()-1, viewBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
 
     QVBoxLayout* routeVLayout = new QVBoxLayout();
-		mStaticTotalLegth = new QLabel();
-		mRemainingRttLegth = new QLabel();
-		mDirectDistance = new QLabel();
-		mDistanceToTarget = new QLabel();
-		mWarningLabel = new QLabel();
-		routeVLayout->addWidget(mStaticTotalLegth);
-		routeVLayout->addWidget(mDistanceToTarget);
-		routeVLayout->addWidget(mWarningLabel);
-		//routeVLayout->addSpacing(10);
-		routeVLayout->addWidget(mRemainingRttLegth);
-		routeVLayout->addWidget(mDirectDistance);
+    mStaticTotalLegth = new QLabel();
+    mRemainingRttLegth = new QLabel();
+    mDirectDistance = new QLabel();
+    mDistanceToTarget = new QLabel();
+    mWarningLabel = new QLabel();
+    routeVLayout->addWidget(mStaticTotalLegth);
+    routeVLayout->addWidget(mDistanceToTarget);
+    routeVLayout->addWidget(mWarningLabel);
+    //routeVLayout->addSpacing(10);
+    routeVLayout->addWidget(mRemainingRttLegth);
+    routeVLayout->addWidget(mDirectDistance);
 
     QGroupBox* routeBox = new QGroupBox(tr("Route length"));
     routeBox->setLayout(routeVLayout);
@@ -251,20 +251,21 @@ void FraxinusVBWidget::keyPressEvent(QKeyEvent* event)
 
 void FraxinusVBWidget::setViewGroupNumber(unsigned int viewGroupNumber)
 {
-    //mViewGroupNumber = viewGroupNumber;
-    mViewSelectionWidget->setViewGroupNumber(viewGroupNumber);
+    if(mViewSelectionWidget)
+        mViewSelectionWidget->setViewGroupNumber(viewGroupNumber);
 }
 
 void FraxinusVBWidget::addObjectToVolumeView(DataPtr object)
 {
-    //mVolumeViewObjects.push_back(object);
-    mViewSelectionWidget->addObjectToVolumeView(object);
+    if(mViewSelectionWidget)
+        mViewSelectionWidget->addObjectToVolumeView(object);
 }
 
 void FraxinusVBWidget::addObjectToTubeView(DataPtr object)
 {
     mTubeViewObjects.push_back(object);
-    mViewSelectionWidget->addObjectToTubeView(object);
+    if(mViewSelectionWidget)
+        mViewSelectionWidget->addObjectToTubeView(object);
 }
 
 StructuresSelectionWidget* FraxinusVBWidget::getStructuresSelectionWidget()

@@ -46,7 +46,8 @@ namespace cx {
 ViewSelectionWidget::ViewSelectionWidget(VisServicesPtr services, QWidget* parent):
         BaseWidget(parent, this->getWidgetName(), "View"),
         mServices(services),
-        mOpacityValue(1)
+        mOpacityValue(1),
+        mViewGroupNumber(0)
 {
 
     // Selector for displaying volume or artificial tubes
@@ -75,10 +76,10 @@ ViewSelectionWidget::ViewSelectionWidget(VisServicesPtr services, QWidget* paren
 
     this->setLayout(gridLayout);
 
-        connect(mTubeButton, &QRadioButton::clicked, this, &ViewSelectionWidget::displayTubes);
-        connect(mVolumeButton, &QRadioButton::clicked, this, &ViewSelectionWidget::displayVolume);
-        connect(mOpacityOnButton, &QRadioButton::clicked, this, &ViewSelectionWidget::airwayOpacityOn);
-        connect(mOpacityOffButton, &QRadioButton::clicked, this, &ViewSelectionWidget::airwayOpacityOff);
+    connect(mTubeButton, &QRadioButton::clicked, this, &ViewSelectionWidget::displayTubes);
+    connect(mVolumeButton, &QRadioButton::clicked, this, &ViewSelectionWidget::displayVolume);
+    connect(mOpacityOnButton, &QRadioButton::clicked, this, &ViewSelectionWidget::airwayOpacityOn);
+    connect(mOpacityOffButton, &QRadioButton::clicked, this, &ViewSelectionWidget::airwayOpacityOff);
 }
 
 ViewSelectionWidget::~ViewSelectionWidget()
@@ -115,6 +116,18 @@ void ViewSelectionWidget::airwayOpacityOff()
 {
     this->setAirwayOpacity(false);
 }
+
+void ViewSelectionWidget::updateDataOnEntry()
+{
+    if(mVolumeButton->isChecked())
+            this->displayVolume();
+    else
+    {
+        this->displayTubes();
+        this->setAirwayOpacity(mOpacityOnButton->isChecked());
+    }
+}
+
 
 void ViewSelectionWidget::displayDataObjects(std::vector<DataPtr> objects)
 {

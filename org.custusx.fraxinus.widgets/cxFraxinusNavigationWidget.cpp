@@ -61,6 +61,12 @@ FraxinusNavigationWidget::FraxinusNavigationWidget(VisServicesPtr service, QWidg
     mLockToCenterlineButton->setPalette(mButtonBackgroundColor);
     connect(mLockToCenterlineButton, &QPushButton::clicked, this, &FraxinusNavigationWidget::lockToCenterlineSlot);
 
+    QGroupBox* viewBox = new QGroupBox(tr("View"));
+    mViewSelectionWidget = new ViewSelectionWidget(mServices, this);
+    QVBoxLayout* viewLayout = new QVBoxLayout();
+    viewLayout->addWidget(mViewSelectionWidget);
+    viewBox->setLayout(viewLayout);
+
     mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this);
     QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
     QVBoxLayout* structuresLayout = new QVBoxLayout();
@@ -68,7 +74,10 @@ FraxinusNavigationWidget::FraxinusNavigationWidget(VisServicesPtr service, QWidg
     structuresBox->setLayout(structuresLayout);
 
     QVBoxLayout* verticalLayout = new QVBoxLayout;
+    verticalLayout->addStretch();
     verticalLayout->addWidget(mLockToCenterlineButton);
+    verticalLayout->addStretch();
+    verticalLayout->addWidget(viewBox);
     verticalLayout->addStretch();
     verticalLayout->addWidget(structuresBox);
     verticalLayout->addStretch();
@@ -169,7 +178,28 @@ void FraxinusNavigationWidget::lockToCenterlineSlot()
     }
 }
 
+void FraxinusNavigationWidget::addObjectToVolumeView(DataPtr object)
+{
+    if(mViewSelectionWidget)
+        mViewSelectionWidget->addObjectToVolumeView(object);
+}
 
+void FraxinusNavigationWidget::addObjectToTubeView(DataPtr object)
+{
+    if(mViewSelectionWidget)
+        mViewSelectionWidget->addObjectToTubeView(object);
+}
 
+void FraxinusNavigationWidget::setViewGroupNumber(unsigned int viewGroupNumber)
+{
+    if(mViewSelectionWidget)
+        mViewSelectionWidget->setViewGroupNumber(viewGroupNumber);
+}
+
+void FraxinusNavigationWidget::updateDataOnEntry()
+{
+    if(mViewSelectionWidget)
+        mViewSelectionWidget->updateDataOnEntry();
+}
 
 } //namespace cx

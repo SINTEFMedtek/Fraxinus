@@ -58,6 +58,7 @@ public:
     void displayTubes();
     bool isVolumeButtonChecked();
     bool isTubeButtonChecked();
+    void updateDataOnEntry();
     void setVolumeButtonChecked(bool checked);
     void setTubeButtonChecked(bool checked);
 
@@ -76,7 +77,7 @@ private:
     double mOpacityValue;
     std::vector<DataPtr> mVolumeViewObjects;
     std::vector<DataPtr> mTubeViewObjects;
-    unsigned int mViewGroupNumber = 0;
+    unsigned int mViewGroupNumber;
 
 };
 

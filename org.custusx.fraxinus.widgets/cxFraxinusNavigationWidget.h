@@ -35,11 +35,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
-#include <cxStructuresSelectionWidget.h>
-#include <cxFraxinusPatientOrientationWidget.h>
+#include "cxStructuresSelectionWidget.h"
+#include "cxFraxinusPatientOrientationWidget.h"
 #include "cxBaseWidget.h"
 #include "cxForwardDeclarations.h"
 #include "cxTrackerConfiguration.h"
+#include "cxViewSelectionWidget.h"
 
 class QRadioButton;
 class QLabel;
@@ -60,6 +61,10 @@ public:
     static QString getWidgetName();
     StructuresSelectionWidget* getStructuresSelectionWidget();
     void setCenterline(MeshPtr centerline);
+    void addObjectToVolumeView(DataPtr object);
+    void addObjectToTubeView(DataPtr object);
+    void setViewGroupNumber(unsigned int viewGroupNumber);
+    void updateDataOnEntry();
 
 private slots:
     void lockToCenterlineSlot();
@@ -68,6 +73,7 @@ private:
     bool enableLockToCenterline();
     bool disableLockToCenterline();
 
+    ViewSelectionWidget* mViewSelectionWidget;
     StructuresSelectionWidget* mStructuresSelectionWidget;
     VisServicesPtr mServices;
     QPushButton* mLockToCenterlineButton;
