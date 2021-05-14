@@ -152,6 +152,8 @@ void StateServiceImpl::changeDefaultSettings()
     this->fillDefault("View/showDataText", false);
     this->fillDefault("Navigation/followTooltipBoundary", 0.5);
     this->fillDefault("Navigation/anyplaneViewOffset", 0.5);
+    this->fillDefault("toolConfigFile", QString(profile()->getToolConfigFilePath() + "/tool/Bronchoscopy/Fraxinus.xml"));
+    CX_LOG_DEBUG() << "----------------toolConfigFile: " << QString(profile()->getToolConfigFilePath() + "/tool/Bronchoscopy/Fraxinus.xml");
 
     this->resetSegmentationSettings();
 }

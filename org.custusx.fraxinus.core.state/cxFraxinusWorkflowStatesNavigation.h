@@ -70,6 +70,7 @@ public:
 
 private:
     virtual void addDataToView();
+    int m3DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT RegistrationWorkflowState: public FraxinusWorkflowState

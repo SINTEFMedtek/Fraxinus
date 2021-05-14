@@ -42,30 +42,40 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxApplication.h"
 #include "cxTrackingService.h"
 #include "cxTrackerConfigurationImpl.h"
+#include "cxToolConfigureWidget.h"
+#include "cxProfile.h"
 //#include "cxToolListWidget.h"
 
 
 namespace cx {
 
-FraxinusTrackingWidget::FraxinusTrackingWidget(TrackingServicePtr trackingService, QWidget* parent):
+FraxinusTrackingWidget::FraxinusTrackingWidget(VisServicesPtr services, QWidget* parent):
     BaseWidget(parent, this->getWidgetName(), "Tracking"),
-    mTrackingService(trackingService)
+    mTrackingService(services->tracking()),
+    mTrackerUid("Fraxinus"),
+    mNumberOfTools(4),
+    mClinicalApplication("Bronchoscopy"),
+    mTrackingSystemImplementation("igstk"),
+    mTrackingSystemName("Aurora")
 {
-    TrackerConfigurationPtr config = mTrackingService->getConfiguration();
+    mTrackerConfiguration = mTrackingService->getConfiguration();
+
+    mToolConfigureGroupBox = new ToolConfigureGroupBox(mTrackingService, services->state(), this);
+    mToolConfigureGroupBox->setCurrentlySelectedCofiguration(profile()->getToolConfigFilePath()); //This is only path to Fraxinus_settings, should be to CX/CX/config...
+    mToolConfigureGroupBox->hide();
     //mConfigFilesComboBox->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Expanding);
 
+    CX_LOG_DEBUG() << "---------------Tracking system: " << mToolConfigureGroupBox->getCurrentConfiguration().mUid;
+
     QStringList applications;
-    QString application("Bronchoscopy");
-    applications.append(application);
+    applications.append(mClinicalApplication);
     QStringList trackingSystems;
-    QString trackingSystem("Aurora");
-    trackingSystems.append(trackingSystem);
-    int numberOfTools = 4;
-    this->addToolsToComboBoxes(numberOfTools, config, applications, trackingSystems);
+    trackingSystems.append(mTrackingSystemName);
+    this->addToolsToComboBoxes(mNumberOfTools, mTrackerConfiguration, applications, trackingSystems);
 
     mStartTrackingButton = new QPushButton("Start Tracking", this);
     connect(mStartTrackingButton, &QPushButton::clicked, this, &FraxinusTrackingWidget::startTrackingClickedSlot);
-    mStopTrackingButton = new QPushButton("Start Tracking", this);
+    mStopTrackingButton = new QPushButton("Stop Tracking", this);
     connect(mStopTrackingButton, &QPushButton::clicked, this, &FraxinusTrackingWidget::stopTrackingClickedSlot);
 
     QVBoxLayout* verticalLayout = new QVBoxLayout;
@@ -88,6 +98,8 @@ FraxinusTrackingWidget::FraxinusTrackingWidget(TrackingServicePtr trackingServic
     verticalLayout->addLayout(gridLayoutButtons);
 
     this->setLayout(verticalLayout);
+
+    //this->updateTrackerConfigurationTools();
 
     connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::updateButtonStatusSlot);
     this->updateButtonStatusSlot();
@@ -119,11 +131,14 @@ void FraxinusTrackingWidget::addToolsToComboBoxes(int numberOfTools, TrackerConf
             int index = mToolFilesComboBoxs[i]->findText(toolName);
             mToolFilesComboBoxs[i]->setItemData(index, toolPath, Qt::ToolTipRole);
         }
+        //mToolFilesComboBoxs[i]->setCurrentIndex();
+        connect(mToolFilesComboBoxs[i], SIGNAL(currentIndexChanged(int)), this, SLOT(updateTrackerConfigurationTools()));
     }
 }
 
 void FraxinusTrackingWidget::startTrackingClickedSlot(bool checked)
 {
+    this->printTrackerConfiguration(); //debug
     Q_UNUSED(checked);
     mTrackingService->setState(Tool::tsTRACKING);
 }
@@ -140,6 +155,50 @@ void FraxinusTrackingWidget::updateButtonStatusSlot()
 
     mStartTrackingButton->setEnabled(state < Tool::tsTRACKING);
     mStopTrackingButton->setEnabled(state >= Tool::tsTRACKING);
+}
+
+void FraxinusTrackingWidget::updateTrackerConfigurationTools()
+{
+    //TrackerConfigurationPtr config = mTrackingService->getConfiguration();
+    TrackerConfiguration::Configuration config = mToolConfigureGroupBox->getCurrentConfiguration();
+    QStringList tools;
+    for(int i=0; i<mNumberOfTools; i++)
+    {
+        QString tool;
+        if(mToolFilesComboBoxs[i]->currentIndex() >= 0 )
+            tool = mToolFilesComboBoxs[i]->itemData(mToolFilesComboBoxs[i]->currentIndex(), Qt::ToolTipRole).toString();
+
+        if(!tool.isEmpty())
+            tools.append(tool);
+        else
+            break;
+    }
+
+    config.mTools = tools;
+
+    QString refTool = config.mTools[0];//mToolFilesComboBoxs[0]->itemData(mToolFilesComboBoxs[0]->currentIndex(), Qt::ToolTipRole).toString();
+    if(!refTool.isEmpty())
+    {
+        config.mReferenceTool = refTool;
+        mTrackerConfiguration->saveConfiguration(config);
+        CX_LOG_DEBUG() << "In FraxinusTrackingWidget::updateTrackerConfigurationTools: Saving tool config.";
+    }
+}
+
+void FraxinusTrackingWidget::printTrackerConfiguration() //debug
+{
+    TrackerConfiguration::Configuration config = mToolConfigureGroupBox->getCurrentConfiguration();
+    CX_LOG_DEBUG() << "-----------------Tracker configuration:------------------";
+    CX_LOG_DEBUG() << "Uid: " << config.mUid;
+    CX_LOG_DEBUG() << "ClinicalApplication: " << config.mClinicalApplication;
+    CX_LOG_DEBUG() << "TrackingSystemImplementation: " << config.mTrackingSystemImplementation;
+    CX_LOG_DEBUG() << "TrackingSystemName: " << config.mTrackingSystemName;
+    CX_LOG_DEBUG() << "Tools: ";
+
+    for(int i=0; i<config.mTools.size(); i++)
+        CX_LOG_DEBUG() << "Tool " << i << ": " << config.mTools[i];
+
+    CX_LOG_DEBUG() << "ReferenceTool: " << config.mReferenceTool;
 
 }
 

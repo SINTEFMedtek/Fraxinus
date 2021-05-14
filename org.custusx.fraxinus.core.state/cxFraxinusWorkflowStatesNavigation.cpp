@@ -65,7 +65,8 @@ namespace cx
 {
 
 TrackingWorkflowState::TrackingWorkflowState(QState* parent, CoreServicesPtr services) :
-    FraxinusWorkflowState(parent, "TrackingUid", "Tracking", services, true)
+    FraxinusWorkflowState(parent, "TrackingUid", "Tracking", services, true),
+    m3DViewGroupNumber(0)
 {}
 
 TrackingWorkflowState::~TrackingWorkflowState()
@@ -89,17 +90,24 @@ bool TrackingWorkflowState::canEnter() const
 
 void TrackingWorkflowState::addDataToView()
 {
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	
-	ImagePtr ctImage = this->getCTImage();
-	
-	//Assuming 3D
-	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
-	if(ctImage)
-	{
-		this->setTransferfunction3D("Default", ctImage);
-		viewGroup0_3D->addData(ctImage->getUid());
-	}
+    VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+
+    //Assuming 3D
+    ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);
+
+    MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
+    if(airwaysTubes)
+        viewGroup0_3D->addData(airwaysTubes->getUid());
+
+    CameraControlPtr camera_control = services->view()->getCameraControl();
+    if(camera_control)
+    {
+        ViewPtr view_3D = services->view()->get3DView(m3DViewGroupNumber);
+        camera_control->setView(view_3D);
+        camera_control->setAnteriorView();
+        view_3D->setZoomFactor(0.5);
+    }
+    this->setDefaultCameraStyle();
 }
 
 // --------------------------------------------------------
@@ -226,7 +234,6 @@ FraxinusNavigationWidget* NavigationWorkflowState::getFraxinusNavigationWidget()
 void NavigationWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
-    //this->setupVBWidget(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);
     this->setupFraxinusNavigationWidget(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);
     this->addDataToView();
 

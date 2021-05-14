@@ -48,11 +48,13 @@ class QComboBox;
 
 namespace cx {
 
+class ToolConfigureGroupBox;
+
 class org_custusx_fraxinus_widgets_EXPORT FraxinusTrackingWidget : public BaseWidget
 {
     Q_OBJECT
 public:
-    FraxinusTrackingWidget(TrackingServicePtr trackingService, QWidget *parent = 0);
+    FraxinusTrackingWidget(VisServicesPtr services, QWidget *parent = 0);
     virtual ~FraxinusTrackingWidget();
 
     static QString getWidgetName();
@@ -61,14 +63,23 @@ private slots:
     void startTrackingClickedSlot(bool);
     void stopTrackingClickedSlot(bool);
     void updateButtonStatusSlot();
+    void updateTrackerConfigurationTools();
 
 private:
     TrackingServicePtr mTrackingService;
+    ToolConfigureGroupBox* mToolConfigureGroupBox;
+    QString mTrackerUid;
+    QString mClinicalApplication;
+    QString mTrackingSystemImplementation;
+    QString mTrackingSystemName;
+    int mNumberOfTools;
+    TrackerConfigurationPtr mTrackerConfiguration;
     std::vector<QComboBox*> mToolFilesComboBoxs;
     QPushButton* mStartTrackingButton;
     QPushButton* mStopTrackingButton;
 
     void addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr configuration, QStringList applicationsFilter, QStringList trackingsystemsFilter);
+    void printTrackerConfiguration(); //debug
 };
 
 
