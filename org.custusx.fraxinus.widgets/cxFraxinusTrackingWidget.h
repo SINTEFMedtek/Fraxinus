@@ -74,10 +74,11 @@ private:
     QString mTrackingSystemName;
     int mNumberOfTools;
     TrackerConfigurationPtr mTrackerConfiguration;
-    std::vector<QComboBox*> mToolFilesComboBoxs;
+    std::vector<QComboBox*> mToolFilesComboBoxes;
     QPushButton* mStartTrackingButton;
     QPushButton* mStopTrackingButton;
 
+    void copyToolConfigFile();
     void addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr configuration, QStringList applicationsFilter, QStringList trackingsystemsFilter);
     void printTrackerConfiguration(); //debug
 };

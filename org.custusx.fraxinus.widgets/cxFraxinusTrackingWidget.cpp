@@ -60,12 +60,12 @@ FraxinusTrackingWidget::FraxinusTrackingWidget(VisServicesPtr services, QWidget*
 {
     mTrackerConfiguration = mTrackingService->getConfiguration();
 
+    if(!profile()->getToolConfigFilePath().endsWith("Fraxinus.xml"))
+        this->copyToolConfigFile();
+
     mToolConfigureGroupBox = new ToolConfigureGroupBox(mTrackingService, services->state(), this);
     mToolConfigureGroupBox->setCurrentlySelectedCofiguration(profile()->getToolConfigFilePath()); //This is only path to Fraxinus_settings, should be to CX/CX/config...
     mToolConfigureGroupBox->hide();
-    //mConfigFilesComboBox->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Expanding);
-
-    CX_LOG_DEBUG() << "---------------Tracking system: " << mToolConfigureGroupBox->getCurrentConfiguration().mUid;
 
     QStringList applications;
     applications.append(mClinicalApplication);
@@ -82,12 +82,12 @@ FraxinusTrackingWidget::FraxinusTrackingWidget(VisServicesPtr services, QWidget*
     QGridLayout* gridLayoutTools = new QGridLayout();
     QGridLayout* gridLayoutButtons = new QGridLayout();
 
-    for (int i=0; i<mToolFilesComboBoxs.size(); i++)
+    for (int i=0; i<mToolFilesComboBoxes.size(); i++)
     {
         QString label= "Tool ";
         label.append(QString::number(i+1));
         gridLayoutTools->addWidget(new QLabel(label), i, 0);
-        gridLayoutTools->addWidget(mToolFilesComboBoxs[i], i, 1);
+        gridLayoutTools->addWidget(mToolFilesComboBoxes[i], i, 1);
     }
     gridLayoutButtons->addWidget(mStartTrackingButton, 0, 0);
     gridLayoutButtons->addWidget(mStopTrackingButton, 0, 1);
@@ -98,8 +98,6 @@ FraxinusTrackingWidget::FraxinusTrackingWidget(VisServicesPtr services, QWidget*
     verticalLayout->addLayout(gridLayoutButtons);
 
     this->setLayout(verticalLayout);
-
-    //this->updateTrackerConfigurationTools();
 
     connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::updateButtonStatusSlot);
     this->updateButtonStatusSlot();
@@ -115,24 +113,60 @@ QString FraxinusTrackingWidget::getWidgetName()
     return "fraxinus_tracking_widget";
 }
 
+void FraxinusTrackingWidget::copyToolConfigFile()
+{
+    QStringList configurations = mTrackerConfiguration->getAllConfigurations();
+    for(int i = 0; i < configurations.size(); ++i)
+    {
+        QFileInfo fileInfo(configurations[i]);
+        if (fileInfo.fileName().endsWith("Fraxinus.xml"))
+        {
+            QString toolConfigFilePath = profile()->getApplicationToolConfigPaths().front();
+            if(!QDir(toolConfigFilePath).exists())
+                QDir().mkdir(toolConfigFilePath);
+
+            QString toolConfigFileName = toolConfigFilePath + "Fraxinus.xml";
+
+            CX_LOG_DEBUG() << "Copying " << configurations[i] << " to " << toolConfigFileName;
+            QFile::copy(configurations[i], toolConfigFileName);
+            profile()->setToolConfigFilePath(toolConfigFileName);
+            break;
+        }
+    }
+}
+
 void FraxinusTrackingWidget::addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr config, QStringList applicationsFilter, QStringList trackingsystemsFilter)
 {
     QStringList toolPathList = config->getToolsGivenFilter(applicationsFilter, trackingsystemsFilter);
+    QStringList tools = mToolConfigureGroupBox->getCurrentConfiguration().mTools;
+    CX_LOG_DEBUG() << "tools.size(): " << tools.size();
 
-    mToolFilesComboBoxs.clear();
+    mToolFilesComboBoxes.clear();
     for(int i=0; i<numberOfTools; i++)
     {
-        mToolFilesComboBoxs.push_back(new QComboBox());
+        mToolFilesComboBoxes.push_back(new QComboBox());
 
         for(QString toolPath : toolPathList)
         {
-            QString toolName = config->getTool(toolPath).mName;
-            mToolFilesComboBoxs[i]->addItem(toolName);
-            int index = mToolFilesComboBoxs[i]->findText(toolName);
-            mToolFilesComboBoxs[i]->setItemData(index, toolPath, Qt::ToolTipRole);
+            if(config->getTool(toolPath).mPortNumber == i)
+            {
+                QString toolName = config->getTool(toolPath).mName;
+                mToolFilesComboBoxes[i]->addItem(toolName);
+                int index = mToolFilesComboBoxes[i]->findText(toolName);
+                mToolFilesComboBoxes[i]->setItemData(index, toolPath, Qt::ToolTipRole);
+                if(tools.size()>i)
+                {
+                    if(tools[i].contains(toolName))
+                        mToolFilesComboBoxes[i]->setCurrentIndex(index);
+                }
+                else
+                    mToolFilesComboBoxes[i]->setCurrentIndex(-1);
+            }
         }
-        //mToolFilesComboBoxs[i]->setCurrentIndex();
-        connect(mToolFilesComboBoxs[i], SIGNAL(currentIndexChanged(int)), this, SLOT(updateTrackerConfigurationTools()));
+        if(i!=0)
+            mToolFilesComboBoxes[i]->addItem("<No Tool>", Qt::ToolTipRole);
+
+        connect(mToolFilesComboBoxes[i], SIGNAL(currentIndexChanged(int)), this, SLOT(updateTrackerConfigurationTools()));
     }
 }
 
@@ -159,14 +193,13 @@ void FraxinusTrackingWidget::updateButtonStatusSlot()
 
 void FraxinusTrackingWidget::updateTrackerConfigurationTools()
 {
-    //TrackerConfigurationPtr config = mTrackingService->getConfiguration();
     TrackerConfiguration::Configuration config = mToolConfigureGroupBox->getCurrentConfiguration();
     QStringList tools;
     for(int i=0; i<mNumberOfTools; i++)
     {
         QString tool;
-        if(mToolFilesComboBoxs[i]->currentIndex() >= 0 )
-            tool = mToolFilesComboBoxs[i]->itemData(mToolFilesComboBoxs[i]->currentIndex(), Qt::ToolTipRole).toString();
+        if(mToolFilesComboBoxes[i]->currentIndex() >= 0 )
+            tool = mToolFilesComboBoxes[i]->itemData(mToolFilesComboBoxes[i]->currentIndex(), Qt::ToolTipRole).toString();
 
         if(!tool.isEmpty())
             tools.append(tool);
@@ -176,12 +209,11 @@ void FraxinusTrackingWidget::updateTrackerConfigurationTools()
 
     config.mTools = tools;
 
-    QString refTool = config.mTools[0];//mToolFilesComboBoxs[0]->itemData(mToolFilesComboBoxs[0]->currentIndex(), Qt::ToolTipRole).toString();
+    QString refTool = config.mTools[0];
     if(!refTool.isEmpty())
     {
         config.mReferenceTool = refTool;
         mTrackerConfiguration->saveConfiguration(config);
-        CX_LOG_DEBUG() << "In FraxinusTrackingWidget::updateTrackerConfigurationTools: Saving tool config.";
     }
 }
 

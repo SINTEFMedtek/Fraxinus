@@ -55,6 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxProfile.h"
 #include "cxLogger.h"
 #include "cxVisServices.h"
+#include "cxTrackerConfigurationImpl.h"
 
 namespace cx
 {
@@ -152,8 +153,13 @@ void StateServiceImpl::changeDefaultSettings()
     this->fillDefault("View/showDataText", false);
     this->fillDefault("Navigation/followTooltipBoundary", 0.5);
     this->fillDefault("Navigation/anyplaneViewOffset", 0.5);
-    this->fillDefault("toolConfigFile", QString(profile()->getToolConfigFilePath() + "/tool/Bronchoscopy/Fraxinus.xml"));
-    CX_LOG_DEBUG() << "----------------toolConfigFile: " << QString(profile()->getToolConfigFilePath() + "/tool/Bronchoscopy/Fraxinus.xml");
+    this->fillDefault("Profile", "Bronchoscopy");
+
+
+
+
+
+
 
     this->resetSegmentationSettings();
 }
