@@ -591,7 +591,7 @@ void FraxinusWorkflowState::cleanupVBWidget()
 // --------------------------------------------------------
 
 PatientWorkflowState::PatientWorkflowState(QState* parent, CoreServicesPtr services) :
-	FraxinusWorkflowState(parent, "PatientUid", "New/Load Patient", services, true)
+    FraxinusWorkflowState(parent, "FraxinusPatientUid", "New/Load Patient", services, true)
 {}
 
 PatientWorkflowState::~PatientWorkflowState()
@@ -632,7 +632,7 @@ void PatientWorkflowState::addDataToView()
 // --------------------------------------------------------
 
 ImportWorkflowState::ImportWorkflowState(QState* parent, VisServicesPtr services) :
-	FraxinusWorkflowState(parent, "ImportUid", "Import", services, false)
+    FraxinusWorkflowState(parent, "FraxinusImportUid", "Import", services, false)
 {
 }
 
@@ -692,7 +692,7 @@ void ImportWorkflowState::addDataToView()
 // --------------------------------------------------------
 
 ProcessWorkflowState::ProcessWorkflowState(QState* parent, CoreServicesPtr services) :
-	FraxinusWorkflowState(parent, "ProcessUid", "Process", services, false)
+    FraxinusWorkflowState(parent, "FraxinusProcessUid", "Process", services, false)
 {
 }
 
@@ -778,7 +778,7 @@ void ProcessWorkflowState::onExit(QEvent * event)
 // --------------------------------------------------------
 
 PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr services) :
-	FraxinusWorkflowState(parent, "PinpointUid", "Set target", services, false),
+    FraxinusWorkflowState(parent, "FraxinusPinpointUid", "Set target", services, false),
 	mPointChanged(false)
 {
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);

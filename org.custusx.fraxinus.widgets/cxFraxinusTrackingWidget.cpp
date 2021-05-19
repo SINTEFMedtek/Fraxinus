@@ -64,7 +64,7 @@ FraxinusTrackingWidget::FraxinusTrackingWidget(VisServicesPtr services, QWidget*
         this->copyToolConfigFile();
 
     mToolConfigureGroupBox = new ToolConfigureGroupBox(mTrackingService, services->state(), this);
-    mToolConfigureGroupBox->setCurrentlySelectedCofiguration(profile()->getToolConfigFilePath()); //This is only path to Fraxinus_settings, should be to CX/CX/config...
+    mToolConfigureGroupBox->setCurrentlySelectedCofiguration(profile()->getToolConfigFilePath());
     mToolConfigureGroupBox->hide();
 
     QStringList applications;

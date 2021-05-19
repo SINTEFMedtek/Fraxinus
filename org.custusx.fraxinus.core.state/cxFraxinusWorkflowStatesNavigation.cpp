@@ -65,7 +65,7 @@ namespace cx
 {
 
 TrackingWorkflowState::TrackingWorkflowState(QState* parent, CoreServicesPtr services) :
-    FraxinusWorkflowState(parent, "TrackingUid", "Tracking", services, true),
+    FraxinusWorkflowState(parent, "FraxinusTrackingUid", "Tracking", services, true),
     m3DViewGroupNumber(0)
 {}
 
@@ -114,7 +114,7 @@ void TrackingWorkflowState::addDataToView()
 // --------------------------------------------------------
 
 RegistrationWorkflowState::RegistrationWorkflowState(QState* parent, VisServicesPtr services) :
-    FraxinusWorkflowState(parent, "RegistrationUid", "Registration", services, false),
+    FraxinusWorkflowState(parent, "FraxinusRegistrationUid", "Registration", services, false),
     m3DViewGroupNumber(0)
 {
 }
@@ -209,7 +209,7 @@ void RegistrationWorkflowState::addDataToView()
 // --------------------------------------------------------
 
 NavigationWorkflowState::NavigationWorkflowState(QState* parent, CoreServicesPtr services) :
-    FraxinusWorkflowState(parent, "NavigationUid", "Navigation", services, false),
+    FraxinusWorkflowState(parent, "FraxinusNavigationUid", "Navigation", services, false),
     mFlyThrough3DViewGroupNumber(2),
     mSurfaceModel3DViewGroupNumber(0)
 {

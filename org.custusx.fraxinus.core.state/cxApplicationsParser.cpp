@@ -76,7 +76,7 @@ ApplicationsParser::ApplicationsParser()
 	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset("new_load_patient_widget", Qt::LeftDockWidgetArea, true);
 	desktop.addPreset("help_widget", Qt::RightDockWidgetArea, false);
-	mWorkflowDefaultDesktops["PatientUid"] = desktop;
+    mWorkflowDefaultDesktops["FraxinusPatientUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
@@ -87,7 +87,7 @@ ApplicationsParser::ApplicationsParser()
     this->addToolbarsToDesktop(desktop, toolbars);
     desktop.addPreset("import_widget", Qt::LeftDockWidgetArea, true);
   //desktop.addPreset("dicom_widget", Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["ImportUid"] = desktop;
+    mWorkflowDefaultDesktops["FraxinusImportUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
@@ -97,7 +97,7 @@ ApplicationsParser::ApplicationsParser()
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
     desktop.addPreset("Airway Segmentation Filter Widget", Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["ProcessUid"] = desktop;
+    mWorkflowDefaultDesktops["FraxinusProcessUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
@@ -107,7 +107,7 @@ ApplicationsParser::ApplicationsParser()
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset("pinpoint_widget", Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["PinpointUid"] = desktop;
+    mWorkflowDefaultDesktops["FraxinusPinpointUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
@@ -157,7 +157,7 @@ ApplicationsParser::ApplicationsParser()
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
     desktop.addPreset(FraxinusTrackingWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["TrackingUid"] = desktop;
+    mWorkflowDefaultDesktops["FraxinusTrackingUid"] = desktop;
     //-----------------------------------------------------
 
     //-----------------------------------------------------
@@ -167,7 +167,7 @@ ApplicationsParser::ApplicationsParser()
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
     desktop.addPreset(FraxinusRegistrationWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["RegistrationUid"] = desktop;
+    mWorkflowDefaultDesktops["FraxinusRegistrationUid"] = desktop;
     //-----------------------------------------------------
 
     //-----------------------------------------------------
@@ -177,7 +177,7 @@ ApplicationsParser::ApplicationsParser()
     toolbars << standardToolbars;
     this->addToolbarsToDesktop(desktop, toolbars);
     desktop.addPreset(FraxinusNavigationWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["NavigationUid"] = desktop;
+    mWorkflowDefaultDesktops["FraxinusNavigationUid"] = desktop;
     //-----------------------------------------------------
 }
 
