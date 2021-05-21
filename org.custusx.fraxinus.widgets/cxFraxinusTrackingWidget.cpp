@@ -49,8 +49,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace cx {
 
-FraxinusTrackingWidget::FraxinusTrackingWidget(VisServicesPtr services, QWidget* parent):
+FraxinusTrackingWidget::FraxinusTrackingWidget(VisServicesPtr services, FraxinusNavigationWidget *fraxinusNavigationWidget, QWidget* parent):
     BaseWidget(parent, this->getWidgetName(), "Tracking"),
+    mFraxinusNavigationWidget(fraxinusNavigationWidget),
     mTrackingService(services->tracking()),
     mTrackerUid("Fraxinus"),
     mNumberOfTools(4),
@@ -138,8 +139,7 @@ void FraxinusTrackingWidget::copyToolConfigFile()
 void FraxinusTrackingWidget::addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr config, QStringList applicationsFilter, QStringList trackingsystemsFilter)
 {
     QStringList toolPathList = config->getToolsGivenFilter(applicationsFilter, trackingsystemsFilter);
-    QStringList tools = mToolConfigureGroupBox->getCurrentConfiguration().mTools;
-    CX_LOG_DEBUG() << "tools.size(): " << tools.size();
+    QStringList toolsInCurrentConfig = mToolConfigureGroupBox->getCurrentConfiguration().mTools;
 
     mToolFilesComboBoxes.clear();
     for(int i=0; i<numberOfTools; i++)
@@ -154,16 +154,16 @@ void FraxinusTrackingWidget::addToolsToComboBoxes(int numberOfTools, TrackerConf
                 mToolFilesComboBoxes[i]->addItem(toolName);
                 int index = mToolFilesComboBoxes[i]->findText(toolName);
                 mToolFilesComboBoxes[i]->setItemData(index, toolPath, Qt::ToolTipRole);
-                if(tools.size()>i)
+                if(toolsInCurrentConfig.size()>i)
                 {
-                    if(tools[i].contains(toolName))
+                    if(toolsInCurrentConfig[i].contains(toolName))
                         mToolFilesComboBoxes[i]->setCurrentIndex(index);
                 }
                 else
                     mToolFilesComboBoxes[i]->setCurrentIndex(-1);
             }
         }
-        if(i!=0)
+        if(i!=0) //i==0 -> reference, cannot be <No Tool>
             mToolFilesComboBoxes[i]->addItem("<No Tool>", Qt::ToolTipRole);
 
         connect(mToolFilesComboBoxes[i], SIGNAL(currentIndexChanged(int)), this, SLOT(updateTrackerConfigurationTools()));
@@ -172,7 +172,7 @@ void FraxinusTrackingWidget::addToolsToComboBoxes(int numberOfTools, TrackerConf
 
 void FraxinusTrackingWidget::startTrackingClickedSlot(bool checked)
 {
-    this->printTrackerConfiguration(); //debug
+    //this->printTrackerConfiguration(); //debug
     Q_UNUSED(checked);
     mTrackingService->setState(Tool::tsTRACKING);
 }
@@ -180,6 +180,8 @@ void FraxinusTrackingWidget::startTrackingClickedSlot(bool checked)
 void FraxinusTrackingWidget::stopTrackingClickedSlot(bool checked)
 {
     Q_UNUSED(checked);
+    if (mFraxinusNavigationWidget)
+        mFraxinusNavigationWidget->onTrackingShutDown();
     mTrackingService->setState(Tool::tsINITIALIZED);
 }
 
@@ -204,7 +206,11 @@ void FraxinusTrackingWidget::updateTrackerConfigurationTools()
         if(!tool.isEmpty())
             tools.append(tool);
         else
+        {
+            for(int j=i; j<mNumberOfTools; j++)
+                mToolFilesComboBoxes[j]->setCurrentIndex(-1); // if tool #n is empty, #n+1 also must be empty
             break;
+        }
     }
 
     config.mTools = tools;

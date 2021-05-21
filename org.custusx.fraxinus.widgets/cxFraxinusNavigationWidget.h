@@ -65,14 +65,12 @@ public:
     void addObjectToTubeView(DataPtr object);
     void setViewGroupNumber(unsigned int viewGroupNumber);
     void updateDataOnEntry();
+    void onTrackingShutDown();
 
 private slots:
     void lockToCenterlineSlot();
 
 private:
-    bool enableLockToCenterline();
-    bool disableLockToCenterline();
-
     ViewSelectionWidget* mViewSelectionWidget;
     StructuresSelectionWidget* mStructuresSelectionWidget;
     VisServicesPtr mServices;
@@ -81,6 +79,9 @@ private:
     bool mLockToCenterlineEnabled;
     MeshPtr mCenterline;
     TrackingSystemBronchoscopyServicePtr mCenterlineProjectionTrackingSystem;
+
+    bool enableLockToCenterline();
+    bool disableLockToCenterline();
 };
 
 

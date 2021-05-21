@@ -87,7 +87,7 @@ FraxinusNavigationWidget::FraxinusNavigationWidget(VisServicesPtr service, QWidg
 
 FraxinusNavigationWidget::~FraxinusNavigationWidget()
 {
-
+    this->onTrackingShutDown();
 }
 
 QString FraxinusNavigationWidget::getWidgetName()
@@ -115,6 +115,9 @@ bool FraxinusNavigationWidget::enableLockToCenterline()
         CX_LOG_WARNING() << "FraxinusNavigationWidget::enableLockToCenterline: Centerline not set.";
         return false;
     }
+
+    if(mServices->tracking()->getState()  < Tool::tsTRACKING)
+        return false;
 
     BronchoscopePositionProjectionPtr projectionCenterlinePtr = BronchoscopePositionProjectionPtr(new BronchoscopePositionProjection());
     projectionCenterlinePtr->setRunFromWidget(false);
@@ -176,6 +179,12 @@ void FraxinusNavigationWidget::lockToCenterlineSlot()
             mLockToCenterlineButton->setPalette(mButtonBackgroundColor);
         }
     }
+}
+
+void FraxinusNavigationWidget::onTrackingShutDown()
+{
+    if(mLockToCenterlineEnabled)
+        this->lockToCenterlineSlot();
 }
 
 void FraxinusNavigationWidget::addObjectToVolumeView(DataPtr object)

@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusWorkflowStatesNavigation.h"
 #include "cxVisServices.h"
 #include "cxPatientModelService.h"
+#include "cxTrackingService.h"
 #include "cxActiveData.h"
 #include "cxLogger.h"
 #include "cxImage.h"
@@ -66,6 +67,8 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState, SLOT(canEnterSlot()));
 	connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyCutPlanesWorkflowState, SLOT(canEnterSlot()));
     connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyAnyplaneWorkflowState, SLOT(canEnterSlot()));
+    connect(mServices->tracking().get(), &TrackingService::stateChanged, mRegistrationWorkflowState, &RegistrationWorkflowState::canEnterSlot);
+    connect(mServices->tracking().get(), &TrackingService::stateChanged, mNavigationWorkflowState, &NavigationWorkflowState::canEnterSlot);
 
 	//set initial state on all levels
 	this->setInitialState(mParentState);

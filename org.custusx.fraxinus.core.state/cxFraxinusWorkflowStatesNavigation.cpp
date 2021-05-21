@@ -161,7 +161,8 @@ FraxinusRegistrationWidget* RegistrationWorkflowState::getFraxinusRegistrationWi
 
 bool RegistrationWorkflowState::canEnter() const
 {
-    return mServices->patient()->isPatientValid(); //TO DO: Check if tracking is enabled
+    Tool::State state = mServices->tracking()->getState();
+    return (state >= Tool::tsTRACKING);
 }
 
 void RegistrationWorkflowState::addDataToView()
@@ -294,10 +295,8 @@ void NavigationWorkflowState::setupFraxinusNavigationWidget(int flyThrough3DView
 
 bool NavigationWorkflowState::canEnter() const
 {
-	if(this->getCTImage())
-		return true;
-	else
-		return false;
+    Tool::State state = mServices->tracking()->getState();
+    return (state >= Tool::tsTRACKING);
 }
 
 void NavigationWorkflowState::addDataToView()

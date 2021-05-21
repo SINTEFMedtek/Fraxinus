@@ -37,6 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "org_custusx_fraxinus_widgets_Export.h"
 #include <cxStructuresSelectionWidget.h>
 #include <cxFraxinusPatientOrientationWidget.h>
+#include <cxFraxinusNavigationWidget.h>
 #include "cxBaseWidget.h"
 #include "cxForwardDeclarations.h"
 #include "cxTrackerConfiguration.h"
@@ -54,7 +55,7 @@ class org_custusx_fraxinus_widgets_EXPORT FraxinusTrackingWidget : public BaseWi
 {
     Q_OBJECT
 public:
-    FraxinusTrackingWidget(VisServicesPtr services, QWidget *parent = 0);
+    FraxinusTrackingWidget(VisServicesPtr services, FraxinusNavigationWidget* fraxinusNavigationWidget = NULL, QWidget *parent = 0);
     virtual ~FraxinusTrackingWidget();
 
     static QString getWidgetName();
@@ -77,6 +78,7 @@ private:
     std::vector<QComboBox*> mToolFilesComboBoxes;
     QPushButton* mStartTrackingButton;
     QPushButton* mStopTrackingButton;
+    FraxinusNavigationWidget* mFraxinusNavigationWidget;
 
     void copyToolConfigFile();
     void addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr configuration, QStringList applicationsFilter, QStringList trackingsystemsFilter);
