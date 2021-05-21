@@ -74,7 +74,7 @@ TrackingWorkflowState::~TrackingWorkflowState()
 
 QIcon TrackingWorkflowState::getIcon() const
 {
-	return QIcon(":/icons/icons/patient.svg");
+    return QIcon(":/icons/icons/tracking.svg");
 }
 
 void TrackingWorkflowState::onEntry(QEvent * event)
@@ -148,7 +148,7 @@ void RegistrationWorkflowState::onExit(QEvent * event)
 
 QIcon RegistrationWorkflowState::getIcon() const
 {
-	return QIcon(":/icons/icons/import.svg");
+    return QIcon(":/icons/icons/registration.svg");
 }
 
 FraxinusRegistrationWidget* RegistrationWorkflowState::getFraxinusRegistrationWidget()
@@ -221,7 +221,7 @@ NavigationWorkflowState::~NavigationWorkflowState()
 
 QIcon NavigationWorkflowState::getIcon() const
 {
-	return QIcon(":/icons/icons/processing.svg");
+    return QIcon(":/icons/icons/navigation.svg");
 }
 
 FraxinusNavigationWidget* NavigationWorkflowState::getFraxinusNavigationWidget()
