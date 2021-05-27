@@ -100,7 +100,7 @@ if(NOT CX_APPLE)
   set(PLUGIN_target_libraries
     ${PLUGIN_target_libraries}
     FAST
-    org_custusx_filter_airways
+    #org_custusx_filter_airways
     )
 endif()
 
