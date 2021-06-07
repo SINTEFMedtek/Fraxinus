@@ -64,7 +64,7 @@ Q_OBJECT
 public:
     TrackingWorkflowState(QState* parent, CoreServicesPtr services):
         FraxinusWorkflowState(parent, "FraxinusTrackingUid", "Tracking", services, true){};
-    virtual ~TrackingWorkflowState();
+    virtual ~TrackingWorkflowState(){};
     virtual QIcon getIcon() const = 0;
     virtual bool canEnter() const = 0;
     virtual void onEntry(QEvent* event) = 0;
@@ -81,7 +81,7 @@ Q_OBJECT
 public:
     RegistrationWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction):
         FraxinusWorkflowState(parent, uid, name, services, enableAction){};
-    virtual ~RegistrationWorkflowState();
+    virtual ~RegistrationWorkflowState(){};
     virtual QIcon getIcon() const = 0;
     virtual FraxinusRegistrationWidget* getFraxinusRegistrationWidget() = 0;
     virtual bool canEnter() const = 0;
@@ -100,7 +100,7 @@ Q_OBJECT
 public:
     NavigationWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction):
         FraxinusWorkflowState(parent, uid, name, services, enableAction){};
-    virtual ~NavigationWorkflowState();
+    virtual ~NavigationWorkflowState(){};
     virtual QIcon getIcon() const = 0;
     virtual FraxinusNavigationWidget* getFraxinusNavigationWidget() = 0;
     virtual void onEntry(QEvent* event) = 0;

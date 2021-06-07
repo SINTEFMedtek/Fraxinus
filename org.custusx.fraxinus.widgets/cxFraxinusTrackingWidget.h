@@ -58,7 +58,7 @@ public:
     //FraxinusTrackingWidget(VisServicesPtr services, FraxinusNavigationWidget* fraxinusNavigationWidget = NULL, QWidget *parent = 0);
     FraxinusTrackingWidget(QWidget* parent, QString objectName, QString windowTitle):
         BaseWidget(parent, objectName, windowTitle){};
-    virtual ~FraxinusTrackingWidget();
+    virtual ~FraxinusTrackingWidget(){};
 
     static QString getWidgetName(){return "fraxinus_tracking_widget";};
 

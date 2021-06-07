@@ -58,7 +58,7 @@ public:
     //FraxinusNavigationWidget(VisServicesPtr trackingService, QWidget *parent = 0);
     FraxinusNavigationWidget(QWidget* parent, QString objectName, QString windowTitle):
         BaseWidget(parent, objectName, windowTitle){};
-    virtual ~FraxinusNavigationWidget();
+    virtual ~FraxinusNavigationWidget(){};
 
     static QString getWidgetName(){return "fraxinus_navigation_widget";};;
     virtual StructuresSelectionWidget* getStructuresSelectionWidget() = 0;

@@ -63,7 +63,7 @@ public:
     //FraxinusRegistrationWidget(VisServicesPtr services, RegServicesPtr regServices, QWidget *parent = 0);
     FraxinusRegistrationWidget(QWidget* parent, QString objectName, QString windowTitle):
         BaseWidget(parent, objectName, windowTitle){};
-    virtual ~FraxinusRegistrationWidget();
+    virtual ~FraxinusRegistrationWidget(){};
 
     static QString getWidgetName(){return "fraxinus_registration_widget";};
     virtual void setDefaultCenterlineMesh(MeshPtr mesh) = 0;
