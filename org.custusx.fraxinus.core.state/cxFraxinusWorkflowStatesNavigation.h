@@ -62,14 +62,15 @@ class org_custusx_fraxinus_core_state_EXPORT TrackingWorkflowState: public Fraxi
 Q_OBJECT
 
 public:
-    TrackingWorkflowState(QState* parent, CoreServicesPtr services);
+    TrackingWorkflowState(QState* parent, CoreServicesPtr services):
+        FraxinusWorkflowState(parent, "FraxinusTrackingUid", "Tracking", services, true){};
     virtual ~TrackingWorkflowState();
-    virtual QIcon getIcon() const;
-    virtual bool canEnter() const;
-    virtual void onEntry(QEvent* event);
+    virtual QIcon getIcon() const = 0;
+    virtual bool canEnter() const = 0;
+    virtual void onEntry(QEvent* event) = 0;
 
 private:
-    virtual void addDataToView();
+    virtual void addDataToView() = 0;
     int m3DViewGroupNumber;
 };
 
@@ -78,16 +79,17 @@ class org_custusx_fraxinus_core_state_EXPORT RegistrationWorkflowState: public F
 Q_OBJECT
 
 public:
-    RegistrationWorkflowState(QState* parent, VisServicesPtr services);
+    RegistrationWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction):
+        FraxinusWorkflowState(parent, uid, name, services, enableAction){};
     virtual ~RegistrationWorkflowState();
-    virtual QIcon getIcon() const;
-    FraxinusRegistrationWidget* getFraxinusRegistrationWidget();
-	virtual bool canEnter() const;
-	virtual void onEntry(QEvent *event);
-    virtual void onExit(QEvent * event);
+    virtual QIcon getIcon() const = 0;
+    virtual FraxinusRegistrationWidget* getFraxinusRegistrationWidget() = 0;
+    virtual bool canEnter() const = 0;
+    virtual void onEntry(QEvent *event) = 0;
+    virtual void onExit(QEvent * event) = 0;
 
 private:
-    virtual void addDataToView();
+    virtual void addDataToView() = 0;
     int m3DViewGroupNumber;
 };
 
@@ -96,17 +98,18 @@ class org_custusx_fraxinus_core_state_EXPORT NavigationWorkflowState: public Fra
 Q_OBJECT
 
 public:
-    NavigationWorkflowState(QState* parent, CoreServicesPtr services);
+    NavigationWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction):
+        FraxinusWorkflowState(parent, uid, name, services, enableAction){};
     virtual ~NavigationWorkflowState();
-    virtual QIcon getIcon() const;
-    FraxinusNavigationWidget* getFraxinusNavigationWidget();
-	virtual void onEntry(QEvent* event);
-    void setupFraxinusNavigationWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
-    void onExit(QEvent *event);
-	virtual bool canEnter() const;
+    virtual QIcon getIcon() const = 0;
+    virtual FraxinusNavigationWidget* getFraxinusNavigationWidget() = 0;
+    virtual void onEntry(QEvent* event) = 0;
+    virtual void setupFraxinusNavigationWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber) = 0;
+    virtual void onExit(QEvent *event) = 0;
+    virtual bool canEnter() const = 0;
 
 private:
-    virtual void addDataToView();
+    virtual void addDataToView() = 0;
     int mFlyThrough3DViewGroupNumber;
     int mSurfaceModel3DViewGroupNumber;
 };

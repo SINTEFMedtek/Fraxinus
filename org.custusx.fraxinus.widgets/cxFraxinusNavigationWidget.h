@@ -55,20 +55,22 @@ class org_custusx_fraxinus_widgets_EXPORT FraxinusNavigationWidget : public Base
 {
     Q_OBJECT
 public:
-    FraxinusNavigationWidget(VisServicesPtr trackingService, QWidget *parent = 0);
+    //FraxinusNavigationWidget(VisServicesPtr trackingService, QWidget *parent = 0);
+    FraxinusNavigationWidget(QWidget* parent, QString objectName, QString windowTitle):
+        BaseWidget(parent, objectName, windowTitle){};
     virtual ~FraxinusNavigationWidget();
 
-    static QString getWidgetName();
-    StructuresSelectionWidget* getStructuresSelectionWidget();
-    void setCenterline(MeshPtr centerline);
-    void addObjectToVolumeView(DataPtr object);
-    void addObjectToTubeView(DataPtr object);
-    void setViewGroupNumber(unsigned int viewGroupNumber);
-    void updateDataOnEntry();
-    void onTrackingShutDown();
+    static QString getWidgetName(){return "fraxinus_navigation_widget";};;
+    virtual StructuresSelectionWidget* getStructuresSelectionWidget() = 0;
+    virtual void setCenterline(MeshPtr centerline) = 0;
+    virtual void addObjectToVolumeView(DataPtr object) = 0;
+    virtual void addObjectToTubeView(DataPtr object) = 0;
+    virtual void setViewGroupNumber(unsigned int viewGroupNumber) = 0;
+    virtual void updateDataOnEntry() = 0;
+    virtual void onTrackingShutDown() = 0;
 
 private slots:
-    void lockToCenterlineSlot();
+    virtual void lockToCenterlineSlot() = 0;
 
 private:
     ViewSelectionWidget* mViewSelectionWidget;
@@ -80,8 +82,8 @@ private:
     MeshPtr mCenterline;
     TrackingSystemBronchoscopyServicePtr mCenterlineProjectionTrackingSystem;
 
-    bool enableLockToCenterline();
-    bool disableLockToCenterline();
+    virtual bool enableLockToCenterline() = 0;
+    virtual bool disableLockToCenterline() = 0;
 };
 
 

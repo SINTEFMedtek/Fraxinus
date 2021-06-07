@@ -60,20 +60,20 @@ class org_custusx_fraxinus_widgets_EXPORT FraxinusRegistrationWidget : public Ba
     BronchoscopyRegistrationPtr mBronchoscopyRegistration;
 
 public:
-    FraxinusRegistrationWidget(VisServicesPtr services, RegServicesPtr regServices, QWidget *parent = 0);
+    //FraxinusRegistrationWidget(VisServicesPtr services, RegServicesPtr regServices, QWidget *parent = 0);
+    FraxinusRegistrationWidget(QWidget* parent, QString objectName, QString windowTitle):
+        BaseWidget(parent, objectName, windowTitle){};
     virtual ~FraxinusRegistrationWidget();
 
-    static QString getWidgetName();
-    void setDefaultCenterlineMesh(MeshPtr mesh);
+    static QString getWidgetName(){return "fraxinus_registration_widget";};
+    virtual void setDefaultCenterlineMesh(MeshPtr mesh) = 0;
 
 private slots:
-    void setOrientationClickedSlot();
-    void registrationClickedSlot();
-    void rejectRegistrationClickedSlot();
+    virtual void setOrientationClickedSlot() = 0;
+    virtual void registrationClickedSlot() = 0;
+    virtual void rejectRegistrationClickedSlot() = 0;
 
 private:
-    void processCenterline();
-
     VisServicesPtr mServices;
     RegServicesPtr mRegServices;
     XmlOptionFile mOptions;
@@ -85,7 +85,7 @@ private:
     StringPropertySelectMeshPtr mSelectCenterlineWidget;
     RecordTrackingWidget* mRecordTrackingWidget;
 
-    void addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr configuration, QStringList applicationsFilter, QStringList trackingsystemsFilter);
+    virtual void processCenterline() = 0;
 };
 
 

@@ -65,7 +65,7 @@ namespace cx
 {
 
 TrackingWorkflowState::TrackingWorkflowState(QState* parent, CoreServicesPtr services) :
-    FraxinusWorkflowState(parent, "FraxinusTrackingUid", "Tracking", services, true),
+    FraxinusWorkflowState(parent, services),
     m3DViewGroupNumber(0)
 {}
 

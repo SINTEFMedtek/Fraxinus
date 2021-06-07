@@ -55,16 +55,18 @@ class org_custusx_fraxinus_widgets_EXPORT FraxinusTrackingWidget : public BaseWi
 {
     Q_OBJECT
 public:
-    FraxinusTrackingWidget(VisServicesPtr services, FraxinusNavigationWidget* fraxinusNavigationWidget = NULL, QWidget *parent = 0);
+    //FraxinusTrackingWidget(VisServicesPtr services, FraxinusNavigationWidget* fraxinusNavigationWidget = NULL, QWidget *parent = 0);
+    FraxinusTrackingWidget(QWidget* parent, QString objectName, QString windowTitle):
+        BaseWidget(parent, objectName, windowTitle){};
     virtual ~FraxinusTrackingWidget();
 
-    static QString getWidgetName();
+    static QString getWidgetName(){return "fraxinus_tracking_widget";};
 
 private slots:
-    void startTrackingClickedSlot(bool);
-    void stopTrackingClickedSlot(bool);
-    void updateButtonStatusSlot();
-    void updateTrackerConfigurationTools();
+    virtual void startTrackingClickedSlot(bool) = 0;
+    virtual void stopTrackingClickedSlot(bool) = 0;
+    virtual void updateButtonStatusSlot() = 0;
+    virtual void updateTrackerConfigurationTools() = 0;
 
 private:
     TrackingServicePtr mTrackingService;
@@ -80,9 +82,9 @@ private:
     QPushButton* mStopTrackingButton;
     FraxinusNavigationWidget* mFraxinusNavigationWidget;
 
-    void copyToolConfigFile();
-    void addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr configuration, QStringList applicationsFilter, QStringList trackingsystemsFilter);
-    void printTrackerConfiguration(); //debug
+    virtual void copyToolConfigFile() = 0;
+    virtual void addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr configuration, QStringList applicationsFilter, QStringList trackingsystemsFilter) = 0;
+    virtual void printTrackerConfiguration() = 0; //debug
 };
 
 

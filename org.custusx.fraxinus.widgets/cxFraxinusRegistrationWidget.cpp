@@ -60,11 +60,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace cx {
 
-FraxinusRegistrationWidget::FraxinusRegistrationWidget(VisServicesPtr services, RegServicesPtr regServices, QWidget* parent):
+FraxinusRegistrationWidget::FraxinusRegistrationWidget(QWidget* parent, QString objectName, QString windowTitle):
     BaseWidget(parent, this->getWidgetName(), "Registration"),
     mBronchoscopyRegistration(new BronchoscopyRegistration()),
     mServices(services),
-    mRegServices(regServices)
+    mRegServices(objectName)
 {
     mOptions = profile()->getXmlSettings().descend("fraxinusregistrationwidget");
 

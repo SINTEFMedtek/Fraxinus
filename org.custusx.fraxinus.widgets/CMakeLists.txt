@@ -23,9 +23,9 @@ set(PLUGIN_SRCS
     cxProcedurePlanningWidget.cpp
     cxStructuresSelectionWidget.cpp
     cxFraxinusPatientOrientationWidget.cpp
-    cxFraxinusTrackingWidget.cpp
-    cxFraxinusRegistrationWidget.cpp
-    cxFraxinusNavigationWidget.cpp
+    #cxFraxinusTrackingWidget.cpp
+    #cxFraxinusRegistrationWidget.cpp
+    #cxFraxinusNavigationWidget.cpp
     cxViewSelectionWidget.cpp
 )
 
