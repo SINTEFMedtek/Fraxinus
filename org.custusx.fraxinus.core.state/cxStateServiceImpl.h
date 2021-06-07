@@ -68,9 +68,9 @@ public:
         virtual void resetSegmentationSettings();
 
 	virtual bool isNull();
-
-private:
+	
 	WorkflowStateMachinePtr getWorkflow();
+private:
 	void initialize();
 	void changeDefaultSettings();
 

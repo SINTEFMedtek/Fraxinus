@@ -56,9 +56,6 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	mVirtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
     mVirtualBronchoscopyAnyplaneWorkflowState = this->newState(new VirtualBronchoscopyAnyplaneWorkflowState(mParentState, services));
     mProcedurePlanningWorkflowState = this->newState(new ProcedurePlanningWorkflowState(mParentState, services));
-    mTrackingWorkflowState = this->newState(new TrackingWorkflowState(mParentState, services));
-    mRegistrationWorkflowState = this->newState(new RegistrationWorkflowState(mParentState, services));
-    mNavigationWorkflowState = this->newState(new NavigationWorkflowState(mParentState, services));
 
 	//logic for enabling workflowsteps
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, mImportWorkflowState, &ImportWorkflowState::canEnterSlot);
@@ -67,8 +64,6 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState, SLOT(canEnterSlot()));
 	connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyCutPlanesWorkflowState, SLOT(canEnterSlot()));
     connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyAnyplaneWorkflowState, SLOT(canEnterSlot()));
-    connect(mServices->tracking().get(), &TrackingService::stateChanged, mRegistrationWorkflowState, &RegistrationWorkflowState::canEnterSlot);
-    connect(mServices->tracking().get(), &TrackingService::stateChanged, mNavigationWorkflowState, &NavigationWorkflowState::canEnterSlot);
 
 	//set initial state on all levels
 	this->setInitialState(mParentState);
@@ -99,6 +94,21 @@ void FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot()
 {
 	if(mPatientWorkflowState->getCTImage())
 		emit dataAdded();
+}
+
+void FraxinusWorkflowStateMachine::addTrackingState(WorkflowState* trackingWorkflowState)
+{
+	mTrackingWorkflowState = this->newState(trackingWorkflowState);
+}
+void FraxinusWorkflowStateMachine::addRegistrationState(WorkflowState* registrationWorkflowState)
+{
+	mRegistrationWorkflowState = this->newState(registrationWorkflowState);
+	connect(mServices->tracking().get(), &TrackingService::stateChanged, mRegistrationWorkflowState, &RegistrationWorkflowState::canEnterSlot);
+}
+void FraxinusWorkflowStateMachine::addNavigationState(WorkflowState* navigationWorkflowState)
+{
+	mNavigationWorkflowState = this->newState(navigationWorkflowState);
+	connect(mServices->tracking().get(), &TrackingService::stateChanged, mNavigationWorkflowState, &NavigationWorkflowState::canEnterSlot);
 }
 
 } //namespace cx
