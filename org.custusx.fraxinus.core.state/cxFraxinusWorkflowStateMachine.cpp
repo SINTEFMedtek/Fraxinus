@@ -96,19 +96,24 @@ void FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot()
 		emit dataAdded();
 }
 
-void FraxinusWorkflowStateMachine::addTrackingState(WorkflowState* trackingWorkflowState)
+void FraxinusWorkflowStateMachine::addState(WorkflowState* workflowState)
 {
-	mTrackingWorkflowState = this->newState(trackingWorkflowState);
+    this->newState(workflowState);
 }
-void FraxinusWorkflowStateMachine::addRegistrationState(WorkflowState* registrationWorkflowState)
-{
-	mRegistrationWorkflowState = this->newState(registrationWorkflowState);
-	connect(mServices->tracking().get(), &TrackingService::stateChanged, mRegistrationWorkflowState, &RegistrationWorkflowState::canEnterSlot);
-}
-void FraxinusWorkflowStateMachine::addNavigationState(WorkflowState* navigationWorkflowState)
-{
-	mNavigationWorkflowState = this->newState(navigationWorkflowState);
-	connect(mServices->tracking().get(), &TrackingService::stateChanged, mNavigationWorkflowState, &NavigationWorkflowState::canEnterSlot);
-}
+
+//void FraxinusWorkflowStateMachine::addTrackingState(WorkflowState* trackingWorkflowState)
+//{
+//	mTrackingWorkflowState = this->newState(trackingWorkflowState);
+//}
+//void FraxinusWorkflowStateMachine::addRegistrationState(WorkflowState* registrationWorkflowState)
+//{
+//	mRegistrationWorkflowState = this->newState(registrationWorkflowState);
+//	connect(mServices->tracking().get(), &TrackingService::stateChanged, mRegistrationWorkflowState, &RegistrationWorkflowState::canEnterSlot);
+//}
+//void FraxinusWorkflowStateMachine::addNavigationState(WorkflowState* navigationWorkflowState)
+//{
+//	mNavigationWorkflowState = this->newState(navigationWorkflowState);
+//	connect(mServices->tracking().get(), &TrackingService::stateChanged, mNavigationWorkflowState, &NavigationWorkflowState::canEnterSlot);
+//}
 
 } //namespace cx

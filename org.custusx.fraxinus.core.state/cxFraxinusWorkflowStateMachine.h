@@ -59,9 +59,10 @@ public:
 	FraxinusWorkflowStateMachine(VisServicesPtr services);
 	virtual ~FraxinusWorkflowStateMachine();
 
-	void addTrackingState(WorkflowState* trackingWorkflowState);
-	void addRegistrationState(WorkflowState* registrationWorkflowState);
-	void addNavigationState(WorkflowState* navigationWorkflowState);
+        void addState(WorkflowState* workflowState);
+//	void addTrackingState(WorkflowState* trackingWorkflowState);
+//	void addRegistrationState(WorkflowState* registrationWorkflowState);
+//	void addNavigationState(WorkflowState* navigationWorkflowState);
 
 private slots:
 	void dataAddedOrRemovedSlot();
