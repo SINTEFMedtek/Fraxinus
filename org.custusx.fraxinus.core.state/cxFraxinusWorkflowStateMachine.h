@@ -59,10 +59,7 @@ public:
 	FraxinusWorkflowStateMachine(VisServicesPtr services);
 	virtual ~FraxinusWorkflowStateMachine();
 
-        void addState(WorkflowState* workflowState);
-//	void addTrackingState(WorkflowState* trackingWorkflowState);
-//	void addRegistrationState(WorkflowState* registrationWorkflowState);
-//	void addNavigationState(WorkflowState* navigationWorkflowState);
+	void addState(WorkflowState* workflowState);
 
 private slots:
 	void dataAddedOrRemovedSlot();
@@ -77,11 +74,8 @@ private:
 	WorkflowState* mPinpointWorkflowState;
 	WorkflowState* mVirtualBronchoscopyFlyThroughWorkflowState;
 	WorkflowState* mVirtualBronchoscopyCutPlanesWorkflowState;
-    WorkflowState* mVirtualBronchoscopyAnyplaneWorkflowState;
-    WorkflowState* mProcedurePlanningWorkflowState;
-    WorkflowState* mTrackingWorkflowState;
-    WorkflowState* mRegistrationWorkflowState;
-    WorkflowState* mNavigationWorkflowState;
+	WorkflowState* mVirtualBronchoscopyAnyplaneWorkflowState;
+	WorkflowState* mProcedurePlanningWorkflowState;
 };
 
 typedef boost::shared_ptr<FraxinusWorkflowStateMachine> CustusXWorkflowStateMachinePtr;
