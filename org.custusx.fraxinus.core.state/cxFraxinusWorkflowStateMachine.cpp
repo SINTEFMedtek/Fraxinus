@@ -48,6 +48,7 @@ namespace cx
 FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr services) :
 	WorkflowStateMachine(services)
 {
+    CX_LOG_DEBUG() << "FraxinusWorkflowStateMachine is being created.";
 	mPatientWorkflowState = dynamic_cast<FraxinusWorkflowState*>(this->newState(new PatientWorkflowState(mParentState, services)));
 	mImportWorkflowState = this->newState(new ImportWorkflowState(mParentState, services));
 	mProcessWorkflowState = this->newState(new ProcessWorkflowState(mParentState, services));
@@ -96,9 +97,16 @@ void FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot()
 		emit dataAdded();
 }
 
+WorkflowState* FraxinusWorkflowStateMachine::getParentState()
+{
+    return mParentState;
+}
+
 void FraxinusWorkflowStateMachine::addState(WorkflowState* workflowState)
 {
-    this->newState(workflowState);
+    CX_LOG_DEBUG() << "FraxinusWorkflowStateMachine::addState is called";
+    WorkflowState* temp = this->newState(workflowState);
+    mStateList.push_back(temp);
 }
 
 //void FraxinusWorkflowStateMachine::addTrackingState(WorkflowState* trackingWorkflowState)
