@@ -65,11 +65,11 @@ public:
 	virtual Desktop getActiveDesktop();
 	virtual void saveDesktop(Desktop desktop);
 	virtual void resetDesktop();
-        virtual void resetSegmentationSettings();
+	virtual void resetSegmentationSettings();
+	virtual WorkflowStateMachinePtr getWorkflow();
 
 	virtual bool isNull();
 	
-	WorkflowStateMachinePtr getWorkflow();
 private:
 	void initialize();
 	void changeDefaultSettings();
