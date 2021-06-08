@@ -55,23 +55,23 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	mPinpointWorkflowState = this->newState(new PinpointWorkflowState(mParentState, services));
 	mVirtualBronchoscopyFlyThroughWorkflowState = this->newState(new VirtualBronchoscopyFlyThroughWorkflowState(mParentState, services));
 	mVirtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
-    mVirtualBronchoscopyAnyplaneWorkflowState = this->newState(new VirtualBronchoscopyAnyplaneWorkflowState(mParentState, services));
-    mProcedurePlanningWorkflowState = this->newState(new ProcedurePlanningWorkflowState(mParentState, services));
-
+	mVirtualBronchoscopyAnyplaneWorkflowState = this->newState(new VirtualBronchoscopyAnyplaneWorkflowState(mParentState, services));
+	mProcedurePlanningWorkflowState = this->newState(new ProcedurePlanningWorkflowState(mParentState, services));
+	
 	//logic for enabling workflowsteps
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, mImportWorkflowState, &ImportWorkflowState::canEnterSlot);
 	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, mProcessWorkflowState, &ProcessWorkflowState::canEnterSlot);
-    connect(mProcessWorkflowState, SIGNAL(segmentationFinished()), mPinpointWorkflowState, SLOT(canEnterSlot()));
+	connect(mProcessWorkflowState, SIGNAL(segmentationFinished()), mPinpointWorkflowState, SLOT(canEnterSlot()));
 	connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState, SLOT(canEnterSlot()));
 	connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyCutPlanesWorkflowState, SLOT(canEnterSlot()));
-    connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyAnyplaneWorkflowState, SLOT(canEnterSlot()));
-
+	connect(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyAnyplaneWorkflowState, SLOT(canEnterSlot()));
+	
 	//set initial state on all levels
 	this->setInitialState(mParentState);
 	mParentState->setInitialState(mPatientWorkflowState);
-
+	
 	this->CreateTransitions();
-
+	
 	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot);
 }
 
@@ -83,11 +83,11 @@ void FraxinusWorkflowStateMachine::CreateTransitions()
 	//Some tests may trigger the state transitions making strange side-effects
 	if(DataLocations::isTestMode())
 		return;
-
+	
 	mPatientWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
 	//mPatientWorkflowState->addTransition(mServices->patient().get(), SIGNAL(patientChanged()), mProcessWorkflowState);
 	mImportWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
-    mProcessWorkflowState->addTransition(mProcessWorkflowState, SIGNAL(segmentationFinished()), mPinpointWorkflowState);
+	mProcessWorkflowState->addTransition(mProcessWorkflowState, SIGNAL(segmentationFinished()), mPinpointWorkflowState);
 	mPinpointWorkflowState->addTransition(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState);
 }
 
@@ -108,20 +108,5 @@ void FraxinusWorkflowStateMachine::addState(WorkflowState* workflowState)
     WorkflowState* temp = this->newState(workflowState);
     mStateList.push_back(temp);
 }
-
-//void FraxinusWorkflowStateMachine::addTrackingState(WorkflowState* trackingWorkflowState)
-//{
-//	mTrackingWorkflowState = this->newState(trackingWorkflowState);
-//}
-//void FraxinusWorkflowStateMachine::addRegistrationState(WorkflowState* registrationWorkflowState)
-//{
-//	mRegistrationWorkflowState = this->newState(registrationWorkflowState);
-//	connect(mServices->tracking().get(), &TrackingService::stateChanged, mRegistrationWorkflowState, &RegistrationWorkflowState::canEnterSlot);
-//}
-//void FraxinusWorkflowStateMachine::addNavigationState(WorkflowState* navigationWorkflowState)
-//{
-//	mNavigationWorkflowState = this->newState(navigationWorkflowState);
-//	connect(mServices->tracking().get(), &TrackingService::stateChanged, mNavigationWorkflowState, &NavigationWorkflowState::canEnterSlot);
-//}
 
 } //namespace cx
