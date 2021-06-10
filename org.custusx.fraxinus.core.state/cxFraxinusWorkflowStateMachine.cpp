@@ -57,7 +57,15 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	mVirtualBronchoscopyCutPlanesWorkflowState = this->newState(new VirtualBronchoscopyCutPlanesWorkflowState(mParentState, services));
 	mVirtualBronchoscopyAnyplaneWorkflowState = this->newState(new VirtualBronchoscopyAnyplaneWorkflowState(mParentState, services));
 	mProcedurePlanningWorkflowState = this->newState(new ProcedurePlanningWorkflowState(mParentState, services));
-	
+
+#ifdef CX_BUILD_FRAXINUS_TRACKING
+    this->newState(new TrackingWorkflowState(mParentState, services));
+    WorkflowState* registrationWorkflowState = this->newState(new RegistrationWorkflowState(mParentState, services));
+    WorkflowState* navigationWorkflowState = this->newState(new NavigationWorkflowState(mParentState, services));
+    connect(services->tracking().get(), &TrackingService::stateChanged, registrationWorkflowState, &RegistrationWorkflowState::canEnterSlot);
+    connect(services->tracking().get(), &TrackingService::stateChanged, navigationWorkflowState, &NavigationWorkflowState::canEnterSlot);
+#endif
+
 	//logic for enabling workflowsteps
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, mImportWorkflowState, &ImportWorkflowState::canEnterSlot);
 	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, mProcessWorkflowState, &ProcessWorkflowState::canEnterSlot);
@@ -102,11 +110,11 @@ WorkflowState* FraxinusWorkflowStateMachine::getParentState()
     return mParentState;
 }
 
-void FraxinusWorkflowStateMachine::addState(WorkflowState* workflowState)
-{
-    CX_LOG_DEBUG() << "FraxinusWorkflowStateMachine::addState is called";
-    WorkflowState* temp = this->newState(workflowState);
-    mStateList.push_back(temp);
-}
+//void FraxinusWorkflowStateMachine::addState(WorkflowState* workflowState)
+//{
+//    CX_LOG_DEBUG() << "FraxinusWorkflowStateMachine::addState is called";
+//    WorkflowState* temp = this->newState(workflowState);
+//    mStateList.push_back(temp);
+//}
 
 } //namespace cx

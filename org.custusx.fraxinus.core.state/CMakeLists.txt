@@ -20,7 +20,7 @@ set(PLUGIN_SRCS
     cxStateServiceImpl.cpp
     cxFraxinusWorkflowStateMachine.cpp
     cxFraxinusWorkflowStates.cpp
-    #cxFraxinusWorkflowStatesNavigation.cpp
+    cxFraxinusWorkflowStatesNavigation.cpp
     cxStatePluginActivator.cpp
     cxApplicationsParser.cpp
     cxVBCameraZoomSetting3D.cpp
