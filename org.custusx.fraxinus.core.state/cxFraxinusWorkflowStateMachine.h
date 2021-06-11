@@ -60,8 +60,8 @@ public:
 	virtual ~FraxinusWorkflowStateMachine();
 
 
-        WorkflowState* getParentState();
-        //void addState(WorkflowState* workflowState);
+	WorkflowState* getParentState();
+	//void addState(WorkflowState* workflowState);
 
 private slots:
 	void dataAddedOrRemovedSlot();
@@ -77,9 +77,9 @@ private:
 	WorkflowState* mVirtualBronchoscopyFlyThroughWorkflowState;
 	WorkflowState* mVirtualBronchoscopyCutPlanesWorkflowState;
 
-    WorkflowState* mVirtualBronchoscopyAnyplaneWorkflowState;
-    WorkflowState* mProcedurePlanningWorkflowState;
-    //std::vector<WorkflowState*> mStateList;
+	WorkflowState* mVirtualBronchoscopyAnyplaneWorkflowState;
+	WorkflowState* mProcedurePlanningWorkflowState;
+	//std::vector<WorkflowState*> mStateList;
 
 };
 

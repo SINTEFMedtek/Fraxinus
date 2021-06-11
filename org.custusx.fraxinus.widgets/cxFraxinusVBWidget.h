@@ -50,44 +50,44 @@ typedef boost::shared_ptr<class Data> DataPtr;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusVBWidget : public VBWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    FraxinusVBWidget(VisServicesPtr services, QWidget *parent = 0);
-    virtual ~FraxinusVBWidget();
+	FraxinusVBWidget(VisServicesPtr services, QWidget *parent = 0);
+	virtual ~FraxinusVBWidget();
 
-    static QString getWidgetName();
-    void setViewGroupNumber(unsigned int viewGroupNumber);
-    void addObjectToVolumeView(DataPtr object);
-    void addObjectToTubeView(DataPtr object);
-    StructuresSelectionWidget *getStructuresSelectionWidget();
+	static QString getWidgetName();
+	void setViewGroupNumber(unsigned int viewGroupNumber);
+	void addObjectToVolumeView(DataPtr object);
+	void addObjectToTubeView(DataPtr object);
+	StructuresSelectionWidget *getStructuresSelectionWidget();
 
 
 private slots:
-    virtual void keyPressEvent(QKeyEvent* event);
-    void calculateRouteLength();
-    void playbackSliderChanged(int cameraPositionInPercent);
+	virtual void keyPressEvent(QKeyEvent* event);
+	void calculateRouteLength();
+	void playbackSliderChanged(int cameraPositionInPercent);
 
 
 private:
-    void updateRttInfo(double cameraPositionInPercent);
-    void updateAirwaysOpacity(double cameraPositionInPercent);
-    void calculateDistanceFromRouteEndToTarget(Eigen::Vector3d routeEndpoint);
-    QString createDistanceFromPathToTargetText();
-    double getTargetDistance();
-    double getRemainingRouteInsideAirways(double cameraPositionInPercent);
+	void updateRttInfo(double cameraPositionInPercent);
+	void updateAirwaysOpacity(double cameraPositionInPercent);
+	void calculateDistanceFromRouteEndToTarget(Eigen::Vector3d routeEndpoint);
+	QString createDistanceFromPathToTargetText();
+	double getTargetDistance();
+	double getRemainingRouteInsideAirways(double cameraPositionInPercent);
 
-    ViewSelectionWidget* mViewSelectionWidget;
-    StructuresSelectionWidget* mStructuresSelectionWidget;
-    VisServicesPtr mServices;
-    std::vector<DataPtr> mTubeViewObjects;
-    QLabel* mStaticTotalLegth;
-    QLabel* mRemainingRttLegth;
-    QLabel* mDirectDistance;
-    QLabel* mDistanceToTarget;
-    QLabel* mWarningLabel;
-    double mRouteLength;
-    double mDistanceFromPathEndToTarget;
-    double mCameraPositionInPercentAdjusted;
+	ViewSelectionWidget* mViewSelectionWidget;
+	StructuresSelectionWidget* mStructuresSelectionWidget;
+	VisServicesPtr mServices;
+	std::vector<DataPtr> mTubeViewObjects;
+	QLabel* mStaticTotalLegth;
+	QLabel* mRemainingRttLegth;
+	QLabel* mDirectDistance;
+	QLabel* mDistanceToTarget;
+	QLabel* mWarningLabel;
+	double mRouteLength;
+	double mDistanceFromPathEndToTarget;
+	double mCameraPositionInPercentAdjusted;
 
 };
 

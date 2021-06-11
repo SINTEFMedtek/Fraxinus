@@ -8,7 +8,7 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice,
-   this list of conditions and the following disclaimer.
+ this list of conditions and the following disclaimer.
 
 2. Redistributions in binary form must reproduce the above copyright notice,
    this list of conditions and the following disclaimer in the documentation
@@ -52,129 +52,128 @@ SelectableStructure::SelectableStructure()
 }
 
 StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QWidget* parent):
-        BaseWidget(parent, this->getWidgetName(), "Select Structures"),
-        mServices(services)
+	BaseWidget(parent, this->getWidgetName(), "Select Structures"),
+	mServices(services)
 {
-  QVBoxLayout* structuresLayout = new QVBoxLayout;
+	QVBoxLayout* structuresLayout = new QVBoxLayout;
 
-  for(int i = lsFIRST_STRUCTURE_BUTTON; i <= lsLAST_STRUCTURE_BUTTON; ++i)
-  {
-    QString name = enum2string(LUNG_STRUCTURES(i));
-    SelectableStructure structure(name);
+	for(int i = lsFIRST_STRUCTURE_BUTTON; i <= lsLAST_STRUCTURE_BUTTON; ++i)
+	{
+		QString name = enum2string(LUNG_STRUCTURES(i));
+		SelectableStructure structure(name);
 
-    structure.mButton = new QPushButton(name);
+		structure.mButton = new QPushButton(name);
+		structure.mButtonBackgroundColor = structure.mButton->palette();
+		structure.mButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
+		structure.mButton->setPalette(structure.mButtonBackgroundColor);
+		structure.mButton->setEnabled(false);
+		structuresLayout->addWidget(structure.mButton);
 
-    structure.mButtonBackgroundColor = structure.mButton->palette();
-    structure.mButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
-    structure.mButton->setPalette(structure.mButtonBackgroundColor);
-    structure.mButton->setEnabled(false);
-    structuresLayout->addWidget(structure.mButton);
+		//Need to store the connection to be able to disconnect, because of the lambda function
+		structure.mConnection = connect(structure.mButton, &QPushButton::clicked, this, [=]() { this->viewStructureSlot(LUNG_STRUCTURES(i)); });
 
-    //Need to store the connection to be able to disconnect, because of the lambda function
-    structure.mConnection = connect(structure.mButton, &QPushButton::clicked, this, [=]() { this->viewStructureSlot(LUNG_STRUCTURES(i)); });
+		mSelectableStructuresMap.insert(LUNG_STRUCTURES(i), structure);
+	}
 
-    mSelectableStructuresMap.insert(LUNG_STRUCTURES(i), structure);
-  }
-
-    this->setLayout(structuresLayout);
+	this->setLayout(structuresLayout);
 }
 
 StructuresSelectionWidget::~StructuresSelectionWidget()
 {
-  QMapIterator<LUNG_STRUCTURES, SelectableStructure> i(mSelectableStructuresMap);
-  while(i.hasNext())
-  {
-    i.next();
-    disconnect(i.value().mConnection);
-  }
+	QMapIterator<LUNG_STRUCTURES, SelectableStructure> i(mSelectableStructuresMap);
+	while(i.hasNext())
+	{
+		i.next();
+		disconnect(i.value().mConnection);
+	}
 
 }
 
 
 QString StructuresSelectionWidget::getWidgetName()
 {
-    return "fraxinus_structures_selection_widget";
+	return "fraxinus_structures_selection_widget";
 }
 
 
 void StructuresSelectionWidget::displayDataObjects(std::vector<DataPtr> objects)
 {
-  for(DataPtr object : objects)
-    {
-        if(!object)
-            continue;
-        for(int i=0; i<mViewGroupNumbers.size(); i++)
-        {
-            ViewGroupDataPtr viewGroup = mServices->view()->getGroup(mViewGroupNumbers[i]);
-            if(viewGroup)
-                viewGroup->addData(object->getUid());
-            else
-                CX_LOG_WARNING() << "In StructuresSelectionWidget::displayDataObjects: Cannot find view group for data view.";
-        }
-    }
+	for(DataPtr object : objects)
+	{
+		if(!object)
+			continue;
+		for(int i=0; i<mViewGroupNumbers.size(); i++)
+		{
+			ViewGroupDataPtr viewGroup = mServices->view()->getGroup(mViewGroupNumbers[i]);
+			if(viewGroup)
+				viewGroup->addData(object->getUid());
+			else
+				CX_LOG_WARNING() << "In StructuresSelectionWidget::displayDataObjects: Cannot find view group for data view.";
+		}
+	}
 }
 
 void StructuresSelectionWidget::hideDataObjects(std::vector<DataPtr> objects)
 {
-  for(DataPtr object : objects)
-    {
-        if(!object)
-            continue;
-        for(int i=0; i<mViewGroupNumbers.size(); i++)
-        {
-            ViewGroupDataPtr viewGroup = mServices->view()->getGroup(mViewGroupNumbers[i]);
-            if(viewGroup)
-                viewGroup->removeData(object->getUid());
-            else
-                CX_LOG_WARNING() << "In StructuresSelectionWidget::hideDataObjects: Cannot find view group for data view.";
-        }
-    }
+	for(DataPtr object : objects)
+	{
+		if(!object)
+			continue;
+		for(int i=0; i<mViewGroupNumbers.size(); i++)
+		{
+			ViewGroupDataPtr viewGroup = mServices->view()->getGroup(mViewGroupNumbers[i]);
+			if(viewGroup)
+				viewGroup->removeData(object->getUid());
+			else
+				CX_LOG_WARNING() << "In StructuresSelectionWidget::hideDataObjects: Cannot find view group for data view.";
+		}
+	}
 }
 
 void StructuresSelectionWidget::setViewGroupNumbers(std::vector<unsigned int> viewGroupNumbers)
 {
-    mViewGroupNumbers = viewGroupNumbers;
+	mViewGroupNumbers = viewGroupNumbers;
 }
 
 void StructuresSelectionWidget::addObject(LUNG_STRUCTURES name, DataPtr object)
 {
-  SelectableStructure structure = mSelectableStructuresMap.take(name);
-  structure.mButton->setEnabled(true);
-  structure.mObjects.push_back(object);
-  structure.mButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-  structure.mButton->setPalette(structure.mButtonBackgroundColor);
-  mSelectableStructuresMap.insert(name, structure);
+	SelectableStructure structure = mSelectableStructuresMap.take(name);
+	structure.mButton->setEnabled(true);
+	structure.mObjects.push_back(object);
+	structure.mButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+	structure.mButton->setPalette(structure.mButtonBackgroundColor);
+	mSelectableStructuresMap.insert(name, structure);
 }
 
 void StructuresSelectionWidget::viewStructureSlot(LUNG_STRUCTURES name)
 {
-  mSelectableStructuresMap[name].mViewEnabled = !mSelectableStructuresMap[name].mViewEnabled;
-  if(mSelectableStructuresMap[name].mViewEnabled)
-  {
-      this->displayDataObjects(mSelectableStructuresMap[name].mObjects);
-      mSelectableStructuresMap[name].mButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
-      mSelectableStructuresMap[name].mButton->setPalette(mSelectableStructuresMap[name].mButtonBackgroundColor);
-  }
-  else
-  {
-      this->hideDataObjects(mSelectableStructuresMap[name].mObjects);
-      mSelectableStructuresMap[name].mButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
-      mSelectableStructuresMap[name].mButton->setPalette(mSelectableStructuresMap[name].mButtonBackgroundColor);
-  }
+	mSelectableStructuresMap[name].mViewEnabled = !mSelectableStructuresMap[name].mViewEnabled;
+	if(mSelectableStructuresMap[name].mViewEnabled)
+	{
+		this->displayDataObjects(mSelectableStructuresMap[name].mObjects);
+		mSelectableStructuresMap[name].mButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
+		mSelectableStructuresMap[name].mButton->setPalette(mSelectableStructuresMap[name].mButtonBackgroundColor);
+	}
+	else
+	{
+		this->hideDataObjects(mSelectableStructuresMap[name].mObjects);
+		mSelectableStructuresMap[name].mButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+		mSelectableStructuresMap[name].mButton->setPalette(mSelectableStructuresMap[name].mButtonBackgroundColor);
+	}
 }
 
 void StructuresSelectionWidget::onEntry()
 {
-  QMapIterator<LUNG_STRUCTURES, SelectableStructure> i(mSelectableStructuresMap);
-  while(i.hasNext())
-  {
-    i.next();
-    if(i.value().mButton->isEnabled())
-    {
-      mSelectableStructuresMap[i.key()].mViewEnabled = !i.value().mViewEnabled;
-      this->viewStructureSlot(i.key());
-    }
-  }
+	QMapIterator<LUNG_STRUCTURES, SelectableStructure> i(mSelectableStructuresMap);
+	while(i.hasNext())
+	{
+		i.next();
+		if(i.value().mButton->isEnabled())
+		{
+			mSelectableStructuresMap[i.key()].mViewEnabled = !i.value().mViewEnabled;
+			this->viewStructureSlot(i.key());
+		}
+	}
 }
 
 } //namespace cx

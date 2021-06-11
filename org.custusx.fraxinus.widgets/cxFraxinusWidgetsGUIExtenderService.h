@@ -52,13 +52,13 @@ class org_custusx_fraxinus_widgets_EXPORT FraxinusWidgetsGUIExtenderService : pu
 {
 	Q_INTERFACES(cx::GUIExtenderService)
 public:
-    FraxinusWidgetsGUIExtenderService(ctkPluginContext *context);
-    virtual ~FraxinusWidgetsGUIExtenderService() {};
+	FraxinusWidgetsGUIExtenderService(ctkPluginContext *context);
+	virtual ~FraxinusWidgetsGUIExtenderService() {};
 
 	std::vector<CategorizedWidget> createWidgets() const;
 
 private:
-  ctkPluginContext* mContext;
+	ctkPluginContext* mContext;
 
 };
 typedef boost::shared_ptr<FraxinusWidgetsGUIExtenderService> FraxinusWidgetsGUIExtenderServicePtr;

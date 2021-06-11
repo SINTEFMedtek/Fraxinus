@@ -54,52 +54,52 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cx {
 
 FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
-    VBWidget(services, parent),
-		mServices(services),
-		mRouteLength(0),
-        mDistanceFromPathEndToTarget(0)//,
-        //mMaxAirwayOpacityValue(1)
+	VBWidget(services, parent),
+	mServices(services),
+	mRouteLength(0),
+	mDistanceFromPathEndToTarget(0)//,
+	//mMaxAirwayOpacityValue(1)
 {
-    this->setObjectName(this->getWidgetName());
+	this->setObjectName(this->getWidgetName());
 
-  //Disable the select RTT box, as it is only confusing.
-  //To use it you still need to manually change many objects in the graphics.
+	//Disable the select RTT box, as it is only confusing.
+	//To use it you still need to manually change many objects in the graphics.
 	mRouteToTarget->setEnabled(false);
 
-        QGroupBox* viewBox = new QGroupBox(tr("View"));
-    mViewSelectionWidget = new ViewSelectionWidget(mServices, this);
-    QVBoxLayout* viewLayout = new QVBoxLayout();
-    viewLayout->addWidget(mViewSelectionWidget);
-    viewBox->setLayout(viewLayout);
-    mVerticalLayout->insertWidget(mVerticalLayout->count()-1, viewBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+	QGroupBox* viewBox = new QGroupBox(tr("View"));
+	mViewSelectionWidget = new ViewSelectionWidget(mServices, this);
+	QVBoxLayout* viewLayout = new QVBoxLayout();
+	viewLayout->addWidget(mViewSelectionWidget);
+	viewBox->setLayout(viewLayout);
+	mVerticalLayout->insertWidget(mVerticalLayout->count()-1, viewBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
 
-    QVBoxLayout* routeVLayout = new QVBoxLayout();
-    mStaticTotalLegth = new QLabel();
-    mRemainingRttLegth = new QLabel();
-    mDirectDistance = new QLabel();
-    mDistanceToTarget = new QLabel();
-    mWarningLabel = new QLabel();
-    routeVLayout->addWidget(mStaticTotalLegth);
-    routeVLayout->addWidget(mDistanceToTarget);
-    routeVLayout->addWidget(mWarningLabel);
-    //routeVLayout->addSpacing(10);
-    routeVLayout->addWidget(mRemainingRttLegth);
-    routeVLayout->addWidget(mDirectDistance);
+	QVBoxLayout* routeVLayout = new QVBoxLayout();
+	mStaticTotalLegth = new QLabel();
+	mRemainingRttLegth = new QLabel();
+	mDirectDistance = new QLabel();
+	mDistanceToTarget = new QLabel();
+	mWarningLabel = new QLabel();
+	routeVLayout->addWidget(mStaticTotalLegth);
+	routeVLayout->addWidget(mDistanceToTarget);
+	routeVLayout->addWidget(mWarningLabel);
+	//routeVLayout->addSpacing(10);
+	routeVLayout->addWidget(mRemainingRttLegth);
+	routeVLayout->addWidget(mDirectDistance);
 
-    QGroupBox* routeBox = new QGroupBox(tr("Route length"));
-    routeBox->setLayout(routeVLayout);
-    mVerticalLayout->insertWidget(mVerticalLayout->count()-1, routeBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+	QGroupBox* routeBox = new QGroupBox(tr("Route length"));
+	routeBox->setLayout(routeVLayout);
+	mVerticalLayout->insertWidget(mVerticalLayout->count()-1, routeBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
 
-    mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this);
-    QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
-    QVBoxLayout* structuresLayout = new QVBoxLayout();
-    structuresLayout->addWidget(mStructuresSelectionWidget);
-    structuresBox->setLayout(structuresLayout);
-    mVerticalLayout->insertWidget(mVerticalLayout->count()-1, structuresBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
-    mVerticalLayout->addStretch(); //And add some more stretch
+	mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this);
+	QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
+	QVBoxLayout* structuresLayout = new QVBoxLayout();
+	structuresLayout->addWidget(mStructuresSelectionWidget);
+	structuresBox->setLayout(structuresLayout);
+	mVerticalLayout->insertWidget(mVerticalLayout->count()-1, structuresBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+	mVerticalLayout->addStretch(); //And add some more stretch
 
-    connect(mPlaybackSlider, &QSlider::valueChanged, this, &FraxinusVBWidget::playbackSliderChanged);
-    connect(mRouteToTarget.get(), &SelectDataStringPropertyBase::dataChanged,
+	connect(mPlaybackSlider, &QSlider::valueChanged, this, &FraxinusVBWidget::playbackSliderChanged);
+	connect(mRouteToTarget.get(), &SelectDataStringPropertyBase::dataChanged,
 						this, &FraxinusVBWidget::calculateRouteLength);
 }
 
@@ -112,9 +112,9 @@ void FraxinusVBWidget::playbackSliderChanged(int cameraPositionInPercent)
 {
 	//Using a single shot timer to wait for other prosesses to update values.
 	//Using a lambda function to add the cameraPositionInPercent parameter
-    mCameraPositionInPercentAdjusted = positionPercentageAdjusted(cameraPositionInPercent);
-    QTimer::singleShot(0, this, [=](){this->updateRttInfo(mCameraPositionInPercentAdjusted);});
-    QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(mCameraPositionInPercentAdjusted);});
+	mCameraPositionInPercentAdjusted = positionPercentageAdjusted(cameraPositionInPercent);
+	QTimer::singleShot(0, this, [=](){this->updateRttInfo(mCameraPositionInPercentAdjusted);});
+	QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(mCameraPositionInPercentAdjusted);});
 }
 
 void FraxinusVBWidget::updateAirwaysOpacity(double cameraPositionInPercent)
@@ -129,12 +129,12 @@ void FraxinusVBWidget::updateAirwaysOpacity(double cameraPositionInPercent)
 		if(mesh)
 		{
 			QColor color = mesh->getColor();
-            color.setAlphaF(mViewSelectionWidget->getOpacity());
+			color.setAlphaF(mViewSelectionWidget->getOpacity());
 			if(distance < distanceThreshold)
 			{
 				double opacityFactor = maxOpacity*(distanceThreshold-distance)/distanceThreshold;
-                if(1-opacityFactor < mViewSelectionWidget->getOpacity())
-                    color.setAlphaF(1-opacityFactor);
+				if(1-opacityFactor < mViewSelectionWidget->getOpacity())
+					color.setAlphaF(1-opacityFactor);
 			}
 			mesh->setColor(color);
 		}
@@ -213,64 +213,64 @@ void FraxinusVBWidget::calculateDistanceFromRouteEndToTarget(Eigen::Vector3d rou
 
 QString FraxinusVBWidget::getWidgetName()
 {
-    return "fraxinus_virtual_bronchoscopy_widget";
+	return "fraxinus_virtual_bronchoscopy_widget";
 }
 
 void FraxinusVBWidget::keyPressEvent(QKeyEvent* event)
 {
-    enum class Key7{NONE, SHOWVOLUME, SHOWTUBES};
-    Key7 key7 = Key7::NONE;
-    if (event->key()==Qt::Key_7)
-    {
-        if(mViewSelectionWidget->isVolumeButtonChecked())
-            key7 = Key7::SHOWTUBES;
-        else if(mViewSelectionWidget->isTubeButtonChecked())
-            key7 = Key7::SHOWVOLUME;
-    }
+	enum class Key7{NONE, SHOWVOLUME, SHOWTUBES};
+	Key7 key7 = Key7::NONE;
+	if (event->key()==Qt::Key_7)
+	{
+		if(mViewSelectionWidget->isVolumeButtonChecked())
+			key7 = Key7::SHOWTUBES;
+		else if(mViewSelectionWidget->isTubeButtonChecked())
+			key7 = Key7::SHOWVOLUME;
+	}
 
-    if (event->key()==Qt::Key_V || key7 == Key7::SHOWVOLUME)
-    {
-        if(mControlsEnabled) {
-            mViewSelectionWidget->setVolumeButtonChecked(true);
-            mViewSelectionWidget->displayVolume();
-            return;
-        }
-    }
+	if (event->key()==Qt::Key_V || key7 == Key7::SHOWVOLUME)
+	{
+		if(mControlsEnabled) {
+			mViewSelectionWidget->setVolumeButtonChecked(true);
+			mViewSelectionWidget->displayVolume();
+			return;
+		}
+	}
 
-    if (event->key()==Qt::Key_T || key7 == Key7::SHOWTUBES)
-    {
-        if(mControlsEnabled) {
-            mViewSelectionWidget->setTubeButtonChecked(true);
-            mViewSelectionWidget->displayTubes();
-            return;
-        }
-    }
+	if (event->key()==Qt::Key_T || key7 == Key7::SHOWTUBES)
+	{
+		if(mControlsEnabled) {
+			mViewSelectionWidget->setTubeButtonChecked(true);
+			mViewSelectionWidget->displayTubes();
+			return;
+		}
+	}
 
-    VBWidget::keyPressEvent(event);
+	VBWidget::keyPressEvent(event);
 }
 
 void FraxinusVBWidget::setViewGroupNumber(unsigned int viewGroupNumber)
 {
-    if(mViewSelectionWidget)
-        mViewSelectionWidget->setViewGroupNumber(viewGroupNumber);
+	if(mViewSelectionWidget)
+		mViewSelectionWidget->setViewGroupNumber(viewGroupNumber);
 }
 
 void FraxinusVBWidget::addObjectToVolumeView(DataPtr object)
 {
-    if(mViewSelectionWidget)
-        mViewSelectionWidget->addObjectToVolumeView(object);
+	if(mViewSelectionWidget)
+		mViewSelectionWidget->addObjectToVolumeView(object);
 }
 
 void FraxinusVBWidget::addObjectToTubeView(DataPtr object)
 {
-    mTubeViewObjects.push_back(object);
-    if(mViewSelectionWidget)
-        mViewSelectionWidget->addObjectToTubeView(object);
+	mTubeViewObjects.push_back(object);
+	if(mViewSelectionWidget)
+		mViewSelectionWidget->addObjectToTubeView(object);
 }
 
 StructuresSelectionWidget* FraxinusVBWidget::getStructuresSelectionWidget()
 {
-    return mStructuresSelectionWidget;
+	return mStructuresSelectionWidget;
 }
 
 } //namespace cx

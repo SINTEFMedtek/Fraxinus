@@ -54,12 +54,12 @@ class FraxinusWidgetsPluginActivator :  public QObject, public ctkPluginActivato
 {
 	Q_OBJECT
 	Q_INTERFACES(ctkPluginActivator)
-    Q_PLUGIN_METADATA(IID "org_custusx_fraxinus_widgets")
+	Q_PLUGIN_METADATA(IID "org_custusx_fraxinus_widgets")
 
 public:
 
-    FraxinusWidgetsPluginActivator();
-    ~FraxinusWidgetsPluginActivator();
+	FraxinusWidgetsPluginActivator();
+	~FraxinusWidgetsPluginActivator();
 
 	void start(ctkPluginContext* context);
 	void stop(ctkPluginContext* context);

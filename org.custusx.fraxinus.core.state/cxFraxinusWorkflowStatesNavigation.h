@@ -1,4 +1,4 @@
-    /*=========================================================================
+/*=========================================================================
 This file is part of CustusX, an Image Guided Therapy Application.
 
 Copyright (c) 2008-2014, SINTEF Department of Medical Technology
@@ -62,15 +62,15 @@ class org_custusx_fraxinus_core_state_EXPORT TrackingWorkflowState: public Fraxi
 Q_OBJECT
 
 public:
-    TrackingWorkflowState(QState* parent, CoreServicesPtr services);
-    virtual ~TrackingWorkflowState();
-    virtual QIcon getIcon() const;
-    virtual bool canEnter() const;
-    virtual void onEntry(QEvent* event);
+	TrackingWorkflowState(QState* parent, CoreServicesPtr services);
+	virtual ~TrackingWorkflowState();
+	virtual QIcon getIcon() const;
+	virtual bool canEnter() const;
+	virtual void onEntry(QEvent* event);
 
 private:
-    virtual void addDataToView();
-    int m3DViewGroupNumber;
+	virtual void addDataToView();
+	int m3DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT RegistrationWorkflowState: public FraxinusWorkflowState
@@ -78,17 +78,17 @@ class org_custusx_fraxinus_core_state_EXPORT RegistrationWorkflowState: public F
 Q_OBJECT
 
 public:
-    RegistrationWorkflowState(QState* parent, VisServicesPtr services);
-    virtual ~RegistrationWorkflowState();
-    virtual QIcon getIcon() const;
-    FraxinusRegistrationWidget* getFraxinusRegistrationWidget();
+	RegistrationWorkflowState(QState* parent, VisServicesPtr services);
+	virtual ~RegistrationWorkflowState();
+	virtual QIcon getIcon() const;
+	FraxinusRegistrationWidget* getFraxinusRegistrationWidget();
 	virtual bool canEnter() const;
 	virtual void onEntry(QEvent *event);
-    virtual void onExit(QEvent * event);
+	virtual void onExit(QEvent * event);
 
 private:
-    virtual void addDataToView();
-    int m3DViewGroupNumber;
+	virtual void addDataToView();
+	int m3DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT NavigationWorkflowState: public FraxinusWorkflowState
@@ -96,19 +96,19 @@ class org_custusx_fraxinus_core_state_EXPORT NavigationWorkflowState: public Fra
 Q_OBJECT
 
 public:
-    NavigationWorkflowState(QState* parent, CoreServicesPtr services);
-    virtual ~NavigationWorkflowState();
-    virtual QIcon getIcon() const;
-    FraxinusNavigationWidget* getFraxinusNavigationWidget();
+	NavigationWorkflowState(QState* parent, CoreServicesPtr services);
+	virtual ~NavigationWorkflowState();
+	virtual QIcon getIcon() const;
+	FraxinusNavigationWidget* getFraxinusNavigationWidget();
 	virtual void onEntry(QEvent* event);
-    void setupFraxinusNavigationWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
-    void onExit(QEvent *event);
+	void setupFraxinusNavigationWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+	void onExit(QEvent *event);
 	virtual bool canEnter() const;
 
 private:
-    virtual void addDataToView();
-    int mFlyThrough3DViewGroupNumber;
-    int mSurfaceModel3DViewGroupNumber;
+	virtual void addDataToView();
+	int mFlyThrough3DViewGroupNumber;
+	int mSurfaceModel3DViewGroupNumber;
 };
 
 

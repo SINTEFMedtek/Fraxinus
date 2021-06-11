@@ -47,42 +47,42 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cx {
 
 FraxinusPatientOrientationWidget::FraxinusPatientOrientationWidget(VisServicesPtr services, QWidget* parent):
-    BaseWidget(parent, this->getWidgetName(), "Patient Orientation"),
-    mStandard3DViewActions(new QActionGroup(this)),
-    mServices(services)
+	BaseWidget(parent, this->getWidgetName(), "Patient Orientation"),
+	mStandard3DViewActions(new QActionGroup(this)),
+	mServices(services)
 {
 
-    QVBoxLayout* orientationsLayout = new QVBoxLayout;
+	QVBoxLayout* orientationsLayout = new QVBoxLayout;
 
-    mAnteriorButton = new QPushButton(QIcon(":/icons/camera_view_A.png"), "Anterior", this);
-    mPosteriorButton = new QPushButton(QIcon(":/icons/camera_view_P.png"), "Posterior", this);
-    mLeftButton = new QPushButton(QIcon(":/icons/camera_view_L.png"), "Left", this);
-    mRightButton = new QPushButton(QIcon(":/icons/camera_view_R.png"), "Right", this);
-    mSuperiorButton = new QPushButton(QIcon(":/icons/camera_view_S.png"), "Superior", this);
-    mInferiorButton = new QPushButton(QIcon(":/icons/camera_view_I.png"), "Inferior", this);
+	mAnteriorButton = new QPushButton(QIcon(":/icons/camera_view_A.png"), "Anterior", this);
+	mPosteriorButton = new QPushButton(QIcon(":/icons/camera_view_P.png"), "Posterior", this);
+	mLeftButton = new QPushButton(QIcon(":/icons/camera_view_L.png"), "Left", this);
+	mRightButton = new QPushButton(QIcon(":/icons/camera_view_R.png"), "Right", this);
+	mSuperiorButton = new QPushButton(QIcon(":/icons/camera_view_S.png"), "Superior", this);
+	mInferiorButton = new QPushButton(QIcon(":/icons/camera_view_I.png"), "Inferior", this);
 
-    mAnteriorButton->setStyleSheet("Text-align:left");
-    mPosteriorButton->setStyleSheet("Text-align:left");
-    mLeftButton->setStyleSheet("Text-align:left");
-    mRightButton->setStyleSheet("Text-align:left");
-    mSuperiorButton->setStyleSheet("Text-align:left");
-    mInferiorButton->setStyleSheet("Text-align:left");
+	mAnteriorButton->setStyleSheet("Text-align:left");
+	mPosteriorButton->setStyleSheet("Text-align:left");
+	mLeftButton->setStyleSheet("Text-align:left");
+	mRightButton->setStyleSheet("Text-align:left");
+	mSuperiorButton->setStyleSheet("Text-align:left");
+	mInferiorButton->setStyleSheet("Text-align:left");
 
-    orientationsLayout->addWidget(mAnteriorButton);
-    orientationsLayout->addWidget(mPosteriorButton);
-    orientationsLayout->addWidget(mLeftButton);
-    orientationsLayout->addWidget(mRightButton);
-    orientationsLayout->addWidget(mSuperiorButton);
-    orientationsLayout->addWidget(mInferiorButton);
+	orientationsLayout->addWidget(mAnteriorButton);
+	orientationsLayout->addWidget(mPosteriorButton);
+	orientationsLayout->addWidget(mLeftButton);
+	orientationsLayout->addWidget(mRightButton);
+	orientationsLayout->addWidget(mSuperiorButton);
+	orientationsLayout->addWidget(mInferiorButton);
 
-    this->setLayout(orientationsLayout);
+	this->setLayout(orientationsLayout);
 
-    connect(mAnteriorButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setAnteriorViewSlot);
-    connect(mPosteriorButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setPosteriorViewSlot);
-    connect(mLeftButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setLeftViewSlot);
-    connect(mRightButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setRightViewSlot);
-    connect(mSuperiorButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setSuperiorViewSlot);
-    connect(mInferiorButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setInferiorViewSlot);
+	connect(mAnteriorButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setAnteriorViewSlot);
+	connect(mPosteriorButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setPosteriorViewSlot);
+	connect(mLeftButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setLeftViewSlot);
+	connect(mRightButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setRightViewSlot);
+	connect(mSuperiorButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setSuperiorViewSlot);
+	connect(mInferiorButton, &QPushButton::clicked, this, &FraxinusPatientOrientationWidget::setInferiorViewSlot);
 
 
 }
@@ -90,48 +90,47 @@ FraxinusPatientOrientationWidget::FraxinusPatientOrientationWidget(VisServicesPt
 
 FraxinusPatientOrientationWidget::~FraxinusPatientOrientationWidget()
 {
-
 }
 
 QString FraxinusPatientOrientationWidget::getWidgetName()
 {
-    return "fraxinus_patient_orientation_widget";
+	return "fraxinus_patient_orientation_widget";
 }
 
 void FraxinusPatientOrientationWidget::setAnteriorViewSlot()
 {
-    CameraControlPtr cameraControl = mServices->view()->getCameraControl();
-    cameraControl->setStandard3DView(CameraControl::AnteriorDirection());
+	CameraControlPtr cameraControl = mServices->view()->getCameraControl();
+	cameraControl->setStandard3DView(CameraControl::AnteriorDirection());
 }
 
 void FraxinusPatientOrientationWidget::setPosteriorViewSlot()
 {
-    CameraControlPtr cameraControl = mServices->view()->getCameraControl();
-    cameraControl->setStandard3DView(CameraControl::PosteriorDirection());
+	CameraControlPtr cameraControl = mServices->view()->getCameraControl();
+	cameraControl->setStandard3DView(CameraControl::PosteriorDirection());
 }
 
 void FraxinusPatientOrientationWidget::setLeftViewSlot()
 {
-    CameraControlPtr cameraControl = mServices->view()->getCameraControl();
-    cameraControl->setStandard3DView(CameraControl::LeftDirection());
+	CameraControlPtr cameraControl = mServices->view()->getCameraControl();
+	cameraControl->setStandard3DView(CameraControl::LeftDirection());
 }
 
 void FraxinusPatientOrientationWidget::setRightViewSlot()
 {
-    CameraControlPtr cameraControl = mServices->view()->getCameraControl();
-    cameraControl->setStandard3DView(CameraControl::RightDirection());
+	CameraControlPtr cameraControl = mServices->view()->getCameraControl();
+	cameraControl->setStandard3DView(CameraControl::RightDirection());
 }
 
 void FraxinusPatientOrientationWidget::setSuperiorViewSlot()
 {
-    CameraControlPtr cameraControl = mServices->view()->getCameraControl();
-    cameraControl->setStandard3DView(CameraControl::SuperiorDirection());
+	CameraControlPtr cameraControl = mServices->view()->getCameraControl();
+	cameraControl->setStandard3DView(CameraControl::SuperiorDirection());
 }
 
 void FraxinusPatientOrientationWidget::setInferiorViewSlot()
 {
-    CameraControlPtr cameraControl = mServices->view()->getCameraControl();
-    cameraControl->setStandard3DView(CameraControl::InferiorDirection());
+	CameraControlPtr cameraControl = mServices->view()->getCameraControl();
+	cameraControl->setStandard3DView(CameraControl::InferiorDirection());
 }
 
 

@@ -76,45 +76,45 @@ ApplicationsParser::ApplicationsParser()
 	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset("new_load_patient_widget", Qt::LeftDockWidgetArea, true);
 	desktop.addPreset("help_widget", Qt::RightDockWidgetArea, false);
-    mWorkflowDefaultDesktops["FraxinusPatientUid"] = desktop;
+	mWorkflowDefaultDesktops["FraxinusPatientUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
-    // IMPORT
+	// IMPORT
 	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
 	toolbars.clear();
-    toolbars << standardToolbars;
-    this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset("import_widget", Qt::LeftDockWidgetArea, true);
-  //desktop.addPreset("dicom_widget", Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["FraxinusImportUid"] = desktop;
+	toolbars << standardToolbars;
+	this->addToolbarsToDesktop(desktop, toolbars);
+	desktop.addPreset("import_widget", Qt::LeftDockWidgetArea, true);
+	//desktop.addPreset("dicom_widget", Qt::LeftDockWidgetArea, true);
+	mWorkflowDefaultDesktops["FraxinusImportUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
-    // PROCESS
+	// PROCESS
 	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
 	toolbars.clear();
-    toolbars << standardToolbars;
-    this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset("Airway Segmentation Filter Widget", Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["FraxinusProcessUid"] = desktop;
+	toolbars << standardToolbars;
+	this->addToolbarsToDesktop(desktop, toolbars);
+	desktop.addPreset("Airway Segmentation Filter Widget", Qt::LeftDockWidgetArea, true);
+	mWorkflowDefaultDesktops["FraxinusProcessUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
-    // PINPOINT
-    desktop = Desktop("LAYOUT_ACS3D", QByteArray::fromBase64(""));
+	// PINPOINT
+	desktop = Desktop("LAYOUT_ACS3D", QByteArray::fromBase64(""));
 	toolbars.clear();
-    toolbars << standardToolbars;
-    this->addToolbarsToDesktop(desktop, toolbars);
+	toolbars << standardToolbars;
+	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset("pinpoint_widget", Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["FraxinusPinpointUid"] = desktop;
+	mWorkflowDefaultDesktops["FraxinusPinpointUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
 	// VIRTUAL BRONCHOSCOPY FLY-THROUGH
 	desktop = Desktop("LAYOUT_VB_FLY_THROUGH", QByteArray::fromBase64(""));
 	toolbars.clear();
-    toolbars << standardToolbars;
+	toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset(FraxinusVBWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["VirtualBronchoscopyFlyThroughUid"] = desktop;
@@ -124,61 +124,61 @@ ApplicationsParser::ApplicationsParser()
 	// VIRTUAL BRONCHOSCOPY CUT-PLANES
 	desktop = Desktop("LAYOUT_VB_CUT_PLANES", QByteArray::fromBase64(""));
 	toolbars.clear();
-    toolbars << standardToolbars;
+	toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset(FraxinusVBWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["VirtualBronchoscopyCutPlanesUid"] = desktop;
-    //-----------------------------------------------------
+	//-----------------------------------------------------
 
-    //-----------------------------------------------------
-    // VIRTUAL BRONCHOSCOPY ANYPLANE
-    desktop = Desktop("LAYOUT_VB_3D_ANY", QByteArray::fromBase64(""));
-    toolbars.clear();
-    toolbars << standardToolbars;
-    this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset(FraxinusVBWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["VirtualBronchoscopyAnyplaneUid"] = desktop;
-    //-----------------------------------------------------
+	//-----------------------------------------------------
+	// VIRTUAL BRONCHOSCOPY ANYPLANE
+	desktop = Desktop("LAYOUT_VB_3D_ANY", QByteArray::fromBase64(""));
+	toolbars.clear();
+	toolbars << standardToolbars;
+	this->addToolbarsToDesktop(desktop, toolbars);
+	desktop.addPreset(FraxinusVBWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+	mWorkflowDefaultDesktops["VirtualBronchoscopyAnyplaneUid"] = desktop;
+	//-----------------------------------------------------
 
-    //-----------------------------------------------------
-    // VIRTUAL BRONCHOSCOPY PROCEDURE PLANNING
-    desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
-    toolbars.clear();
-    toolbars << standardToolbars;
-    this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset(ProcedurePlanningWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["ProcedurePlanningUid"] = desktop;
-    //-----------------------------------------------------
+	//-----------------------------------------------------
+	// VIRTUAL BRONCHOSCOPY PROCEDURE PLANNING
+	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+	toolbars.clear();
+	toolbars << standardToolbars;
+	this->addToolbarsToDesktop(desktop, toolbars);
+	desktop.addPreset(ProcedurePlanningWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+	mWorkflowDefaultDesktops["ProcedurePlanningUid"] = desktop;
+	//-----------------------------------------------------
 
-    //-----------------------------------------------------
-    // TRACKING
-    desktop = Desktop("LAYOUT_3D", QByteArray::fromBase64(""));
-    toolbars.clear();
-    toolbars << standardToolbars;
-    this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset(FraxinusTrackingWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["FraxinusTrackingUid"] = desktop;
-    //-----------------------------------------------------
+	//-----------------------------------------------------
+	// TRACKING
+	desktop = Desktop("LAYOUT_3D", QByteArray::fromBase64(""));
+	toolbars.clear();
+	toolbars << standardToolbars;
+	this->addToolbarsToDesktop(desktop, toolbars);
+	desktop.addPreset(FraxinusTrackingWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+	mWorkflowDefaultDesktops["FraxinusTrackingUid"] = desktop;
+	//-----------------------------------------------------
 
-    //-----------------------------------------------------
-    // REGISTRATION
-    desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
-    toolbars.clear();
-    toolbars << standardToolbars;
-    this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset(FraxinusRegistrationWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["FraxinusRegistrationUid"] = desktop;
-    //-----------------------------------------------------
+	//-----------------------------------------------------
+	// REGISTRATION
+	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+	toolbars.clear();
+	toolbars << standardToolbars;
+	this->addToolbarsToDesktop(desktop, toolbars);
+	desktop.addPreset(FraxinusRegistrationWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+	mWorkflowDefaultDesktops["FraxinusRegistrationUid"] = desktop;
+	//-----------------------------------------------------
 
-    //-----------------------------------------------------
-    // NAVIGATION
-    desktop = Desktop("LAYOUT_VB_3D_ANY", QByteArray::fromBase64(""));
-    toolbars.clear();
-    toolbars << standardToolbars;
-    this->addToolbarsToDesktop(desktop, toolbars);
-    desktop.addPreset(FraxinusNavigationWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
-    mWorkflowDefaultDesktops["FraxinusNavigationUid"] = desktop;
-    //-----------------------------------------------------
+	//-----------------------------------------------------
+	// NAVIGATION
+	desktop = Desktop("LAYOUT_VB_3D_ANY", QByteArray::fromBase64(""));
+	toolbars.clear();
+	toolbars << standardToolbars;
+	this->addToolbarsToDesktop(desktop, toolbars);
+	desktop.addPreset(FraxinusNavigationWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+	mWorkflowDefaultDesktops["FraxinusNavigationUid"] = desktop;
+	//-----------------------------------------------------
 }
 
 void ApplicationsParser::addToolbarsToDesktop(Desktop& desktop, QStringList toolbars)

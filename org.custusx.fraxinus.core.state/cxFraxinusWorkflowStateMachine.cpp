@@ -48,7 +48,7 @@ namespace cx
 FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr services) :
 	WorkflowStateMachine(services)
 {
-    CX_LOG_DEBUG() << "FraxinusWorkflowStateMachine is being created.";
+	CX_LOG_DEBUG() << "FraxinusWorkflowStateMachine is being created.";
 	mPatientWorkflowState = dynamic_cast<FraxinusWorkflowState*>(this->newState(new PatientWorkflowState(mParentState, services)));
 	mImportWorkflowState = this->newState(new ImportWorkflowState(mParentState, services));
 	mProcessWorkflowState = this->newState(new ProcessWorkflowState(mParentState, services));
@@ -59,11 +59,11 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	mProcedurePlanningWorkflowState = this->newState(new ProcedurePlanningWorkflowState(mParentState, services));
 
 #ifdef CX_BUILD_FRAXINUS_TRACKING
-    this->newState(new TrackingWorkflowState(mParentState, services));
-    WorkflowState* registrationWorkflowState = this->newState(new RegistrationWorkflowState(mParentState, services));
-    WorkflowState* navigationWorkflowState = this->newState(new NavigationWorkflowState(mParentState, services));
-    connect(services->tracking().get(), &TrackingService::stateChanged, registrationWorkflowState, &RegistrationWorkflowState::canEnterSlot);
-    connect(services->tracking().get(), &TrackingService::stateChanged, navigationWorkflowState, &NavigationWorkflowState::canEnterSlot);
+	this->newState(new TrackingWorkflowState(mParentState, services));
+	WorkflowState* registrationWorkflowState = this->newState(new RegistrationWorkflowState(mParentState, services));
+	WorkflowState* navigationWorkflowState = this->newState(new NavigationWorkflowState(mParentState, services));
+	connect(services->tracking().get(), &TrackingService::stateChanged, registrationWorkflowState, &RegistrationWorkflowState::canEnterSlot);
+	connect(services->tracking().get(), &TrackingService::stateChanged, navigationWorkflowState, &NavigationWorkflowState::canEnterSlot);
 #endif
 
 	//logic for enabling workflowsteps
@@ -107,14 +107,14 @@ void FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot()
 
 WorkflowState* FraxinusWorkflowStateMachine::getParentState()
 {
-    return mParentState;
+	return mParentState;
 }
 
 //void FraxinusWorkflowStateMachine::addState(WorkflowState* workflowState)
 //{
-//    CX_LOG_DEBUG() << "FraxinusWorkflowStateMachine::addState is called";
-//    WorkflowState* temp = this->newState(workflowState);
-//    mStateList.push_back(temp);
+//	CX_LOG_DEBUG() << "FraxinusWorkflowStateMachine::addState is called";
+//	WorkflowState* temp = this->newState(workflowState);
+//	mStateList.push_back(temp);
 //}
 
 } //namespace cx

@@ -148,12 +148,12 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("View/clinicalView", "Radiological");
 	this->fillDefault("View/shadingOn", false);
 	this->fillDefault("View/showMetricNamesInCorner", true);
-    this->fillDefault("View3D/showManualTool", true);
+	this->fillDefault("View3D/showManualTool", true);
 	this->fillDefault("View3D/sphereRadius", 1.3);
-    this->fillDefault("View/showDataText", false);
-    this->fillDefault("Navigation/followTooltipBoundary", 0.5);
-    this->fillDefault("Navigation/anyplaneViewOffset", 0.5);
-    this->fillDefault("Profile", "Bronchoscopy");
+	this->fillDefault("View/showDataText", false);
+	this->fillDefault("Navigation/followTooltipBoundary", 0.5);
+	this->fillDefault("Navigation/anyplaneViewOffset", 0.5);
+	this->fillDefault("Profile", "Bronchoscopy");
 
 
 
@@ -161,7 +161,7 @@ void StateServiceImpl::changeDefaultSettings()
 
 
 
-    this->resetSegmentationSettings();
+	this->resetSegmentationSettings();
 }
 
 
@@ -186,10 +186,10 @@ void StateServiceImpl::resetDesktop()
 
 void StateServiceImpl::resetSegmentationSettings()
 {
-    XmlOptionFile file = ProfileManager::getInstance()->activeProfile()->getXmlSettings();
-    file = file.descend("fraxinus_airwaysegmentationwidget");
-    file.removeChildren();
-    file.save();
+	XmlOptionFile file = ProfileManager::getInstance()->activeProfile()->getXmlSettings();
+	file = file.descend("fraxinus_airwaysegmentationwidget");
+	file.removeChildren();
+	file.save();
 }
 
 } //namespace cx

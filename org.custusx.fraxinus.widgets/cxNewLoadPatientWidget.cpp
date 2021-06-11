@@ -16,74 +16,74 @@ namespace cx
 
 NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, PatientModelServicePtr patient) :
 	BaseWidget(parent, "new_load_patient_widget", "New/Load Patient"),
-    mPatient(patient)
+	mPatient(patient)
 {
-    this->setWindowTitle("Create or select patient");
+	this->setWindowTitle("Create or select patient");
 
-    QPushButton* newButton = new QPushButton("&New Patient");
-    newButton->setIcon(QIcon(":/icons/icons/add.svg"));
-    connect(newButton, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatient);
+	QPushButton* newButton = new QPushButton("&New Patient");
+	newButton->setIcon(QIcon(":/icons/icons/add.svg"));
+	connect(newButton, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatient);
 
-    QPushButton* loadButton = new QPushButton("&Load Patient");
-    loadButton->setIcon(QIcon(":/icons/icons/select.svg"));
-    connect(loadButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadPatient);
+	QPushButton* loadButton = new QPushButton("&Load Patient");
+	loadButton->setIcon(QIcon(":/icons/icons/select.svg"));
+	connect(loadButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadPatient);
 
-    QPushButton* restoreToFactorySettingsButton = new QPushButton("&Restore factory settings");
-    QPalette palette = restoreToFactorySettingsButton->palette();
-    palette.setColor(QPalette::Button, Qt::red);
-    restoreToFactorySettingsButton->setPalette(palette);
-    connect(restoreToFactorySettingsButton, &QPushButton::clicked, this, &NewLoadPatientWidget::restoreToFactorySettings);
+	QPushButton* restoreToFactorySettingsButton = new QPushButton("&Restore factory settings");
+	QPalette palette = restoreToFactorySettingsButton->palette();
+	palette.setColor(QPalette::Button, Qt::red);
+	restoreToFactorySettingsButton->setPalette(palette);
+	connect(restoreToFactorySettingsButton, &QPushButton::clicked, this, &NewLoadPatientWidget::restoreToFactorySettings);
 
-    mSelectCTDataButton = new QPushButton("&Select CT data");
-    mSelectCTDataButton->setIcon(QIcon(":/icons/icons/import.svg"));
-    mSelectCTDataButton->setEnabled(false);
-    connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+	mSelectCTDataButton = new QPushButton("&Select CT data");
+	mSelectCTDataButton->setIcon(QIcon(":/icons/icons/import.svg"));
+	mSelectCTDataButton->setEnabled(false);
+	connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
 
-    QVBoxLayout* layout = new QVBoxLayout(this);
-    layout->addSpacing(50);
-    layout->addWidget(newButton);
-    layout->addWidget(loadButton);
-    layout->addSpacing(50);
+	QVBoxLayout* layout = new QVBoxLayout(this);
+	layout->addSpacing(50);
+	layout->addWidget(newButton);
+	layout->addWidget(loadButton);
+	layout->addSpacing(50);
 
-    layout->addWidget(mSelectCTDataButton);
-    layout->addStretch();
+	layout->addWidget(mSelectCTDataButton);
+	layout->addStretch();
 
-    layout->addWidget(restoreToFactorySettingsButton);
-    this->setLayout(layout);
+	layout->addWidget(restoreToFactorySettingsButton);
+	this->setLayout(layout);
 }
 
 void NewLoadPatientWidget::createNewPatient()
 {
-    QString actionName = "NewPatient";
-    triggerMainWindowActionWithObjectName(actionName);
-    enableImportDataButton();
+	QString actionName = "NewPatient";
+	triggerMainWindowActionWithObjectName(actionName);
+	enableImportDataButton();
 }
 
 void NewLoadPatientWidget::loadPatient()
 {
-    QString actionName = "LoadFile";
-    triggerMainWindowActionWithObjectName(actionName);
-    enableImportDataButton();
+	QString actionName = "LoadFile";
+	triggerMainWindowActionWithObjectName(actionName);
+	enableImportDataButton();
 }
 
 void NewLoadPatientWidget::enableImportDataButton()
 {
-  if(mPatient->isPatientValid())
-    mSelectCTDataButton->setEnabled(true);
-  else
-    mSelectCTDataButton->setEnabled(false);
+	if(mPatient->isPatientValid())
+		mSelectCTDataButton->setEnabled(true);
+	else
+		mSelectCTDataButton->setEnabled(false);
 }
 
 void NewLoadPatientWidget::restoreToFactorySettings()
 {
-    DataLocations::deletePersistentWritablePath();
-    LogicManager::getInstance()->restartServicesWithProfile("Bronchoscopy");
+	DataLocations::deletePersistentWritablePath();
+	LogicManager::getInstance()->restartServicesWithProfile("Bronchoscopy");
 }
 
 void NewLoadPatientWidget::selectCTData()
 {
-  triggerMainWindowActionWithObjectName("AddFilesForImport");
-  triggerMainWindowActionWithObjectName("ImportSelectedData");
+	triggerMainWindowActionWithObjectName("AddFilesForImport");
+	triggerMainWindowActionWithObjectName("ImportSelectedData");
 }
 
 }

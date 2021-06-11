@@ -44,21 +44,21 @@ namespace cx
 
 class NewLoadPatientWidget : public BaseWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    NewLoadPatientWidget(QWidget *parent, PatientModelServicePtr patient);
+	NewLoadPatientWidget(QWidget *parent, PatientModelServicePtr patient);
 
 private slots:
-    void createNewPatient();
-    void loadPatient();
-    void restoreToFactorySettings();
-    void selectCTData();
+	void createNewPatient();
+	void loadPatient();
+	void restoreToFactorySettings();
+	void selectCTData();
 
 private:
-    void enableImportDataButton();
+	void enableImportDataButton();
 
-    PatientModelServicePtr mPatient;
-    QPushButton* mSelectCTDataButton;
+	PatientModelServicePtr mPatient;
+	QPushButton* mSelectCTDataButton;
 };
 
 }
