@@ -110,11 +110,4 @@ WorkflowState* FraxinusWorkflowStateMachine::getParentState()
 	return mParentState;
 }
 
-//void FraxinusWorkflowStateMachine::addState(WorkflowState* workflowState)
-//{
-//	CX_LOG_DEBUG() << "FraxinusWorkflowStateMachine::addState is called";
-//	WorkflowState* temp = this->newState(workflowState);
-//	mStateList.push_back(temp);
-//}
-
 } //namespace cx

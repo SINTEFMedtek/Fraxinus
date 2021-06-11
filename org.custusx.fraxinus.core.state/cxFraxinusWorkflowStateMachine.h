@@ -61,7 +61,6 @@ public:
 
 
 	WorkflowState* getParentState();
-	//void addState(WorkflowState* workflowState);
 
 private slots:
 	void dataAddedOrRemovedSlot();
@@ -79,7 +78,6 @@ private:
 
 	WorkflowState* mVirtualBronchoscopyAnyplaneWorkflowState;
 	WorkflowState* mProcedurePlanningWorkflowState;
-	//std::vector<WorkflowState*> mStateList;
 
 };
 
