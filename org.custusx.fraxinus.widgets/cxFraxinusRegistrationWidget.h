@@ -60,7 +60,7 @@ class org_custusx_fraxinus_widgets_EXPORT FraxinusRegistrationWidget : public Ba
     BronchoscopyRegistrationPtr mBronchoscopyRegistration;
 
 public:
-    //FraxinusRegistrationWidget(VisServicesPtr services, RegServicesPtr regServices, QWidget *parent = 0);
+
     FraxinusRegistrationWidget(QWidget* parent, QString objectName, QString windowTitle):
         BaseWidget(parent, objectName, windowTitle){};
     virtual ~FraxinusRegistrationWidget(){};

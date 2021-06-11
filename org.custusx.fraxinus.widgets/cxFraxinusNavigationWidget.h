@@ -55,7 +55,6 @@ class org_custusx_fraxinus_widgets_EXPORT FraxinusNavigationWidget : public Base
 {
     Q_OBJECT
 public:
-    //FraxinusNavigationWidget(VisServicesPtr trackingService, QWidget *parent = 0);
     FraxinusNavigationWidget(QWidget* parent, QString objectName, QString windowTitle):
         BaseWidget(parent, objectName, windowTitle){};
     virtual ~FraxinusNavigationWidget(){};

@@ -62,11 +62,11 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 {
     this->setObjectName(this->getWidgetName());
 
-	//Disable the select RTT box, as it is only confusing.
-	//To use it you still need to manually change many objects in the graphics.
+  //Disable the select RTT box, as it is only confusing.
+  //To use it you still need to manually change many objects in the graphics.
 	mRouteToTarget->setEnabled(false);
 
-    QGroupBox* viewBox = new QGroupBox(tr("View"));
+        QGroupBox* viewBox = new QGroupBox(tr("View"));
     mViewSelectionWidget = new ViewSelectionWidget(mServices, this);
     QVBoxLayout* viewLayout = new QVBoxLayout();
     viewLayout->addWidget(mViewSelectionWidget);

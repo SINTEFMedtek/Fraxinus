@@ -61,10 +61,6 @@ std::vector<GUIExtenderService::CategorizedWidget> FraxinusWidgetsGUIExtenderSer
     retval.push_back(GUIExtenderService::CategorizedWidget(new NewLoadPatientWidget(NULL, services->patient()),"Fraxinus"));
     retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusVBWidget(services, NULL),"Fraxinus"));
     retval.push_back(GUIExtenderService::CategorizedWidget(new ProcedurePlanningWidget(services, NULL),"Fraxinus"));
-    //FraxinusNavigationWidget* fraxinusNavigationWidget = new FraxinusNavigationWidget(services, NULL);
-    //retval.push_back(GUIExtenderService::CategorizedWidget(fraxinusNavigationWidget,"Fraxinus"));
-    //retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusTrackingWidget(services, fraxinusNavigationWidget, NULL),"Fraxinus"));
-    //retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusRegistrationWidget(services, services, NULL),"Fraxinus"));
 
 	return retval;
 }

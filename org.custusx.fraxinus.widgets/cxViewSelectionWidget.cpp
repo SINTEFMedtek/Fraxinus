@@ -66,13 +66,11 @@ ViewSelectionWidget::ViewSelectionWidget(VisServicesPtr services, QWidget* paren
     opacitySelectorGroup->addButton(mOpacityOnButton);
     opacitySelectorGroup->addButton(mOpacityOffButton);
 
-    //QGroupBox* viewBox = new QGroupBox(tr("View"));
     QGridLayout* gridLayout = new QGridLayout;
     gridLayout->addWidget(mTubeButton,0,0);
     gridLayout->addWidget(mVolumeButton,1,0);
     gridLayout->addWidget(mOpacityOnButton,0,1);
     gridLayout->addWidget(mOpacityOffButton,1,1);
-    //viewBox->setLayout(gridLayout);
 
     this->setLayout(gridLayout);
 
