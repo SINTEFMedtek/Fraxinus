@@ -56,7 +56,7 @@ class medtekAI(cx.build.cxComponents.CppComponent):
         return 'ssh://git@git.code.sintef.no/mt/medtekAI.git'
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
-        self._getBuilder().gitCheckoutSha('d8646bd6968e6d05884e48e04d79bce88f507e1a')
+        self._getBuilder().gitCheckoutSha('4aeb127beeb172bc907739703e81c32fdac30f4a')
         self.unzip()
     def configure(self):
         pass
