@@ -57,8 +57,7 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 	VBWidget(services, parent),
 	mServices(services),
 	mRouteLength(0),
-	mDistanceFromPathEndToTarget(0)//,
-	//mMaxAirwayOpacityValue(1)
+	mDistanceFromPathEndToTarget(0)
 {
 	this->setObjectName(this->getWidgetName());
 
