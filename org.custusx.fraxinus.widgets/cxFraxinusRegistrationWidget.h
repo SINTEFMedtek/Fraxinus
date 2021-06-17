@@ -71,7 +71,6 @@ public:
 private slots:
     virtual void setOrientationClickedSlot() = 0;
     virtual void registrationClickedSlot() = 0;
-    virtual void rejectRegistrationClickedSlot() = 0;
 
 private:
     VisServicesPtr mServices;
