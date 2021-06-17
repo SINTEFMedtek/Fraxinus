@@ -44,40 +44,40 @@ namespace cx {
 
 class org_custusx_fraxinus_widgets_EXPORT ViewSelectionWidget : public BaseWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    ViewSelectionWidget(VisServicesPtr services, QWidget *parent = 0);
-    virtual ~ViewSelectionWidget();
+	ViewSelectionWidget(VisServicesPtr services, QWidget *parent = 0);
+	virtual ~ViewSelectionWidget();
 
-    static QString getWidgetName();
-    void addObjectToVolumeView(DataPtr object);
-    void addObjectToTubeView(DataPtr object);
-    double getOpacity();
-    void setViewGroupNumber(unsigned int viewGroupNumber);
-    void displayVolume();
-    void displayTubes();
-    bool isVolumeButtonChecked();
-    bool isTubeButtonChecked();
-    void updateDataOnEntry();
-    void setVolumeButtonChecked(bool checked);
-    void setTubeButtonChecked(bool checked);
+	static QString getWidgetName();
+	void addObjectToVolumeView(DataPtr object);
+	void addObjectToTubeView(DataPtr object);
+	double getOpacity();
+	void setViewGroupNumber(unsigned int viewGroupNumber);
+	void displayVolume();
+	void displayTubes();
+	bool isVolumeButtonChecked();
+	bool isTubeButtonChecked();
+	void updateDataOnEntry();
+	void setVolumeButtonChecked(bool checked);
+	void setTubeButtonChecked(bool checked);
 
 private:
-    void airwayOpacityOn();
-    void airwayOpacityOff();
-    void displayDataObjects(std::vector<DataPtr> objects);
-    void hideDataObjects(std::vector<DataPtr> objects);
-    void setAirwayOpacity(bool opacity);
+	void airwayOpacityOn();
+	void airwayOpacityOff();
+	void displayDataObjects(std::vector<DataPtr> objects);
+	void hideDataObjects(std::vector<DataPtr> objects);
+	void setAirwayOpacity(bool opacity);
 
-    VisServicesPtr mServices;
-    QRadioButton* mVolumeButton;
-    QRadioButton* mTubeButton;
-    QRadioButton* mOpacityOnButton;
-    QRadioButton* mOpacityOffButton;
-    double mOpacityValue;
-    std::vector<DataPtr> mVolumeViewObjects;
-    std::vector<DataPtr> mTubeViewObjects;
-    unsigned int mViewGroupNumber;
+	VisServicesPtr mServices;
+	QRadioButton* mVolumeButton;
+	QRadioButton* mTubeButton;
+	QRadioButton* mOpacityOnButton;
+	QRadioButton* mOpacityOffButton;
+	double mOpacityValue;
+	std::vector<DataPtr> mVolumeViewObjects;
+	std::vector<DataPtr> mTubeViewObjects;
+	unsigned int mViewGroupNumber;
 
 };
 
