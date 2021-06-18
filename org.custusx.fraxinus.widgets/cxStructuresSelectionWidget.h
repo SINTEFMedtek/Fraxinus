@@ -46,52 +46,52 @@ namespace cx {
 
 struct org_custusx_fraxinus_widgets_EXPORT SelectableStructure
 {
-  QString mName;
-  QPushButton* mButton;
-  QPalette mButtonBackgroundColor;
-  bool mViewEnabled = false;
-  std::vector<DataPtr> mObjects;
-  QMetaObject::Connection mConnection;
+	QString mName;
+	QPushButton* mButton;
+	QPalette mButtonBackgroundColor;
+	bool mViewEnabled = false;
+	std::vector<DataPtr> mObjects;
+	QMetaObject::Connection mConnection;
 
-  SelectableStructure(QString name);
-  SelectableStructure();
+	SelectableStructure(QString name);
+	SelectableStructure();
 };
 
 class org_custusx_fraxinus_widgets_EXPORT StructuresSelectionWidget : public BaseWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    StructuresSelectionWidget(VisServicesPtr services, QWidget *parent = 0);
-    virtual ~StructuresSelectionWidget();
+	StructuresSelectionWidget(VisServicesPtr services, QWidget *parent = 0);
+	virtual ~StructuresSelectionWidget();
 
-    static QString getWidgetName();
-    void setViewGroupNumbers(std::vector<unsigned int> viewGroupNumbers);
-    void addObject(LUNG_STRUCTURES name, DataPtr object);
-    void onEntry();
+	static QString getWidgetName();
+	void setViewGroupNumbers(std::vector<unsigned int> viewGroupNumbers);
+	void addObject(LUNG_STRUCTURES name, DataPtr object);
+	void onEntry();
 
 
 private slots:
-    void viewStructureSlot(LUNG_STRUCTURES name);
+	void viewStructureSlot(LUNG_STRUCTURES name);
 
 private:
-    void displayDataObjects(std::vector<DataPtr> objects);
-    void hideDataObjects(std::vector<DataPtr> objects);
+	void displayDataObjects(std::vector<DataPtr> objects);
+	void hideDataObjects(std::vector<DataPtr> objects);
 
-    VisServicesPtr mServices;
-    std::vector<unsigned int> mViewGroupNumbers;
-    std::vector<DataPtr> mLungsObjects;
-    std::vector<DataPtr> mLesionsObjects;
-    std::vector<DataPtr> mLymphNodesObjects;
-    std::vector<DataPtr> mSpineObjects;
-    std::vector<DataPtr> mSmallVesselsObjects;
-    std::vector<DataPtr> mVenaCavaObjects;
-    std::vector<DataPtr> mAzygosObjects;
-    std::vector<DataPtr> mAortaObjects;
-    std::vector<DataPtr> mSubclavianObjects;
-    std::vector<DataPtr> mHeartObjects;
-    std::vector<DataPtr> mEsophagusObjects;
+	VisServicesPtr mServices;
+	std::vector<unsigned int> mViewGroupNumbers;
+	std::vector<DataPtr> mLungsObjects;
+	std::vector<DataPtr> mLesionsObjects;
+	std::vector<DataPtr> mLymphNodesObjects;
+	std::vector<DataPtr> mSpineObjects;
+	std::vector<DataPtr> mSmallVesselsObjects;
+	std::vector<DataPtr> mVenaCavaObjects;
+	std::vector<DataPtr> mAzygosObjects;
+	std::vector<DataPtr> mAortaObjects;
+	std::vector<DataPtr> mSubclavianObjects;
+	std::vector<DataPtr> mHeartObjects;
+	std::vector<DataPtr> mEsophagusObjects;
 
-    QMap<LUNG_STRUCTURES, SelectableStructure> mSelectableStructuresMap;
+	QMap<LUNG_STRUCTURES, SelectableStructure> mSelectableStructuresMap;
 };
 
 

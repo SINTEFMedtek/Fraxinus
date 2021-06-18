@@ -56,17 +56,17 @@ typedef boost::shared_ptr<class RegisteredService> RegisteredServicePtr;
  */
 class StatePluginActivator :  public QObject, public ctkPluginActivator
 {
-  Q_OBJECT
-  Q_INTERFACES(ctkPluginActivator)
+	Q_OBJECT
+	Q_INTERFACES(ctkPluginActivator)
 	Q_PLUGIN_METADATA(IID "org_custusx_core_state")
 
 public:
 
-  StatePluginActivator();
-  ~StatePluginActivator();
+	StatePluginActivator();
+	~StatePluginActivator();
 
-  void start(ctkPluginContext* context);
-  void stop(ctkPluginContext* context);
+	void start(ctkPluginContext* context);
+	void stop(ctkPluginContext* context);
 
 private:
 	RegisteredServicePtr mStateService;

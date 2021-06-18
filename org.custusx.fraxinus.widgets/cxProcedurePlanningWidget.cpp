@@ -44,35 +44,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cx {
 
 ProcedurePlanningWidget::ProcedurePlanningWidget(VisServicesPtr services, QWidget* parent):
-    BaseWidget(parent, this->getWidgetName(), "Procedure Planning"),
-    mServices(services)
+	BaseWidget(parent, this->getWidgetName(), "Procedure Planning"),
+	mServices(services)
 {
 
-    QPushButton *centerToImage = new QPushButton(QIcon(":/icons/center_image.png"), " Center Image", this);
-    connect(centerToImage, &QPushButton::clicked, this, &ProcedurePlanningWidget::centerToImage);
+	QPushButton *centerToImage = new QPushButton(QIcon(":/icons/center_image.png"), " Center Image", this);
+	connect(centerToImage, &QPushButton::clicked, this, &ProcedurePlanningWidget::centerToImage);
 
-    mFraxinusPatientOrientationWidget = new FraxinusPatientOrientationWidget(mServices, this);
-    QGroupBox* orientationBox = new QGroupBox(tr("Set orientation"));
-    QVBoxLayout* orientationLayout = new QVBoxLayout();
-    orientationLayout->addWidget(mFraxinusPatientOrientationWidget);
-    orientationBox->setLayout(orientationLayout);
+	mFraxinusPatientOrientationWidget = new FraxinusPatientOrientationWidget(mServices, this);
+	QGroupBox* orientationBox = new QGroupBox(tr("Set orientation"));
+	QVBoxLayout* orientationLayout = new QVBoxLayout();
+	orientationLayout->addWidget(mFraxinusPatientOrientationWidget);
+	orientationBox->setLayout(orientationLayout);
 
-    mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this);
-    QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
-    QVBoxLayout* structuresLayout = new QVBoxLayout();
-    structuresLayout->addWidget(mStructuresSelectionWidget);
-    structuresBox->setLayout(structuresLayout);
+	mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this);
+	QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
+	QVBoxLayout* structuresLayout = new QVBoxLayout();
+	structuresLayout->addWidget(mStructuresSelectionWidget);
+	structuresBox->setLayout(structuresLayout);
 
-    QVBoxLayout* verticalLayout = new QVBoxLayout;
-    verticalLayout->addStretch();
-    verticalLayout->addWidget(centerToImage);
-    verticalLayout->addStretch();
-    verticalLayout->addWidget(orientationBox);
-    verticalLayout->addStretch();
-    verticalLayout->addWidget(structuresBox);
-    verticalLayout->addStretch();
+	QVBoxLayout* verticalLayout = new QVBoxLayout;
+	verticalLayout->addStretch();
+	verticalLayout->addWidget(centerToImage);
+	verticalLayout->addStretch();
+	verticalLayout->addWidget(orientationBox);
+	verticalLayout->addStretch();
+	verticalLayout->addWidget(structuresBox);
+	verticalLayout->addStretch();
 
-    this->setLayout(verticalLayout);
+	this->setLayout(verticalLayout);
 }
 
 ProcedurePlanningWidget::~ProcedurePlanningWidget()
@@ -83,18 +83,17 @@ ProcedurePlanningWidget::~ProcedurePlanningWidget()
 
 QString ProcedurePlanningWidget::getWidgetName()
 {
-    return "fraxinus_procedure_planning_widget";
+	return "fraxinus_procedure_planning_widget";
 }
 
 StructuresSelectionWidget* ProcedurePlanningWidget::getStructuresSelectionWidget()
 {
-    return mStructuresSelectionWidget;
+	return mStructuresSelectionWidget;
 }
 
 void ProcedurePlanningWidget::centerToImage()
 {
-    triggerMainWindowActionWithObjectName("CenterToImageCenter");
+	triggerMainWindowActionWithObjectName("CenterToImageCenter");
 }
-
 
 } //namespace cx

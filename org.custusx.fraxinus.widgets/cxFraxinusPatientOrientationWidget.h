@@ -48,32 +48,32 @@ namespace cx {
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusPatientOrientationWidget : public BaseWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    FraxinusPatientOrientationWidget(VisServicesPtr services, QWidget *parent = 0);
-    virtual ~FraxinusPatientOrientationWidget();
+	FraxinusPatientOrientationWidget(VisServicesPtr services, QWidget *parent = 0);
+	virtual ~FraxinusPatientOrientationWidget();
 
-    static QString getWidgetName();
+	static QString getWidgetName();
 
 private slots:
-    void setAnteriorViewSlot();
-    void setPosteriorViewSlot();
-    void setLeftViewSlot();
-    void setRightViewSlot();
-    void setSuperiorViewSlot();
-    void setInferiorViewSlot();
+	void setAnteriorViewSlot();
+	void setPosteriorViewSlot();
+	void setLeftViewSlot();
+	void setRightViewSlot();
+	void setSuperiorViewSlot();
+	void setInferiorViewSlot();
 
 private:
-    VisServicesPtr mServices;
-    QActionGroup* mStandard3DViewActions; // actions for setting camera in fixed direction.
-    QPushButton* mAnteriorButton;
-    QPushButton* mPosteriorButton;
-    QPushButton* mLeftButton;
-    QPushButton* mRightButton;
-    QPushButton* mSuperiorButton;
-    QPushButton* mInferiorButton;
+	VisServicesPtr mServices;
+	QActionGroup* mStandard3DViewActions; // actions for setting camera in fixed direction.
+	QPushButton* mAnteriorButton;
+	QPushButton* mPosteriorButton;
+	QPushButton* mLeftButton;
+	QPushButton* mRightButton;
+	QPushButton* mSuperiorButton;
+	QPushButton* mInferiorButton;
 
-    void setStandard3DViewAction(Vector3D viewDirection);
+	void setStandard3DViewAction(Vector3D viewDirection);
 };
 
 

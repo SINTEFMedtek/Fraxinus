@@ -1,4 +1,4 @@
-    /*=========================================================================
+	/*=========================================================================
 This file is part of CustusX, an Image Guided Therapy Application.
 
 Copyright (c) 2008-2014, SINTEF Department of Medical Technology
@@ -73,52 +73,52 @@ public:
 	ImagePtr getCTImage() const;
 
 protected:
-    MeshPtr getTubeCenterline() const;
-    MeshPtr getRouteToTarget() const;
-    MeshPtr getExtendedRouteToTarget() const;
+	MeshPtr getTubeCenterline() const;
+	MeshPtr getRouteToTarget() const;
+	MeshPtr getExtendedRouteToTarget() const;
 	QMainWindow *getMainWindow();
 	FraxinusVBWidget *getVBWidget();
-    ProcedurePlanningWidget *getProcedurePlanningWidget();
+	ProcedurePlanningWidget *getProcedurePlanningWidget();
 	PinpointWidget *getPinpointWidget();
-    ImagePtr getCTImageCopied() const;
-    ImagePtr createCopiedImage(ImagePtr originalImage) const;
-    PointMetricPtr getTargetPoint() const;
+	ImagePtr getCTImageCopied() const;
+	ImagePtr createCopiedImage(ImagePtr originalImage) const;
+	PointMetricPtr getTargetPoint() const;
 	PointMetricPtr getEndoscopePoint() const;
 	DistanceMetricPtr getDistanceToTargetMetric() const;
-    void createRouteToTarget();
-    std::vector< Eigen::Vector3d > mRouteToTargetPositions;
-    std::vector< double > mRouteToTargetCameraRotations;
-    FraxinusSegmentationsPtr mFraxinusSegmentations;
+	void createRouteToTarget();
+	std::vector< Eigen::Vector3d > mRouteToTargetPositions;
+	std::vector< double > mRouteToTargetCameraRotations;
+	FraxinusSegmentationsPtr mFraxinusSegmentations;
 
 
-    void setTransferfunction3D(QString transferfunction, ImagePtr image);
-    void setTransferfunction2D(QString transferfunction, ImagePtr image);
-    void setPointPickerIn3Dview(bool active);
-    void setRTTInVBWidget();
-    void setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
-    void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
-    void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
-    void cleanupVBWidget();
-    void setupProcedurePlanningWidget(int viewGroupNumber);
+	void setTransferfunction3D(QString transferfunction, ImagePtr image);
+	void setTransferfunction2D(QString transferfunction, ImagePtr image);
+	void setPointPickerIn3Dview(bool active);
+	void setRTTInVBWidget();
+	void setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+	void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
+	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+	void cleanupVBWidget();
+	void setupProcedurePlanningWidget(int viewGroupNumber);
 
-    InteractiveClipperPtr enableInvertedClipper(QString clipper_name, bool on);
-    void removeAllDataFromClipper(InteractiveClipperPtr clipper);
+	InteractiveClipperPtr enableInvertedClipper(QString clipper_name, bool on);
+	void removeAllDataFromClipper(InteractiveClipperPtr clipper);
 
-    virtual void addDataToView() = 0;
+	virtual void addDataToView() = 0;
 
 protected slots:
 	virtual void setDefaultCameraStyle();
-    virtual void setVBFlythroughCameraStyle();
-    virtual void setVBCutplanesCameraStyle();
-    virtual void setAnyplaneCameraStyle();
+	virtual void setVBFlythroughCameraStyle();
+	virtual void setVBCutplanesCameraStyle();
+	virtual void setAnyplaneCameraStyle();
 
 signals:
-    void routeToTargetCreated();
+	void routeToTargetCreated();
 
 private:
-    void onEntryDefault(QEvent *event);
-    ImagePtr getActiveImage();
-    TransferFunctions3DPresetsPtr getTransferfunctionPresets();
+	void onEntryDefault(QEvent *event);
+	ImagePtr getActiveImage();
+	TransferFunctions3DPresetsPtr getTransferfunctionPresets();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PatientWorkflowState: public FraxinusWorkflowState
@@ -126,14 +126,14 @@ class org_custusx_fraxinus_core_state_EXPORT PatientWorkflowState: public Fraxin
 Q_OBJECT
 
 public:
-    PatientWorkflowState(QState* parent, CoreServicesPtr services);
-    virtual ~PatientWorkflowState();
-    virtual QIcon getIcon() const;
-    virtual bool canEnter() const;
-    virtual void onEntry(QEvent* event);
+	PatientWorkflowState(QState* parent, CoreServicesPtr services);
+	virtual ~PatientWorkflowState();
+	virtual QIcon getIcon() const;
+	virtual bool canEnter() const;
+	virtual void onEntry(QEvent* event);
 
 private:
-    virtual void addDataToView();
+	virtual void addDataToView();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public FraxinusWorkflowState
@@ -141,15 +141,15 @@ class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public Fraxinu
 Q_OBJECT
 
 public:
-    ImportWorkflowState(QState* parent, VisServicesPtr services);
-    virtual ~ImportWorkflowState();
-    virtual QIcon getIcon() const;
+	ImportWorkflowState(QState* parent, VisServicesPtr services);
+	virtual ~ImportWorkflowState();
+	virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
 	virtual void onEntry(QEvent *event);
-    virtual void onExit(QEvent * event);
+	virtual void onExit(QEvent * event);
 
 private:
-    virtual void addDataToView();
+	virtual void addDataToView();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public FraxinusWorkflowState
@@ -157,18 +157,18 @@ class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public Fraxin
 Q_OBJECT
 
 public:
-    ProcessWorkflowState(QState* parent, CoreServicesPtr services);
-    virtual ~ProcessWorkflowState();
-    virtual QIcon getIcon() const;
+	ProcessWorkflowState(QState* parent, CoreServicesPtr services);
+	virtual ~ProcessWorkflowState();
+	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
-    void onExit(QEvent *event);
+	void onExit(QEvent *event);
 	virtual bool canEnter() const;
 signals:
   void segmentationFinished();
 private slots:
-    void segmentationFinishedSlot();
+	void segmentationFinishedSlot();
 private:
-    virtual void addDataToView();
+	virtual void addDataToView();
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public FraxinusWorkflowState
@@ -176,18 +176,18 @@ class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public Fraxi
 Q_OBJECT
 
 public:
-    PinpointWorkflowState(QState* parent, CoreServicesPtr services);
-    virtual ~PinpointWorkflowState();
-    virtual QIcon getIcon() const;
-    virtual void onEntry(QEvent *event);
-    void onExit(QEvent *event);
-    virtual bool canEnter() const;
+	PinpointWorkflowState(QState* parent, CoreServicesPtr services);
+	virtual ~PinpointWorkflowState();
+	virtual QIcon getIcon() const;
+	virtual void onEntry(QEvent *event);
+	void onExit(QEvent *event);
+	virtual bool canEnter() const;
 private slots:
-    void dataAddedOrRemovedSlot();
+	void dataAddedOrRemovedSlot();
 	void createRoute();
 	void pointChanged();
 private:
-    void addDataToView();
+	void addDataToView();
 	void deleteOldRouteToTarget();
 
 	bool mPointChanged;
@@ -200,12 +200,12 @@ Q_OBJECT
 public:
 	VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services);
 	virtual ~VirtualBronchoscopyFlyThroughWorkflowState();
-    virtual QIcon getIcon() const;
+	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
 	void onExit(QEvent *event);
 	virtual bool canEnter() const;
 private:
-    void addDataToView();
+	void addDataToView();
 	int mFlyThrough3DViewGroupNumber;
 	int mSurfaceModel3DViewGroupNumber;
 };
@@ -223,9 +223,9 @@ public:
 	virtual bool canEnter() const;
 
 private:
-    void addDataToView();
+	void addDataToView();
 	int mFlyThrough3DViewGroupNumber;
-    int mSurfaceModel3DViewGroupNumber;
+	int mSurfaceModel3DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyAnyplaneWorkflowState: public FraxinusWorkflowState
@@ -233,16 +233,16 @@ class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyAnyplaneWorkflow
 Q_OBJECT
 
 public:
-    VirtualBronchoscopyAnyplaneWorkflowState(QState* parent, CoreServicesPtr services);
-    virtual ~VirtualBronchoscopyAnyplaneWorkflowState();
-    virtual QIcon getIcon() const;
-    virtual void onEntry(QEvent* event);
-    void onExit(QEvent *event);
-    virtual bool canEnter() const;
+	VirtualBronchoscopyAnyplaneWorkflowState(QState* parent, CoreServicesPtr services);
+	virtual ~VirtualBronchoscopyAnyplaneWorkflowState();
+	virtual QIcon getIcon() const;
+	virtual void onEntry(QEvent* event);
+	void onExit(QEvent *event);
+	virtual bool canEnter() const;
 private:
-    void addDataToView();
-    int mFlyThrough3DViewGroupNumber;
-    int mSurfaceModel3DViewGroupNumber;
+	void addDataToView();
+	int mFlyThrough3DViewGroupNumber;
+	int mSurfaceModel3DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ProcedurePlanningWorkflowState: public FraxinusWorkflowState
@@ -250,17 +250,17 @@ class org_custusx_fraxinus_core_state_EXPORT ProcedurePlanningWorkflowState: pub
 Q_OBJECT
 
 public:
-    ProcedurePlanningWorkflowState(QState* parent, CoreServicesPtr services);
-    virtual ~ProcedurePlanningWorkflowState();
-    virtual QIcon getIcon() const;
-    virtual void onEntry(QEvent* event);
-    void onExit(QEvent *event);
-    virtual bool canEnter() const;
+	ProcedurePlanningWorkflowState(QState* parent, CoreServicesPtr services);
+	virtual ~ProcedurePlanningWorkflowState();
+	virtual QIcon getIcon() const;
+	virtual void onEntry(QEvent* event);
+	void onExit(QEvent *event);
+	virtual bool canEnter() const;
 
 private:
-    void addDataToView();
-    int m3DViewGroupNumber;
-    int m2DViewGroupNumber;
+	void addDataToView();
+	int m3DViewGroupNumber;
+	int m2DViewGroupNumber;
 };
 
 /**

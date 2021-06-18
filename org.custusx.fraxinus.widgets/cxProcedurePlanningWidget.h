@@ -48,21 +48,21 @@ namespace cx {
 
 class org_custusx_fraxinus_widgets_EXPORT ProcedurePlanningWidget : public BaseWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    ProcedurePlanningWidget(VisServicesPtr services, QWidget *parent = 0);
-    virtual ~ProcedurePlanningWidget();
+	ProcedurePlanningWidget(VisServicesPtr services, QWidget *parent = 0);
+	virtual ~ProcedurePlanningWidget();
 
-    static QString getWidgetName();
-    StructuresSelectionWidget* getStructuresSelectionWidget();
+	static QString getWidgetName();
+	StructuresSelectionWidget* getStructuresSelectionWidget();
 
 private slots:
-    void centerToImage();
+	void centerToImage();
 
 private:
-    StructuresSelectionWidget* mStructuresSelectionWidget;
-    FraxinusPatientOrientationWidget* mFraxinusPatientOrientationWidget;
-    VisServicesPtr mServices;
+	StructuresSelectionWidget* mStructuresSelectionWidget;
+	FraxinusPatientOrientationWidget* mFraxinusPatientOrientationWidget;
+	VisServicesPtr mServices;
 };
 
 

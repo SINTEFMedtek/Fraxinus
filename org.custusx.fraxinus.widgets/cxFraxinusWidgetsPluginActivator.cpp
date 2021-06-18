@@ -50,7 +50,7 @@ FraxinusWidgetsPluginActivator::~FraxinusWidgetsPluginActivator()
 
 void FraxinusWidgetsPluginActivator::start(ctkPluginContext* context)
 {
-    mRegistration = RegisteredService::create<FraxinusWidgetsGUIExtenderService>(context, GUIExtenderService_iid);
+	mRegistration = RegisteredService::create<FraxinusWidgetsGUIExtenderService>(context, GUIExtenderService_iid);
 }
 
 void FraxinusWidgetsPluginActivator::stop(ctkPluginContext* context)

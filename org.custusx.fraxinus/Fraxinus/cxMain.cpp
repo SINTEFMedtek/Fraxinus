@@ -45,27 +45,27 @@ int main(int argc, char *argv[])
 {
 
 #if !defined(WIN32)
-  //for some reason this does not work with dynamic linking on windows
-  //instead we solve the problem by adding a handmade header for the cxResources.qrc file
-  Q_INIT_RESOURCE(cxResources);
+	//for some reason this does not work with dynamic linking on windows
+	//instead we solve the problem by adding a handmade header for the cxResources.qrc file
+	Q_INIT_RESOURCE(cxResources);
 #endif
 
-  cx::Application app(argc, argv);
-  app.setOrganizationName("Fraxinus");
-  app.setOrganizationDomain("www.sintef.no");
-  app.setApplicationName(CX_SYSTEM_BASE_NAME);
-  app.setWindowIcon(QIcon(":/icons/icons/Fraxinus.png"));
-  app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
+	cx::Application app(argc, argv);
+	app.setOrganizationName("Fraxinus");
+	app.setOrganizationDomain("www.sintef.no");
+	app.setApplicationName(CX_SYSTEM_BASE_NAME);
+	app.setWindowIcon(QIcon(":/icons/icons/Fraxinus.png"));
+	app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
-  cx::DataLocations::setWebsiteURL("http://www.custusx.org/fraxinus");
-  cx::ApplicationComponentPtr mainwindow(new cx::FraxinusMainWindowApplicationComponent());
+	cx::DataLocations::setWebsiteURL("http://www.custusx.org/fraxinus");
+	cx::ApplicationComponentPtr mainwindow(new cx::FraxinusMainWindowApplicationComponent());
 
-  cx::ProfileManager::getInstance("Bronchoscopy");
-  cx::LogicManager::initialize(mainwindow);
+	cx::ProfileManager::getInstance("Bronchoscopy");
+	cx::LogicManager::initialize(mainwindow);
 
-  int retVal = app.exec();
+	int retVal = app.exec();
 
-  cx::LogicManager::shutdown(); // shutdown all global resources, _after_ gui is deleted.
+	cx::LogicManager::shutdown(); // shutdown all global resources, _after_ gui is deleted.
 
-  return retVal;
+	return retVal;
 }

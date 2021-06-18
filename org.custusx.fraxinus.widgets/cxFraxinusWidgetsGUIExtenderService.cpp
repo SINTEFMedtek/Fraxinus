@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusWidgetsGUIExtenderService.h"
 #include "ctkPluginContext.h"
 #include "cxFiltersWidget.h"
-#include "cxVisServices.h"
+#include "cxRegServices.h"
 #include "cxPinpointWidget.h"
 #include "cxNewLoadPatientWidget.h"
 #include "cxFraxinusVBWidget.h"
@@ -49,15 +49,15 @@ FraxinusWidgetsGUIExtenderService::FraxinusWidgetsGUIExtenderService(ctkPluginCo
 
 std::vector<GUIExtenderService::CategorizedWidget> FraxinusWidgetsGUIExtenderService::createWidgets() const
 {
-    VisServicesPtr services = VisServices::create(mContext);
+	RegServicesPtr services = RegServices::create(mContext);
 
-    std::vector<CategorizedWidget> retval;
-    retval.push_back(GUIExtenderService::CategorizedWidget(new FiltersWidget(services, NULL, QStringList("Route to target"), "fraxinus_routetotargetwidget"),"Fraxinus"));
-    retval.push_back(GUIExtenderService::CategorizedWidget(new FiltersWidget(services, NULL, QStringList("Airway Segmentation Filter"), "fraxinus_airwaysegmentationwidget"),"Fraxinus"));
-    retval.push_back(GUIExtenderService::CategorizedWidget(new PinpointWidget(services, NULL),"Fraxinus"));
-    retval.push_back(GUIExtenderService::CategorizedWidget(new NewLoadPatientWidget(NULL, services->patient()),"Fraxinus"));
-    retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusVBWidget(services, NULL),"Fraxinus"));
-    retval.push_back(GUIExtenderService::CategorizedWidget(new ProcedurePlanningWidget(services, NULL),"Fraxinus"));
+	std::vector<CategorizedWidget> retval;
+	retval.push_back(GUIExtenderService::CategorizedWidget(new FiltersWidget(services, NULL, QStringList("Route to target"), "fraxinus_routetotargetwidget"),"Fraxinus"));
+	retval.push_back(GUIExtenderService::CategorizedWidget(new FiltersWidget(services, NULL, QStringList("Airway Segmentation Filter"), "fraxinus_airwaysegmentationwidget"),"Fraxinus"));
+	retval.push_back(GUIExtenderService::CategorizedWidget(new PinpointWidget(services, NULL),"Fraxinus"));
+	retval.push_back(GUIExtenderService::CategorizedWidget(new NewLoadPatientWidget(NULL, services->patient()),"Fraxinus"));
+	retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusVBWidget(services, NULL),"Fraxinus"));
+	retval.push_back(GUIExtenderService::CategorizedWidget(new ProcedurePlanningWidget(services, NULL),"Fraxinus"));
 
 	return retval;
 }

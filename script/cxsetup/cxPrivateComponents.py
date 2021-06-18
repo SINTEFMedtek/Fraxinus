@@ -56,7 +56,7 @@ class medtekAI(cx.build.cxComponents.CppComponent):
         return 'ssh://git@git.code.sintef.no/mt/medtekAI.git'
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
-        self._getBuilder().gitCheckoutSha('d8646bd6968e6d05884e48e04d79bce88f507e1a')
+        self._getBuilder().gitCheckoutSha('4aeb127beeb172bc907739703e81c32fdac30f4a')
         self.unzip()
     def configure(self):
         pass
@@ -73,4 +73,37 @@ class medtekAI(cx.build.cxComponents.CppComponent):
         return '%s/%s/%s' % (self.controlData.getWorkingPath(), 'CX/CX/data', self.thoraxCTdataFolder())
     def url_link(self):
         return 'https://datadryad.org/stash/downloads/file_stream/15192' #Patient016.zip
+# ---------------------------------------------------------
+
+class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
+    def name(self):
+        return "FraxinusTracking"
+    def help(self):
+        return 'Tracking and navigation in Fraxinus (SINTEF private)'
+    def path(self):
+        fraxinus = self._createSibling(Fraxinus)
+        #return '%s/FX/FX/%s' % (self.controlData.getWorkingPath(), self.sourceFolder())
+        return fraxinus.path() + "/" + fraxinus.sourceFolder()
+    def sourceFolder(self):
+        return 'org.custusx.fraxinus.tracking'
+    def repository(self):
+        #return '%s/org.custusx.fraxinus.tracking.git' % self.controlData.gitrepo_main_site_base
+        return 'ssh://git@git.code.sintef.no/mt/org.custusx.fraxinus.tracking.git'
+    def update(self):
+        self._getBuilder().gitSetRemoteURL(self.repository())
+        self._getBuilder().gitCheckoutSha('8c9bb78e25eaec749a8123dcb08813c405ab823a')
+        #self._getBuilder().gitCheckoutDefaultBranch()
+    def configure(self):
+        pass
+    def build(self):
+        pass
+    def makeClean(self):
+        pass
+    def useInIntegrationTesting(self):
+        'use during integration test'
+        return True
+    def addConfigurationToDownstreamLib(self, builder):
+        add = builder.addCMakeOption
+        add('CX_FRAXINUS_TRACKING:BOOL', 'OFF');
+        add('CX_EXTERNAL_PLUGIN_org_custusx_fraxinus_tracking', self.path() + '/' + self.sourceFolder())
 # ---------------------------------------------------------

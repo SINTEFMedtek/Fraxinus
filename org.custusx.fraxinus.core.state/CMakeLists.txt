@@ -18,16 +18,12 @@ qt5_add_resources(fraxinus_state_resources
 set(PLUGIN_SRCS
     ${fraxinus_state_resources}
     cxStateServiceImpl.cpp
-    cxFraxinusWorkflowStateMachine.h
     cxFraxinusWorkflowStateMachine.cpp
-    cxFraxinusWorkflowStates.h
     cxFraxinusWorkflowStates.cpp
+    cxFraxinusWorkflowStatesNavigation.cpp
     cxStatePluginActivator.cpp
-    cxApplicationsParser.h
     cxApplicationsParser.cpp
-    cxVBCameraZoomSetting3D.h
     cxVBCameraZoomSetting3D.cpp
-    cxFraxinusSegmentations.h
     cxFraxinusSegmentations.cpp
 )
 
@@ -57,6 +53,7 @@ endif(WIN32)
 set(PLUGIN_MOC_SRCS
     cxFraxinusWorkflowStateMachine.h
     cxFraxinusWorkflowStates.h
+    cxFraxinusWorkflowStatesNavigation.h
     cxStateServiceImpl.h
     cxStatePluginActivator.h
     cxFraxinusSegmentations.h

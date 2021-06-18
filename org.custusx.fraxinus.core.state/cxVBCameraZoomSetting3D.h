@@ -9,8 +9,8 @@
 class VB3DCameraZoomSetting
 {
 public:
-    VB3DCameraZoomSetting();
-    static int getZoomFactor();
+	VB3DCameraZoomSetting();
+	static int getZoomFactor();
 };
 
 #endif // VB3DCAMERAZOOMSETTING_H

@@ -23,6 +23,10 @@ set(PLUGIN_SRCS
     cxProcedurePlanningWidget.cpp
     cxStructuresSelectionWidget.cpp
     cxFraxinusPatientOrientationWidget.cpp
+    #cxFraxinusTrackingWidget.cpp
+    #cxFraxinusRegistrationWidget.cpp
+    #cxFraxinusNavigationWidget.cpp
+    cxViewSelectionWidget.cpp
 )
 
 if(NOT CX_APPLE)
@@ -55,6 +59,10 @@ set(PLUGIN_MOC_SRCS
     cxProcedurePlanningWidget.h
     cxStructuresSelectionWidget.h
     cxFraxinusPatientOrientationWidget.h
+    cxFraxinusTrackingWidget.h
+    cxFraxinusRegistrationWidget.h
+    cxFraxinusNavigationWidget.h
+    cxViewSelectionWidget.h
 )
 
 # Qt Designer files which should be processed by Qts uic
@@ -79,9 +87,13 @@ set(PLUGIN_target_libraries
     cxResourceWidgets
     cxResource #todo: remove?
     cxResourceFilter
-	cxLogicManager
     org_custusx_filter_routetotarget
     org_custusx_virtualbronchoscopy
+    org_custusx_registration
+    org_custusx_registration_method_bronchoscopy
+    org_custusx_bronchoscopynavigation
+    org_custusx_acquisition
+    cxLogicManager
     )
 
 if(NOT CX_APPLE)

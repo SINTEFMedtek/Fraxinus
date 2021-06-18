@@ -6,5 +6,5 @@ VB3DCameraZoomSetting::VB3DCameraZoomSetting()
 
 int VB3DCameraZoomSetting::getZoomFactor()
 {
-    return 1010;
+	return 1010;
 }

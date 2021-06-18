@@ -46,9 +46,9 @@ typedef boost::shared_ptr<class VisServices> VisServicesPtr;
 
 class org_custusx_fraxinus_widgets_EXPORT PinpointWidget : public BaseWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    PinpointWidget(VisServicesPtr services, QWidget *parent);
+	PinpointWidget(VisServicesPtr services, QWidget *parent);
 	static QString getTargetMetricUid();
 	static QString getEndoscopeMetricUid();
 	static QString getDistanceMetricUid();
@@ -57,22 +57,22 @@ signals:
 	void targetMetricSet();
 
 private slots:
-    void setPointMetric();
-    void centerToImage();
-    void targetNameChanged(const QString &text);
-    void loadNameOfPointMetric();
+	void setPointMetric();
+	void centerToImage();
+	void targetNameChanged(const QString &text);
+	void loadNameOfPointMetric();
 
 private:
-    void createPointMetric();
+	void createPointMetric();
 	void createEndoscopeMetric();
 	void createDistanceMetric();
-    void updateCoordinateOfPointMetric();
-    void setNameOfPointMetric();
-    QString getNameOfPointMetric() const;
+	void updateCoordinateOfPointMetric();
+	void setNameOfPointMetric();
+	QString getNameOfPointMetric() const;
 
-    QLineEdit *mPointMetricNameLineEdit;
-    VisServicesPtr mServices;
-    MetricManagerPtr mMetricManager;
+	QLineEdit *mPointMetricNameLineEdit;
+	VisServicesPtr mServices;
+	MetricManagerPtr mMetricManager;
 	QString mTargetMetricUid;
 	QString mTargetMetricName;
 };
