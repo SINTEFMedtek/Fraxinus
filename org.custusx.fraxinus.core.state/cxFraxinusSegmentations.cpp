@@ -85,7 +85,15 @@ MeshPtr FraxinusSegmentations::getAirwaysContour()
 
 MeshPtr FraxinusSegmentations::getAirwaysTubes()
 {
+	MeshPtr coloredAirwayTubes = this->getAirwaysTubesColored();
+	if (coloredAirwayTubes) //if a colored version exists, use it
+		return coloredAirwayTubes;
 	return this->getMesh(airwaysFilterGetNameSuffixTubes(), airwaysFilterGetNameSuffixAirways(), airwaysFilterGetNameSuffixCenterline());
+}
+
+MeshPtr FraxinusSegmentations::getAirwaysTubesColored()
+{
+	return this->getMesh(airwaysFilterGetNameSuffixColored(), airwaysFilterGetNameSuffixAirways(), airwaysFilterGetNameSuffixCenterline());
 }
 
 MeshPtr FraxinusSegmentations::getVessels()
@@ -401,6 +409,7 @@ void FraxinusSegmentations::performAirwaysSegmentation(ImagePtr image)
 			mActiveTimerWidget->start();
 		airwaysFilter->setVesselSegmentation(false);
 		airwaysFilter->setAirwaySegmentation(true);
+		airwaysFilter->setColoringAirways(true);
 		mCurrentSegmentationType = lsAIRWAYS;
 		mAirwaysProcessed = true;
 	}

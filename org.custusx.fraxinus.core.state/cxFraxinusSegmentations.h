@@ -37,6 +37,7 @@ public:
 	
 	MeshPtr getAirwaysContour();
 	MeshPtr getAirwaysTubes();
+	MeshPtr getAirwaysTubesColored();
 	MeshPtr getVessels();
 	MeshPtr getMesh(QString contain_str_1, QString contain_str_2 = "", QString not_contain_str="");
 	MeshPtr getLungs();
