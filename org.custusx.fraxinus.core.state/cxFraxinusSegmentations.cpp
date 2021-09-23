@@ -373,7 +373,7 @@ void FraxinusSegmentations::performAirwaysSegmentation(ImagePtr image)
 	if(centerline)
 	{
 		mAirwaysProcessed = true;
-		if(vessels)
+		if(vessels || mVesselsProcessed)
 		{
 			mVesselsProcessed = true;
 			this->performMLSegmentation(image);
