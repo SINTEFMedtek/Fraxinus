@@ -397,7 +397,7 @@ void FraxinusSegmentations::performAirwaysSegmentation(ImagePtr image)
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	//dialog.show();
 	
-#ifndef __linux__
+#ifdef __linux__
 	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
 	airwaysFilter->getOutputTypes();
