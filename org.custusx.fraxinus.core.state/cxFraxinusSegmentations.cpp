@@ -723,7 +723,6 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 				mActiveTimerWidget->failed();
 		}
 	}
-	
 }
 
 }//cx
