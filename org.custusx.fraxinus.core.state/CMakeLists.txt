@@ -5,7 +5,7 @@
 
 project(org_custusx_fraxinus_core_state)
 
-if(NOT CX_APPLE)
+if(CX_LINUX)
     cx_initialize_FAST()
 endif()
 
