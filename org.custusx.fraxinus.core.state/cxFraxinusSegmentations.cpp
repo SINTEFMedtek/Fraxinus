@@ -26,7 +26,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxGenericScriptFilter.h"
 #include "cxDataLocations.h"
 
-#ifndef __APPLE__
+#ifdef __linux__
 #include "cxAirwaysFilterService.h"
 #endif
 
@@ -397,7 +397,7 @@ void FraxinusSegmentations::performAirwaysSegmentation(ImagePtr image)
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	//dialog.show();
 	
-#ifndef __APPLE__
+#ifdef __linux__
 	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
 	airwaysFilter->getOutputTypes();
@@ -723,7 +723,6 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 				mActiveTimerWidget->failed();
 		}
 	}
-	
 }
 
 }//cx
