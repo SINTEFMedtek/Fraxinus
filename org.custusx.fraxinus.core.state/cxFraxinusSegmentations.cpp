@@ -26,7 +26,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxGenericScriptFilter.h"
 #include "cxDataLocations.h"
 
-#ifdef __linux__
+#ifndef __APPLE__
 #include "cxAirwaysFilterService.h"
 #endif
 
@@ -85,15 +85,7 @@ MeshPtr FraxinusSegmentations::getAirwaysContour()
 
 MeshPtr FraxinusSegmentations::getAirwaysTubes()
 {
-	MeshPtr coloredAirwayTubes = this->getAirwaysTubesColored();
-	if (coloredAirwayTubes) //if a colored version exists, use it
-		return coloredAirwayTubes;
 	return this->getMesh(airwaysFilterGetNameSuffixTubes(), airwaysFilterGetNameSuffixAirways(), airwaysFilterGetNameSuffixCenterline());
-}
-
-MeshPtr FraxinusSegmentations::getAirwaysTubesColored()
-{
-	return this->getMesh(airwaysFilterGetNameSuffixColored(), airwaysFilterGetNameSuffixAirways(), airwaysFilterGetNameSuffixCenterline());
 }
 
 MeshPtr FraxinusSegmentations::getVessels()
@@ -397,7 +389,7 @@ void FraxinusSegmentations::performAirwaysSegmentation(ImagePtr image)
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	//dialog.show();
 	
-#ifdef __linux__
+#ifndef __APPLE__
 	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
 	airwaysFilter->getOutputTypes();
@@ -409,7 +401,6 @@ void FraxinusSegmentations::performAirwaysSegmentation(ImagePtr image)
 			mActiveTimerWidget->start();
 		airwaysFilter->setVesselSegmentation(false);
 		airwaysFilter->setAirwaySegmentation(true);
-		airwaysFilter->setColoringAirways(true);
 		mCurrentSegmentationType = lsAIRWAYS;
 		mAirwaysProcessed = true;
 	}
@@ -723,6 +714,7 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 				mActiveTimerWidget->failed();
 		}
 	}
+	
 }
 
 }//cx

@@ -5,7 +5,7 @@
 
 project(org_custusx_fraxinus_core_state)
 
-if(CX_LINUX)
+if(NOT CX_APPLE)
     cx_initialize_FAST()
 endif()
 
@@ -28,7 +28,7 @@ set(PLUGIN_SRCS
 )
 
 
-if(CX_LINUX)
+if(NOT CX_APPLE)
     # Make sure OpenCL kernel files are copied to the installer
     # Install OpenCL kernels
     install(DIRECTORY ${FAST_SOURCE_DIR}
@@ -67,7 +67,7 @@ set(PLUGIN_UI_FORMS
 set(PLUGIN_resources
 )
 
-if(CX_LINUX)
+if(NOT CX_APPLE)
     find_package(FAST REQUIRED)
     link_directories("${FAST_DIR}/lib/")
 endif()
@@ -92,7 +92,7 @@ set(PLUGIN_target_libraries
     org_custusx_fraxinus_widgets
     )
 
-if(CX_LINUX)
+if(NOT CX_APPLE)
   set(PLUGIN_target_libraries
     ${PLUGIN_target_libraries}
     FAST
