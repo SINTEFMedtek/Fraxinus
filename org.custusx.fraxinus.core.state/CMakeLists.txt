@@ -5,7 +5,7 @@
 
 project(org_custusx_fraxinus_core_state)
 
-if(NOT CX_APPLE)
+if(CX_LINUX)
     cx_initialize_FAST()
 endif()
 
@@ -28,7 +28,7 @@ set(PLUGIN_SRCS
 )
 
 
-if(NOT CX_APPLE)
+if(CX_LINUX)
     # Make sure OpenCL kernel files are copied to the installer
     # Install OpenCL kernels
     install(DIRECTORY ${FAST_SOURCE_DIR}
@@ -67,14 +67,14 @@ set(PLUGIN_UI_FORMS
 set(PLUGIN_resources
 )
 
-if(NOT CX_APPLE)
+if(CX_LINUX)
     find_package(FAST REQUIRED)
     link_directories("${FAST_DIR}/lib/")
 endif()
 
 #Compute the plugin dependencies
 ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
-set(PLUGIN_target_libraries 
+set(PLUGIN_target_libraries
     PUBLIC
     ${PLUGIN_target_libraries}
     Qt5::Widgets
@@ -92,7 +92,7 @@ set(PLUGIN_target_libraries
     org_custusx_fraxinus_widgets
     )
 
-if(NOT CX_APPLE)
+if(CX_LINUX)
   set(PLUGIN_target_libraries
     ${PLUGIN_target_libraries}
     FAST

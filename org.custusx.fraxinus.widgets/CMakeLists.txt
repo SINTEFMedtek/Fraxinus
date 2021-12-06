@@ -1,6 +1,6 @@
 project(org_custusx_fraxinus_widgets)
 
-if(NOT CX_APPLE)
+if(CX_LINUX)
     cx_initialize_FAST()
 endif()
 
@@ -29,7 +29,7 @@ set(PLUGIN_SRCS
     cxViewSelectionWidget.cpp
 )
 
-if(NOT CX_APPLE)
+if(CX_LINUX)
     # Make sure OpenCL kernel files are copied to the installer
     # Install OpenCL kernels
     install(DIRECTORY ${FAST_SOURCE_DIR}
@@ -96,7 +96,7 @@ set(PLUGIN_target_libraries
     cxLogicManager
     )
 
-if(NOT CX_APPLE)
+if(CX_LINUX)
   set(PLUGIN_target_libraries
     ${PLUGIN_target_libraries}
     FAST
