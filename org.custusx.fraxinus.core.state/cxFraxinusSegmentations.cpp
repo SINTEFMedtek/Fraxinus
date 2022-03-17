@@ -396,7 +396,8 @@ void FraxinusSegmentations::performAirwaysSegmentationPython(ImagePtr image)
     DataPtr vessels = this->getVessels();
     if(centerline)
     {
-        mAirwaysProcessed = true;
+				mAirwaysProcessed = true;
+				mCenterlineProcessed = true;
         if(vessels || mVesselsProcessed)
         {
             mVesselsProcessed = true;
@@ -417,7 +418,6 @@ void FraxinusSegmentations::performAirwaysSegmentationPython(ImagePtr image)
     scriptFilter->getOutputTypes();
     scriptFilter->getOptions();
 
-
     if(!mAirwaysProcessed  && mSegmentAirways)
     {
         mActiveTimerWidget = mAirwaysTimerWidget;
@@ -428,7 +428,7 @@ void FraxinusSegmentations::performAirwaysSegmentationPython(ImagePtr image)
         mAirwaysProcessed = true;
         input[0]->setValue(image->getUid());
     }
-    else if(mAirwaysProcessed && mSegmentAirways && !mCenterlineProcessed)
+		else if(mAirwaysProcessed && mSegmentAirways && !mCenterlineProcessed)
     {
         scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_AirwaysCenterline.ini");
         mCurrentSegmentationType = lsCENTERLINES;
@@ -438,28 +438,21 @@ void FraxinusSegmentations::performAirwaysSegmentationPython(ImagePtr image)
             return;
         input[0]->setValue(airwaysVolume->getUid());
     }
-//    else if(!mVesselsProcessed && mSegmentVessels)
-//    {
-//        mActiveTimerWidget = mVesselsTimerWidget;
-//        if(mActiveTimerWidget)
-//            mActiveTimerWidget->start();
-//        airwaysFilter->setVesselSegmentation(true);
-//        airwaysFilter->setAirwaySegmentation(false);
-//        mCurrentSegmentationType = lsVESSELS;
-//        mVesselsProcessed = true;
-//    }
+		else if(!mVesselsProcessed && mSegmentVessels)
+		{
+				mActiveTimerWidget = mVesselsTimerWidget;
+				if(mActiveTimerWidget)
+						mActiveTimerWidget->start();
+				scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_VesselsInLungs.ini");
+				mCurrentSegmentationType = lsVESSELS;
+				mVesselsProcessed = true;
+				input[0]->setValue(image->getUid());
+		}
     else
         return;
 
     mCurrentFilter = scriptFilter;
     this->runAirwaysFilterSlot();
-
-    //TO DO:
-    //Save volume - OK
-    //create centerline - OK
-    //fix flow from airways segmentation to centerline extraction - OK
-    //create airwaysFromCenterline with color variation - OK
-    //vessel segmentation
 }
 
 void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
