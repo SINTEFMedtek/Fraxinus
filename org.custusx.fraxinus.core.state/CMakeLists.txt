@@ -5,9 +5,9 @@
 
 project(org_custusx_fraxinus_core_state)
 
-if(CX_LINUX)
-    cx_initialize_FAST()
-endif()
+#if(CX_LINUX)
+#	  cx_initialize_FAST()
+#endif()
 
 set(PLUGIN_export_directive "${PROJECT_NAME}_EXPORT")
 
@@ -28,14 +28,14 @@ set(PLUGIN_SRCS
 )
 
 
-if(CX_LINUX)
+#if(CX_LINUX)
     # Make sure OpenCL kernel files are copied to the installer
     # Install OpenCL kernels
-    install(DIRECTORY ${FAST_SOURCE_DIR}
-            DESTINATION ${CX_INSTALL_CONFIG_DIR}/FAST/
-            FILES_MATCHING PATTERN "*.cl"
-    )
-endif()
+#    install(DIRECTORY ${FAST_SOURCE_DIR}
+#            DESTINATION ${CX_INSTALL_CONFIG_DIR}/FAST/
+#            FILES_MATCHING PATTERN "*.cl"
+#    )
+#endif()
 
 #Compute the plugin dependencies
 ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
@@ -67,10 +67,10 @@ set(PLUGIN_UI_FORMS
 set(PLUGIN_resources
 )
 
-if(CX_LINUX)
-    find_package(FAST REQUIRED)
-    link_directories("${FAST_DIR}/lib/")
-endif()
+#if(CX_LINUX)
+#    find_package(FAST REQUIRED)
+#    link_directories("${FAST_DIR}/lib/")
+#endif()
 
 #Compute the plugin dependencies
 ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
@@ -89,16 +89,17 @@ set(PLUGIN_target_libraries
     cxGui
     org_custusx_filter_routetotarget
     org_custusx_virtualbronchoscopy
-    org_custusx_fraxinus_widgets
+		org_custusx_fraxinus_widgets
+		org_custusx_filter_airwaysfromcenterline
     )
 
-if(CX_LINUX)
-  set(PLUGIN_target_libraries
-    ${PLUGIN_target_libraries}
-    FAST
-    org_custusx_filter_airways
-    )
-endif()
+#if(CX_LINUX)
+#	set(PLUGIN_target_libraries
+#		${PLUGIN_target_libraries}
+#		FAST
+#		org_custusx_filter_airways
+#		)
+#endif()
 
 set(PLUGIN_OUTPUT_DIR "")
 if(CX_WINDOWS)
