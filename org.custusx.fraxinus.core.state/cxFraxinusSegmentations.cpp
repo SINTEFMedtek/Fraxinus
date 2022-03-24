@@ -434,9 +434,8 @@ void FraxinusSegmentations::performAirwaysSegmentationPython(ImagePtr image)
 		mCurrentSegmentationType = lsCENTERLINES;
 		mCenterlineProcessed = true;
 		ImagePtr airwaysVolume = this->getAirwaysVolume();
-		if(!airwaysVolume)
-			return;
-		input[0]->setValue(airwaysVolume->getUid());
+		if(airwaysVolume)
+			input[0]->setValue(airwaysVolume->getUid());
 	}
 	else if(!mVesselsProcessed && mSegmentVessels)
 	{
@@ -589,10 +588,10 @@ void FraxinusSegmentations::airwaysFinishedSlot()
 		{
 			airways->setColor("#FFCCCC");
 		}
-		else
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->failed();
+//		else
+//		{
+//			if(mActiveTimerWidget)
+//				mActiveTimerWidget->failed();
 //			//this->addDataToView(); //TODO: run in ProcessWorkflowState?
 //			QString message = "Ariway segmentation failed.\n\n"
 //												"Try:\n"
@@ -601,7 +600,7 @@ void FraxinusSegmentations::airwaysFinishedSlot()
 //												"3. Select \"Use manual seed point\"\n"
 //												"4. Run the Airway segmantation filter again using the green start button. \n";
 //			QMessageBox::warning(NULL,"Airway segmentation failed", message);
-		}
+//		}
 	}
 	else if(mCurrentSegmentationType == lsCENTERLINES)
 	{
