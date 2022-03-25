@@ -33,12 +33,14 @@ public:
 	~FraxinusSegmentations();
 	
 	ImagePtr getCTImage() const;
-	MeshPtr getCenterline() const;
-	
+	ImagePtr getAirwaysVolume() const;
+
+	MeshPtr getRawCenterline();
+	MeshPtr getCenterline();
 	MeshPtr getAirwaysContour();
 	MeshPtr getAirwaysTubes();
 	MeshPtr getVessels();
-	MeshPtr getMesh(QString contain_str_1, QString contain_str_2 = "", QString not_contain_str="");
+	MeshPtr getMesh(QString contain_str_1, QString contain_str_2 = "", QString not_contain_str_1="", QString not_contain_str_2="");
 	MeshPtr getLungs();
 	MeshPtr getLymphNodes();
 	MeshPtr getNodules();
@@ -57,15 +59,16 @@ public:
 	
 	void createSelectSegmentationBox();
 	void createProcessingInfo();
-	void performAirwaysSegmentation(ImagePtr image);
+	void performAirwaysSegmentationPython(ImagePtr image);
 	void performMLSegmentation(ImagePtr image);
 	QString getFilterScriptsPath();
+	void postProcessAirways();
 	void checkIfSegmentationSucceeded();
 	void close();
-	
+
 signals:
-  void segmentationFinished();
-  
+	void segmentationFinished();
+
 private slots:
 	void imageSelected();
 	void cancel();
@@ -101,6 +104,7 @@ private:
 	QCheckBox* mCheckBoxNodules;
 	QCheckBox* mCheckBoxVessels;
 	bool mAirwaysProcessed = false;
+	bool mCenterlineProcessed = false;
 	bool mVesselsProcessed = false;
 	bool mLungsProcessed = false;
 	bool mLymphNodesProcessed = false;

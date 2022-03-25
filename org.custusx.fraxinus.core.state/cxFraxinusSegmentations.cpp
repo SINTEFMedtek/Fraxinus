@@ -25,10 +25,10 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxRouteToTargetFilterService.h"
 #include "cxGenericScriptFilter.h"
 #include "cxDataLocations.h"
+#include "cxAirwaysFromCenterline.h"
+#include "cxColorVariationFilter.h"
+#include "cxRegistrationTransform.h"
 
-#ifdef __linux__
-#include "cxAirwaysFilterService.h"
-#endif
 
 namespace cx
 {
@@ -57,7 +57,7 @@ ImagePtr FraxinusSegmentations::getCTImage() const
 	ImagePtr image;
 	for( ; it != images.end(); ++it)
 	{
-		if(!it->first.contains("_copy"))
+		if(!it->first.contains("_copy") && !it->first.contains(airwaysFilterGetNameSuffixAirways()))
 		{
 			image = it->second;
 			break;
@@ -66,21 +66,36 @@ ImagePtr FraxinusSegmentations::getCTImage() const
 	return image;
 }
 
-MeshPtr FraxinusSegmentations::getCenterline() const
+ImagePtr FraxinusSegmentations::getAirwaysVolume() const
 {
-	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
-	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
+	std::map<QString, ImagePtr>::iterator it = images.begin();
+	ImagePtr image;
+	for( ; it != images.end(); ++it)
 	{
-		if(iter->first.contains(airwaysFilterGetNameSuffixCenterline()) && !iter->first.contains(RouteToTargetFilter::getNameSuffix()))
-			return iter->second;
+		if(it->first.contains(airwaysFilterGetNameSuffixAirways()))
+		{
+			image = it->second;
+			break;
+		}
 	}
-	return MeshPtr();
+	return image;
+}
+
+MeshPtr FraxinusSegmentations::getRawCenterline()
+{
+	return this->getMesh(airwaysFilterGetNameSuffixCenterline(), "", RouteToTargetFilter::getNameSuffix(), airwaysFilterGetNameSuffixTubes());
+}
+
+MeshPtr FraxinusSegmentations::getCenterline()
+{
+	return this->getMesh(airwaysFilterGetNameSuffixCenterline(), airwaysFilterGetNameSuffixTubes(), RouteToTargetFilter::getNameSuffix());
 }
 
 
 MeshPtr FraxinusSegmentations::getAirwaysContour()
 {
-	return this->getMesh(airwaysFilterGetNameSuffixAirways(), ContourFilter::getNameSuffix());
+	return this->getMesh(airwaysFilterGetNameSuffixAirways(), "", airwaysFilterGetNameSuffixTubes(), airwaysFilterGetNameSuffixCenterline());
 }
 
 MeshPtr FraxinusSegmentations::getAirwaysTubes()
@@ -93,15 +108,16 @@ MeshPtr FraxinusSegmentations::getVessels()
 	return this->getMesh(airwaysFilterGetNameSuffixVessels());
 }
 
-MeshPtr FraxinusSegmentations::getMesh(QString contain_str_1, QString contain_str_2, QString not_contain_str)
+MeshPtr FraxinusSegmentations::getMesh(QString contain_str_1, QString contain_str_2, QString not_contain_str_1, QString not_contain_str_2)
 {
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
 		if(iter->first.contains(contain_str_1))
 			if(iter->first.contains(contain_str_2))
-				if(not_contain_str.isEmpty() || !iter->first.contains(not_contain_str))
-					return iter->second;
+				if(not_contain_str_1.isEmpty() || !iter->first.contains(not_contain_str_1))
+					if(not_contain_str_2.isEmpty() || !iter->first.contains(not_contain_str_2))
+						return iter->second;
 	}
 	return MeshPtr();
 }
@@ -241,7 +257,7 @@ void FraxinusSegmentations::imageSelected()
 	
 	this->createProcessingInfo();
 	ImagePtr image = this->getCTImage();
-	this->performAirwaysSegmentation(image);
+	this->performAirwaysSegmentationPython(image);
 }
 
 void FraxinusSegmentations::cancel()
@@ -363,16 +379,25 @@ void FraxinusSegmentations::createProcessingInfo()
 	mSegmentationProcessingInfo->activateWindow();
 }
 
-void FraxinusSegmentations::performAirwaysSegmentation(ImagePtr image)
+
+QString FraxinusSegmentations::getFilterScriptsPath()
+{
+	QString configPath = DataLocations::getRootConfigPath();
+	QString retval = configPath + "/profiles/Laboratory/filter_scripts/";
+	return retval;
+}
+
+void FraxinusSegmentations::performAirwaysSegmentationPython(ImagePtr image)
 {
 	if(!image)
 		return;
-	
+
 	DataPtr centerline = this->getCenterline();
 	DataPtr vessels = this->getVessels();
 	if(centerline)
 	{
 		mAirwaysProcessed = true;
+		mCenterlineProcessed = true;
 		if(vessels || mVesselsProcessed)
 		{
 			mVesselsProcessed = true;
@@ -385,48 +410,48 @@ void FraxinusSegmentations::performAirwaysSegmentation(ImagePtr image)
 			return;
 		}
 	}
-	
+
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	//dialog.show();
-	
-#ifdef __linux__
-	AirwaysFilterPtr airwaysFilter = AirwaysFilterPtr(new AirwaysFilter(services));
-	std::vector <cx::SelectDataStringPropertyBasePtr> input = airwaysFilter->getInputTypes();
-	airwaysFilter->getOutputTypes();
-	airwaysFilter->getOptions();
+
+	GenericScriptFilterPtr scriptFilter = GenericScriptFilterPtr(new GenericScriptFilter(services));
+	std::vector <cx::SelectDataStringPropertyBasePtr> input = scriptFilter->getInputTypes();
+	scriptFilter->getOutputTypes();
+	scriptFilter->getOptions();
+
 	if(!mAirwaysProcessed  && mSegmentAirways)
 	{
 		mActiveTimerWidget = mAirwaysTimerWidget;
 		if(mActiveTimerWidget)
 			mActiveTimerWidget->start();
-		airwaysFilter->setVesselSegmentation(false);
-		airwaysFilter->setAirwaySegmentation(true);
+		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_Airways.ini");
 		mCurrentSegmentationType = lsAIRWAYS;
 		mAirwaysProcessed = true;
+		input[0]->setValue(image->getUid());
+	}
+	else if(mAirwaysProcessed && mSegmentAirways && !mCenterlineProcessed)
+	{
+		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_AirwaysCenterline.ini");
+		mCurrentSegmentationType = lsCENTERLINES;
+		mCenterlineProcessed = true;
+		ImagePtr airwaysVolume = this->getAirwaysVolume();
+		if(airwaysVolume)
+			input[0]->setValue(airwaysVolume->getUid());
 	}
 	else if(!mVesselsProcessed && mSegmentVessels)
 	{
 		mActiveTimerWidget = mVesselsTimerWidget;
 		if(mActiveTimerWidget)
-			mActiveTimerWidget->start();
-		airwaysFilter->setVesselSegmentation(true);
-		airwaysFilter->setAirwaySegmentation(false);
+				mActiveTimerWidget->start();
+		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_VesselsInLungs.ini");
 		mCurrentSegmentationType = lsVESSELS;
 		mVesselsProcessed = true;
+		input[0]->setValue(image->getUid());
 	}
-	
-	input[0]->setValue(image->getUid());
-	mCurrentFilter = airwaysFilter;
-	this->runAirwaysFilterSlot();
-#endif
-	
-}
+	else
+		return;
 
-QString FraxinusSegmentations::getFilterScriptsPath()
-{
-	QString configPath = DataLocations::getRootConfigPath();
-	QString retval = configPath + "/profiles/Laboratory/filter_scripts/";
-	return retval;
+	mCurrentFilter = scriptFilter;
+	this->runAirwaysFilterSlot();
 }
 
 void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
@@ -562,36 +587,38 @@ void FraxinusSegmentations::airwaysFinishedSlot()
 		if(airways)
 		{
 			airways->setColor("#FFCCCC");
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->stop();
 		}
-		else
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->failed();
-			//this->addDataToView(); //TODO: run in ProcessWorkflowState?
-			QString message = "Ariway segmentation failed.\n\n"
-												"Try:\n"
-												"1. Click inside the airways (e.g. trachea).\n"
-												"2. Select input.\n"
-												"3. Select \"Use manual seed point\"\n"
-												"4. Run the Airway segmantation filter again using the green start button. \n";
-			QMessageBox::warning(NULL,"Airway segmentation failed", message);
-		}
-		if(!mVesselsProcessed && mCheckBoxVessels->isChecked())
-		{
-			this->performAirwaysSegmentation(this->getCTImage());
-		}
-		else
-		{
-			this->performMLSegmentation(this->getCTImage());
-		}
+//		else
+//		{
+//			if(mActiveTimerWidget)
+//				mActiveTimerWidget->failed();
+//			//this->addDataToView(); //TODO: run in ProcessWorkflowState?
+//			QString message = "Ariway segmentation failed.\n\n"
+//												"Try:\n"
+//												"1. Click inside the airways (e.g. trachea).\n"
+//												"2. Select input.\n"
+//												"3. Select \"Use manual seed point\"\n"
+//												"4. Run the Airway segmantation filter again using the green start button. \n";
+//			QMessageBox::warning(NULL,"Airway segmentation failed", message);
+//		}
 	}
-	else if(mCurrentSegmentationType == lsVESSELS)
+	else if(mCurrentSegmentationType == lsCENTERLINES)
 	{
+		this->postProcessAirways();
 		this->checkIfSegmentationSucceeded();
-		this->performMLSegmentation(this->getCTImage());
 	}
+	else
+		this->checkIfSegmentationSucceeded();
+
+
+
+	if(mCurrentSegmentationType == lsAIRWAYS)
+		this->performAirwaysSegmentationPython(this->getCTImage());
+	else if(mCurrentSegmentationType == lsCENTERLINES && mSegmentVessels)
+		this->performAirwaysSegmentationPython(this->getCTImage());
+	else
+		this->performMLSegmentation(this->getCTImage());
+
 }
 
 void FraxinusSegmentations::MLFinishedSlot()
@@ -608,11 +635,71 @@ void FraxinusSegmentations::MLFinishedSlot()
 	this->performMLSegmentation(this->getCTImage());
 }
 
+void FraxinusSegmentations::postProcessAirways()
+{
+	AirwaysFromCenterlinePtr airwaysFromCLPtr = AirwaysFromCenterlinePtr(new AirwaysFromCenterline());
+
+	ImagePtr CTimage = this->getCTImage();
+	if(!CTimage)
+		return;
+	MeshPtr rawCenterline = this->getRawCenterline();
+	if(!rawCenterline)
+		return;
+	ImagePtr airwaysVolume =this->getAirwaysVolume();
+	if(!airwaysVolume)
+		return;
+
+	airwaysFromCLPtr->processCenterline(rawCenterline->getVtkPolyData());
+	airwaysFromCLPtr->setSegmentedVolume(airwaysVolume->getBaseVtkImageData());
+
+	// Create mesh object from the airway walls
+	QString uidMesh = CTimage->getUid() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes();
+	QString nameMesh = CTimage->getName() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes();
+	MeshPtr airwayWalls = mServices->patient()->createSpecificData<Mesh>(uidMesh, nameMesh);
+	airwayWalls->setColor(QColor(253, 173, 136, 255));
+	airwayWalls->setVtkPolyData(airwaysFromCLPtr->generateTubes(0, true));
+	airwayWalls->get_rMd_History()->setParentSpace(CTimage->getUid());
+	airwayWalls->get_rMd_History()->setRegistration(CTimage->get_rMd());
+	//mServices->patient()->insertData(airwayWalls);
+
+	//Apply color varition
+	VisServicesPtr visServices = boost::static_pointer_cast<VisServices>(mServices);
+	ColorVariationFilterPtr coloringFilter = ColorVariationFilterPtr(new ColorVariationFilter(visServices));
+	double globaleVariance = 50.0;
+	double localeVariance = 5.0;
+	int smoothingIterations = 5;
+	airwayWalls = coloringFilter->execute(airwayWalls, globaleVariance, localeVariance, smoothingIterations);
+
+	//insert filtered centerline from airwaysFromCenterline
+	QString uidCenterline = CTimage->getUid() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes() + airwaysFilterGetNameSuffixCenterline();
+	QString nameCenterline = CTimage->getName() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes() + airwaysFilterGetNameSuffixCenterline();
+	MeshPtr centerline = mServices->patient()->createSpecificData<Mesh>(uidCenterline, nameCenterline);
+	centerline->setVtkPolyData(airwaysFromCLPtr->getVTKPoints());
+	centerline->get_rMd_History()->setParentSpace(CTimage->getUid());
+	centerline->get_rMd_History()->setRegistration(CTimage->get_rMd());
+	mServices->patient()->insertData(centerline);
+
+	mServices->patient()->removeData(airwaysVolume->getUid());
+}
+
 void FraxinusSegmentations::checkIfSegmentationSucceeded()
 {
 	if(mCurrentSegmentationType == lsAIRWAYS)
 	{
 		if(this->getAirwaysContour())
+		{
+			if(mActiveTimerWidget)
+				mActiveTimerWidget->stop();
+		}
+		else
+		{
+			if(mActiveTimerWidget)
+				mActiveTimerWidget->failed();
+		}
+	}
+	else if(mCurrentSegmentationType == lsCENTERLINES)
+	{
+		if(this->getCenterline())
 		{
 			if(mActiveTimerWidget)
 				mActiveTimerWidget->stop();

@@ -1,8 +1,8 @@
 project(org_custusx_fraxinus_widgets)
 
-if(CX_LINUX)
-    cx_initialize_FAST()
-endif()
+#if(CX_LINUX)
+#    cx_initialize_FAST()
+#endif()
 
 #### Enable C++11
 set (CMAKE_CXX_STANDARD 11)
@@ -29,14 +29,14 @@ set(PLUGIN_SRCS
     cxViewSelectionWidget.cpp
 )
 
-if(CX_LINUX)
+#if(CX_LINUX)
     # Make sure OpenCL kernel files are copied to the installer
     # Install OpenCL kernels
-    install(DIRECTORY ${FAST_SOURCE_DIR}
-            DESTINATION ${CX_INSTALL_CONFIG_DIR}/FAST/
-            FILES_MATCHING PATTERN "*.cl"
-    )
-endif()
+#    install(DIRECTORY ${FAST_SOURCE_DIR}
+#            DESTINATION ${CX_INSTALL_CONFIG_DIR}/FAST/
+#            FILES_MATCHING PATTERN "*.cl"
+#    )
+#endif()
 
 #Compute the plugin dependencies
 ctkFunctionGetTargetLibraries(PLUGIN_target_libraries)
@@ -96,13 +96,13 @@ set(PLUGIN_target_libraries
     cxLogicManager
     )
 
-if(CX_LINUX)
-  set(PLUGIN_target_libraries
-    ${PLUGIN_target_libraries}
-    FAST
-    org_custusx_filter_airways
-    )
-endif()
+#if(CX_LINUX)
+#  set(PLUGIN_target_libraries
+#    ${PLUGIN_target_libraries}
+#    FAST
+#    org_custusx_filter_airways
+#    )
+#endif()
 
 set(PLUGIN_OUTPUT_DIR "")
 if(CX_WINDOWS)
