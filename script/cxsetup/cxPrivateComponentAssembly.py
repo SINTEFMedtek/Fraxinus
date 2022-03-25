@@ -25,7 +25,7 @@ class PrivateControlData(cx.build.cxInstallData.Common):
         self.publish_user_documentation_target      = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/user_doc", user)
         self.publish_coverage_info_target           = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/gcov", user)
         self.gitrepo_open_site_base = "git@github.com:SINTEFMedtek"
-        self.gitrepo_main_site_base = self.gitrepo_open_site_base
+        self.gitrepo_main_site_base = "ssh://git@git.code.sintef.no/mt"
 
         self.system_base_name = "Fraxinus"
 
