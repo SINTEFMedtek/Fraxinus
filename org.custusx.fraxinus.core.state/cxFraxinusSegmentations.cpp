@@ -28,6 +28,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxAirwaysFromCenterline.h"
 #include "cxColorVariationFilter.h"
 #include "cxRegistrationTransform.h"
+#include "cxEnumConversion.h"
 
 
 namespace cx
@@ -686,122 +687,81 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 {
 	if(mCurrentSegmentationType == lsAIRWAYS)
 	{
-		if(this->getAirwaysContour())
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->stop();
-		}
-		else
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->failed();
-		}
+		setMeshNameAndStopTimer(this->getAirwaysContour());
 	}
 	else if(mCurrentSegmentationType == lsCENTERLINES)
 	{
-		if(this->getCenterline())
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->stop();
-		}
-		else
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->failed();
-		}
+		setMeshNameAndStopTimer(this->getCenterline());
 	}
 	else if(mCurrentSegmentationType == lsVESSELS)
 	{
-		if(this->getVessels())
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->stop();
-		}
-		else
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->failed();
-		}
+		setMeshNameAndStopTimer(this->getVessels());
 	}
 	else if(mCurrentSegmentationType == lsLUNG)
 	{
-		if(this->getLungs())
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->stop();
-		}
-		else
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->failed();
-		}
+		setMeshNameAndStopTimer(this->getLungs());
 	}
 	else if(mCurrentSegmentationType == lsLYMPH_NODES)
 	{
-		if(this->getLymphNodes())
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->stop();
-		}
-		else
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->failed();
-		}
+		setMeshNameAndStopTimer(this->getLymphNodes());
 	}
 	else if(mCurrentSegmentationType == lsPULMONARY_SYSTEM)
 	{
-		if(this->getHeart())
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->stop();
-		}
-		else
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->failed();
-		}
+		stopTimer(this->getSpine());
+		setMeshName(this->getHeart(), lsHEART);
+		setMeshName(this->getPulmonaryVeins(), lsPULMONARY_VESSELS);
+		setMeshName(this->getPulmonaryTrunk(), lsPULMONARY_SYSTEM);
 	}
 	else if(mCurrentSegmentationType == lsMEDIUM_ORGANS)
 	{
-		if(this->getSpine())
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->stop();
-		}
-		else
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->failed();
-		}
+		stopTimer(this->getSpine());
+		setMeshName(this->getAorticArch(), lsAORTA);
+		setMeshName(this->getDescendingAorta(), lsAORTA);
+		setMeshName(this->getAscendingAorta(), lsAORTA);
+		setMeshName(this->getSpine(), lsSPINE);
+		setMeshName(this->getVenaCava(), lsVENA_CAVA);
 	}
 	else if(mCurrentSegmentationType == lsSMALL_ORGANS)
 	{
-		if(this->getEsophagus())
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->stop();
-		}
-		else
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->failed();
-		}
+		stopTimer(this->getEsophagus());
+		setMeshName(this->getEsophagus(), lsESOPHAGUS);
+		setMeshName(this->getSubCarArt(), lsSUBCLAVIAN_ARTERY);
+		setMeshName(this->getBrachiocephalicVeins(), lsVENA_CAVA);//lsPULMONARY_VESSELS
+		setMeshName(this->getAzygos(), lsVENA_AZYGOS);
 	}
 	else if(mCurrentSegmentationType == lsNODULES)
 	{
-		if(this->getNodules())
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->stop();
-		}
-		else
-		{
-			if(mActiveTimerWidget)
-				mActiveTimerWidget->failed();
-		}
+		setMeshNameAndStopTimer(this->getNodules());
 	}
-	
 }
 
+
+void FraxinusSegmentations::setMeshNameAndStopTimer(MeshPtr mesh)
+{
+	stopTimer(mesh);
+	setMeshName(mesh, mCurrentSegmentationType);
+}
+
+void FraxinusSegmentations::setMeshName(MeshPtr mesh, LUNG_STRUCTURES segmentationType)
+{
+	if(mesh)
+	{
+		//CX_LOG_DEBUG() << "Set name on structure: " << enum2string(segmentationType);
+		mesh->setName(enum2string(segmentationType));
+	}
+	else
+		CX_LOG_DEBUG() << "Found no segmentation for: " << enum2string(segmentationType);
+
+}
+
+void FraxinusSegmentations::stopTimer(MeshPtr mesh)
+{
+	if(mActiveTimerWidget)
+	{
+		if(mesh)
+			mActiveTimerWidget->stop();
+		else
+			mActiveTimerWidget->failed();
+	}
+}
 }//cx
