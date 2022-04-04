@@ -96,7 +96,7 @@ ApplicationsParser::ApplicationsParser()
 	toolbars.clear();
 	toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset("Airway Segmentation Filter Widget", Qt::LeftDockWidgetArea, true);
+	//desktop.addPreset("Airway Segmentation Filter Widget", Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["FraxinusProcessUid"] = desktop;
 	//-----------------------------------------------------
 
