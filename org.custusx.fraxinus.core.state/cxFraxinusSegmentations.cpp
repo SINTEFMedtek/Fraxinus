@@ -670,6 +670,7 @@ void FraxinusSegmentations::postProcessAirways()
 	double localeVariance = 5.0;
 	int smoothingIterations = 5;
 	airwayWalls = coloringFilter->execute(airwayWalls, globaleVariance, localeVariance, smoothingIterations);
+	setMeshName(airwayWalls, lsAIRWAYS);
 
 	//insert filtered centerline from airwaysFromCenterline
 	QString uidCenterline = CTimage->getUid() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes() + airwaysFilterGetNameSuffixCenterline();
@@ -687,7 +688,8 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 {
 	if(mCurrentSegmentationType == lsAIRWAYS)
 	{
-		setMeshNameAndStopTimer(this->getAirwaysContour());
+		setMeshName(this->getAirwaysTubes(), lsAIRWAYS);
+		// Not stopping timer before centerlines are created
 	}
 	else if(mCurrentSegmentationType == lsCENTERLINES)
 	{
