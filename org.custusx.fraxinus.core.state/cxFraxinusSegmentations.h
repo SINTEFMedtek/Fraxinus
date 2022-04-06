@@ -120,7 +120,12 @@ private:
 	bool mSegmentSmallOrgans;
 	bool mSegmentMediumOrgans;
 	bool mSegmentNodules;
-	LUNG_STRUCTURES mCurrentSegmentationType;	
+	LUNG_STRUCTURES mCurrentSegmentationType;
+
+	void setMeshNameAndStopTimer(MeshPtr mesh);
+	void setMeshName(MeshPtr mesh, LUNG_STRUCTURES segmentationType);
+	void stopTimer(MeshPtr mesh);
+
 };
 }//cx
 #endif // CXFRAXINUSSEGMENTATIONS_H
