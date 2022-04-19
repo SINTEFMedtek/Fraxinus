@@ -258,7 +258,7 @@ void FraxinusSegmentations::imageSelected()
 	
 	this->createProcessingInfo();
 	ImagePtr image = this->getCTImage();
-	this->performAirwaysSegmentationPython(image);
+	this->performPythonSegmentation(image);
 }
 
 void FraxinusSegmentations::cancel()
@@ -388,7 +388,7 @@ QString FraxinusSegmentations::getFilterScriptsPath()
 	return retval;
 }
 
-void FraxinusSegmentations::performAirwaysSegmentationPython(ImagePtr image)
+void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 {
 	if(!image)
 		return;
@@ -452,7 +452,7 @@ void FraxinusSegmentations::performAirwaysSegmentationPython(ImagePtr image)
 		return;
 
 	mCurrentFilter = scriptFilter;
-	this->runAirwaysFilterSlot();
+	this->runPythonFilterSlot();
 }
 
 void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
@@ -542,7 +542,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 	this->runMLFilterSlot();
 }
 
-void FraxinusSegmentations::runAirwaysFilterSlot()
+void FraxinusSegmentations::runPythonFilterSlot()
 {
 	if (!mCurrentFilter)
 		return;
@@ -553,7 +553,7 @@ void FraxinusSegmentations::runAirwaysFilterSlot()
 		return;
 	}
 	mThread.reset(new FilterTimedAlgorithm(mCurrentFilter));
-	connect(mThread.get(), SIGNAL(finished()), this, SLOT(airwaysFinishedSlot()));
+	connect(mThread.get(), SIGNAL(finished()), this, SLOT(pythonFinishedSlot()));
 	mTimedAlgorithmProgressBar->attach(mThread);
 	
 	mThread->execute();
@@ -576,10 +576,10 @@ void FraxinusSegmentations::runMLFilterSlot()
 	
 }
 
-void FraxinusSegmentations::airwaysFinishedSlot()
+void FraxinusSegmentations::pythonFinishedSlot()
 {
 	mTimedAlgorithmProgressBar->detach(mThread);
-	disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(airwaysFinishedSlot()));
+	disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(pythonFinishedSlot()));
 	mThread.reset();
 	//dialog.hide();
 	if(mCurrentSegmentationType == lsAIRWAYS)
@@ -614,9 +614,9 @@ void FraxinusSegmentations::airwaysFinishedSlot()
 
 
 	if(mCurrentSegmentationType == lsAIRWAYS)
-		this->performAirwaysSegmentationPython(this->getCTImage());
+		this->performPythonSegmentation(this->getCTImage());
 	else if(mCurrentSegmentationType == lsCENTERLINES && mSegmentVessels)
-		this->performAirwaysSegmentationPython(this->getCTImage());
+		this->performPythonSegmentation(this->getCTImage());
 	else
 		this->performMLSegmentation(this->getCTImage());
 

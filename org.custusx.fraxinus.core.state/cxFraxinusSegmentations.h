@@ -59,7 +59,7 @@ public:
 	
 	void createSelectSegmentationBox();
 	void createProcessingInfo();
-	void performAirwaysSegmentationPython(ImagePtr image);
+	void performPythonSegmentation(ImagePtr image);
 	void performMLSegmentation(ImagePtr image);
 	QString getFilterScriptsPath();
 	void postProcessAirways();
@@ -72,9 +72,9 @@ signals:
 private slots:
 	void imageSelected();
 	void cancel();
-	void runAirwaysFilterSlot();
+	void runPythonFilterSlot();
 	void runMLFilterSlot();
-	void airwaysFinishedSlot();
+	void pythonFinishedSlot();
 	void MLFinishedSlot();
 	
 private:
