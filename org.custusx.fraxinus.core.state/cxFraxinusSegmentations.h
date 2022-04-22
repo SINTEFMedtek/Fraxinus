@@ -44,6 +44,7 @@ public:
 	MeshPtr getLungs();
 	MeshPtr getLymphNodes();
 	MeshPtr getNodules();
+	MeshPtr getTumors();
 	MeshPtr getVenaCava();
 	MeshPtr getAorticArch();
 	MeshPtr getAscendingAorta();
@@ -93,6 +94,7 @@ private:
 	DisplayTimerWidget* mMediumOrgansTimerWidget;
 	DisplayTimerWidget* mSmallOrgansTimerWidget;
 	DisplayTimerWidget* mNodulesTimerWidget;
+	DisplayTimerWidget* mTumorsTimerWidget;
 	DisplayTimerWidget* mVesselsTimerWidget;
 	DisplayTimerWidget* mActiveTimerWidget = NULL;
 	QCheckBox* mCheckBoxAirways;
@@ -102,6 +104,7 @@ private:
 	QCheckBox* mCheckBoxMediumOrgans;
 	QCheckBox* mCheckBoxSmallOrgans;
 	QCheckBox* mCheckBoxNodules;
+	QCheckBox* mCheckBoxTumors;
 	QCheckBox* mCheckBoxVessels;
 	bool mAirwaysProcessed = false;
 	bool mCenterlineProcessed = false;
@@ -112,6 +115,7 @@ private:
 	bool mMediumOrgansProcessed = false;
 	bool mSmallOrgansProcessed = false;
 	bool mNodulesProcessed = false;
+	bool mTumorsProcessed = false;
 	bool mSegmentAirways;
 	bool mSegmentVessels;
 	bool mSegmentLungs;
@@ -120,6 +124,7 @@ private:
 	bool mSegmentSmallOrgans;
 	bool mSegmentMediumOrgans;
 	bool mSegmentNodules;
+	bool mSegmentTumors;
 	LUNG_STRUCTURES mCurrentSegmentationType;
 
 	void setMeshNameAndStopTimer(MeshPtr mesh);

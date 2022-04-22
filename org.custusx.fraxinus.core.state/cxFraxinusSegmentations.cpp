@@ -138,6 +138,11 @@ MeshPtr FraxinusSegmentations::getNodules()
 	return this->getMesh("_nodules");
 }
 
+MeshPtr FraxinusSegmentations::getTumors()
+{
+	return this->getMesh("_tumors");
+}
+
 MeshPtr FraxinusSegmentations::getVenaCava()
 {
 	return this->getMesh("_mediumOrgansMediastinum", "VenaCava");
@@ -215,6 +220,7 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine (~3 min)"));
 	mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)"));
 	mCheckBoxNodules = new QCheckBox(tr("Lesions (~20 min)"));
+	mCheckBoxTumors = new QCheckBox(tr("Tumors (~3 min)"));
 	mCheckBoxVessels = new QCheckBox(tr("Small Vessels  (~1 min)"));
 	
 	QPushButton* OKbutton = new QPushButton(tr("&OK"));
@@ -231,6 +237,7 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	checkBoxLayout->addWidget(mCheckBoxMediumOrgans);
 	checkBoxLayout->addWidget(mCheckBoxSmallOrgans);
 	checkBoxLayout->addWidget(mCheckBoxNodules);
+	checkBoxLayout->addWidget(mCheckBoxTumors);
 	checkBoxLayout->addWidget(mCheckBoxVessels);
 	
 	QGridLayout* mainLayout = new QGridLayout;
@@ -254,6 +261,7 @@ void FraxinusSegmentations::imageSelected()
 	mSegmentMediumOrgans = mCheckBoxMediumOrgans->isChecked();
 	mSegmentSmallOrgans = mCheckBoxSmallOrgans->isChecked();
 	mSegmentNodules = mCheckBoxNodules->isChecked();
+	mSegmentTumors = mCheckBoxTumors->isChecked();
 	mSegmentationSelectionInput->close();
 	
 	this->createProcessingInfo();
@@ -369,9 +377,21 @@ void FraxinusSegmentations::createProcessingInfo()
 		mNodulesTimerWidget->setFixedWidth(50);
 		QLabel* label = new QLabel("Lesions:");
 		gridLayout->addWidget(label,7,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,7,1,8,3);
+		gridLayout->addWidget(timerWidget,7,1);
 		if(this->getNodules())
 			mNodulesTimerWidget->stop();
+	}
+	if (mSegmentTumors)
+	{
+		QWidget* timerWidget = new QWidget;
+		mTumorsTimerWidget = new DisplayTimerWidget(timerWidget);
+		mTumorsTimerWidget->setFontSize(3);
+		mTumorsTimerWidget->setFixedWidth(50);
+		QLabel* label = new QLabel("Tumors:");
+		gridLayout->addWidget(label,8,0,Qt::AlignRight);
+		gridLayout->addWidget(timerWidget,8,1,9,3);
+		if(this->getTumors())
+			mTumorsTimerWidget->stop();
 	}
 	
 	
@@ -395,17 +415,24 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 
 	DataPtr centerline = this->getCenterline();
 	DataPtr vessels = this->getVessels();
+	DataPtr tumors = this->getTumors();
 	if(centerline)
 	{
 		mAirwaysProcessed = true;
 		mCenterlineProcessed = true;
-		if(vessels || mVesselsProcessed)
+		if(vessels || mVesselsProcessed || !mSegmentVessels)
 		{
-			mVesselsProcessed = true;
-			this->performMLSegmentation(image);
-			return;
+			if(vessels)
+				mVesselsProcessed = true;
+			if(tumors || mTumorsProcessed || !mSegmentTumors)
+			{
+				if(tumors)
+					mTumorsProcessed = true;
+				this->performMLSegmentation(image);
+				return;
+			}
 		}
-		else if(!mSegmentVessels)
+		else if(!mSegmentTumors)
 		{
 			this->performMLSegmentation(image);
 			return;
@@ -446,6 +473,16 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_VesselsInLungs.ini");
 		mCurrentSegmentationType = lsVESSELS;
 		mVesselsProcessed = true;
+		input[0]->setValue(image->getUid());
+	}
+	else if(!mTumorsProcessed && mSegmentTumors)
+	{
+		mActiveTimerWidget = mTumorsTimerWidget;
+		if(mActiveTimerWidget)
+				mActiveTimerWidget->start();
+		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_Tumors.ini");
+		mCurrentSegmentationType = lsTUMORS;
+		mTumorsProcessed = true;
 		input[0]->setValue(image->getUid());
 	}
 	else
