@@ -652,7 +652,9 @@ void FraxinusSegmentations::pythonFinishedSlot()
 
 	if(mCurrentSegmentationType == lsAIRWAYS)
 		this->performPythonSegmentation(this->getCTImage());
-	else if(mCurrentSegmentationType == lsCENTERLINES && mSegmentVessels)
+	else if(mCurrentSegmentationType == lsCENTERLINES && (mSegmentVessels || mSegmentTumors))
+		this->performPythonSegmentation(this->getCTImage());
+	else if(mCurrentSegmentationType == lsVESSELS && mSegmentTumors)
 		this->performPythonSegmentation(this->getCTImage());
 	else
 		this->performMLSegmentation(this->getCTImage());
