@@ -774,6 +774,10 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 	{
 		setMeshNameAndStopTimer(this->getNodules());
 	}
+	else if(mCurrentSegmentationType == lsTUMORS)
+	{
+		setMeshNameAndStopTimer(this->getTumors());
+	}
 }
 
 
