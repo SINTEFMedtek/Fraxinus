@@ -432,11 +432,6 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 				return;
 			}
 		}
-		else if(!mSegmentTumors)
-		{
-			this->performMLSegmentation(image);
-			return;
-		}
 	}
 
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
