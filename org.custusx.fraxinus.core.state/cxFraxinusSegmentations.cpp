@@ -748,7 +748,7 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 	}
 	else if(mCurrentSegmentationType == lsPULMONARY_SYSTEM)
 	{
-		stopTimer(this->getSpine());
+		stopTimer(this->getHeart());
 		setMeshName(this->getHeart(), lsHEART);
 		setMeshName(this->getPulmonaryVeins(), lsPULMONARY_VESSELS);
 		setMeshName(this->getPulmonaryTrunk(), lsPULMONARY_SYSTEM);
