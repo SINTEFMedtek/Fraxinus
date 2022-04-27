@@ -104,9 +104,9 @@ MeshPtr FraxinusSegmentations::getAirwaysTubes()
 	return this->getMesh(airwaysFilterGetNameSuffixTubes(), airwaysFilterGetNameSuffixAirways(), airwaysFilterGetNameSuffixCenterline());
 }
 
-MeshPtr FraxinusSegmentations::getVessels()
+MeshPtr FraxinusSegmentations::getLungVessels()
 {
-	return this->getMesh(airwaysFilterGetNameSuffixVessels());
+	return this->getMesh(airwaysFilterGetNameSuffixLungVessels());
 }
 
 MeshPtr FraxinusSegmentations::getMesh(QString contain_str_1, QString contain_str_2, QString not_contain_str_1, QString not_contain_str_2)
@@ -216,12 +216,12 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mCheckBoxAirways->setDisabled(true);
 	mCheckBoxLungs = new QCheckBox(tr("Lungs (~2 min)"));
 	mCheckBoxLymphNodes = new QCheckBox(tr("Lymph Nodes (~6 min)"));
-	mCheckBoxPulmonarySystem = new QCheckBox(tr("Heart, Pulmonary Veins, Pulmonary Trunk  (~20 min)"));
+	mCheckBoxHeart = new QCheckBox(tr("Heart, Pulmonary Veins, Pulmonary Trunk  (~20 min)"));
 	mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine (~3 min)"));
 	mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)"));
 	mCheckBoxNodules = new QCheckBox(tr("Lesions (~20 min)"));
 	mCheckBoxTumors = new QCheckBox(tr("Tumors (~3 min)"));
-	mCheckBoxVessels = new QCheckBox(tr("Small Vessels  (~1 min)"));
+	mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (~1 min)"));
 	
 	QPushButton* OKbutton = new QPushButton(tr("&OK"));
 	QPushButton* Cancelbutton = new QPushButton(tr("&Cancel"));
@@ -233,12 +233,12 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	checkBoxLayout->addWidget(mCheckBoxAirways);
 	checkBoxLayout->addWidget(mCheckBoxLungs);
 	checkBoxLayout->addWidget(mCheckBoxLymphNodes);
-	checkBoxLayout->addWidget(mCheckBoxPulmonarySystem);
+	checkBoxLayout->addWidget(mCheckBoxHeart);
 	checkBoxLayout->addWidget(mCheckBoxMediumOrgans);
 	checkBoxLayout->addWidget(mCheckBoxSmallOrgans);
 	checkBoxLayout->addWidget(mCheckBoxNodules);
 	checkBoxLayout->addWidget(mCheckBoxTumors);
-	checkBoxLayout->addWidget(mCheckBoxVessels);
+	checkBoxLayout->addWidget(mCheckBoxLungVessels);
 	
 	QGridLayout* mainLayout = new QGridLayout;
 	mainLayout->setSizeConstraint(QLayout::SetFixedSize);
@@ -254,10 +254,10 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 void FraxinusSegmentations::imageSelected()
 {
 	mSegmentAirways = mCheckBoxAirways->isChecked();
-	mSegmentVessels = mCheckBoxVessels->isChecked();
+	mSegmentLungVessels = mCheckBoxLungVessels->isChecked();
 	mSegmentLungs = mCheckBoxLungs->isChecked();
 	mSegmentLymphNodes = mCheckBoxLymphNodes->isChecked();
-	mSegmentPulmonarySystem = mCheckBoxPulmonarySystem->isChecked();
+	mSegmentHeart = mCheckBoxHeart->isChecked();
 	mSegmentMediumOrgans = mCheckBoxMediumOrgans->isChecked();
 	mSegmentSmallOrgans = mCheckBoxSmallOrgans->isChecked();
 	mSegmentNodules = mCheckBoxNodules->isChecked();
@@ -297,17 +297,17 @@ void FraxinusSegmentations::createProcessingInfo()
 		if(this->getCenterline())
 			mAirwaysTimerWidget->stop();
 	}
-	if (mSegmentVessels)
+	if (mSegmentLungVessels)
 	{
 		QWidget* timerWidget = new QWidget;
-		mVesselsTimerWidget = new DisplayTimerWidget(timerWidget);
-		mVesselsTimerWidget->setFontSize(3);
-		mVesselsTimerWidget->setFixedWidth(50);
+		mLungVesselsTimerWidget = new DisplayTimerWidget(timerWidget);
+		mLungVesselsTimerWidget->setFontSize(3);
+		mLungVesselsTimerWidget->setFixedWidth(50);
 		QLabel* label = new QLabel("Small Vessels:");
 		gridLayout->addWidget(label,1,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,1,1);
-		if(this->getVessels())
-			mVesselsTimerWidget->stop();
+		if(this->getLungVessels())
+			mLungVesselsTimerWidget->stop();
 	}
 	if (mSegmentLungs)
 	{
@@ -333,17 +333,17 @@ void FraxinusSegmentations::createProcessingInfo()
 		if(this->getLymphNodes())
 			mLymphNodesTimerWidget->stop();
 	}
-	if (mSegmentPulmonarySystem)
+	if (mSegmentHeart)
 	{
 		QWidget* timerWidget = new QWidget;
-		mPulmonarySystemTimerWidget = new DisplayTimerWidget(timerWidget);
-		mPulmonarySystemTimerWidget->setFontSize(3);
-		mPulmonarySystemTimerWidget->setFixedWidth(50);
+		mHeartTimerWidget = new DisplayTimerWidget(timerWidget);
+		mHeartTimerWidget->setFontSize(3);
+		mHeartTimerWidget->setFixedWidth(50);
 		QLabel* label = new QLabel("Pulmonary System:");
 		gridLayout->addWidget(label,4,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,4,1);
 		if(this->getHeart())
-			mPulmonarySystemTimerWidget->stop();
+			mHeartTimerWidget->stop();
 	}
 	if (mSegmentMediumOrgans)
 	{
@@ -414,16 +414,16 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 		return;
 
 	DataPtr centerline = this->getCenterline();
-	DataPtr vessels = this->getVessels();
+	DataPtr vessels = this->getLungVessels();
 	DataPtr tumors = this->getTumors();
 	if(centerline)
 	{
 		mAirwaysProcessed = true;
 		mCenterlineProcessed = true;
-		if(vessels || mVesselsProcessed || !mSegmentVessels)
+		if(vessels || mLungVesselsProcessed || !mSegmentLungVessels)
 		{
 			if(vessels)
-				mVesselsProcessed = true;
+				mLungVesselsProcessed = true;
 			if(tumors || mTumorsProcessed || !mSegmentTumors)
 			{
 				if(tumors)
@@ -465,14 +465,14 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 		if(airwaysVolume)
 			input[0]->setValue(airwaysVolume->getUid());
 	}
-	else if(!mVesselsProcessed && mSegmentVessels)
+	else if(!mLungVesselsProcessed && mSegmentLungVessels)
 	{
-		mActiveTimerWidget = mVesselsTimerWidget;
+		mActiveTimerWidget = mLungVesselsTimerWidget;
 		if(mActiveTimerWidget)
 				mActiveTimerWidget->start();
 		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_VesselsInLungs.ini");
-		mCurrentSegmentationType = lsVESSELS;
-		mVesselsProcessed = true;
+		mCurrentSegmentationType = lsLUNG_VESSELS;
+		mLungVesselsProcessed = true;
 		input[0]->setValue(image->getUid());
 	}
 	else if(!mTumorsProcessed && mSegmentTumors)
@@ -525,15 +525,15 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 		mCurrentSegmentationType = lsLYMPH_NODES;
 		mLymphNodesProcessed = true;
 	}
-	else if(mSegmentPulmonarySystem && !mPulmonarySystemProcessed && !this->getHeart())
+	else if(mSegmentHeart && !mHeartProcessed && !this->getHeart())
 	{
-		mActiveTimerWidget = mPulmonarySystemTimerWidget;
+		mActiveTimerWidget = mHeartTimerWidget;
 		if(mActiveTimerWidget)
 			mActiveTimerWidget->start();
-		CX_LOG_DEBUG() << "Segmenting pulmonary system";
+		CX_LOG_DEBUG() << "Segmenting heart, pulmanary trunk and pulmonary veins";
 		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_PulmSystHeart.ini");
-		mCurrentSegmentationType = lsPULMONARY_SYSTEM;
-		mPulmonarySystemProcessed = true;
+		mCurrentSegmentationType = lsHEART;
+		mHeartProcessed = true;
 	}
 	else if(mSegmentMediumOrgans && !mMediumOrgansProcessed && !this->getSpine())
 	{
@@ -652,9 +652,9 @@ void FraxinusSegmentations::pythonFinishedSlot()
 
 	if(mCurrentSegmentationType == lsAIRWAYS)
 		this->performPythonSegmentation(this->getCTImage());
-	else if(mCurrentSegmentationType == lsCENTERLINES && (mSegmentVessels || mSegmentTumors))
+	else if(mCurrentSegmentationType == lsCENTERLINES && (mSegmentLungVessels || mSegmentTumors))
 		this->performPythonSegmentation(this->getCTImage());
-	else if(mCurrentSegmentationType == lsVESSELS && mSegmentTumors)
+	else if(mCurrentSegmentationType == lsLUNG_VESSELS && mSegmentTumors)
 		this->performPythonSegmentation(this->getCTImage());
 	else
 		this->performMLSegmentation(this->getCTImage());
@@ -734,9 +734,9 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 	{
 		setMeshNameAndStopTimer(this->getCenterline());
 	}
-	else if(mCurrentSegmentationType == lsVESSELS)
+	else if(mCurrentSegmentationType == lsLUNG_VESSELS)
 	{
-		setMeshNameAndStopTimer(this->getVessels());
+		setMeshNameAndStopTimer(this->getLungVessels());
 	}
 	else if(mCurrentSegmentationType == lsLUNG)
 	{
@@ -746,12 +746,12 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 	{
 		setMeshNameAndStopTimer(this->getLymphNodes());
 	}
-	else if(mCurrentSegmentationType == lsPULMONARY_SYSTEM)
+	else if(mCurrentSegmentationType == lsHEART)
 	{
 		stopTimer(this->getHeart());
 		setMeshName(this->getHeart(), lsHEART);
-		setMeshName(this->getPulmonaryVeins(), lsPULMONARY_VESSELS);
-		setMeshName(this->getPulmonaryTrunk(), lsPULMONARY_SYSTEM);
+		setMeshName(this->getPulmonaryVeins(), lsPULMONARY_VEINS);
+		setMeshName(this->getPulmonaryTrunk(), lsPULMONARY_TRUNK);
 	}
 	else if(mCurrentSegmentationType == lsMEDIUM_ORGANS)
 	{

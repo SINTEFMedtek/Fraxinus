@@ -480,7 +480,7 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 		SubclavianObjects.push_back(subCarArt);
 	
 	std::vector<DataPtr> smallVesselsObjects;
-	MeshPtr smallVessels = mFraxinusSegmentations->getVessels();
+	MeshPtr smallVessels = mFraxinusSegmentations->getLungVessels();
 	if(smallVessels)
 		smallVesselsObjects.push_back(smallVessels);
 	
@@ -511,7 +511,7 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	for(DataPtr object : spineObjects)
 		widget->addObject(lsSPINE, object);
 	for(DataPtr object : smallVesselsObjects)
-		widget->addObject(lsPULMONARY_VESSELS, object);
+		widget->addObject(lsLUNG_VESSELS, object);
 	for(DataPtr object : VenaCavaObjects)
 		widget->addObject(lsVENA_CAVA, object);
 	for(DataPtr object : AzygosObjects)
