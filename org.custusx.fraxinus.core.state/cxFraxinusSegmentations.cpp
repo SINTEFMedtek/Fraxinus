@@ -773,6 +773,7 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 	{
 		setMeshNameAndStopTimer(this->getTumors());
 	}
+	mServices->patient()->autoSave();
 }
 
 
