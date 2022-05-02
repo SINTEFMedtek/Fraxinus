@@ -543,6 +543,13 @@ void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int s
 	//this->getVBWidget()->setFocus(); // Can't seem to get any affect from this regarding key input.
 }
 
+void FraxinusWorkflowState::setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers)
+{
+	PinpointWidget* pinPointWidget = this->getPinpointWidget();
+	if (pinPointWidget)
+		this->setupViewOptionsForStructuresSelection(pinPointWidget->getStructuresSelectionWidget(), viewGroupNumbers);
+}
+
 void FraxinusWorkflowState::setupProcedurePlanningWidget(int viewGroupNumber)
 {
 	std::vector<unsigned int> viewGroupNumbers;
@@ -786,7 +793,9 @@ void ProcessWorkflowState::onExit(QEvent * event)
 
 PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusPinpointUid", "Set target", services, false),
-	mPointChanged(false)
+	mPointChanged(false),
+	m3DViewGroupNumber(0),
+	m2DViewGroupNumber(1)
 {
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 }
@@ -803,6 +812,10 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
+	std::vector<unsigned int> viewGroupNumbers;
+	viewGroupNumbers.push_back(m3DViewGroupNumber);
+	viewGroupNumbers.push_back(m2DViewGroupNumber);
+	this->setupPinPointWidget(viewGroupNumbers);
 	
 	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 	
@@ -820,6 +833,14 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 		ViewPtr view_3D = services->view()->get3DView(viewGroupNumber3D);
 		camera_control->setView(view_3D);
 		camera_control->setAnteriorView();
+	}
+
+	PinpointWidget* pinPointWidget = this->getPinpointWidget();
+	if(pinPointWidget)
+	{
+		StructuresSelectionWidget* structureSelectionWidget = pinPointWidget->getStructuresSelectionWidget();
+		if(structureSelectionWidget)
+			structureSelectionWidget->onEntry();
 	}
 
 	this->setPointPickerIn3Dview(true);

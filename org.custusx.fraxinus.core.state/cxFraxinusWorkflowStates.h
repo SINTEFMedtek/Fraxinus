@@ -99,6 +99,7 @@ protected:
 	void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
 	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
 	void cleanupVBWidget();
+	void setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers);
 	void setupProcedurePlanningWidget(int viewGroupNumber);
 
 	InteractiveClipperPtr enableInvertedClipper(QString clipper_name, bool on);
@@ -191,6 +192,8 @@ private:
 	void deleteOldRouteToTarget();
 
 	bool mPointChanged;
+	int m3DViewGroupNumber;
+	int m2DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkflowState: public FraxinusWorkflowState
