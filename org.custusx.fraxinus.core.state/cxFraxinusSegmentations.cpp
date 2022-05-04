@@ -416,7 +416,7 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	DataPtr centerline = this->getCenterline();
 	DataPtr vessels = this->getLungVessels();
 	DataPtr tumors = this->getTumors();
-	if(centerline)
+	if(centerline || mCenterlineProcessed)
 	{
 		mAirwaysProcessed = true;
 		mCenterlineProcessed = true;
