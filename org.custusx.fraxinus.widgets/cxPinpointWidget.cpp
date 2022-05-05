@@ -3,6 +3,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QAction>
+#include <QGroupBox>
 
 #include "cxApplication.h"
 #include "cxMetricManager.h"
@@ -44,6 +45,14 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	v_layout->addSpacing(30);
 	v_layout->addWidget(centerToImage);
 	v_layout->addStretch();
+
+	mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this);
+	QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
+	QVBoxLayout* structuresLayout = new QVBoxLayout();
+	structuresLayout->addWidget(mStructuresSelectionWidget);
+	structuresBox->setLayout(structuresLayout);
+	v_layout->addWidget(structuresBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+	v_layout->addStretch(); //And add some more stretch
 
 	this->setLayout(v_layout);
 }
@@ -157,6 +166,11 @@ QString PinpointWidget::getNameOfPointMetric() const
 		metricName = data->getName();
 	}
 	return metricName;
+}
+
+StructuresSelectionWidget* PinpointWidget::getStructuresSelectionWidget()
+{
+	return mStructuresSelectionWidget;
 }
 
 }

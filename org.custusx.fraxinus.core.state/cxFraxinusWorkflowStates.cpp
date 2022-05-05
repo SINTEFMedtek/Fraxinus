@@ -430,6 +430,11 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	if(lungs)
 		lungObjects.push_back(lungs);
 	
+	std::vector<DataPtr> tumorObjects;
+	MeshPtr tumors = mFraxinusSegmentations->getTumors();
+	if(tumors)
+		tumorObjects.push_back(mFraxinusSegmentations->getTumors());
+
 	std::vector<DataPtr> lesionObjects;
 	MeshPtr lesions = mFraxinusSegmentations->getNodules();
 	if(lesions)
@@ -475,7 +480,7 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 		SubclavianObjects.push_back(subCarArt);
 	
 	std::vector<DataPtr> smallVesselsObjects;
-	MeshPtr smallVessels = mFraxinusSegmentations->getVessels();
+	MeshPtr smallVessels = mFraxinusSegmentations->getLungVessels();
 	if(smallVessels)
 		smallVesselsObjects.push_back(smallVessels);
 	
@@ -497,6 +502,8 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	
 	for(DataPtr object : lungObjects)
 		widget->addObject(lsLUNG, object);
+	for(DataPtr object : tumorObjects)
+		widget->addObject(lsTUMORS, object);
 	for(DataPtr object : lesionObjects)
 		widget->addObject(lsLESIONS, object);
 	for(DataPtr object : lymphNodeObjects)
@@ -504,7 +511,7 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	for(DataPtr object : spineObjects)
 		widget->addObject(lsSPINE, object);
 	for(DataPtr object : smallVesselsObjects)
-		widget->addObject(lsPULMONARY_VESSELS, object);
+		widget->addObject(lsLUNG_VESSELS, object);
 	for(DataPtr object : VenaCavaObjects)
 		widget->addObject(lsVENA_CAVA, object);
 	for(DataPtr object : AzygosObjects)
@@ -534,6 +541,13 @@ void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int s
 	this->getVBWidget()->grabKeyboard(); //NB! This make this widget take all keyboard input. E.g. "R" doesn't work in this workflow step.
 	//Actually, "R" seems to be a special case since it is from VTK. Other key input might work, but maybe not if the menu bar is off.
 	//this->getVBWidget()->setFocus(); // Can't seem to get any affect from this regarding key input.
+}
+
+void FraxinusWorkflowState::setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers)
+{
+	PinpointWidget* pinPointWidget = this->getPinpointWidget();
+	if (pinPointWidget)
+		this->setupViewOptionsForStructuresSelection(pinPointWidget->getStructuresSelectionWidget(), viewGroupNumbers);
 }
 
 void FraxinusWorkflowState::setupProcedurePlanningWidget(int viewGroupNumber)
@@ -779,7 +793,9 @@ void ProcessWorkflowState::onExit(QEvent * event)
 
 PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusPinpointUid", "Set target", services, false),
-	mPointChanged(false)
+	mPointChanged(false),
+	m3DViewGroupNumber(0),
+	m2DViewGroupNumber(1)
 {
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 }
@@ -796,6 +812,10 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
+	std::vector<unsigned int> viewGroupNumbers;
+	viewGroupNumbers.push_back(m3DViewGroupNumber);
+	viewGroupNumbers.push_back(m2DViewGroupNumber);
+	this->setupPinPointWidget(viewGroupNumbers);
 	
 	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 	
@@ -813,6 +833,14 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 		ViewPtr view_3D = services->view()->get3DView(viewGroupNumber3D);
 		camera_control->setView(view_3D);
 		camera_control->setAnteriorView();
+	}
+
+	PinpointWidget* pinPointWidget = this->getPinpointWidget();
+	if(pinPointWidget)
+	{
+		StructuresSelectionWidget* structureSelectionWidget = pinPointWidget->getStructuresSelectionWidget();
+		if(structureSelectionWidget)
+			structureSelectionWidget->onEntry();
 	}
 
 	this->setPointPickerIn3Dview(true);

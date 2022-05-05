@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "org_custusx_fraxinus_widgets_Export.h"
 #include "cxBaseWidget.h"
+#include <cxStructuresSelectionWidget.h>
 
 class QLineEdit;
 
@@ -52,6 +53,7 @@ public:
 	static QString getTargetMetricUid();
 	static QString getEndoscopeMetricUid();
 	static QString getDistanceMetricUid();
+	StructuresSelectionWidget* getStructuresSelectionWidget();
 
 signals:
 	void targetMetricSet();
@@ -75,6 +77,7 @@ private:
 	MetricManagerPtr mMetricManager;
 	QString mTargetMetricUid;
 	QString mTargetMetricName;
+	StructuresSelectionWidget* mStructuresSelectionWidget;
 };
 
 }

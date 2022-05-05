@@ -39,11 +39,12 @@ public:
 	MeshPtr getCenterline();
 	MeshPtr getAirwaysContour();
 	MeshPtr getAirwaysTubes();
-	MeshPtr getVessels();
+	MeshPtr getLungVessels();
 	MeshPtr getMesh(QString contain_str_1, QString contain_str_2 = "", QString not_contain_str_1="", QString not_contain_str_2="");
 	MeshPtr getLungs();
 	MeshPtr getLymphNodes();
 	MeshPtr getNodules();
+	MeshPtr getTumors();
 	MeshPtr getVenaCava();
 	MeshPtr getAorticArch();
 	MeshPtr getAscendingAorta();
@@ -59,7 +60,7 @@ public:
 	
 	void createSelectSegmentationBox();
 	void createProcessingInfo();
-	void performAirwaysSegmentationPython(ImagePtr image);
+	void performPythonSegmentation(ImagePtr image);
 	void performMLSegmentation(ImagePtr image);
 	QString getFilterScriptsPath();
 	void postProcessAirways();
@@ -72,9 +73,9 @@ signals:
 private slots:
 	void imageSelected();
 	void cancel();
-	void runAirwaysFilterSlot();
+	void runPythonFilterSlot();
 	void runMLFilterSlot();
-	void airwaysFinishedSlot();
+	void pythonFinishedSlot();
 	void MLFinishedSlot();
 	
 private:
@@ -89,37 +90,41 @@ private:
 	DisplayTimerWidget* mAirwaysTimerWidget;
 	DisplayTimerWidget* mLungsTimerWidget;
 	DisplayTimerWidget* mLymphNodesTimerWidget;
-	DisplayTimerWidget* mPulmonarySystemTimerWidget;
+	DisplayTimerWidget* mHeartTimerWidget;
 	DisplayTimerWidget* mMediumOrgansTimerWidget;
 	DisplayTimerWidget* mSmallOrgansTimerWidget;
 	DisplayTimerWidget* mNodulesTimerWidget;
-	DisplayTimerWidget* mVesselsTimerWidget;
+	DisplayTimerWidget* mTumorsTimerWidget;
+	DisplayTimerWidget* mLungVesselsTimerWidget;
 	DisplayTimerWidget* mActiveTimerWidget = NULL;
 	QCheckBox* mCheckBoxAirways;
 	QCheckBox* mCheckBoxLungs;
 	QCheckBox* mCheckBoxLymphNodes;
-	QCheckBox* mCheckBoxPulmonarySystem;
+	QCheckBox* mCheckBoxHeart;
 	QCheckBox* mCheckBoxMediumOrgans;
 	QCheckBox* mCheckBoxSmallOrgans;
 	QCheckBox* mCheckBoxNodules;
-	QCheckBox* mCheckBoxVessels;
+	QCheckBox* mCheckBoxTumors;
+	QCheckBox* mCheckBoxLungVessels;
 	bool mAirwaysProcessed = false;
 	bool mCenterlineProcessed = false;
-	bool mVesselsProcessed = false;
+	bool mLungVesselsProcessed = false;
 	bool mLungsProcessed = false;
 	bool mLymphNodesProcessed = false;
-	bool mPulmonarySystemProcessed = false;
+	bool mHeartProcessed = false;
 	bool mMediumOrgansProcessed = false;
 	bool mSmallOrgansProcessed = false;
 	bool mNodulesProcessed = false;
+	bool mTumorsProcessed = false;
 	bool mSegmentAirways;
-	bool mSegmentVessels;
+	bool mSegmentLungVessels;
 	bool mSegmentLungs;
 	bool mSegmentLymphNodes;
-	bool mSegmentPulmonarySystem;
+	bool mSegmentHeart;
 	bool mSegmentSmallOrgans;
 	bool mSegmentMediumOrgans;
 	bool mSegmentNodules;
+	bool mSegmentTumors;
 	LUNG_STRUCTURES mCurrentSegmentationType;
 
 	void setMeshNameAndStopTimer(MeshPtr mesh);
