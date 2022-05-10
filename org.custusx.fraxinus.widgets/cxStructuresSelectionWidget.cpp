@@ -89,13 +89,16 @@ StructuresSelectionWidget::~StructuresSelectionWidget()
 
 }
 
-void StructuresSelectionWidget::clearButtonObjects()
+void StructuresSelectionWidget::resetButtons()
 {
 	QMapIterator<LUNG_STRUCTURES, SelectableStructure> i(mSelectableStructuresMap);
 	while(i.hasNext())
 	{
 		i.next();
 		mSelectableStructuresMap[i.key()].mObjects.clear();
+		mSelectableStructuresMap[i.key()].mButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
+		mSelectableStructuresMap[i.key()].mButton->setPalette(mSelectableStructuresMap[i.key()].mButtonBackgroundColor);
+		mSelectableStructuresMap[i.key()].mButton->setEnabled(false);
 	}
 }
 

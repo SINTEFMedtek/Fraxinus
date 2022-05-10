@@ -68,7 +68,7 @@ public:
 	void setViewGroupNumbers(std::vector<unsigned int> viewGroupNumbers);
 	void addObject(LUNG_STRUCTURES name, DataPtr object);
 	void onEntry();
-	void clearButtonObjects();
+	void resetButtons();
 
 
 private slots:
