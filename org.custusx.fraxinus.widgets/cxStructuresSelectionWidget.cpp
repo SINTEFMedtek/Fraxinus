@@ -89,6 +89,15 @@ StructuresSelectionWidget::~StructuresSelectionWidget()
 
 }
 
+void StructuresSelectionWidget::clearButtonObjects()
+{
+	QMapIterator<LUNG_STRUCTURES, SelectableStructure> i(mSelectableStructuresMap);
+	while(i.hasNext())
+	{
+		i.next();
+		mSelectableStructuresMap[i.key()].mObjects.clear();
+	}
+}
 
 QString StructuresSelectionWidget::getWidgetName()
 {

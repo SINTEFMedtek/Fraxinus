@@ -425,6 +425,8 @@ void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroup
 
 void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSelectionWidget* widget, std::vector<unsigned int> viewGroupNumbers)
 {
+	widget->clearButtonObjects();
+
 	std::vector<DataPtr> lungObjects;
 	MeshPtr lungs = mFraxinusSegmentations->getLungs();
 	if(lungs)
