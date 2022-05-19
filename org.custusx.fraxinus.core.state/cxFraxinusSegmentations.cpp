@@ -211,17 +211,17 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mSegmentationSelectionInput->setWindowTitle(tr("Select structures for segmentation"));
 	mSegmentationSelectionInput->setWindowFlags(Qt::WindowStaysOnTopHint);
 	
-	mCheckBoxAirways = new QCheckBox(tr("Airways (~1 min)"));
+	mCheckBoxAirways = new QCheckBox(tr("Airways (<1 min)"));
 	mCheckBoxAirways->setChecked(true);
 	mCheckBoxAirways->setDisabled(true);
 	mCheckBoxLungs = new QCheckBox(tr("Lungs (~2 min)"));
-	mCheckBoxLymphNodes = new QCheckBox(tr("Lymph Nodes (~6 min)"));
-	mCheckBoxHeart = new QCheckBox(tr("Heart, Pulmonary Veins, Pulmonary Trunk  (~20 min)"));
+	mCheckBoxLymphNodes = new QCheckBox(tr("Lymph Nodes (~2 min)"));
+	mCheckBoxHeart = new QCheckBox(tr("Heart, Pulmonary Veins, Pulmonary Trunk  (~4 min)"));
 	mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine (~3 min)"));
 	mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)"));
-	mCheckBoxNodules = new QCheckBox(tr("Lesions (~20 min)"));
+	mCheckBoxNodules = new QCheckBox(tr("Lesions (~2 min)"));
 	mCheckBoxTumors = new QCheckBox(tr("Tumors (~3 min)"));
-	mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (~1 min)"));
+	mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (<1 min)"));
 	
 	QPushButton* OKbutton = new QPushButton(tr("&OK"));
 	QPushButton* Cancelbutton = new QPushButton(tr("&Cancel"));
