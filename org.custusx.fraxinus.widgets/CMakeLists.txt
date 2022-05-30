@@ -62,6 +62,7 @@ set(PLUGIN_MOC_SRCS
     cxFraxinusTrackingWidget.h
     cxFraxinusRegistrationWidget.h
     cxFraxinusNavigationWidget.h
+    cxFraxinusSimulatorWidget.h
     cxViewSelectionWidget.h
 )
 

@@ -14,5 +14,6 @@
         <file>icons/navigation.svg</file>
         <file>icons/registration.svg</file>
         <file>icons/tracking.svg</file>
+        <file>icons/simulator.svg</file>
     </qresource>
 </RCC>

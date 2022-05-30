@@ -59,6 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxCameraControl.h"
 #include "cxFraxinusNavigationWidget.h"
 #include "cxFraxinusRegistrationWidget.h"
+#include "cxFraxinusSimulatorWidget.h"
 #include "cxVBCameraZoomSetting3D.h"
 
 namespace cx
@@ -361,5 +362,103 @@ void NavigationWorkflowState::onExit(QEvent * event)
 	WorkflowState::onExit(event);
 }
 
+// --------------------------------------------------------
+// --------------------------------------------------------
+
+SimulatorWorkflowState::SimulatorWorkflowState(QState* parent, VisServicesPtr services) :
+	FraxinusWorkflowState(parent, "FraxinusSimulatorUid", "Simulator", services, false),
+	m3DViewGroupNumber(0)
+{
+}
+
+SimulatorWorkflowState::~SimulatorWorkflowState()
+{}
+
+void SimulatorWorkflowState::onEntry(QEvent * event)
+{
+	FraxinusWorkflowState::onEntry(event);
+	this->addDataToView();
+
+	FraxinusSimulatorWidget* fraxinusSimulatorWidget = this->getFraxinusSimulatorWidget();
+	if(fraxinusSimulatorWidget)
+	{
+		MeshPtr tubeCenterline = this->getTubeCenterline();
+		if (tubeCenterline)
+			fraxinusSimulatorWidget->setDefaultCenterlineMesh(tubeCenterline);
+	}
+}
+
+void SimulatorWorkflowState::onExit(QEvent * event)
+{
+	ImagePtr ctImage = this->getCTImage();
+	if(ctImage)
+	{
+		ctImage->setInitialWindowLevel(-1, -1);
+	}
+	WorkflowState::onExit(event);
+}
+
+QIcon SimulatorWorkflowState::getIcon() const
+{
+	return QIcon(":/icons/icons/simulator.svg");
+}
+
+FraxinusSimulatorWidget* SimulatorWorkflowState::getFraxinusSimulatorWidget()
+{
+	QMainWindow* mainWindow = this->getMainWindow();
+
+	QString widgetName(FraxinusSimulatorWidget::getWidgetName());
+	return mainWindow->findChild<FraxinusSimulatorWidget*>(widgetName);
+}
+
+bool SimulatorWorkflowState::canEnter() const
+{
+	Tool::State state = mServices->tracking()->getState();
+	return (state >= Tool::tsTRACKING);
+}
+
+void SimulatorWorkflowState::addDataToView()
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+
+	MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
+	MeshPtr airwaysTubesCenterline = this->getTubeCenterline();
+
+	//Assuming 3D ACS
+	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);
+
+	if(airwaysTubes)
+	{
+		QColor color = airwaysTubes->getColor();
+		double opacity = 0.3;
+		color.setAlphaF(opacity);
+		airwaysTubes->setColor(color);
+		viewGroup0_3D->addData(airwaysTubes->getUid());
+	}
+
+	if(airwaysTubesCenterline)
+		viewGroup0_3D->addData(airwaysTubesCenterline->getUid());
+
+	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+	viewGroup1_2D->getGroup2DZoom()->set(0.2);
+	viewGroup1_2D->getGlobal2DZoom()->set(0.2);
+
+	ImagePtr ctImage = this->getCTImage();
+	if(ctImage)
+		viewGroup1_2D->addData(ctImage->getUid());
+
+	CameraControlPtr camera_control = services->view()->getCameraControl();
+	if(camera_control)
+	{
+		ViewPtr view_3D = services->view()->get3DView(m3DViewGroupNumber);
+		camera_control->setView(view_3D);
+		camera_control->setAnteriorView();
+		view_3D->setZoomFactor(1.5);
+	}
+	this->setDefaultCameraStyle();
+}
+
+// --------------------------------------------------------
+// --------------------------------------------------------
 } //namespace cx
 
