@@ -50,6 +50,7 @@ class RecordTrackingWidget;
 class WidgetObscuredListener;
 typedef boost::shared_ptr<class StringPropertySelectMesh> StringPropertySelectMeshPtr;
 typedef boost::shared_ptr<class BronchoscopyRegistration> BronchoscopyRegistrationPtr;
+typedef boost::shared_ptr<class BranchList> BranchListPtr;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusSimulatorWidget : public BaseWidget
 {
@@ -79,6 +80,7 @@ private:
   QPushButton* mResultsButton;
   StringPropertySelectMeshPtr mSelectCenterlineWidget;
   RecordTrackingWidget* mRecordTrackingWidget;
+  BranchListPtr mBranchList;
 
   void processCenterline();
   MeshPtr getCenterline();
