@@ -81,6 +81,7 @@ private:
   RecordTrackingWidget* mRecordTrackingWidget;
 
   void processCenterline();
+  MeshPtr getCenterline();
 
 };
 
