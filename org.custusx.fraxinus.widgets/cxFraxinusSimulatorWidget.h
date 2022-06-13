@@ -51,6 +51,7 @@ class WidgetObscuredListener;
 typedef boost::shared_ptr<class StringPropertySelectMesh> StringPropertySelectMeshPtr;
 typedef boost::shared_ptr<class BronchoscopyRegistration> BronchoscopyRegistrationPtr;
 typedef boost::shared_ptr<class BranchList> BranchListPtr;
+typedef std::vector< Eigen::Matrix4d > M4Vector;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusSimulatorWidget : public BaseWidget
 {
@@ -72,18 +73,28 @@ private slots:
   virtual void resultsClickedSlot() = 0;
 
 private:
-  VisServicesPtr mServices;
-  RegServicesPtr mRegServices;
-  XmlOptionFile mOptions;
-  QComboBox* mCenterlineComboBox;
-  QComboBox* mToolsComboBox;
-  QPushButton* mResultsButton;
-  StringPropertySelectMeshPtr mSelectCenterlineWidget;
-  RecordTrackingWidget* mRecordTrackingWidget;
-  BranchListPtr mBranchList;
+	VisServicesPtr mServices;
+	RegServicesPtr mRegServices;
+	XmlOptionFile mOptions;
+	QComboBox* mCenterlineComboBox;
+	QComboBox* mToolsComboBox;
+	QRadioButton* mRULButton;
+	QRadioButton* mRMLButton;
+	QRadioButton* mRLLButton;
+	QRadioButton* mLULButton;
+	QRadioButton* mLLLButton;
+	QPushButton* mResultsButton;
+	StringPropertySelectMeshPtr mSelectCenterlineWidget;
+	RecordTrackingWidget* mRecordTrackingWidget;
+	BranchListPtr mBranchList;
 
   void processCenterline();
   MeshPtr getCenterline();
+  QString whichLobeIsSelected();
+  void calculateTime(std::vector<double> timestamps);
+  void calculatePathLength(M4Vector Tpositions);
+  Vector3D calculateAngle(Eigen::Matrix4d T1, Eigen::Matrix4d T2);
+  void calculateAngularLength(M4Vector Tpositions);
 
 };
 
