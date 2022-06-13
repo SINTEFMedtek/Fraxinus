@@ -384,7 +384,7 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 	
 	if(widget)
 	{
-		this->createRouteToTarget();
+		this->createRouteToTarget(false);
 		widget->setRoutePositions(mRouteToTargetPositions);
 		widget->setCameraRotationAlongRoute(mRouteToTargetCameraRotations);
 		
@@ -561,10 +561,10 @@ void FraxinusWorkflowState::setupProcedurePlanningWidget(int viewGroupNumber)
 		this->setupViewOptionsForStructuresSelection(procedurePlanningWidget->getStructuresSelectionWidget(), viewGroupNumbers);
 }
 
-void FraxinusWorkflowState::createRouteToTarget()
+void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	RouteToTargetFilterPtr routeToTargetFilter = RouteToTargetFilterPtr(new RouteToTargetFilter(services, true));
+	RouteToTargetFilterPtr routeToTargetFilter = RouteToTargetFilterPtr(new RouteToTargetFilter(services, makeRouteInformationFile));
 	std::vector<SelectDataStringPropertyBasePtr> input = routeToTargetFilter->getInputTypes();
 	routeToTargetFilter->getOutputTypes();
 	routeToTargetFilter->getOptions();
@@ -873,7 +873,7 @@ void PinpointWorkflowState::createRoute()
 	MeshPtr oldRouteToTarget = this->getRouteToTarget();
 	if(!oldRouteToTarget)
 	{
-		this->createRouteToTarget();
+		this->createRouteToTarget(true);
 		PointMetricPtr targetPoint = this->getTargetPoint();
 		mPointChanged = false;
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
@@ -881,7 +881,7 @@ void PinpointWorkflowState::createRoute()
 	else if(mPointChanged)
 	{
 		this->deleteOldRouteToTarget();
-		this->createRouteToTarget();
+		this->createRouteToTarget(true);
 	}
 }
 
