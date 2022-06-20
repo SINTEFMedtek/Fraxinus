@@ -57,6 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxApplication.h"
 #include "cxSyncedValue.h"
 #include "cxCameraControl.h"
+#include "cxFraxinusTrackingWidget.h"
 #include "cxFraxinusNavigationWidget.h"
 #include "cxFraxinusRegistrationWidget.h"
 #include "cxFraxinusSimulatorWidget.h"
@@ -366,7 +367,7 @@ void NavigationWorkflowState::onExit(QEvent * event)
 // --------------------------------------------------------
 
 SimulatorWorkflowState::SimulatorWorkflowState(QState* parent, VisServicesPtr services) :
-	FraxinusWorkflowState(parent, "FraxinusSimulatorUid", "Simulator", services, false),
+	FraxinusWorkflowState(parent, "FraxinusSimulatorUid", "Simulator", services, true),
 	m3DViewGroupNumber(0)
 {
 }
@@ -379,9 +380,21 @@ void SimulatorWorkflowState::onEntry(QEvent * event)
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
 
+	FraxinusTrackingWidget* fraxinusTrackingWidget = dynamic_cast<FraxinusTrackingWidget*> (this->getFraxinusWidget(FraxinusTrackingWidget::getWidgetName()));
+	if(fraxinusTrackingWidget)
+		fraxinusTrackingWidget->startTracking();
+
+	FraxinusNavigationWidget* fraxinusNavigationWidget = dynamic_cast<FraxinusNavigationWidget*> (this->getFraxinusWidget(FraxinusNavigationWidget::getWidgetName()));
+	if(fraxinusNavigationWidget)
+	{
+		fraxinusNavigationWidget->setCenterline(this->getTubeCenterline());
+		fraxinusNavigationWidget->lockToCenterline();
+	}
+
 	FraxinusSimulatorWidget* fraxinusSimulatorWidget = this->getFraxinusSimulatorWidget();
 	if(fraxinusSimulatorWidget)
 	{
+		fraxinusSimulatorWidget->updateLockToCenterlineButton();
 		MeshPtr tubeCenterline = this->getTubeCenterline();
 		if (tubeCenterline)
 			fraxinusSimulatorWidget->setDefaultCenterlineMesh(tubeCenterline);
@@ -396,6 +409,12 @@ void SimulatorWorkflowState::onExit(QEvent * event)
 		ctImage->setInitialWindowLevel(-1, -1);
 	}
 	WorkflowState::onExit(event);
+}
+
+BaseWidget* SimulatorWorkflowState::getFraxinusWidget(QString widgetName)
+{
+	QMainWindow* mainWindow = this->getMainWindow();
+	return mainWindow->findChild<BaseWidget*>(widgetName);
 }
 
 QIcon SimulatorWorkflowState::getIcon() const
@@ -413,8 +432,7 @@ FraxinusSimulatorWidget* SimulatorWorkflowState::getFraxinusSimulatorWidget()
 
 bool SimulatorWorkflowState::canEnter() const
 {
-	Tool::State state = mServices->tracking()->getState();
-	return (state >= Tool::tsTRACKING);
+	return true;
 }
 
 void SimulatorWorkflowState::addDataToView()

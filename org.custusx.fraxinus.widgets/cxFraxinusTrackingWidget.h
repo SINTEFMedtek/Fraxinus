@@ -60,12 +60,15 @@ public:
     virtual ~FraxinusTrackingWidget(){};
 
     static QString getWidgetName(){return "fraxinus_tracking_widget";};
+    virtual void startTracking() = 0;
+    virtual void stopTracking() = 0;
+
 
 private slots:
-    virtual void startTrackingClickedSlot(bool) = 0;
-    virtual void stopTrackingClickedSlot(bool) = 0;
     virtual void updateButtonStatusSlot() = 0;
     virtual void updateTrackerConfigurationTools() = 0;
+    virtual void startTrackingClickedSlot(bool) = 0;
+    virtual void stopTrackingClickedSlot(bool) = 0;
 
 private:
     TrackingServicePtr mTrackingService;

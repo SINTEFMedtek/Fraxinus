@@ -62,10 +62,11 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	this->newState(new TrackingWorkflowState(mParentState, services));
 	WorkflowState* registrationWorkflowState = this->newState(new RegistrationWorkflowState(mParentState, services));
 	WorkflowState* navigationWorkflowState = this->newState(new NavigationWorkflowState(mParentState, services));
-	WorkflowState* simulatorWorkflowState = this->newState(new SimulatorWorkflowState(mParentState, services));
+	this->newState(new SimulatorWorkflowState(mParentState, services));
+	//WorkflowState* simulatorWorkflowState = this->newState(new SimulatorWorkflowState(mParentState, services));
 	connect(services->tracking().get(), &TrackingService::stateChanged, registrationWorkflowState, &RegistrationWorkflowState::canEnterSlot);
 	connect(services->tracking().get(), &TrackingService::stateChanged, navigationWorkflowState, &NavigationWorkflowState::canEnterSlot);
-	connect(services->tracking().get(), &TrackingService::stateChanged, simulatorWorkflowState, &SimulatorWorkflowState::canEnterSlot);
+	//connect(services->tracking().get(), &TrackingService::stateChanged, simulatorWorkflowState, &SimulatorWorkflowState::canEnterSlot);
 #endif
 
 	//logic for enabling workflowsteps

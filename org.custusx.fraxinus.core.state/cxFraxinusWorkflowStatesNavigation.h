@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxWorkflowState.h"
 #include "boost/shared_ptr.hpp"
 #include "cxViewService.h"
+#include "cxBaseWidget.h"
 
 class QMainWindow;
 
@@ -126,6 +127,7 @@ public:
 	virtual void onExit(QEvent * event);
 
 private:
+	BaseWidget *getFraxinusWidget(QString widgetName);
 	virtual void addDataToView();
 	int m3DViewGroupNumber;
 };

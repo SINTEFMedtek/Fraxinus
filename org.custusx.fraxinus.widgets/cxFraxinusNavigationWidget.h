@@ -67,6 +67,9 @@ public:
     virtual void setViewGroupNumber(unsigned int viewGroupNumber) = 0;
     virtual void updateDataOnEntry() = 0;
     virtual void onTrackingShutDown() = 0;
+    virtual void lockToCenterline() = 0;
+    virtual void unlockFromCenterline() = 0;
+    virtual bool isLockedToCenterline() = 0;
 
 private slots:
     virtual void lockToCenterlineSlot() = 0;

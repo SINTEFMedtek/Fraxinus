@@ -36,6 +36,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "org_custusx_fraxinus_widgets_Export.h"
 #include "cxBaseWidget.h"
+#include <cxFraxinusNavigationWidget.h>
+#include <cxFraxinusTrackingWidget.h>
 #include "cxForwardDeclarations.h"
 #include "cxTrackerConfiguration.h"
 #include "cxXmlOptionItem.h"
@@ -44,6 +46,7 @@ class QRadioButton;
 class QLabel;
 class QPushButton;
 class QComboBox;
+class QMainWindow;
 
 namespace cx {
 class RecordTrackingWidget;
@@ -68,13 +71,20 @@ public:
 
   static QString getWidgetName(){return "fraxinus_simulator_widget";};
   virtual void setDefaultCenterlineMesh(MeshPtr mesh) = 0;
+  virtual void updateLockToCenterlineButton() = 0;
 
 private slots:
   virtual void resultsClickedSlot() = 0;
+  virtual void copySimulatorPatientFromTemplate() = 0;
+  virtual void startTrackingSlot() = 0;
+  virtual void lockToCenterlineSlot() = 0;
+  virtual void updateTrackingButtonSlot() = 0;
 
 private:
 	VisServicesPtr mServices;
 	RegServicesPtr mRegServices;
+	FraxinusTrackingWidget* mFraxinusTrackingImplWidget;
+	FraxinusNavigationWidget* mFraxinusNavigationImplWidget;
 	XmlOptionFile mOptions;
 	QComboBox* mCenterlineComboBox;
 	QComboBox* mToolsComboBox;
@@ -84,12 +94,16 @@ private:
 	QRadioButton* mLULButton;
 	QRadioButton* mLLLButton;
 	QPushButton* mResultsButton;
+	QPushButton* mCopyPatientButton;
+	QPushButton* mLockToCenterlineButton;
+	QPalette mButtonBackgroundColor;
 	StringPropertySelectMeshPtr mSelectCenterlineWidget;
 	RecordTrackingWidget* mRecordTrackingWidget;
 	BranchListPtr mBranchList;
 
   void processCenterline();
   MeshPtr getCenterline();
+  BaseWidget* getFraxinusWidget(QString widgetName);
   QString whichLobeIsSelected();
   void calculateTime(std::vector<double> timestamps);
   void calculatePathLength(M4Vector Tpositions);
