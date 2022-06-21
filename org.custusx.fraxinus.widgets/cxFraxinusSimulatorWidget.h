@@ -109,6 +109,7 @@ private:
   void calculatePathLength(M4Vector Tpositions);
   Vector3D calculateAngle(Eigen::Matrix4d T1, Eigen::Matrix4d T2);
   void calculateAngularLength(M4Vector Tpositions);
+  std::pair<M4Vector, std::vector<double>> removePositionsBeforeEnteringAirways(M4Vector Tpositions_rMt, std::vector<double> timestamps);
 
 };
 
