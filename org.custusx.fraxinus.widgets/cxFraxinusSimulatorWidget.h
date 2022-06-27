@@ -100,6 +100,11 @@ private:
 	StringPropertySelectMeshPtr mSelectCenterlineWidget;
 	RecordTrackingWidget* mRecordTrackingWidget;
 	BranchListPtr mBranchList;
+	QLabel* mResultsLap;
+	QLabel* mResultsTime;
+	QLabel* mResultsPathLength;
+	QLabel* mResultsAngularLength;
+	QLabel* mResultsResponseOrientation;
 
   void processCenterline();
   MeshPtr getCenterline();
