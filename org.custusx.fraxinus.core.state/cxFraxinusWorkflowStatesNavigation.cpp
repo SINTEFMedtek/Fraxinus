@@ -384,13 +384,6 @@ void SimulatorWorkflowState::onEntry(QEvent * event)
 	if(fraxinusTrackingWidget)
 		fraxinusTrackingWidget->startTracking();
 
-//	FraxinusNavigationWidget* fraxinusNavigationWidget = dynamic_cast<FraxinusNavigationWidget*> (this->getFraxinusWidget(FraxinusNavigationWidget::getWidgetName()));
-//	if(fraxinusNavigationWidget)
-//	{
-//		fraxinusNavigationWidget->setCenterline(this->getTubeCenterline());
-//		fraxinusNavigationWidget->lockToCenterline();
-//	}
-
 	FraxinusSimulatorWidget* fraxinusSimulatorWidget = this->getFraxinusSimulatorWidget();
 	if(fraxinusSimulatorWidget)
 	{
