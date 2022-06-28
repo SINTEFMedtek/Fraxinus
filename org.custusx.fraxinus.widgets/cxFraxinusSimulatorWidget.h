@@ -73,49 +73,6 @@ public:
   virtual void setDefaultCenterlineMesh(MeshPtr mesh) = 0;
   virtual void updateLockToCenterlineButton() = 0;
 
-private slots:
-  virtual void resultsClickedSlot() = 0;
-  virtual void copySimulatorPatientFromTemplate() = 0;
-  virtual void startTrackingSlot() = 0;
-  virtual void lockToCenterlineSlot() = 0;
-  virtual void updateTrackingButtonSlot() = 0;
-
-private:
-	VisServicesPtr mServices;
-	RegServicesPtr mRegServices;
-	FraxinusTrackingWidget* mFraxinusTrackingImplWidget;
-	FraxinusNavigationWidget* mFraxinusNavigationImplWidget;
-	XmlOptionFile mOptions;
-	QComboBox* mCenterlineComboBox;
-	QComboBox* mToolsComboBox;
-	QRadioButton* mRULButton;
-	QRadioButton* mRMLButton;
-	QRadioButton* mRLLButton;
-	QRadioButton* mLULButton;
-	QRadioButton* mLLLButton;
-	QPushButton* mResultsButton;
-	QPushButton* mCopyPatientButton;
-	QPushButton* mLockToCenterlineButton;
-	QPalette mButtonBackgroundColor;
-	StringPropertySelectMeshPtr mSelectCenterlineWidget;
-	RecordTrackingWidget* mRecordTrackingWidget;
-	BranchListPtr mBranchList;
-	QLabel* mResultsLap;
-	QLabel* mResultsTime;
-	QLabel* mResultsPathLength;
-	QLabel* mResultsAngularLength;
-	QLabel* mResultsResponseOrientation;
-
-  void processCenterline();
-  MeshPtr getCenterline();
-  BaseWidget* getFraxinusWidget(QString widgetName);
-  QString whichLobeIsSelected();
-  void calculateTime(std::vector<double> timestamps);
-  void calculatePathLength(M4Vector Tpositions);
-  Vector3D calculateAngle(Eigen::Matrix4d T1, Eigen::Matrix4d T2);
-  void calculateAngularLength(M4Vector Tpositions);
-  std::pair<M4Vector, std::vector<double>> removePositionsBeforeEnteringAirways(M4Vector Tpositions_rMt, std::vector<double> timestamps);
-
 };
 
 

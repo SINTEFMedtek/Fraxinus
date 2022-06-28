@@ -71,21 +71,6 @@ public:
     virtual void unlockFromCenterline() = 0;
     virtual bool isLockedToCenterline() = 0;
 
-private slots:
-    virtual void lockToCenterlineSlot() = 0;
-
-private:
-    ViewSelectionWidget* mViewSelectionWidget;
-    StructuresSelectionWidget* mStructuresSelectionWidget;
-    VisServicesPtr mServices;
-    QPushButton* mLockToCenterlineButton;
-    QPalette mButtonBackgroundColor;
-    bool mLockToCenterlineEnabled;
-    MeshPtr mCenterline;
-    TrackingSystemBronchoscopyServicePtr mCenterlineProjectionTrackingSystem;
-
-    virtual bool enableLockToCenterline() = 0;
-    virtual bool disableLockToCenterline() = 0;
 };
 
 

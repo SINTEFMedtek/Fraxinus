@@ -68,23 +68,6 @@ public:
     static QString getWidgetName(){return "fraxinus_registration_widget";};
     virtual void setDefaultCenterlineMesh(MeshPtr mesh) = 0;
 
-private slots:
-    virtual void setOrientationClickedSlot() = 0;
-    virtual void registrationClickedSlot() = 0;
-
-private:
-    VisServicesPtr mServices;
-    RegServicesPtr mRegServices;
-    XmlOptionFile mOptions;
-    QComboBox* mCenterlineComboBox;
-    QComboBox* mToolsComboBox;
-    QPushButton* mSetOrientationButton;
-    QPushButton* mRegistrationButton;
-    QPushButton* mRejectRegistrationButton;
-    StringPropertySelectMeshPtr mSelectCenterlineWidget;
-    RecordTrackingWidget* mRecordTrackingWidget;
-
-    virtual void processCenterline() = 0;
 };
 
 

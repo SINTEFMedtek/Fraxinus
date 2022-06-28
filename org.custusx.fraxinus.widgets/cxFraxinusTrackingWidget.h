@@ -63,30 +63,6 @@ public:
     virtual void startTracking() = 0;
     virtual void stopTracking() = 0;
 
-
-private slots:
-    virtual void updateButtonStatusSlot() = 0;
-    virtual void updateTrackerConfigurationTools() = 0;
-    virtual void startTrackingClickedSlot(bool) = 0;
-    virtual void stopTrackingClickedSlot(bool) = 0;
-
-private:
-    TrackingServicePtr mTrackingService;
-    ToolConfigureGroupBox* mToolConfigureGroupBox;
-    QString mTrackerUid;
-    QString mClinicalApplication;
-    QString mTrackingSystemImplementation;
-    QString mTrackingSystemName;
-    int mNumberOfTools;
-    TrackerConfigurationPtr mTrackerConfiguration;
-    std::vector<QComboBox*> mToolFilesComboBoxes;
-    QPushButton* mStartTrackingButton;
-    QPushButton* mStopTrackingButton;
-    FraxinusNavigationWidget* mFraxinusNavigationWidget;
-
-    virtual void copyToolConfigFile() = 0;
-    virtual void addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr configuration, QStringList applicationsFilter, QStringList trackingsystemsFilter) = 0;
-    virtual void printTrackerConfiguration() = 0; //debug
 };
 
 
