@@ -107,11 +107,11 @@ FraxinusVBWidget::~FraxinusVBWidget()
 
 }
 
-void FraxinusVBWidget::playbackSliderChanged(int cameraPositionInPercent)
+void FraxinusVBWidget::playbackSliderChanged(int cameraPositionInPermill)
 {
 	//Using a single shot timer to wait for other prosesses to update values.
 	//Using a lambda function to add the cameraPositionInPercent parameter
-	mCameraPositionInPercentAdjusted = positionPercentageAdjusted(cameraPositionInPercent);
+	mCameraPositionInPercentAdjusted = positionPercentageAdjusted(cameraPositionInPermill/10.0);
 	QTimer::singleShot(0, this, [=](){this->updateRttInfo(mCameraPositionInPercentAdjusted);});
 	QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(mCameraPositionInPercentAdjusted);});
 }
