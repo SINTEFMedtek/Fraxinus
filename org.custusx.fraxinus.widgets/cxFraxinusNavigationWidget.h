@@ -53,23 +53,23 @@ typedef boost::shared_ptr<class TrackingSystemBronchoscopyService> TrackingSyste
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusNavigationWidget : public BaseWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    FraxinusNavigationWidget(QWidget* parent, QString objectName, QString windowTitle):
-        BaseWidget(parent, objectName, windowTitle){};
-    virtual ~FraxinusNavigationWidget(){};
+	FraxinusNavigationWidget(QWidget* parent, QString objectName, QString windowTitle):
+	  BaseWidget(parent, objectName, windowTitle){};
+	virtual ~FraxinusNavigationWidget(){};
 
-    static QString getWidgetName(){return "fraxinus_navigation_widget";};;
-    virtual StructuresSelectionWidget* getStructuresSelectionWidget() = 0;
-    virtual void setCenterline(MeshPtr centerline) = 0;
-    virtual void addObjectToVolumeView(DataPtr object) = 0;
-    virtual void addObjectToTubeView(DataPtr object) = 0;
-    virtual void setViewGroupNumber(unsigned int viewGroupNumber) = 0;
-    virtual void updateDataOnEntry() = 0;
-    virtual void onTrackingShutDown() = 0;
-    virtual void lockToCenterline() = 0;
-    virtual void unlockFromCenterline() = 0;
-    virtual bool isLockedToCenterline() = 0;
+	static QString getWidgetName(){return "fraxinus_navigation_widget";};;
+	virtual StructuresSelectionWidget* getStructuresSelectionWidget() = 0;
+	virtual void setCenterline(MeshPtr centerline) = 0;
+	virtual void addObjectToVolumeView(DataPtr object) = 0;
+	virtual void addObjectToTubeView(DataPtr object) = 0;
+	virtual void setViewGroupNumber(unsigned int viewGroupNumber) = 0;
+	virtual void updateDataOnEntry() = 0;
+	virtual void onTrackingShutDown() = 0;
+	virtual void lockToCenterline() = 0;
+	virtual void unlockFromCenterline() = 0;
+	virtual bool isLockedToCenterline() = 0;
 
 };
 

@@ -53,15 +53,15 @@ class ToolConfigureGroupBox;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusTrackingWidget : public BaseWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    FraxinusTrackingWidget(QWidget* parent, QString objectName, QString windowTitle):
-        BaseWidget(parent, objectName, windowTitle){};
-    virtual ~FraxinusTrackingWidget(){};
+	FraxinusTrackingWidget(QWidget* parent, QString objectName, QString windowTitle):
+	  BaseWidget(parent, objectName, windowTitle){};
+	virtual ~FraxinusTrackingWidget(){};
 
-    static QString getWidgetName(){return "fraxinus_tracking_widget";};
-    virtual void startTracking() = 0;
-    virtual void stopTracking() = 0;
+	static QString getWidgetName(){return "fraxinus_tracking_widget";};
+	virtual void startTracking() = 0;
+	virtual void stopTracking() = 0;
 
 };
 

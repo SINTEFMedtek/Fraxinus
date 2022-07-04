@@ -55,18 +55,18 @@ typedef boost::shared_ptr<class BronchoscopyRegistration> BronchoscopyRegistrati
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusRegistrationWidget : public BaseWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
-    BronchoscopyRegistrationPtr mBronchoscopyRegistration;
+	BronchoscopyRegistrationPtr mBronchoscopyRegistration;
 
 public:
 
-    FraxinusRegistrationWidget(QWidget* parent, QString objectName, QString windowTitle):
-        BaseWidget(parent, objectName, windowTitle){};
-    virtual ~FraxinusRegistrationWidget(){};
+	FraxinusRegistrationWidget(QWidget* parent, QString objectName, QString windowTitle):
+	  BaseWidget(parent, objectName, windowTitle){};
+	virtual ~FraxinusRegistrationWidget(){};
 
-    static QString getWidgetName(){return "fraxinus_registration_widget";};
-    virtual void setDefaultCenterlineMesh(MeshPtr mesh) = 0;
+	static QString getWidgetName(){return "fraxinus_registration_widget";};
+	virtual void setDefaultCenterlineMesh(MeshPtr mesh) = 0;
 
 };
 
