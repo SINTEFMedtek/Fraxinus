@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxWorkflowState.h"
 #include "boost/shared_ptr.hpp"
 #include "cxViewService.h"
+#include "cxBaseWidget.h"
 
 class QMainWindow;
 
@@ -55,6 +56,7 @@ typedef boost::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DP
 class FraxinusTrackingWidget;
 class FraxinusRegistrationWidget;
 class FraxinusNavigationWidget;
+class FraxinusSimulatorWidget;
 
 
 class org_custusx_fraxinus_core_state_EXPORT TrackingWorkflowState: public FraxinusWorkflowState
@@ -109,6 +111,25 @@ private:
 	virtual void addDataToView();
 	int mFlyThrough3DViewGroupNumber;
 	int mSurfaceModel3DViewGroupNumber;
+};
+
+class org_custusx_fraxinus_core_state_EXPORT SimulatorWorkflowState: public FraxinusWorkflowState
+{
+Q_OBJECT
+
+public:
+	SimulatorWorkflowState(QState* parent, VisServicesPtr services);
+	virtual ~SimulatorWorkflowState();
+	virtual QIcon getIcon() const;
+	FraxinusSimulatorWidget* getFraxinusSimulatorWidget();
+	virtual bool canEnter() const;
+	virtual void onEntry(QEvent *event);
+	virtual void onExit(QEvent * event);
+
+private:
+	BaseWidget *getFraxinusWidget(QString widgetName);
+	virtual void addDataToView();
+	int m3DViewGroupNumber;
 };
 
 

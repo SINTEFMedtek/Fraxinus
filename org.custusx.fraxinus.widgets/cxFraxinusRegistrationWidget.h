@@ -55,36 +55,19 @@ typedef boost::shared_ptr<class BronchoscopyRegistration> BronchoscopyRegistrati
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusRegistrationWidget : public BaseWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
-    BronchoscopyRegistrationPtr mBronchoscopyRegistration;
+	BronchoscopyRegistrationPtr mBronchoscopyRegistration;
 
 public:
 
-    FraxinusRegistrationWidget(QWidget* parent, QString objectName, QString windowTitle):
-        BaseWidget(parent, objectName, windowTitle){};
-    virtual ~FraxinusRegistrationWidget(){};
+	FraxinusRegistrationWidget(QWidget* parent, QString objectName, QString windowTitle):
+	  BaseWidget(parent, objectName, windowTitle){};
+	virtual ~FraxinusRegistrationWidget(){};
 
-    static QString getWidgetName(){return "fraxinus_registration_widget";};
-    virtual void setDefaultCenterlineMesh(MeshPtr mesh) = 0;
+	static QString getWidgetName(){return "fraxinus_registration_widget";};
+	virtual void setDefaultCenterlineMesh(MeshPtr mesh) = 0;
 
-private slots:
-    virtual void setOrientationClickedSlot() = 0;
-    virtual void registrationClickedSlot() = 0;
-
-private:
-    VisServicesPtr mServices;
-    RegServicesPtr mRegServices;
-    XmlOptionFile mOptions;
-    QComboBox* mCenterlineComboBox;
-    QComboBox* mToolsComboBox;
-    QPushButton* mSetOrientationButton;
-    QPushButton* mRegistrationButton;
-    QPushButton* mRejectRegistrationButton;
-    StringPropertySelectMeshPtr mSelectCenterlineWidget;
-    RecordTrackingWidget* mRecordTrackingWidget;
-
-    virtual void processCenterline() = 0;
 };
 
 

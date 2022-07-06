@@ -30,38 +30,47 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
-#ifndef FRAXINUSTRACKINGWIDGET_H
-#define FRAXINUSTRACKINGWIDGET_H
+#ifndef FRAXINUSSIMULATORWIDGET_H
+#define FRAXINUSSIMULATORWIDGET_H
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
-#include <cxStructuresSelectionWidget.h>
-#include <cxFraxinusPatientOrientationWidget.h>
-#include <cxFraxinusNavigationWidget.h>
 #include "cxBaseWidget.h"
+#include <cxFraxinusNavigationWidget.h>
+#include <cxFraxinusTrackingWidget.h>
 #include "cxForwardDeclarations.h"
 #include "cxTrackerConfiguration.h"
+#include "cxXmlOptionItem.h"
 
 class QRadioButton;
 class QLabel;
 class QPushButton;
 class QComboBox;
+class QMainWindow;
 
 namespace cx {
+class RecordTrackingWidget;
+class WidgetObscuredListener;
+typedef boost::shared_ptr<class StringPropertySelectMesh> StringPropertySelectMeshPtr;
+typedef boost::shared_ptr<class BronchoscopyRegistration> BronchoscopyRegistrationPtr;
+typedef boost::shared_ptr<class BranchList> BranchListPtr;
+typedef std::vector< Eigen::Matrix4d > M4Vector;
 
-class ToolConfigureGroupBox;
-
-class org_custusx_fraxinus_widgets_EXPORT FraxinusTrackingWidget : public BaseWidget
+class org_custusx_fraxinus_widgets_EXPORT FraxinusSimulatorWidget : public BaseWidget
 {
 	Q_OBJECT
-public:
-	FraxinusTrackingWidget(QWidget* parent, QString objectName, QString windowTitle):
-	  BaseWidget(parent, objectName, windowTitle){};
-	virtual ~FraxinusTrackingWidget(){};
 
-	static QString getWidgetName(){return "fraxinus_tracking_widget";};
-	virtual void startTracking() = 0;
-	virtual void stopTracking() = 0;
+	BronchoscopyRegistrationPtr mBronchoscopyRegistration;
+
+
+public:
+	FraxinusSimulatorWidget(QWidget* parent, QString objectName, QString windowTitle):
+	  BaseWidget(parent, objectName, windowTitle){};
+	virtual ~FraxinusSimulatorWidget(){};
+
+	static QString getWidgetName(){return "fraxinus_simulator_widget";};
+	virtual void setDefaultCenterlineMesh(MeshPtr mesh) = 0;
+	virtual void updateLockToCenterlineButton() = 0;
 
 };
 
@@ -69,4 +78,4 @@ public:
 } //namespace cx
 
 
-#endif //FRAXINUSTRACKINGWIDGET_H
+#endif //FRAXINUSSIMULATORWIDGET_H

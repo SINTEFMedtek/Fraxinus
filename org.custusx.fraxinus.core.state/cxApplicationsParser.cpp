@@ -55,6 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusTrackingWidget.h"
 #include "cxFraxinusRegistrationWidget.h"
 #include "cxFraxinusNavigationWidget.h"
+#include "cxFraxinusSimulatorWidget.h"
 #include "cxLogger.h"
 
 
@@ -178,6 +179,16 @@ ApplicationsParser::ApplicationsParser()
 	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset(FraxinusNavigationWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["FraxinusNavigationUid"] = desktop;
+	//-----------------------------------------------------
+
+	//-----------------------------------------------------
+	// SIMULATOR
+	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+	toolbars.clear();
+	toolbars << standardToolbars;
+	this->addToolbarsToDesktop(desktop, toolbars);
+	desktop.addPreset(FraxinusSimulatorWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+	mWorkflowDefaultDesktops["FraxinusSimulatorUid"] = desktop;
 	//-----------------------------------------------------
 }
 

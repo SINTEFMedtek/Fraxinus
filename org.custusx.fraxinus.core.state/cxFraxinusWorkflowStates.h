@@ -85,7 +85,7 @@ protected:
 	PointMetricPtr getTargetPoint() const;
 	PointMetricPtr getEndoscopePoint() const;
 	DistanceMetricPtr getDistanceToTargetMetric() const;
-	void createRouteToTarget();
+	void createRouteToTarget(bool makeRouteInformationFile);
 	std::vector< Eigen::Vector3d > mRouteToTargetPositions;
 	std::vector< double > mRouteToTargetCameraRotations;
 	FraxinusSegmentationsPtr mFraxinusSegmentations;
