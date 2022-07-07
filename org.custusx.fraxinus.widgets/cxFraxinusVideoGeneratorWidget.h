@@ -40,6 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cx {
 
 typedef boost::shared_ptr<class Data> DataPtr;
+typedef boost::shared_ptr<class RouteToTargetFilter> RouteToTargetFilterPtr;
+typedef boost::shared_ptr<class MetricManager> MetricManagerPtr;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusVideoGeneratorWidget : public VBWidget
 {
@@ -49,19 +51,28 @@ public:
 	virtual ~FraxinusVideoGeneratorWidget();
 
 	static QString getWidgetName();
-	void setViewGroupNumber(unsigned int viewGroupNumber);
-	void addObjectToVolumeView(DataPtr object);
-	void addObjectToTubeView(DataPtr object);
+//	void setViewGroupNumber(unsigned int viewGroupNumber);
+//	void addObjectToVolumeView(DataPtr object);
+//	void addObjectToTubeView(DataPtr object);
 
 private slots:
-	void playbackSliderChanged(int cameraPositionInPermill);
+	void startSimulationClickedSlot();
+	void navigateNextRoute();
+	//void playbackSliderChanged(int cameraPositionInPermill);
 
 private:
-	void recordFullscreen();
+	void makeRoute(PointMetricPtr targetPoint, MeshPtr centerline);
 
 	VisServicesPtr mServices;
+	int mFlyThrough3DViewGroupNumber;
+	int mZoomSetting;
 	std::vector<DataPtr> mTubeViewObjects;
 	double mCameraPositionInPercentAdjusted;
+	QPushButton* mStartButton;
+	StringPropertySelectMeshPtr	mCenterline;
+	MetricManagerPtr mMetricManager;
+	QString mTargetUid;
+	std::vector<Eigen::Vector3d> mEndPositions;
 
 };
 
