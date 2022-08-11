@@ -104,6 +104,6 @@ class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
         return True
     def addConfigurationToDownstreamLib(self, builder):
         add = builder.addCMakeOption
-        add('CX_FRAXINUS_TRACKING:BOOL', 'OFF');
+        add('CX_FRAXINUS_TRACKING:BOOL', 'ON');
         add('CX_EXTERNAL_PLUGIN_org_custusx_fraxinus_tracking', self.path() + '/' + self.sourceFolder())
 # ---------------------------------------------------------
