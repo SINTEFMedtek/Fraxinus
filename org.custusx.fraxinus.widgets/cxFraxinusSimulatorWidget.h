@@ -58,20 +58,19 @@ typedef std::vector< Eigen::Matrix4d > M4Vector;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusSimulatorWidget : public BaseWidget
 {
-  Q_OBJECT
+	Q_OBJECT
 
-  BronchoscopyRegistrationPtr mBronchoscopyRegistration;
+	BronchoscopyRegistrationPtr mBronchoscopyRegistration;
 
 
 public:
+	FraxinusSimulatorWidget(QWidget* parent, QString objectName, QString windowTitle):
+	  BaseWidget(parent, objectName, windowTitle){};
+	virtual ~FraxinusSimulatorWidget(){};
 
-  FraxinusSimulatorWidget(QWidget* parent, QString objectName, QString windowTitle):
-    BaseWidget(parent, objectName, windowTitle){};
-  virtual ~FraxinusSimulatorWidget(){};
-
-  static QString getWidgetName(){return "fraxinus_simulator_widget";};
-  virtual void setDefaultCenterlineMesh(MeshPtr mesh) = 0;
-  virtual void updateLockToCenterlineButton() = 0;
+	static QString getWidgetName(){return "fraxinus_simulator_widget";};
+	virtual void setDefaultCenterlineMesh(MeshPtr mesh) = 0;
+	virtual void updateLockToCenterlineButton() = 0;
 
 };
 

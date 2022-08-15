@@ -91,7 +91,7 @@ class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
         return 'ssh://git@git.code.sintef.no/mt/org.custusx.fraxinus.tracking.git'
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
-        self._getBuilder().gitCheckoutSha('d1ac1fb5257eeb1f6a4b5a23bae479609a424213')
+        self._getBuilder().gitCheckoutSha('f0c903e15bd735c62c05e522028ba28457e296fb')
         #self._getBuilder().gitCheckoutDefaultBranch()
     def configure(self):
         pass
@@ -104,6 +104,6 @@ class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
         return True
     def addConfigurationToDownstreamLib(self, builder):
         add = builder.addCMakeOption
-        add('CX_FRAXINUS_TRACKING:BOOL', 'OFF');
+        add('CX_FRAXINUS_TRACKING:BOOL', 'ON');
         add('CX_EXTERNAL_PLUGIN_org_custusx_fraxinus_tracking', self.path() + '/' + self.sourceFolder())
 # ---------------------------------------------------------
