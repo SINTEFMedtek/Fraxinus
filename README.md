@@ -15,4 +15,4 @@ However, the script to be run should be:
         git clone git@github.com:SINTEFMedTek/Fraxinus.git FX/FX 
         ./FX/FX/script/cxFraxinusInstaller.py --full --all -t Release --user_doc
 
-Run `cxPrivateInstaller.py -h` for more options.
+Run `cxFraxinusInstaller.py -h` for more options.
