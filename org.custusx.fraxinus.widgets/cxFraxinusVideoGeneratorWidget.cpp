@@ -162,6 +162,7 @@ void FraxinusVideoGeneratorWidget::makeRoute(PointMetricPtr targetPoint, MeshPtr
 		routeToTargetFilter->postProcess();
 		this->setRoutePositions(routeToTargetFilter->getRoutePositions());
 		this->setCameraRotationAlongRoute(routeToTargetFilter->getCameraRotation());
+		this->setBranchingIndexAlongRoute(routeToTargetFilter->getBranchingIndex());
 		emit cameraPathChanged(MeshPtr()); //Generating spline of new path
 	}
 }
