@@ -17,15 +17,13 @@ set(PLUGIN_SRCS
     ${fraxinus_widgets_resources}
     cxFraxinusWidgetsPluginActivator.cpp
     cxFraxinusWidgetsGUIExtenderService.cpp
+    cxFraxinusWidgetsGUIExtenderService.h
     cxPinpointWidget.cpp
     cxNewLoadPatientWidget.cpp
     cxFraxinusVBWidget.cpp
     cxProcedurePlanningWidget.cpp
     cxStructuresSelectionWidget.cpp
     cxFraxinusPatientOrientationWidget.cpp
-    #cxFraxinusTrackingWidget.cpp
-    #cxFraxinusRegistrationWidget.cpp
-    #cxFraxinusNavigationWidget.cpp
     cxViewSelectionWidget.cpp
 )
 
@@ -52,7 +50,6 @@ endif(WIN32)
 # Files which should be processed by Qts moc
 set(PLUGIN_MOC_SRCS
     cxFraxinusWidgetsPluginActivator.h
-    cxFraxinusWidgetsGUIExtenderService.h
     cxPinpointWidget.h
     cxNewLoadPatientWidget.h
     cxFraxinusVBWidget.h
