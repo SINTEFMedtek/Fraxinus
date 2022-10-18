@@ -51,14 +51,10 @@ public:
 	virtual ~FraxinusVideoGeneratorWidget();
 
 	static QString getWidgetName();
-//	void setViewGroupNumber(unsigned int viewGroupNumber);
-//	void addObjectToVolumeView(DataPtr object);
-//	void addObjectToTubeView(DataPtr object);
 
 private slots:
 	void startSimulationClickedSlot();
 	void navigateNextRoute();
-	//void playbackSliderChanged(int cameraPositionInPermill);
 
 private:
 	void makeRoute(PointMetricPtr targetPoint, MeshPtr centerline);
