@@ -23,7 +23,9 @@ set(PLUGIN_SRCS
     cxFraxinusWorkflowStatesNavigation.cpp
     cxStatePluginActivator.cpp
     cxApplicationsParser.cpp
+    cxApplicationsParser.h
     cxVBCameraZoomSetting3D.cpp
+    cxVBCameraZoomSetting3D.h
     cxFraxinusSegmentations.cpp
 )
 
@@ -89,8 +91,8 @@ set(PLUGIN_target_libraries
     cxGui
     org_custusx_filter_routetotarget
     org_custusx_virtualbronchoscopy
-		org_custusx_fraxinus_widgets
-		org_custusx_filter_airwaysfromcenterline
+    org_custusx_fraxinus_widgets
+    org_custusx_filter_airwaysfromcenterline
     )
 
 #if(CX_LINUX)
