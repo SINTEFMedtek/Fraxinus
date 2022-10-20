@@ -35,12 +35,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
-#include <cxVBWidget.h>
+#include "cxVBWidget.h"
+#include "cxForwardDeclarations.h"
 
 namespace cx {
 
-typedef boost::shared_ptr<class Data> DataPtr;
-typedef boost::shared_ptr<class RouteToTargetFilter> RouteToTargetFilterPtr;
 typedef boost::shared_ptr<class MetricManager> MetricManagerPtr;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusVideoGeneratorWidget : public VBWidget
