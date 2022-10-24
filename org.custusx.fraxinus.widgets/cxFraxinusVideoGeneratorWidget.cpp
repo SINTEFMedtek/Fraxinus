@@ -103,6 +103,7 @@ void FraxinusVideoGeneratorWidget::startSimulationClickedSlot()
 
 	BranchListPtr branchList = BranchListPtr(new BranchList());
 	branchList->findBranchesInCenterline(centerlinePointsMatrix);
+
 	mEndPositions.clear();
 	std::vector<BranchPtr> branches = branchList->getBranches();
 	for (int i = 0; i<branches.size(); i++)
@@ -132,6 +133,12 @@ void FraxinusVideoGeneratorWidget::navigateNextRoute()
 	mEndPositions.erase(mEndPositions.begin());
 	DataPtr data = mServices->patient()->getData(mTargetUid);
 	PointMetricPtr targetPoint = boost::dynamic_pointer_cast<PointMetric>(data);
+	if(!targetPoint)
+	{
+		disconnect(this, &VBWidget::cameraAtEndPosition, this, &FraxinusVideoGeneratorWidget::navigateNextRoute);
+		return;
+	}
+
 	targetPoint->setCoordinate(endPositionInBranch);
 	this->makeRoute(targetPoint, mCenterline->getMesh());
 

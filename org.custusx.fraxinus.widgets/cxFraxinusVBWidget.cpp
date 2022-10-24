@@ -204,6 +204,9 @@ void FraxinusVBWidget::calculateDistanceFromRouteEndToTarget(Eigen::Vector3d rou
 {
 	QString pointMetricUid = PinpointWidget::getTargetMetricUid();
 	PointMetricPtr pointMetric = mServices->patient()->getData<PointMetric>(pointMetricUid);
+	if(!pointMetric)
+		return;
+
 	Vector3D target = pointMetric->getCoordinate();
 
 	Vector3D direction = (target - routeEndpoint).normal();
