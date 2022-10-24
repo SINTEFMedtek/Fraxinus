@@ -30,68 +30,48 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
-#ifndef FRAXINUSVBWIDGET_H
-#define FRAXINUSVBWIDGET_H
+#ifndef FRAXINUSVIDEOGENERATORWIDGET_H
+#define FRAXINUSVIDEOGENERATORWIDGET_H
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
-#include <cxVBWidget.h>
-#include <cxStructuresSelectionWidget.h>
-#include <cxViewSelectionWidget.h>
-
-class QRadioButton;
-class QLabel;
-class QPushButton;
-class QMainWindow;
+#include "cxVBWidget.h"
+#include "cxForwardDeclarations.h"
 
 namespace cx {
 
-typedef boost::shared_ptr<class Data> DataPtr;
+typedef boost::shared_ptr<class MetricManager> MetricManagerPtr;
 
-class org_custusx_fraxinus_widgets_EXPORT FraxinusVBWidget : public VBWidget
+class org_custusx_fraxinus_widgets_EXPORT FraxinusVideoGeneratorWidget : public VBWidget
 {
 	Q_OBJECT
 public:
-	FraxinusVBWidget(VisServicesPtr services, QWidget *parent = 0);
-	virtual ~FraxinusVBWidget();
+	FraxinusVideoGeneratorWidget(VisServicesPtr services, QWidget *parent = 0);
+	virtual ~FraxinusVideoGeneratorWidget();
 
 	static QString getWidgetName();
-	void setViewGroupNumber(unsigned int viewGroupNumber);
-	void addObjectToVolumeView(DataPtr object);
-	void addObjectToTubeView(DataPtr object);
-	StructuresSelectionWidget *getStructuresSelectionWidget();
-
 
 private slots:
-	virtual void keyPressEvent(QKeyEvent* event);
-	void calculateRouteLength();
-	void playbackSliderChanged(int cameraPositionInPermill);
-
+	void startSimulationClickedSlot();
+	void navigateNextRoute();
 
 private:
-	void updateRttInfo(double cameraPositionInPercent);
-	void updateAirwaysOpacity(double cameraPositionInPercent);
-	void calculateDistanceFromRouteEndToTarget(Eigen::Vector3d routeEndpoint);
-	QString createDistanceFromPathToTargetText();
-	double getTargetDistance();
-	double getRemainingRouteInsideAirways(double cameraPositionInPercent);
+	void makeRoute(PointMetricPtr targetPoint, MeshPtr centerline);
 
-	ViewSelectionWidget* mViewSelectionWidget;
-	StructuresSelectionWidget* mStructuresSelectionWidget;
 	VisServicesPtr mServices;
+	int mFlyThrough3DViewGroupNumber;
+	int mZoomSetting;
 	std::vector<DataPtr> mTubeViewObjects;
-	QLabel* mStaticTotalLegth;
-	QLabel* mRemainingRttLegth;
-	QLabel* mDirectDistance;
-	QLabel* mDistanceToTarget;
-	QLabel* mWarningLabel;
-	double mRouteLength;
-	double mDistanceFromPathEndToTarget;
 	double mCameraPositionInPercentAdjusted;
+	QPushButton* mStartButton;
+	StringPropertySelectMeshPtr	mCenterline;
+	MetricManagerPtr mMetricManager;
+	QString mTargetUid;
+	std::vector<Eigen::Vector3d> mEndPositions;
 
 };
 
 } //namespace cx
 
 
-#endif //FRAXINUSVBWIDGET_H
+#endif //FRAXINUSVIDEOGENERATORWIDGET_H
