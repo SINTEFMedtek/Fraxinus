@@ -91,8 +91,8 @@ class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
         return 'ssh://git@git.code.sintef.no/mt/org.custusx.fraxinus.tracking.git'
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
-        #self._getBuilder().gitCheckoutSha('714b2d69301d5114699987857a0050e67c240d09')
-        self._getBuilder().gitCheckoutDefaultBranch()
+        self._getBuilder().gitCheckoutSha('390f380349e198c9ae7a8bbf6d0b2909d2d8df7b')
+        #self._getBuilder().gitCheckoutDefaultBranch()
     def configure(self):
         pass
     def build(self):
