@@ -933,7 +933,11 @@ void PinpointWorkflowState::addDataToView()
 
 void PinpointWorkflowState::deleteOldRouteToTarget()
 {
-	QString targetName = this->getTargetPoint()->getName();
+	PointMetricPtr target = this->getTargetPoint();
+	if(!target)
+		return;
+
+	QString targetName = target->getName();
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
 	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
 	{
@@ -1113,7 +1117,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
 	PointMetricPtr targetPoint = this->getTargetPoint();
-		MeshPtr nodules = mFraxinusSegmentations->getNodules();
+	MeshPtr nodules = mFraxinusSegmentations->getNodules();
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 	
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);

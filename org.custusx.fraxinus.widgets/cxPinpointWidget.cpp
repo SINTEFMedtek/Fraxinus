@@ -146,6 +146,9 @@ void PinpointWidget::updateCoordinateOfPointMetric()
 {
 	DataPtr data = mServices->patient()->getData(mTargetMetricUid);
 	PointMetricPtr point = boost::dynamic_pointer_cast<PointMetric>(data);
+	if(!point)
+		return;
+
 	Vector3D p_ref = mServices->spaceProvider()->getActiveToolTipPoint(CoordinateSystem::reference(), true);
 	point->setCoordinate(p_ref);
 }
