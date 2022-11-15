@@ -14,7 +14,7 @@
    viewBox="0 0 100 100"
    id="svg44"
    sodipodi:docname="simulator.svg"
-   inkscape:version="1.0.2 (e86c8708, 2021-01-15)">
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <metadata
      id="metadata48">
     <rdf:RDF>
@@ -23,7 +23,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -36,15 +36,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1359"
-     inkscape:window-height="736"
+     inkscape:window-width="1760"
+     inkscape:window-height="930"
      id="namedview46"
      showgrid="false"
-     inkscape:zoom="2.4140625"
+     inkscape:zoom="1.84"
      inkscape:cx="154.26331"
-     inkscape:cy="136.50215"
-     inkscape:window-x="0"
-     inkscape:window-y="25"
+     inkscape:cy="204.63993"
+     inkscape:window-x="72"
+     inkscape:window-y="27"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg44"
      inkscape:document-rotation="0" />
@@ -115,20 +115,31 @@
   </defs>
   <use
      xlink:href="#background"
-     fill="url(#background-gradient)"
-     id="use34" />
+     id="use34"
+     fill="url(#background-gradient)" />
   <use
      xlink:href="#middle-1"
      id="use36" />
   <text
      xml:space="preserve"
-     style="font-size:83.3332px;line-height:1.25;font-family:sans-serif;fill:#ffffff;stroke-width:0.390625"
-     x="24.433661"
-     y="80.744339"
-     id="text52"><tspan
+     style="font-style:normal;font-weight:normal;font-size:75px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.390625"
+     x="3.5003455"
+     y="76.440208"
+     id="text26"><tspan
        sodipodi:role="line"
-       id="tspan50"
-       x="24.433661"
-       y="80.744339"
+       id="tspan24"
+       x="3.5003455"
+       y="76.440208"
        style="fill:#ffffff;stroke-width:0.390625">S</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:40.625px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.390625"
+     x="45.370922"
+     y="75.887138"
+     id="text30"><tspan
+       sodipodi:role="line"
+       id="tspan28"
+       x="45.370922"
+       y="75.887138"
+       style="fill:#ffffff;stroke-width:0.390625">im</tspan></text>
 </svg>
