@@ -56,6 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusRegistrationWidget.h"
 #include "cxFraxinusNavigationWidget.h"
 #include "cxFraxinusSimulatorWidget.h"
+#include "cxFraxinusRobotWidget.h"
 #include "cxLogger.h"
 
 
@@ -179,6 +180,16 @@ ApplicationsParser::ApplicationsParser()
 	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset(FraxinusNavigationWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["FraxinusNavigationUid"] = desktop;
+	//-----------------------------------------------------
+
+	//-----------------------------------------------------
+	// IDEAR ROBOT
+	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+	toolbars.clear();
+	toolbars << standardToolbars;
+	this->addToolbarsToDesktop(desktop, toolbars);
+	desktop.addPreset(FraxinusRobotWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+	mWorkflowDefaultDesktops["FraxinusRobotUid"] = desktop;
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------

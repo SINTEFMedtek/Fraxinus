@@ -15,5 +15,6 @@
         <file>icons/registration.svg</file>
         <file>icons/tracking.svg</file>
         <file>icons/simulator.svg</file>
+        <file>icons/robot.svg</file>
     </qresource>
 </RCC>
