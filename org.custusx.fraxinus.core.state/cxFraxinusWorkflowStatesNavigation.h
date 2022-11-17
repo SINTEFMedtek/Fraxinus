@@ -57,6 +57,7 @@ class FraxinusTrackingWidget;
 class FraxinusRegistrationWidget;
 class FraxinusNavigationWidget;
 class FraxinusSimulatorWidget;
+class FraxinusRobotWidget;
 
 
 class org_custusx_fraxinus_core_state_EXPORT TrackingWorkflowState: public FraxinusWorkflowState
@@ -132,6 +133,24 @@ private:
 	int m3DViewGroupNumber;
 };
 
+class org_custusx_fraxinus_core_state_EXPORT RobotWorkflowState: public FraxinusWorkflowState
+{
+Q_OBJECT
+
+public:
+	RobotWorkflowState(QState* parent, VisServicesPtr services);
+	virtual ~RobotWorkflowState();
+	virtual QIcon getIcon() const;
+	FraxinusRobotWidget* getFraxinusRobotWidget();
+	virtual bool canEnter() const;
+	virtual void onEntry(QEvent *event);
+	virtual void onExit(QEvent * event);
+
+private:
+	BaseWidget *getFraxinusWidget(QString widgetName);
+	virtual void addDataToView();
+	int m3DViewGroupNumber;
+};
 
 /**
  * @}

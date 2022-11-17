@@ -591,7 +591,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	if(routeToTargetFilter->execute())
 	{
 		routeToTargetFilter->postProcess();
-		mRouteToTargetPositions = routeToTargetFilter->getRoutePositions();
+		mRouteToTargetPositions = routeToTargetFilter->getRoutePositions(true);
 		mRouteToTargetCameraRotations = routeToTargetFilter->getCameraRotation();
 		emit routeToTargetCreated();
 	}

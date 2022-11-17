@@ -14,7 +14,7 @@
    viewBox="0 0 100 100"
    id="svg44"
    sodipodi:docname="registration.svg"
-   inkscape:version="1.0.2 (e86c8708, 2021-01-15)">
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <metadata
      id="metadata48">
     <rdf:RDF>
@@ -23,7 +23,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -36,15 +36,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1359"
-     inkscape:window-height="736"
+     inkscape:window-width="1628"
+     inkscape:window-height="872"
      id="namedview46"
      showgrid="false"
      inkscape:zoom="2.4140625"
      inkscape:cx="126.93807"
-     inkscape:cy="134.43095"
-     inkscape:window-x="0"
-     inkscape:window-y="25"
+     inkscape:cy="135.93325"
+     inkscape:window-x="72"
+     inkscape:window-y="27"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg44"
      inkscape:document-rotation="0" />
@@ -122,13 +122,24 @@
      id="use36" />
   <text
      xml:space="preserve"
-     style="font-size:83.3332px;line-height:1.25;font-family:sans-serif;fill:#ffffff;stroke-width:0.390625"
-     x="21.52104"
-     y="80.097092"
-     id="text52"><tspan
+     style="font-style:normal;font-weight:normal;font-size:41.66666794px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.390625"
+     x="44.983822"
+     y="75.08091"
+     id="text26"><tspan
        sodipodi:role="line"
-       id="tspan50"
-       x="21.52104"
-       y="80.097092"
+       id="tspan24"
+       x="44.983822"
+       y="75.08091"
+       style="fill:#ffffff;stroke-width:0.390625">eg</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:75px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.390625"
+     x="0.64725071"
+     y="78.317154"
+     id="text30"><tspan
+       sodipodi:role="line"
+       id="tspan28"
+       x="0.64725071"
+       y="78.317154"
        style="fill:#ffffff;stroke-width:0.390625">R</tspan></text>
 </svg>

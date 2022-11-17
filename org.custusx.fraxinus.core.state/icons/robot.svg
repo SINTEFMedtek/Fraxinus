@@ -13,7 +13,7 @@
    height="256"
    viewBox="0 0 100 100"
    id="svg44"
-   sodipodi:docname="simulator.svg"
+   sodipodi:docname="robot.svg"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <metadata
      id="metadata48">
@@ -36,18 +36,19 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1760"
-     inkscape:window-height="930"
+     inkscape:window-width="1848"
+     inkscape:window-height="1016"
      id="namedview46"
      showgrid="false"
-     inkscape:zoom="1.84"
-     inkscape:cx="154.26331"
-     inkscape:cy="204.63993"
+     inkscape:zoom="2.4140625"
+     inkscape:cx="272.23872"
+     inkscape:cy="134.43095"
      inkscape:window-x="72"
      inkscape:window-y="27"
-     inkscape:window-maximized="0"
+     inkscape:window-maximized="1"
      inkscape:current-layer="svg44"
-     inkscape:document-rotation="0" />
+     inkscape:document-rotation="0"
+     inkscape:snap-text-baseline="true" />
   <defs
      id="defs32">
     <g
@@ -115,31 +116,32 @@
   </defs>
   <use
      xlink:href="#background"
-     id="use34"
-     fill="url(#background-gradient)" />
+     fill="url(#background-gradient)"
+     id="use34" />
   <use
      xlink:href="#middle-1"
      id="use36" />
   <text
      xml:space="preserve"
      style="font-style:normal;font-weight:normal;font-size:75px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.390625"
-     x="3.5003455"
-     y="76.440208"
-     id="text26"><tspan
+     x="2.9126236"
+     y="78.155342"
+     id="text115"><tspan
        sodipodi:role="line"
-       id="tspan24"
-       x="3.5003455"
-       y="76.440208"
-       style="fill:#ffffff;stroke-width:0.390625">S</tspan></text>
+       id="tspan113"
+       x="2.9126236"
+       y="78.155342"
+       style="fill:#ffffff;stroke-width:0.390625">R</tspan></text>
   <text
      xml:space="preserve"
-     style="font-style:normal;font-weight:normal;font-size:40.625px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.390625"
-     x="45.370922"
-     y="75.887138"
-     id="text30"><tspan
+     style="font-style:normal;font-weight:normal;font-size:64.54722595px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.60513026"
+     x="47.235603"
+     y="-47.460236"
+     id="text26"
+     transform="scale(1.0550512,-0.94782131)"><tspan
        sodipodi:role="line"
-       id="tspan28"
-       x="45.370922"
-       y="75.887138"
-       style="fill:#ffffff;stroke-width:0.390625">im</tspan></text>
+       id="tspan24"
+       x="47.235603"
+       y="-47.460236"
+       style="fill:#ffffff;stroke-width:0.60513026">o</tspan></text>
 </svg>

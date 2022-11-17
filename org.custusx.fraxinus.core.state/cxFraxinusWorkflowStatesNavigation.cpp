@@ -61,6 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusNavigationWidget.h"
 #include "cxFraxinusRegistrationWidget.h"
 #include "cxFraxinusSimulatorWidget.h"
+# include "cxFraxinusRobotWidget.h"
 #include "cxVBCameraZoomSetting3D.h"
 
 namespace cx
@@ -457,6 +458,127 @@ void SimulatorWorkflowState::addDataToView()
 	ImagePtr ctImage = this->getCTImage();
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
+
+	CameraControlPtr camera_control = services->view()->getCameraControl();
+	if(camera_control)
+	{
+		ViewPtr view_3D = services->view()->get3DView(m3DViewGroupNumber);
+		camera_control->setView(view_3D);
+		camera_control->setAnteriorView();
+		view_3D->setZoomFactor(1.5);
+	}
+	this->setDefaultCameraStyle();
+}
+
+// --------------------------------------------------------
+// --------------------------------------------------------
+
+
+RobotWorkflowState::RobotWorkflowState(QState* parent, VisServicesPtr services) :
+	FraxinusWorkflowState(parent, "FraxinusRobotUid", "Robot", services, true),
+	m3DViewGroupNumber(0)
+{
+}
+
+RobotWorkflowState::~RobotWorkflowState()
+{}
+
+void RobotWorkflowState::onEntry(QEvent * event)
+{
+	FraxinusWorkflowState::onEntry(event);
+	this->addDataToView();
+
+	FraxinusRobotWidget* fraxinusRobotWidget = this->getFraxinusRobotWidget();
+	if(fraxinusRobotWidget)
+	{
+		MeshPtr tubeCenterline = this->getTubeCenterline();
+		if (tubeCenterline)
+			fraxinusRobotWidget->setDefaultCenterlineMesh(tubeCenterline);
+
+		PointMetricPtr targetPoint = this->getTargetPoint();
+		if (tubeCenterline)
+			fraxinusRobotWidget->setDefaultTargetPoint(targetPoint);
+	}
+}
+
+void RobotWorkflowState::onExit(QEvent * event)
+{
+	ImagePtr ctImage = this->getCTImage();
+	if(ctImage)
+	{
+		ctImage->setInitialWindowLevel(-1, -1);
+	}
+	WorkflowState::onExit(event);
+}
+
+BaseWidget* RobotWorkflowState::getFraxinusWidget(QString widgetName)
+{
+	QMainWindow* mainWindow = this->getMainWindow();
+	return mainWindow->findChild<BaseWidget*>(widgetName);
+}
+
+QIcon RobotWorkflowState::getIcon() const
+{
+	return QIcon(":/icons/icons/robot.svg");
+}
+
+FraxinusRobotWidget* RobotWorkflowState::getFraxinusRobotWidget()
+{
+	QMainWindow* mainWindow = this->getMainWindow();
+
+	QString widgetName(FraxinusRobotWidget::getWidgetName());
+	return mainWindow->findChild<FraxinusRobotWidget*>(widgetName);
+}
+
+bool RobotWorkflowState::canEnter() const
+{
+	return true;
+}
+
+void RobotWorkflowState::addDataToView()
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+
+	MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
+	MeshPtr routeToTarget = this->getRouteToTarget();
+	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
+	PointMetricPtr targetPoint = this->getTargetPoint();
+
+	//Assuming 3D ACS
+	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);
+
+	if(airwaysTubes)
+	{
+		QColor color = airwaysTubes->getColor();
+		double opacity = 0.3;
+		color.setAlphaF(opacity);
+		airwaysTubes->setColor(color);
+		viewGroup0_3D->addData(airwaysTubes->getUid());
+	}
+
+	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+	viewGroup1_2D->getGroup2DZoom()->set(0.2);
+	viewGroup1_2D->getGlobal2DZoom()->set(0.2);
+
+	ImagePtr ctImage = this->getCTImage();
+	if(ctImage)
+		viewGroup1_2D->addData(ctImage->getUid());
+
+	if(extendedRouteToTarget)
+	{
+		viewGroup0_3D->addData(extendedRouteToTarget->getUid());
+		viewGroup1_2D->addData(extendedRouteToTarget->getUid());
+	}
+		if(routeToTarget)
+	{
+		viewGroup0_3D->addData(routeToTarget->getUid());
+		viewGroup1_2D->addData(routeToTarget->getUid());
+	}
+	if(targetPoint)
+	{
+		viewGroup0_3D->addData(targetPoint->getUid());
+		viewGroup1_2D->addData(targetPoint->getUid());
+	}
 
 	CameraControlPtr camera_control = services->view()->getCameraControl();
 	if(camera_control)
