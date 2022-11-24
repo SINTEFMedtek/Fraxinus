@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxImage.h"
 #include"cxApplication.h"
 #include "cxDataLocations.h"
+#include "cxProfile.h"
 
 namespace cx
 {
@@ -59,13 +60,19 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	mProcedurePlanningWorkflowState = this->newState(new ProcedurePlanningWorkflowState(mParentState, services));
 
 #ifdef CX_BUILD_FRAXINUS_TRACKING
-	this->newState(new TrackingWorkflowState(mParentState, services));
-	WorkflowState* registrationWorkflowState = this->newState(new RegistrationWorkflowState(mParentState, services));
-	WorkflowState* navigationWorkflowState = this->newState(new NavigationWorkflowState(mParentState, services));
-	this->newState(new RobotWorkflowState(mParentState, services));
-	this->newState(new SimulatorWorkflowState(mParentState, services));
-	connect(services->tracking().get(), &TrackingService::stateChanged, registrationWorkflowState, &RegistrationWorkflowState::canEnterSlot);
-	connect(services->tracking().get(), &TrackingService::stateChanged, navigationWorkflowState, &NavigationWorkflowState::canEnterSlot);
+	QString profile = ProfileManager::getInstance()->activeProfile()->getUid();
+	if(profilesWithTracking().contains(profile))
+	{
+		this->newState(new TrackingWorkflowState(mParentState, services));
+		WorkflowState* registrationWorkflowState = this->newState(new RegistrationWorkflowState(mParentState, services));
+		WorkflowState* navigationWorkflowState = this->newState(new NavigationWorkflowState(mParentState, services));
+		connect(services->tracking().get(), &TrackingService::stateChanged, registrationWorkflowState, &RegistrationWorkflowState::canEnterSlot);
+		connect(services->tracking().get(), &TrackingService::stateChanged, navigationWorkflowState, &NavigationWorkflowState::canEnterSlot);
+	}
+	if(profilesWithRobot().contains(profile))
+		this->newState(new RobotWorkflowState(mParentState, services));
+	if(profilesWithSimulator().contains(profile))
+		this->newState(new SimulatorWorkflowState(mParentState, services));
 #endif
 
 	//logic for enabling workflowsteps

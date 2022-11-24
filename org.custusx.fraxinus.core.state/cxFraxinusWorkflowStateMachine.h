@@ -44,6 +44,29 @@ namespace cx
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 class FraxinusWorkflowState;
 
+static const QStringList profilesWithTracking(){
+  QStringList profilesList;
+  profilesList << "Bronchoscopy";
+  profilesList << "Tracking";
+  profilesList << "Simulator";
+  profilesList << "Robot";
+  return profilesList;
+};
+
+static const QStringList profilesWithSimulator(){
+  QStringList profilesList;
+  profilesList << "Bronchoscopy";
+  profilesList << "Simulator";
+  return profilesList;
+};
+
+static const QStringList profilesWithRobot(){
+  QStringList profilesList;
+  profilesList << "Bronchoscopy";
+  profilesList << "Robot";
+  return profilesList;
+};
+
 /** \brief State Machine for the Workflow Steps for CustusX
  *
  *  See StateService for a description.
