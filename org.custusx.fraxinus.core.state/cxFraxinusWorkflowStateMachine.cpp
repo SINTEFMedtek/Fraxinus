@@ -60,9 +60,7 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 	mProcedurePlanningWorkflowState = this->newState(new ProcedurePlanningWorkflowState(mParentState, services));
 
 #ifdef CX_BUILD_FRAXINUS_TRACKING
-	//QString profile = profile()->getUid();
 	QString profile = ProfileManager::getInstance()->activeProfile()->getUid();
-	CX_LOG_DEBUG() << "Profile: " << profile;
 	if(profilesWithTracking().contains(profile))
 	{
 		this->newState(new TrackingWorkflowState(mParentState, services));
@@ -75,7 +73,6 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr servic
 		this->newState(new RobotWorkflowState(mParentState, services));
 	if(profilesWithSimulator().contains(profile))
 		this->newState(new SimulatorWorkflowState(mParentState, services));
-
 #endif
 
 	//logic for enabling workflowsteps
