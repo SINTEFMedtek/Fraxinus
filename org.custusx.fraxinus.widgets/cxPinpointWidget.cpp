@@ -26,7 +26,7 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 {
 	mMetricManager->setActiveUid(mTargetMetricUid);
 
-	QPushButton *setPointMetric = new QPushButton("&Set target", this);
+	QPushButton *setPointMetric = new QPushButton("&Confirm target and proceed", this);
 	connect(setPointMetric, &QPushButton::clicked, this, &PinpointWidget::setPointMetric);
 	QPushButton *centerToImage = new QPushButton(QIcon(":/icons/center_image.png"), " Center Image", this);
 	connect(centerToImage, &QPushButton::clicked, this, &PinpointWidget::centerToImage);
@@ -88,6 +88,7 @@ void PinpointWidget::setPointMetric()
 	else if(!distanceMetric->isValid())
 		this->createDistanceMetric();
 
+	CX_LOG_DEBUG() << "emit targetMetricSet()";
 	emit targetMetricSet();
 }
 

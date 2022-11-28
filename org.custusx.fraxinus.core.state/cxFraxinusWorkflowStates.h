@@ -183,15 +183,20 @@ public:
 	virtual void onEntry(QEvent *event);
 	void onExit(QEvent *event);
 	virtual bool canEnter() const;
+signals:
+	void targetMetricSet();
 private slots:
 	void dataAddedOrRemovedSlot();
 	void createRoute();
 	void pointChanged();
+	void updateTargetPoint();
 private:
 	void addDataToView();
+	void showRouteToTarget();
 	void deleteOldRouteToTarget();
 
 	bool mPointChanged;
+	bool mUpdateTargetAllowed = true;
 	int m3DViewGroupNumber;
 	int m2DViewGroupNumber;
 };
