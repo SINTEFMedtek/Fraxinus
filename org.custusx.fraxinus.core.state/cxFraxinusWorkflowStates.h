@@ -192,6 +192,7 @@ private slots:
 	void updateTargetPoint();
 private:
 	void addDataToView();
+	void setManualToolToTargetPosition();
 	void showRouteToTarget();
 	void deleteOldRouteToTarget();
 

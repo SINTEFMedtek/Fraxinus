@@ -813,7 +813,6 @@ QIcon PinpointWorkflowState::getIcon() const
 void PinpointWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
-	mUpdateTargetAllowed = true;
 	this->addDataToView();
 	std::vector<unsigned int> viewGroupNumbers;
 	viewGroupNumbers.push_back(m3DViewGroupNumber);
@@ -853,6 +852,10 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 
 	this->setPointPickerIn3Dview(true);
 	this->setDefaultCameraStyle();
+
+	mUpdateTargetAllowed = false;
+	this->setManualToolToTargetPosition();
+	mUpdateTargetAllowed = true;
 }
 
 bool PinpointWorkflowState::canEnter() const
@@ -861,7 +864,6 @@ bool PinpointWorkflowState::canEnter() const
 		return true;
 	else
 		return false;
-	
 }
 
 void PinpointWorkflowState::dataAddedOrRemovedSlot()
@@ -872,6 +874,22 @@ void PinpointWorkflowState::dataAddedOrRemovedSlot()
 	
 	if(targetPoint && centerline && !routeToTarget)
 		this->createRoute();
+}
+
+void PinpointWorkflowState::setManualToolToTargetPosition()
+{
+	PointMetricPtr target = getTargetPoint();
+	if(!target)
+		return;
+	Vector3D targetPosition = target->getCoordinate();
+	ToolPtr manualTool = mServices->tracking()->getManualTool();
+	if(!manualTool)
+		return;
+	Transform3D manualTool_prMt = manualTool->get_prMt();
+	manualTool_prMt(0,3) = targetPosition(0);
+	manualTool_prMt(1,3) = targetPosition(1);
+	manualTool_prMt(2,3) = targetPosition(2);
+	manualTool->set_prMt(manualTool_prMt);
 }
 
 void PinpointWorkflowState::createRoute()
