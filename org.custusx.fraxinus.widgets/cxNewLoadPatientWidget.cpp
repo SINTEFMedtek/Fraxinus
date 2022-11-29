@@ -82,7 +82,7 @@ void NewLoadPatientWidget::restoreToFactorySettings()
 
 void NewLoadPatientWidget::selectCTData()
 {
-	triggerMainWindowActionWithObjectName("AddFilesForImport");
+	triggerMainWindowActionWithObjectName("AddFilesForImportWithDialog");
 	triggerMainWindowActionWithObjectName("ImportSelectedData");
 }
 
