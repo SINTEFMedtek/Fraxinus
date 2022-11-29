@@ -891,11 +891,13 @@ void PinpointWorkflowState::setManualToolToTargetPosition()
 	ToolPtr manualTool = mServices->tracking()->getManualTool();
 	if(!manualTool)
 		return;
+	Transform3D rMpr = mServices->patient()->get_rMpr();
 	Transform3D manualTool_prMt = manualTool->get_prMt();
-	manualTool_prMt(0,3) = targetPosition(0);
-	manualTool_prMt(1,3) = targetPosition(1);
-	manualTool_prMt(2,3) = targetPosition(2);
-	manualTool->set_prMt(manualTool_prMt);
+	Transform3D manualTool_rMt = rMpr*manualTool_prMt;
+	manualTool_rMt(0,3) = targetPosition(0);
+	manualTool_rMt(1,3) = targetPosition(1);
+	manualTool_rMt(2,3) = targetPosition(2);
+	manualTool->set_prMt(rMpr.inverse()*manualTool_rMt);
 }
 
 void PinpointWorkflowState::createRoute()
