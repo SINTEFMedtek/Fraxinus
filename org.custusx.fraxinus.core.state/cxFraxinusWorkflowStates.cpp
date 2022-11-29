@@ -571,7 +571,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	
 	routeToTargetFilter->setSmoothing(false);
 	if(mBranchList)
-	{ //avoid reprocessing same cenerline multiple times for every new target point set
+	{ //avoid reprocessing same centerline multiple times for every new target point set
 		routeToTargetFilter->setBranchList(mBranchList);
 		routeToTargetFilter->setReprocessCenterline(false);
 	}
@@ -902,7 +902,6 @@ void PinpointWorkflowState::setManualToolToTargetPosition()
 
 void PinpointWorkflowState::createRoute()
 {
-	CX_LOG_DEBUG() << "Creating route";
 	MeshPtr oldRouteToTarget = this->getRouteToTarget();
 	if(!oldRouteToTarget)
 	{
@@ -921,7 +920,6 @@ void PinpointWorkflowState::createRoute()
 
 void PinpointWorkflowState::pointChanged()
 {
-	CX_LOG_DEBUG() << "PinpointWorkflowState::pointChanged()";
 	mPointChanged = true;
 	this->createRoute();
 	mUpdateTargetAllowed = true;
@@ -929,10 +927,8 @@ void PinpointWorkflowState::pointChanged()
 
 void PinpointWorkflowState::updateTargetPoint()
 {
-	CX_LOG_DEBUG() << "PinpointWorkflowState::updateTargetPoint() 1";
 	if(!mUpdateTargetAllowed)
 		return;
-	CX_LOG_DEBUG() << "PinpointWorkflowState::updateTargetPoint() 2";
 	mUpdateTargetAllowed = false;
 	PointMetricPtr target = this->getTargetPoint();
 	if(target)

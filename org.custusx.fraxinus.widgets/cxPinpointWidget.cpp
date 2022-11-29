@@ -88,7 +88,6 @@ void PinpointWidget::setPointMetric()
 	else if(!distanceMetric->isValid())
 		this->createDistanceMetric();
 
-	CX_LOG_DEBUG() << "emit targetMetricSet()";
 	emit targetMetricSet();
 }
 
