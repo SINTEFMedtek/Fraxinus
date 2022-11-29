@@ -570,6 +570,11 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	routeToTargetFilter->getOptions();
 	
 	routeToTargetFilter->setSmoothing(false);
+	if(mBranchList)
+	{ //avoid reprocessing same cenerline multiple times for every new target point set
+		routeToTargetFilter->setBranchList(mBranchList);
+		routeToTargetFilter->setReprocessCenterline(false);
+	}
 	
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	MeshPtr centerline = this->getTubeCenterline();
@@ -595,6 +600,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 		mRouteToTargetCameraRotations = routeToTargetFilter->getCameraRotation();
 		emit routeToTargetCreated();
 	}
+	mBranchList = routeToTargetFilter->getBranchList();
 }
 
 void FraxinusWorkflowState::cleanupVBWidget()
