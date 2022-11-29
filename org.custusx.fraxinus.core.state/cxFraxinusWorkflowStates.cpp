@@ -603,6 +603,16 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	mBranchList = routeToTargetFilter->getBranchList();
 }
 
+void FraxinusWorkflowState::setMeshOpacity(MeshPtr mesh, double opacity)
+{
+	if(mesh && opacity>=0 && opacity<=1)
+	{
+		QColor color = mesh->getColor();
+		color.setAlphaF(opacity);
+		mesh->setColor(color);
+	}
+}
+
 void FraxinusWorkflowState::cleanupVBWidget()
 {
 	this->getVBWidget()->releaseKeyboard();
@@ -969,9 +979,7 @@ void PinpointWorkflowState::addDataToView()
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
 	if(airways)
 	{
-		QColor color = airways->getColor();
-		color.setAlphaF(0.5);
-		airways->setColor(color);
+		this->setMeshOpacity(airways, 0.5);
 		viewGroup0_3D->addData(airways->getUid());
 		CameraControlPtr camera_control = services->view()->getCameraControl();
 		if(camera_control)
@@ -1022,11 +1030,8 @@ void PinpointWorkflowState::onExit(QEvent * event)
 
 	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
 	if(airways)
-	{
-		QColor color = airways->getColor();
-		color.setAlphaF(1.0);
-		airways->setColor(color);
-	}
+		this->setMeshOpacity(airways, 1.0);
+
 	this->setPointPickerIn3Dview(false);
 	WorkflowState::onExit(event);
 }
@@ -1098,9 +1103,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 		viewGroup0_3D->addData(ctImage->getUid());
 	if(airways)
 	{
-		QColor c = airways->getColor();
-		c.setAlphaF(1);
-		airways->setColor(c);
+		this->setMeshOpacity(airways, 1.0);
 		viewGroup0_3D->addData(airways->getUid());
 	}
 	if(targetPoint)
@@ -1209,9 +1212,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 		viewGroup0_3D->addData(ctImage->getUid());
 	if(airways)
 	{
-		QColor c = airways->getColor();
-		c.setAlphaF(1);
-		airways->setColor(c);
+		this->setMeshOpacity(airways, 1.0);
 		viewGroup0_3D->addData(airways->getUid());
 	}
 	if(targetPoint)
@@ -1324,9 +1325,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 //		viewGroup0_3D->addData(ctImage->getUid());
 	if(airways)
 	{
-		QColor c = airways->getColor();
-		c.setAlphaF(0.6);
-		airways->setColor(c);
+		this->setMeshOpacity(airways, 0.6);
 		viewGroup0_3D->addData(airways->getUid());
 	}
 	if(targetPoint)
