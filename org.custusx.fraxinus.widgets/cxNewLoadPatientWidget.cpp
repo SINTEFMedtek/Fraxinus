@@ -57,6 +57,7 @@ void NewLoadPatientWidget::createNewPatient()
 	QString actionName = "NewPatient";
 	triggerMainWindowActionWithObjectName(actionName);
 	enableImportDataButton();
+	selectCTData();
 }
 
 void NewLoadPatientWidget::loadPatient()
@@ -82,8 +83,11 @@ void NewLoadPatientWidget::restoreToFactorySettings()
 
 void NewLoadPatientWidget::selectCTData()
 {
-	triggerMainWindowActionWithObjectName("AddFilesForImportWithDialog");
-	triggerMainWindowActionWithObjectName("ImportSelectedData");
+	if(mPatient->isPatientValid())
+	{
+		triggerMainWindowActionWithObjectName("AddFilesForImportWithDialog");
+		triggerMainWindowActionWithObjectName("ImportSelectedData");
+	}
 }
 
 }
