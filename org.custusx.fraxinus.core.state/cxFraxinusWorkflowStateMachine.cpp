@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxActiveData.h"
 #include "cxLogger.h"
 #include "cxImage.h"
-#include"cxApplication.h"
+#include "cxApplication.h"
 #include "cxDataLocations.h"
 #include "cxProfile.h"
 
@@ -105,7 +105,7 @@ void FraxinusWorkflowStateMachine::CreateTransitions()
 	//mPatientWorkflowState->addTransition(mServices->patient().get(), SIGNAL(patientChanged()), mProcessWorkflowState);
 	mImportWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
 	mProcessWorkflowState->addTransition(mProcessWorkflowState, SIGNAL(segmentationFinished()), mPinpointWorkflowState);
-	mPinpointWorkflowState->addTransition(mPinpointWorkflowState, SIGNAL(routeToTargetCreated()), mVirtualBronchoscopyFlyThroughWorkflowState);
+	mPinpointWorkflowState->addTransition(mPinpointWorkflowState, SIGNAL(targetMetricSet()), mVirtualBronchoscopyFlyThroughWorkflowState);
 }
 
 void FraxinusWorkflowStateMachine::dataAddedOrRemovedSlot()

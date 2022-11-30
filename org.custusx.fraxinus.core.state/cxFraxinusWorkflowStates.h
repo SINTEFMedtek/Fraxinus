@@ -86,6 +86,9 @@ protected:
 	PointMetricPtr getEndoscopePoint() const;
 	DistanceMetricPtr getDistanceToTargetMetric() const;
 	void createRouteToTarget(bool makeRouteInformationFile);
+	void setMeshOpacity(MeshPtr mesh, double opacity);
+
+	BranchListPtr mBranchList;
 	std::vector< Eigen::Vector3d > mRouteToTargetPositions;
 	std::vector< double > mRouteToTargetCameraRotations;
 	FraxinusSegmentationsPtr mFraxinusSegmentations;
@@ -183,15 +186,21 @@ public:
 	virtual void onEntry(QEvent *event);
 	void onExit(QEvent *event);
 	virtual bool canEnter() const;
+signals:
+	void targetMetricSet();
 private slots:
 	void dataAddedOrRemovedSlot();
 	void createRoute();
 	void pointChanged();
+	void updateTargetPoint();
 private:
 	void addDataToView();
+	void setManualToolToTargetPosition();
+	void showRouteToTarget();
 	void deleteOldRouteToTarget();
 
 	bool mPointChanged;
+	bool mUpdateTargetAllowed = true;
 	int m3DViewGroupNumber;
 	int m2DViewGroupNumber;
 };

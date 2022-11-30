@@ -570,6 +570,11 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	routeToTargetFilter->getOptions();
 	
 	routeToTargetFilter->setSmoothing(false);
+	if(mBranchList)
+	{ //avoid reprocessing same centerline multiple times for every new target point set
+		routeToTargetFilter->setBranchList(mBranchList);
+		routeToTargetFilter->setReprocessCenterline(false);
+	}
 	
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	MeshPtr centerline = this->getTubeCenterline();
@@ -594,6 +599,17 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 		mRouteToTargetPositions = routeToTargetFilter->getRoutePositions(true);
 		mRouteToTargetCameraRotations = routeToTargetFilter->getCameraRotation();
 		emit routeToTargetCreated();
+	}
+	mBranchList = routeToTargetFilter->getBranchList();
+}
+
+void FraxinusWorkflowState::setMeshOpacity(MeshPtr mesh, double opacity)
+{
+	if(mesh && opacity>=0 && opacity<=1)
+	{
+		QColor color = mesh->getColor();
+		color.setAlphaF(opacity);
+		mesh->setColor(color);
 	}
 }
 
@@ -820,6 +836,7 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	this->setupPinPointWidget(viewGroupNumbers);
 	
 	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
+	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::targetMetricSet, Qt::UniqueConnection);
 	
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	if(targetPoint)
@@ -845,8 +862,16 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 			structureSelectionWidget->onEntry();
 	}
 
+	ToolPtr manualTool = mServices->tracking()->getManualTool();
+	if(manualTool)
+		connect(manualTool.get(), &Tool::toolTransformAndTimestamp, this, &PinpointWorkflowState::updateTargetPoint);
+
 	this->setPointPickerIn3Dview(true);
 	this->setDefaultCameraStyle();
+
+	mUpdateTargetAllowed = false;
+	this->setManualToolToTargetPosition();
+	mUpdateTargetAllowed = true;
 }
 
 bool PinpointWorkflowState::canEnter() const
@@ -855,7 +880,6 @@ bool PinpointWorkflowState::canEnter() const
 		return true;
 	else
 		return false;
-	
 }
 
 void PinpointWorkflowState::dataAddedOrRemovedSlot()
@@ -866,6 +890,24 @@ void PinpointWorkflowState::dataAddedOrRemovedSlot()
 	
 	if(targetPoint && centerline && !routeToTarget)
 		this->createRoute();
+}
+
+void PinpointWorkflowState::setManualToolToTargetPosition()
+{
+	PointMetricPtr target = getTargetPoint();
+	if(!target)
+		return;
+	Vector3D targetPosition = target->getCoordinate();
+	ToolPtr manualTool = mServices->tracking()->getManualTool();
+	if(!manualTool)
+		return;
+	Transform3D rMpr = mServices->patient()->get_rMpr();
+	Transform3D manualTool_prMt = manualTool->get_prMt();
+	Transform3D manualTool_rMt = rMpr*manualTool_prMt;
+	manualTool_rMt(0,3) = targetPosition(0);
+	manualTool_rMt(1,3) = targetPosition(1);
+	manualTool_rMt(2,3) = targetPosition(2);
+	manualTool->set_prMt(rMpr.inverse()*manualTool_rMt);
 }
 
 void PinpointWorkflowState::createRoute()
@@ -882,6 +924,7 @@ void PinpointWorkflowState::createRoute()
 	{
 		this->deleteOldRouteToTarget();
 		this->createRouteToTarget(true);
+		this->showRouteToTarget();
 	}
 }
 
@@ -889,8 +932,37 @@ void PinpointWorkflowState::pointChanged()
 {
 	mPointChanged = true;
 	this->createRoute();
+	mUpdateTargetAllowed = true;
 }
 
+void PinpointWorkflowState::updateTargetPoint()
+{
+	if(!mUpdateTargetAllowed)
+		return;
+	mUpdateTargetAllowed = false;
+	PointMetricPtr target = this->getTargetPoint();
+	if(target)
+	{
+		Vector3D p_ref = mServices->spaceProvider()->getActiveToolTipPoint(CoordinateSystem::reference(), true);
+		target->setCoordinate(p_ref);
+	}
+}
+
+void PinpointWorkflowState::showRouteToTarget()
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	MeshPtr routeToTarget = this->getRouteToTarget();
+	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
+	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
+	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+	if(routeToTarget && extendedRouteToTarget && viewGroup0_3D && viewGroup1_2D)
+	{
+		viewGroup0_3D->addData(extendedRouteToTarget->getUid());
+		viewGroup0_3D->addData(routeToTarget->getUid());
+		viewGroup1_2D->addData(extendedRouteToTarget->getUid());
+		viewGroup1_2D->addData(routeToTarget->getUid());
+	}
+}
 
 void PinpointWorkflowState::addDataToView()
 {
@@ -899,7 +971,7 @@ void PinpointWorkflowState::addDataToView()
 	ImagePtr ctImage = this->getCTImage();
 	
 	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
-		MeshPtr nodules = mFraxinusSegmentations->getNodules();
+	MeshPtr nodules = mFraxinusSegmentations->getNodules();
 	
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
@@ -907,6 +979,7 @@ void PinpointWorkflowState::addDataToView()
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(0);
 	if(airways)
 	{
+		this->setMeshOpacity(airways, 0.5);
 		viewGroup0_3D->addData(airways->getUid());
 		CameraControlPtr camera_control = services->view()->getCameraControl();
 		if(camera_control)
@@ -916,13 +989,15 @@ void PinpointWorkflowState::addDataToView()
 		}
 	}
 
-		ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
+	ViewGroupDataPtr viewGroup1_2D = services->view()->getGroup(1);
 
-		if(nodules)
-		{
-			viewGroup0_3D->addData(nodules->getUid());
-			viewGroup1_2D->addData(nodules->getUid());
-		}
+	if(nodules)
+	{
+		viewGroup0_3D->addData(nodules->getUid());
+		viewGroup1_2D->addData(nodules->getUid());
+	}
+
+	this->showRouteToTarget();
 
 	this->setTransferfunction2D("2D CT Lung", ctImage);
 	viewGroup1_2D->getGroup2DZoom()->set(0.3);
@@ -949,6 +1024,14 @@ void PinpointWorkflowState::deleteOldRouteToTarget()
 
 void PinpointWorkflowState::onExit(QEvent * event)
 {
+	ToolPtr manualTool = mServices->tracking()->getManualTool();
+	if(manualTool)
+		disconnect(manualTool.get(), &Tool::toolTransformAndTimestamp, this, &PinpointWorkflowState::updateTargetPoint);
+
+	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
+	if(airways)
+		this->setMeshOpacity(airways, 1.0);
+
 	this->setPointPickerIn3Dview(false);
 	WorkflowState::onExit(event);
 }
@@ -1020,9 +1103,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 		viewGroup0_3D->addData(ctImage->getUid());
 	if(airways)
 	{
-		QColor c = airways->getColor();
-		c.setAlphaF(1);
-		airways->setColor(c);
+		this->setMeshOpacity(airways, 1.0);
 		viewGroup0_3D->addData(airways->getUid());
 	}
 	if(targetPoint)
@@ -1131,9 +1212,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 		viewGroup0_3D->addData(ctImage->getUid());
 	if(airways)
 	{
-		QColor c = airways->getColor();
-		c.setAlphaF(1);
-		airways->setColor(c);
+		this->setMeshOpacity(airways, 1.0);
 		viewGroup0_3D->addData(airways->getUid());
 	}
 	if(targetPoint)
@@ -1246,9 +1325,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 //		viewGroup0_3D->addData(ctImage->getUid());
 	if(airways)
 	{
-		QColor c = airways->getColor();
-		c.setAlphaF(0.6);
-		airways->setColor(c);
+		this->setMeshOpacity(airways, 0.6);
 		viewGroup0_3D->addData(airways->getUid());
 	}
 	if(targetPoint)
