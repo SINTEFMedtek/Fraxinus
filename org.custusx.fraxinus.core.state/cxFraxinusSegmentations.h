@@ -23,6 +23,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 namespace cx
 {
 typedef boost::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
+typedef boost::shared_ptr<class BinaryThinningImageFilter3DFilter> BinaryThinningImageFilter3DFilterPtr;
 class DisplayTimerWidget;
 
 class org_custusx_fraxinus_core_state_EXPORT FraxinusSegmentations : public QObject
@@ -130,6 +131,7 @@ private:
 	void setMeshNameAndStopTimer(MeshPtr mesh);
 	void setMeshName(MeshPtr mesh, LUNG_STRUCTURES segmentationType);
 	void stopTimer(MeshPtr mesh);
+	void generateCenterline();
 
 };
 }//cx
