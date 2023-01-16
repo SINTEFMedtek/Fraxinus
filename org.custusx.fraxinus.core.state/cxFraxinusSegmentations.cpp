@@ -267,8 +267,7 @@ void FraxinusSegmentations::imageSelected()
 	
 	this->createProcessingInfo();
 	ImagePtr image = this->getCTImage();
-//	this->performPythonSegmentation(image);
-	this->performMLSegmentation(image);
+	this->performPythonSegmentation(image);
 }
 
 void FraxinusSegmentations::cancel()
@@ -415,24 +414,18 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	if(!image)
 		return;
 
-	DataPtr centerline = this->getCenterline();
 	DataPtr vessels = this->getLungVessels();
 	DataPtr tumors = this->getTumors();
-	if(centerline || mCenterlineProcessed)
+	if(vessels || mLungVesselsProcessed || !mSegmentLungVessels)
 	{
-		mAirwaysProcessed = true;
-		mCenterlineProcessed = true;
-		if(vessels || mLungVesselsProcessed || !mSegmentLungVessels)
+		if(vessels)
+			mLungVesselsProcessed = true;
+		if(tumors || mTumorsProcessed || !mSegmentTumors)
 		{
-			if(vessels)
-				mLungVesselsProcessed = true;
-			if(tumors || mTumorsProcessed || !mSegmentTumors)
-			{
-				if(tumors)
-					mTumorsProcessed = true;
-				this->performMLSegmentation(image);
-				return;
-			}
+			if(tumors)
+				mTumorsProcessed = true;
+			this->performMLSegmentation(image);
+			return;
 		}
 	}
 
@@ -443,26 +436,7 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	scriptFilter->getOutputTypes();
 	scriptFilter->getOptions();
 
-	if(!mAirwaysProcessed  && mSegmentAirways)
-	{
-		mActiveTimerWidget = mAirwaysTimerWidget;
-		if(mActiveTimerWidget)
-			mActiveTimerWidget->start();
-		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_Airways.ini");
-		mCurrentSegmentationType = lsAIRWAYS;
-		mAirwaysProcessed = true;
-		input[0]->setValue(image->getUid());
-	}
-	else if(mAirwaysProcessed && mSegmentAirways && !mCenterlineProcessed)
-	{
-		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_AirwaysCenterline.ini");
-		mCurrentSegmentationType = lsCENTERLINES;
-		mCenterlineProcessed = true;
-		ImagePtr airwaysVolume = this->getAirwaysVolume();
-		if(airwaysVolume)
-			input[0]->setValue(airwaysVolume->getUid());
-	}
-	else if(!mLungVesselsProcessed && mSegmentLungVessels)
+	if(!mLungVesselsProcessed && mSegmentLungVessels)
 	{
 		mActiveTimerWidget = mLungVesselsTimerWidget;
 		if(mActiveTimerWidget)
