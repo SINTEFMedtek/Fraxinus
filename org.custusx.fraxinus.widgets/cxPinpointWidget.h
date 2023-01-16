@@ -54,6 +54,7 @@ public:
 	static QString getEndoscopeMetricUid();
 	static QString getDistanceMetricUid();
 	StructuresSelectionWidget* getStructuresSelectionWidget();
+	void createPointMetric();
 
 signals:
 	void targetMetricSet();
@@ -65,7 +66,6 @@ private slots:
 	void loadNameOfPointMetric();
 
 private:
-	void createPointMetric();
 	void createEndoscopeMetric();
 	void createDistanceMetric();
 	void updateCoordinateOfPointMetric();
