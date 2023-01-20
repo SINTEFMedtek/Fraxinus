@@ -245,6 +245,7 @@ ImagePtr FraxinusWorkflowState::getCTImageCopied() const
 	
 	std::map<QString, ImagePtr>::iterator it = images.begin();
 	ImagePtr imageCopied;
+	ImagePtr originalImage;
 	for( ; it != images.end(); ++it)
 	{
 		if(it->first.contains("_copy"))
@@ -252,10 +253,12 @@ ImagePtr FraxinusWorkflowState::getCTImageCopied() const
 			imageCopied = it->second;
 			break;
 		}
+		else if(!it->first.contains(airwaysFilterGetNameSuffixAirways()))
+			originalImage = it->second;
 	}
 	
-	if (!imageCopied)
-		imageCopied = createCopiedImage(images.begin()->second);
+	if (!imageCopied && originalImage)
+		imageCopied = createCopiedImage(originalImage);
 	
 	return imageCopied;
 }
