@@ -681,7 +681,7 @@ void FraxinusSegmentations::postProcessAirways()
 		return;
 
 	airwaysFromCLPtr->processCenterline(rawCenterline->getVtkPolyData());
-	airwaysFromCLPtr->setSegmentedVolume(airwaysVolume->getBaseVtkImageData());
+	airwaysFromCLPtr->setSegmentedVolume(airwaysVolume->getBaseVtkImageData(), airwaysVolume->get_rMd());
 
 	// Create mesh object from the airway walls
 	QString uidMesh = CTimage->getUid() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes();
@@ -737,7 +737,7 @@ void FraxinusSegmentations::generateCenterline()
 				return;
 
 			MeshPtr centerline = mServices->patient()->getData<Mesh>(output[0]->getValue());
-			mServices->patient()->removeData(centerline->getUid());
+			mServices->patient()->removeData(centerline->getUid()); //TO DO: Fix when starting to use enum as indentifier for mesh. Do not need to delete it.
 			centerline->setUid(airwaysVolume->getUid() + airwaysFilterGetNameSuffixCenterline());
 			this->setMeshName(centerline, lsCENTERLINES);
 			centerline->setColor(QColor(255,255,0,255));
