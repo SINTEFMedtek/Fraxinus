@@ -59,7 +59,7 @@ ImagePtr FraxinusSegmentations::getCTImage() const
 	ImagePtr image;
 	for( ; it != images.end(); ++it)
 	{
-		if(!it->first.contains("_copy") && !it->first.contains(airwaysFilterGetNameSuffixAirways()))
+		if(!it->first.contains("_copy") && !it->first.contains(airwaysFilterGetNameSuffixAirways(), Qt::CaseInsensitive) && !it->first.contains(airwaysFilterGetNameSuffixLungs(), Qt::CaseInsensitive))
 		{
 			image = it->second;
 			break;
