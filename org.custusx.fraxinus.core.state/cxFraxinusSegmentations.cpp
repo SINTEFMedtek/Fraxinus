@@ -475,13 +475,6 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = scriptFilter->getInputTypes();
 	scriptFilter->getOutputTypes();
 	scriptFilter->getOptions();
-
-//	if(mSegmentAirways && this->getAirwaysVolume()) //debug - remove
-//	{
-//		CX_LOG_DEBUG() << "Extracting centerlines";
-//		this->postProcessAirways();
-//		return;
-//	}
 	
 	if(mSegmentAirways && !mAirwaysProcessed && !this->getAirwaysTubes())
 	{
