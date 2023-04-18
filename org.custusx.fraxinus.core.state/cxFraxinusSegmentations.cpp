@@ -212,7 +212,7 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mSegmentationSelectionInput->setWindowTitle(tr("Select structures for segmentation"));
 	mSegmentationSelectionInput->setWindowFlags(Qt::WindowStaysOnTopHint);
 	
-	mCheckBoxAirways = new QCheckBox(tr("Airways (<1 min)"));
+	mCheckBoxAirways = new QCheckBox(tr("Airways (~5 min)"));
 	mCheckBoxAirways->setChecked(true);
 	mCheckBoxAirways->setDisabled(true);
 	mCheckBoxLungs = new QCheckBox(tr("Lungs (~2 min)"));
