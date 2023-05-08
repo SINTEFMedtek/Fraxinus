@@ -63,6 +63,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusVBWidget.h"
 #include "cxProcedurePlanningWidget.h"
 #include "cxFraxinusSegmentations.h"
+#include "cxBranchList.h"
+#include "cxRouteToTarget.h"
+#include "cxAirwaysFromCenterline.h"
 
 namespace cx
 {
@@ -196,6 +199,18 @@ MeshPtr FraxinusWorkflowState::getTubeCenterline() const
 	{
 		if(iter->first.contains(airwaysFilterGetNameSuffixCenterline()) && !iter->first.contains(RouteToTargetFilter::getNameSuffix())
 			 && iter->first.contains(airwaysFilterGetNameSuffixTubes()))
+			return iter->second;
+	}
+	return MeshPtr();
+}
+
+MeshPtr FraxinusWorkflowState::getRawCenterline() const
+{
+	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
+	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+	{
+		if(iter->first.contains(airwaysFilterGetNameSuffixCenterline()) && !iter->first.contains(RouteToTargetFilter::getNameSuffix())
+			 && !iter->first.contains(airwaysFilterGetNameSuffixTubes()))
 			return iter->second;
 	}
 	return MeshPtr();
@@ -573,14 +588,9 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	routeToTargetFilter->getOptions();
 	
 	routeToTargetFilter->setSmoothing(false);
-	if(mBranchList)
-	{ //avoid reprocessing same centerline multiple times for every new target point set
-		routeToTargetFilter->setBranchList(mBranchList);
-		routeToTargetFilter->setReprocessCenterline(false);
-	}
 	
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr centerline = this->getTubeCenterline();
+	MeshPtr centerline = this->getRawCenterline();
 	
 	if(!targetPoint)
 	{
@@ -591,6 +601,22 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	{
 		CX_LOG_WARNING() << "In FraxinusWorkflowState::createRouteToTarget: Cannot create route, no airway centerline found";
 		return;
+	}
+
+	if(!mBranchList && mFraxinusSegmentations) //get BranchList from segmentation result
+		mBranchList = mFraxinusSegmentations->getBranchList();
+
+	if(!mBranchList) // In case of restart of Fraxinus, BranchList from segmentation result is deleted on shut down
+	{
+		AirwaysFromCenterlinePtr airwaysFromCLPtr = AirwaysFromCenterlinePtr(new AirwaysFromCenterline());
+		airwaysFromCLPtr->processCenterline(centerline->getVtkPolyData());
+		mBranchList = airwaysFromCLPtr->getBranchList();
+	}
+
+	if(mBranchList)
+	{ //avoid reprocessing same centerline multiple times for every new target point set
+		routeToTargetFilter->setBranchList(mBranchList);
+		routeToTargetFilter->setReprocessCenterline(false);
 	}
 
 	input[0]->setValue(centerline->getUid());
