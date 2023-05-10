@@ -191,17 +191,17 @@ MeshPtr FraxinusSegmentations::getAzygos()
 
 MeshPtr FraxinusSegmentations::getHeart()
 {
-	return this->getMesh("_pulmSystHeart", "Heart");
+	return this->getMesh("_pulmSyst", "Heart");
 }
 
 MeshPtr FraxinusSegmentations::getPulmonaryVeins()
 {
-	return this->getMesh("_pulmSystHeart", "PulmonaryVeins");
+	return this->getMesh("_pulmSyst", "PulmonaryVeins");
 }
 
 MeshPtr FraxinusSegmentations::getPulmonaryTrunk()
 {
-	return this->getMesh("_pulmSystHeart", "PulmonaryTrunk");
+	return this->getMesh("_pulmSyst", "PulmonaryTrunk");
 }
 
 void FraxinusSegmentations::createSelectSegmentationBox()
