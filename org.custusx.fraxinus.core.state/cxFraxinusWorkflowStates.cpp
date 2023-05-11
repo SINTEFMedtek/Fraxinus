@@ -493,13 +493,17 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	MeshPtr heart = mFraxinusSegmentations->getHeart();
 	if(heart)
 		heartObjects.push_back(heart);
-	MeshPtr pulmonaryTrunk = mFraxinusSegmentations->getPulmonaryTrunk();
-	if(pulmonaryTrunk)
-		heartObjects.push_back(pulmonaryTrunk);
+
+	std::vector<DataPtr> pulmonaryVeinObjects;
 	MeshPtr pulmonaryVeins = mFraxinusSegmentations->getPulmonaryVeins();
 	if(pulmonaryVeins)
-		heartObjects.push_back(pulmonaryVeins);
+		pulmonaryVeinObjects.push_back(pulmonaryVeins);
 	
+	std::vector<DataPtr> pulmonaryTrunkObjects;
+	MeshPtr pulmonaryTrunk = mFraxinusSegmentations->getPulmonaryTrunk();
+	if(pulmonaryTrunk)
+		pulmonaryTrunkObjects.push_back(pulmonaryTrunk);
+
 	std::vector<DataPtr> esophagusObjects;
 	MeshPtr esophagus = mFraxinusSegmentations->getEsophagus();
 	if(esophagus)
@@ -527,6 +531,10 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 		widget->addObject(lsSUBCLAVIAN_ARTERY, object);
 	for(DataPtr object : heartObjects)
 		widget->addObject(lsHEART, object);
+	for(DataPtr object : pulmonaryVeinObjects)
+		widget->addObject(lsPULMONARY_VEINS, object);
+	for(DataPtr object : pulmonaryTrunkObjects)
+		widget->addObject(lsPULMONARY_TRUNK, object);
 	for(DataPtr object : esophagusObjects)
 		widget->addObject(lsESOPHAGUS, object);
 	
