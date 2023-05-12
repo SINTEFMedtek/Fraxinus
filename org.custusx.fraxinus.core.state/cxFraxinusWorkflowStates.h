@@ -91,6 +91,7 @@ protected:
 	BranchListPtr mBranchList;
 	std::vector< Eigen::Vector3d > mRouteToTargetPositions;
 	std::vector< double > mRouteToTargetCameraRotations;
+	std::vector< int > mRouteToTargetGenerationNumbers;
 	FraxinusSegmentationsPtr mFraxinusSegmentations;
 
 

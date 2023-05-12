@@ -390,6 +390,7 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 		this->createRouteToTarget(false);
 		widget->setRoutePositions(mRouteToTargetPositions);
 		widget->setCameraRotationAlongRoute(mRouteToTargetCameraRotations);
+		widget->setGenerationNumbersAlongRoute(mRouteToTargetGenerationNumbers);
 		
 		MeshPtr routeToTarget = this->getRouteToTarget();
 		if(routeToTarget)
@@ -609,6 +610,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 		routeToTargetFilter->postProcess();
 		mRouteToTargetPositions = routeToTargetFilter->getRoutePositions(true);
 		mRouteToTargetCameraRotations = routeToTargetFilter->getCameraRotation();
+		mRouteToTargetGenerationNumbers = routeToTargetFilter->getGenerationNumbers();
 		emit routeToTargetCreated();
 	}
 	mBranchList = routeToTargetFilter->getBranchList();
