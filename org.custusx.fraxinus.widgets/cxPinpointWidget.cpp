@@ -22,12 +22,14 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	mServices(services),
 	mMetricManager(new MetricManager(services->view(), services->patient(), services->tracking(), services->spaceProvider(), services->file())),
 	mTargetMetricUid(this->getTargetMetricUid()),
-	mTargetMetricName("Target")
+	mTargetMetricName("Target"),
+	mViaMetricUid(this->getViaPointMetricUid()),
+	mViaMetricName("Via")
 {
 	mMetricManager->setActiveUid(mTargetMetricUid);
 
 	QPushButton *setPointMetric = new QPushButton("&Confirm target and proceed", this);
-	connect(setPointMetric, &QPushButton::clicked, this, &PinpointWidget::setPointMetric);
+	connect(setPointMetric, &QPushButton::clicked, this, &PinpointWidget::setTargetMetric);
 	QPushButton *centerToImage = new QPushButton(QIcon(":/icons/center_image.png"), " Center Image", this);
 	connect(centerToImage, &QPushButton::clicked, this, &PinpointWidget::centerToImage);
 	mPointMetricNameLineEdit = new QLineEdit(mTargetMetricName, this);
@@ -62,6 +64,11 @@ QString PinpointWidget::getTargetMetricUid()
 	return "fraxinus_target";
 }
 
+QString PinpointWidget::getViaPointMetricUid()
+{
+	return "fraxinus_via_point";
+}
+
 QString PinpointWidget::getEndoscopeMetricUid()
 {
 	return "Endoscope";
@@ -72,12 +79,12 @@ QString PinpointWidget::getDistanceMetricUid()
 	return "DistanceToTarget";
 }
 
-void PinpointWidget::setPointMetric()
+void PinpointWidget::setTargetMetric()
 {
 	if(!mServices->patient()->getData(mTargetMetricUid))
 		this->createPointMetric();
 	else
-		this->updateCoordinateOfPointMetric();
+		this->updateCoordinateOfTargetMetric();
 
 	if(!mServices->patient()->getData(this->getEndoscopeMetricUid()))
 		this->createEndoscopeMetric();
@@ -89,6 +96,14 @@ void PinpointWidget::setPointMetric()
 		this->createDistanceMetric();
 
 	emit targetMetricSet();
+}
+
+void PinpointWidget::setViaMetric()
+{
+	if(!mServices->patient()->getData(mViaMetricUid))
+		this->createPointMetric();
+	else
+		this->updateCoordinateOfViaMetric();
 }
 
 void PinpointWidget::targetNameChanged(const QString &text)
@@ -123,6 +138,17 @@ void PinpointWidget::createPointMetric()
 	this->setNameOfPointMetric();
 }
 
+void PinpointWidget::createViaMetric()
+{
+	CoordinateSystem ref = CoordinateSystem::reference();
+	QColor color = QColor(250, 0, 0, 255);
+	Vector3D p_ref = mServices->spaceProvider()->getActiveToolTipPoint(ref, true);
+
+	mMetricManager->addPoint(p_ref, ref, mViaMetricUid, color);
+
+	this->setNameOfViaMetric();
+}
+
 void PinpointWidget::createEndoscopeMetric()
 {
 	CoordinateSystem tool(COORDINATE_SYSTEM::csTOOL, "active");
@@ -142,9 +168,9 @@ void PinpointWidget::createDistanceMetric()
 	arg->set(1, endoscope);
 }
 
-void PinpointWidget::updateCoordinateOfPointMetric()
+void PinpointWidget::updateCoordinateOfPointMetric(QString pointMetricName)
 {
-	DataPtr data = mServices->patient()->getData(mTargetMetricUid);
+	DataPtr data = mServices->patient()->getData(pointMetricName);
 	PointMetricPtr point = boost::dynamic_pointer_cast<PointMetric>(data);
 	if(!point)
 		return;
@@ -153,11 +179,28 @@ void PinpointWidget::updateCoordinateOfPointMetric()
 	point->setCoordinate(p_ref);
 }
 
+void PinpointWidget::updateCoordinateOfTargetMetric()
+{
+	this->updateCoordinateOfPointMetric(mTargetMetricUid);
+}
+
+void PinpointWidget::updateCoordinateOfViaMetric()
+{
+	this->updateCoordinateOfPointMetric(mViaMetricName);
+}
+
 void PinpointWidget::setNameOfPointMetric()
 {
 	DataMetricPtr data = mMetricManager->getMetric(mTargetMetricUid);
 	if(data)
 		data->setName(mTargetMetricName);
+}
+
+void PinpointWidget::setNameOfViaMetric()
+{
+	DataMetricPtr data = mMetricManager->getMetric(mViaMetricUid);
+	if(data)
+		data->setName(mViaMetricName);
 }
 
 QString PinpointWidget::getNameOfPointMetric() const

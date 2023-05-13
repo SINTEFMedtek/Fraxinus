@@ -273,38 +273,35 @@ ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
 	return imageCopied;
 }
 
-PointMetricPtr FraxinusWorkflowState::getTargetPoint() const
+PointMetricPtr FraxinusWorkflowState::getPointMetric(QString pointMetricName) const
 {
 	std::map<QString, PointMetricPtr> metrics = mServices->patient()->getDataOfType<PointMetric>();
 	std::map<QString, PointMetricPtr>::iterator it = metrics.begin();
 	PointMetricPtr metric;
 	for( ; it != metrics.end(); ++it)
 	{
-		if(it->first.contains(PinpointWidget::getTargetMetricUid()))
+		if(it->first.contains(pointMetricName))
 		{
 			metric = it->second;
 			break;
 		}
 	}
-	
 	return metric;
+}
+
+PointMetricPtr FraxinusWorkflowState::getTargetPoint() const
+{
+	return getPointMetric(PinpointWidget::getTargetMetricUid());
+}
+
+PointMetricPtr FraxinusWorkflowState::getViaPoint() const
+{
+	return getPointMetric(PinpointWidget::getViaPointMetricUid());
 }
 
 PointMetricPtr FraxinusWorkflowState::getEndoscopePoint() const
 {
-	std::map<QString, PointMetricPtr> metrics = mServices->patient()->getDataOfType<PointMetric>();
-	std::map<QString, PointMetricPtr>::iterator it = metrics.begin();
-	PointMetricPtr metric;
-	for( ; it != metrics.end(); ++it)
-	{
-		if(it->first.contains(PinpointWidget::getEndoscopeMetricUid()))
-		{
-			metric = it->second;
-			break;
-		}
-	}
-	
-	return metric;
+	return getPointMetric(PinpointWidget::getEndoscopeMetricUid());
 }
 
 DistanceMetricPtr FraxinusWorkflowState::getDistanceToTargetMetric() const

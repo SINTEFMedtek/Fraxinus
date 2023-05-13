@@ -51,16 +51,19 @@ class org_custusx_fraxinus_widgets_EXPORT PinpointWidget : public BaseWidget
 public:
 	PinpointWidget(VisServicesPtr services, QWidget *parent);
 	static QString getTargetMetricUid();
+	static QString getViaPointMetricUid();
 	static QString getEndoscopeMetricUid();
 	static QString getDistanceMetricUid();
 	StructuresSelectionWidget* getStructuresSelectionWidget();
 	void createPointMetric();
+	void createViaMetric();
 
 signals:
 	void targetMetricSet();
 
 private slots:
-	void setPointMetric();
+	void setTargetMetric();
+	void setViaMetric();
 	void centerToImage();
 	void targetNameChanged(const QString &text);
 	void loadNameOfPointMetric();
@@ -68,8 +71,11 @@ private slots:
 private:
 	void createEndoscopeMetric();
 	void createDistanceMetric();
-	void updateCoordinateOfPointMetric();
+	void updateCoordinateOfPointMetric(QString pointMetricName);
+	void updateCoordinateOfTargetMetric();
+	void updateCoordinateOfViaMetric();
 	void setNameOfPointMetric();
+	void setNameOfViaMetric();
 	QString getNameOfPointMetric() const;
 
 	QLineEdit *mPointMetricNameLineEdit;
@@ -77,6 +83,8 @@ private:
 	MetricManagerPtr mMetricManager;
 	QString mTargetMetricUid;
 	QString mTargetMetricName;
+	QString mViaMetricUid;
+	QString mViaMetricName;
 	StructuresSelectionWidget* mStructuresSelectionWidget;
 };
 

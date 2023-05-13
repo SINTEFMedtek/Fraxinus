@@ -82,8 +82,10 @@ protected:
 	PinpointWidget *getPinpointWidget();
 	ImagePtr getCTImageCopied() const;
 	ImagePtr createCopiedImage(ImagePtr originalImage) const;
-	PointMetricPtr getTargetPoint() const;
-	PointMetricPtr getEndoscopePoint() const;
+	PointMetricPtr getPointMetric(QString pointMetricName) const;
+	PointMetricPtr	getTargetPoint() const;
+	PointMetricPtr getViaPoint() const;
+	PointMetricPtr	getEndoscopePoint() const;
 	DistanceMetricPtr getDistanceToTargetMetric() const;
 	void createRouteToTarget(bool makeRouteInformationFile);
 	void setMeshOpacity(MeshPtr mesh, double opacity);
