@@ -27,13 +27,13 @@ sudo apt install -y git
 #Unpack compressed archive to /home/username/Fraxinus
 tar -xf Fraxinus.tar.xz -C ~
 
-#Place AI networks in correct position
+#Place Raidionics AI networks in correct position
 mkdir ~/Fraxinus_settings
 mkdir ~/Fraxinus_settings/models
 mkdir ~/Fraxinus_settings/models/raidionics_models
-mv models/raidionics_models/CT_Airways ~/Fraxinus_settings/models/raidionics_models/
-mv models/raidionics_models/CT_Lungs ~/Fraxinus_settings/models/raidionics_models/
 cd ~/Fraxinus
+cp ~/Fraxinus/models/raidionics_models/CT_Airways ~/Fraxinus_settings/models/raidionics_models/
+cp ~/Fraxinus/models/raidionics_models/CT_Lungs ~/Fraxinus_settings/models/raidionics_models/
 
 # Update desktop launcher with correct paths
 mv Fraxinus22.04.desktop Fraxinus22.04.desktop-bak
@@ -62,3 +62,15 @@ source venv/bin/activate
 pip install --upgrade pip
 python -m pip install -r requirements.txt
 deactivate
+
+python3 -m venv venvLungTumorMask
+source venvLungTumorMask/bin/activate
+pip install --upgrade pip
+pip install https://github.com/VemundFredriksen/LungTumorMask/releases/download/v1.2.1/lungtumormask-1.2.1-py2.py3-none-any.whl
+deactivate
+
+#Add more swap space for Ai networks
+sudo fallocate -l 10G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
