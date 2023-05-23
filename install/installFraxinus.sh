@@ -12,7 +12,7 @@
 # Then run like this:
 # ./installFraxinus.sh
 #
-# For the installation of apt packages a user password needs to be entered as well.
+# For the installation of apt packages a user password needs to be entered as well
 #
 ##########################################################################################################
 
@@ -32,8 +32,8 @@ mkdir ~/Fraxinus_settings
 mkdir ~/Fraxinus_settings/models
 mkdir ~/Fraxinus_settings/models/raidionics_models
 cd ~/Fraxinus
-cp ~/Fraxinus/models/raidionics_models/CT_Airways ~/Fraxinus_settings/models/raidionics_models/
-cp ~/Fraxinus/models/raidionics_models/CT_Lungs ~/Fraxinus_settings/models/raidionics_models/
+cp -r ~/Fraxinus/models/raidionics_models/CT_Airways ~/Fraxinus_settings/models/raidionics_models/
+cp -r ~/Fraxinus/models/raidionics_models/CT_Lungs ~/Fraxinus_settings/models/raidionics_models/
 
 # Update desktop launcher with correct paths
 mv Fraxinus22.04.desktop Fraxinus22.04.desktop-bak
@@ -69,7 +69,7 @@ pip install --upgrade pip
 pip install https://github.com/VemundFredriksen/LungTumorMask/releases/download/v1.2.1/lungtumormask-1.2.1-py2.py3-none-any.whl
 deactivate
 
-#Add more swap space for Ai networks
+#Add more swap space for AI networks
 sudo fallocate -l 10G /swapfile
 sudo chmod 600 /swapfile
 sudo mkswap /swapfile
