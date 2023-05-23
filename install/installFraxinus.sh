@@ -35,11 +35,13 @@ cd ~/Fraxinus
 cp -r ~/Fraxinus/models/raidionics_models/CT_Airways ~/Fraxinus_settings/models/raidionics_models/
 cp -r ~/Fraxinus/models/raidionics_models/CT_Lungs ~/Fraxinus_settings/models/raidionics_models/
 
+FRAXINUS_PATH=$(ls -d Fraxinus_*)
+
 # Update desktop launcher with correct paths
 mv Fraxinus22.04.desktop Fraxinus22.04.desktop-bak
 sed -e "s,Icon=.*,Icon=$HOME/Fraxinus/Icon/Fraxinus.icns,g" Fraxinus22.04.desktop-bak > Fraxinus22.04.desktop
 mv Fraxinus22.04.desktop Fraxinus22.04.desktop-bak
-sed -e "s,Path=.*,Path=$HOME/Fraxinus/Fraxinus_2023.05.22-dev+develop.5d0b80_Linux-5.11.0-25-generic/Fraxinus,g" Fraxinus22.04.desktop-bak > Fraxinus22.04.desktop
+sed -e "s,Path=.*,Path=$HOME/Fraxinus/$FRAXINUS_PATH/Fraxinus,g" Fraxinus22.04.desktop-bak > Fraxinus22.04.desktop
 rm Fraxinus22.04.desktop-bak
 
 #Copy desktop launcher, and make it executable
