@@ -195,14 +195,17 @@ private slots:
 	void createRoute();
 	void pointChanged();
 	void updateTargetPoint();
+
 private:
 	void addDataToView();
 	void setManualToolToTargetPosition();
 	void showRouteToTarget();
 	void deleteOldRouteToTarget();
+	void setUpdateViaPoint(bool updateViaPoint);
 
 	bool mPointChanged;
 	bool mUpdateTargetAllowed = true;
+	bool mUpdateViaPoint = false;
 	int m3DViewGroupNumber;
 	int m2DViewGroupNumber;
 };

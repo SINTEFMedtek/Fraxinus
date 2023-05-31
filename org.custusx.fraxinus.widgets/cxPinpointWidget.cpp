@@ -4,6 +4,9 @@
 #include <QLineEdit>
 #include <QAction>
 #include <QGroupBox>
+#include <QButtonGroup>
+#include <QRadioButton>
+#include <QCheckBox>
 
 #include "cxApplication.h"
 #include "cxMetricManager.h"
@@ -30,12 +33,30 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 
 	QPushButton *setPointMetric = new QPushButton("&Confirm target and proceed", this);
 	connect(setPointMetric, &QPushButton::clicked, this, &PinpointWidget::setTargetMetric);
-	QPushButton *setViaMetric = new QPushButton("&Set via point", this);
-	connect(setViaMetric, &QPushButton::clicked, this, &PinpointWidget::setViaMetric);
 	QPushButton *centerToImage = new QPushButton(QIcon(":/icons/center_image.png"), " Center Image", this);
 	connect(centerToImage, &QPushButton::clicked, this, &PinpointWidget::centerToImage);
 	mPointMetricNameLineEdit = new QLineEdit(mTargetMetricName, this);
 	connect(mPointMetricNameLineEdit, &QLineEdit::textEdited, this, &PinpointWidget::targetNameChanged);
+
+
+	// Selector for using via point in route to target
+	mViaPointCheckBox = new QCheckBox(tr("Use via point"));
+	mViaPointCheckBox->setChecked(false);
+	QButtonGroup *viaPointSelectorGroup = new QButtonGroup(this);
+	mTargetPointButton = new QRadioButton(tr("Set target point"));
+	mViaPointButton = new QRadioButton(tr("Set via point"));
+	mViaPointButton->setChecked(true);
+	viaPointSelectorGroup->addButton(mViaPointButton);
+	viaPointSelectorGroup->addButton(mTargetPointButton);
+
+	QGridLayout* gridLayout = new QGridLayout;
+	gridLayout->addWidget(mViaPointCheckBox,1,0);
+	gridLayout->addWidget(mTargetPointButton,0,1);
+	gridLayout->addWidget(mViaPointButton,1,1);
+
+	mTargetPointButton->hide();
+	mViaPointButton->hide();
+
 
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWidget::loadNameOfPointMetric);
 
@@ -43,11 +64,10 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	QHBoxLayout *h_layout = new QHBoxLayout();
 	h_layout->addWidget(mPointMetricNameLineEdit);
 	h_layout->addWidget(setPointMetric);
-	h_layout->addSpacing(10);
-	h_layout->addWidget(setViaMetric);
-	h_layout->addSpacing(10);
 	v_layout->addSpacing(50);
 	v_layout->addLayout(h_layout);
+	v_layout->addSpacing(30);
+	v_layout->addLayout(gridLayout);
 	v_layout->addSpacing(30);
 	v_layout->addWidget(centerToImage);
 	v_layout->addStretch();
@@ -61,6 +81,10 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	v_layout->addStretch(); //And add some more stretch
 
 	this->setLayout(v_layout);
+
+	connect(mViaPointCheckBox, &QCheckBox::clicked, this, &PinpointWidget::useViaPointOn);
+	connect(mTargetPointButton, &QRadioButton::clicked, this, &PinpointWidget::setTargetPointEnabled);
+	connect(mViaPointButton, &QRadioButton::clicked, this, &PinpointWidget::setViaPointEnabled);
 }
 
 QString PinpointWidget::getTargetMetricUid()
@@ -223,9 +247,35 @@ StructuresSelectionWidget* PinpointWidget::getStructuresSelectionWidget()
 	return mStructuresSelectionWidget;
 }
 
+void PinpointWidget::useViaPointOn(bool checked)
+{
+	mUseViaPoint = mViaPointCheckBox->isChecked();
+	if(checked)
+	{
+		mTargetPointButton->show();
+		mViaPointButton->show();
+		emit updateViaPointFromManualTool(mViaPointButton->isChecked());
+	}
+	else
+	{
+		mTargetPointButton->hide();
+		mViaPointButton->hide();
+	}
+}
+
+void PinpointWidget::setTargetPointEnabled()
+{
+	emit updateViaPointFromManualTool(false);
+}
+
+void PinpointWidget::setViaPointEnabled()
+{
+	emit updateViaPointFromManualTool(true);
+}
+
 bool PinpointWidget::getViaOption()
 {
-	return true; //FIX! Make option
+	return mUseViaPoint;
 }
 
 }

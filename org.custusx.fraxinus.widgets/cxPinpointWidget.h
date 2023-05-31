@@ -38,6 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cxStructuresSelectionWidget.h>
 
 class QLineEdit;
+class QRadioButton;
+class QCheckBox;
 
 namespace cx {
 
@@ -61,6 +63,7 @@ public:
 
 signals:
 	void targetMetricSet();
+	void updateViaPointFromManualTool(bool useViaPoint = false);
 
 private slots:
 	void setTargetMetric();
@@ -78,6 +81,9 @@ private:
 	void setNameOfPointMetric();
 	void setNameOfViaMetric();
 	QString getNameOfPointMetric() const;
+	void useViaPointOn(bool checked);
+	void setTargetPointEnabled();
+	void setViaPointEnabled();
 
 	QLineEdit *mPointMetricNameLineEdit;
 	VisServicesPtr mServices;
@@ -87,6 +93,11 @@ private:
 	QString mViaMetricUid;
 	QString mViaMetricName;
 	StructuresSelectionWidget* mStructuresSelectionWidget;
+	QCheckBox* mViaPointCheckBox;
+	QRadioButton* mViaPointButton;
+	QRadioButton* mTargetPointButton;
+	QPushButton *mSetViaMetric;
+	bool mUseViaPoint = false;
 };
 
 }
