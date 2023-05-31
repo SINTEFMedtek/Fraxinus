@@ -57,6 +57,7 @@ public:
 	StructuresSelectionWidget* getStructuresSelectionWidget();
 	void createPointMetric();
 	void createViaMetric();
+	bool getViaOption();
 
 signals:
 	void targetMetricSet();

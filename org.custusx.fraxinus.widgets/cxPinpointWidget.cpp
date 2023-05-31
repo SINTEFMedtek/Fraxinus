@@ -30,6 +30,8 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 
 	QPushButton *setPointMetric = new QPushButton("&Confirm target and proceed", this);
 	connect(setPointMetric, &QPushButton::clicked, this, &PinpointWidget::setTargetMetric);
+	QPushButton *setViaMetric = new QPushButton("&Set via point", this);
+	connect(setViaMetric, &QPushButton::clicked, this, &PinpointWidget::setViaMetric);
 	QPushButton *centerToImage = new QPushButton(QIcon(":/icons/center_image.png"), " Center Image", this);
 	connect(centerToImage, &QPushButton::clicked, this, &PinpointWidget::centerToImage);
 	mPointMetricNameLineEdit = new QLineEdit(mTargetMetricName, this);
@@ -41,6 +43,8 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	QHBoxLayout *h_layout = new QHBoxLayout();
 	h_layout->addWidget(mPointMetricNameLineEdit);
 	h_layout->addWidget(setPointMetric);
+	h_layout->addSpacing(10);
+	h_layout->addWidget(setViaMetric);
 	h_layout->addSpacing(10);
 	v_layout->addSpacing(50);
 	v_layout->addLayout(h_layout);
@@ -101,7 +105,7 @@ void PinpointWidget::setTargetMetric()
 void PinpointWidget::setViaMetric()
 {
 	if(!mServices->patient()->getData(mViaMetricUid))
-		this->createPointMetric();
+		this->createViaMetric();
 	else
 		this->updateCoordinateOfViaMetric();
 }
@@ -130,7 +134,7 @@ void PinpointWidget::centerToImage()
 void PinpointWidget::createPointMetric()
 {
 	CoordinateSystem ref = CoordinateSystem::reference();
-	QColor color = QColor(250, 0, 0, 255);
+	QColor color = QColor(0, 0, 250, 255);
 	Vector3D p_ref = mServices->spaceProvider()->getActiveToolTipPoint(ref, true);
 
 	mMetricManager->addPoint(p_ref, ref, mTargetMetricUid, color);
@@ -186,7 +190,7 @@ void PinpointWidget::updateCoordinateOfTargetMetric()
 
 void PinpointWidget::updateCoordinateOfViaMetric()
 {
-	this->updateCoordinateOfPointMetric(mViaMetricName);
+	this->updateCoordinateOfPointMetric(mViaMetricUid);
 }
 
 void PinpointWidget::setNameOfPointMetric()
@@ -217,6 +221,11 @@ QString PinpointWidget::getNameOfPointMetric() const
 StructuresSelectionWidget* PinpointWidget::getStructuresSelectionWidget()
 {
 	return mStructuresSelectionWidget;
+}
+
+bool PinpointWidget::getViaOption()
+{
+	return true; //FIX! Make option
 }
 
 }

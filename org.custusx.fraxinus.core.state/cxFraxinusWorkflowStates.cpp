@@ -592,6 +592,17 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 
 	input[0]->setValue(centerline->getUid());
 	input[1]->setValue(targetPoint->getUid());
+
+	PinpointWidget* pinPointWidget = this->getPinpointWidget();
+	if(pinPointWidget)
+	{
+		if(pinPointWidget->getViaOption())
+		{
+			PointMetricPtr viaPoint =this->getViaPoint();
+			if(viaPoint)
+				input[2]->setValue(viaPoint->getUid());
+		}
+	}
 	
 	if(routeToTargetFilter->execute())
 	{
@@ -851,6 +862,11 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	if(targetPoint)
 	{
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
+	}
+	PointMetricPtr viaPoint = this->getViaPoint();
+	if(viaPoint)
+	{
+		connect(viaPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
 
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
