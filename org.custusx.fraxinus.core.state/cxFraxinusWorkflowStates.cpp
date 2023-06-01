@@ -387,6 +387,7 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 		this->createRouteToTarget(false);
 		widget->setRoutePositions(mRouteToTargetPositions);
 		widget->setCameraRotationAlongRoute(mRouteToTargetCameraRotations);
+		widget->setGenerationNumbersAlongRoute(mRouteToTargetGenerationNumbers);
 		
 		MeshPtr routeToTarget = this->getRouteToTarget();
 		if(routeToTarget)
@@ -437,10 +438,10 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	if(tumors)
 		tumorObjects.push_back(mFraxinusSegmentations->getTumors());
 
-	std::vector<DataPtr> lesionObjects;
-	MeshPtr lesions = mFraxinusSegmentations->getNodules();
-	if(lesions)
-		lesionObjects.push_back(mFraxinusSegmentations->getNodules());
+	std::vector<DataPtr> noduleObjects;
+	MeshPtr nodules = mFraxinusSegmentations->getNodules();
+	if(nodules)
+		noduleObjects.push_back(mFraxinusSegmentations->getNodules());
 	
 	std::vector<DataPtr> lymphNodeObjects;
 	MeshPtr lymphNodes = mFraxinusSegmentations->getLymphNodes();
@@ -490,13 +491,17 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	MeshPtr heart = mFraxinusSegmentations->getHeart();
 	if(heart)
 		heartObjects.push_back(heart);
-	MeshPtr pulmonaryTrunk = mFraxinusSegmentations->getPulmonaryTrunk();
-	if(pulmonaryTrunk)
-		heartObjects.push_back(pulmonaryTrunk);
+
+	std::vector<DataPtr> pulmonaryVeinObjects;
 	MeshPtr pulmonaryVeins = mFraxinusSegmentations->getPulmonaryVeins();
 	if(pulmonaryVeins)
-		heartObjects.push_back(pulmonaryVeins);
+		pulmonaryVeinObjects.push_back(pulmonaryVeins);
 	
+	std::vector<DataPtr> pulmonaryTrunkObjects;
+	MeshPtr pulmonaryTrunk = mFraxinusSegmentations->getPulmonaryTrunk();
+	if(pulmonaryTrunk)
+		pulmonaryTrunkObjects.push_back(pulmonaryTrunk);
+
 	std::vector<DataPtr> esophagusObjects;
 	MeshPtr esophagus = mFraxinusSegmentations->getEsophagus();
 	if(esophagus)
@@ -506,8 +511,8 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 		widget->addObject(lsLUNG, object);
 	for(DataPtr object : tumorObjects)
 		widget->addObject(lsTUMORS, object);
-	for(DataPtr object : lesionObjects)
-		widget->addObject(lsLESIONS, object);
+	for(DataPtr object : noduleObjects)
+		widget->addObject(lsNODULES, object);
 	for(DataPtr object : lymphNodeObjects)
 		widget->addObject(lsLYMPH_NODES, object);
 	for(DataPtr object : spineObjects)
@@ -524,6 +529,10 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 		widget->addObject(lsSUBCLAVIAN_ARTERY, object);
 	for(DataPtr object : heartObjects)
 		widget->addObject(lsHEART, object);
+	for(DataPtr object : pulmonaryVeinObjects)
+		widget->addObject(lsPULMONARY_VEINS, object);
+	for(DataPtr object : pulmonaryTrunkObjects)
+		widget->addObject(lsPULMONARY_TRUNK, object);
 	for(DataPtr object : esophagusObjects)
 		widget->addObject(lsESOPHAGUS, object);
 	
@@ -609,6 +618,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 		routeToTargetFilter->postProcess();
 		mRouteToTargetPositions = routeToTargetFilter->getRoutePositions(true);
 		mRouteToTargetCameraRotations = routeToTargetFilter->getCameraRotation();
+		mRouteToTargetGenerationNumbers = routeToTargetFilter->getGenerationNumbers();
 		emit routeToTargetCreated();
 	}
 	mBranchList = routeToTargetFilter->getBranchList();
