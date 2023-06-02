@@ -31,8 +31,8 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 {
 	mMetricManager->setActiveUid(mTargetMetricUid);
 
-	QPushButton *setPointMetric = new QPushButton("&Confirm target and proceed", this);
-	connect(setPointMetric, &QPushButton::clicked, this, &PinpointWidget::setTargetMetric);
+	QPushButton *continueToVB = new QPushButton("&Continue to virtual bronchoscopy", this);
+	connect(continueToVB, &QPushButton::clicked, this, &PinpointWidget::setTargetMetric);
 	QPushButton *centerToImage = new QPushButton(QIcon(":/icons/center_image.png"), " Center Image", this);
 	connect(centerToImage, &QPushButton::clicked, this, &PinpointWidget::centerToImage);
 	mPointMetricNameLineEdit = new QLineEdit(mTargetMetricName, this);
@@ -43,9 +43,8 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	mViaPointCheckBox = new QCheckBox(tr("Use via point"));
 	mViaPointCheckBox->setChecked(false);
 	QButtonGroup *viaPointSelectorGroup = new QButtonGroup(this);
-	mTargetPointButton = new QRadioButton(tr("Set target point"));
-	mViaPointButton = new QRadioButton(tr("Set via point"));
-	mViaPointButton->setChecked(true);
+	mTargetPointButton = new QPushButton("&Set target point", this);
+	mViaPointButton = new QPushButton("&Set via point", this);
 	viaPointSelectorGroup->addButton(mViaPointButton);
 	viaPointSelectorGroup->addButton(mTargetPointButton);
 
@@ -54,7 +53,6 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	gridLayout->addWidget(mTargetPointButton,0,1);
 	gridLayout->addWidget(mViaPointButton,1,1);
 
-	mTargetPointButton->hide();
 	mViaPointButton->hide();
 
 
@@ -63,7 +61,7 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	QVBoxLayout *v_layout = new QVBoxLayout();
 	QHBoxLayout *h_layout = new QHBoxLayout();
 	h_layout->addWidget(mPointMetricNameLineEdit);
-	h_layout->addWidget(setPointMetric);
+	h_layout->addWidget(continueToVB);
 	v_layout->addSpacing(50);
 	v_layout->addLayout(h_layout);
 	v_layout->addSpacing(30);
@@ -83,8 +81,8 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	this->setLayout(v_layout);
 
 	connect(mViaPointCheckBox, &QCheckBox::clicked, this, &PinpointWidget::useViaPointOn);
-	connect(mTargetPointButton, &QRadioButton::clicked, this, &PinpointWidget::setTargetPointEnabled);
-	connect(mViaPointButton, &QRadioButton::clicked, this, &PinpointWidget::setViaPointEnabled);
+	connect(mTargetPointButton, &QPushButton::clicked, this, &PinpointWidget::setTargetPoint);
+	connect(mViaPointButton, &QPushButton::clicked, this, &PinpointWidget::setViaPoint);
 }
 
 QString PinpointWidget::getTargetMetricUid()
@@ -251,26 +249,21 @@ void PinpointWidget::useViaPointOn(bool checked)
 {
 	mUseViaPoint = mViaPointCheckBox->isChecked();
 	if(checked)
-	{
-		mTargetPointButton->show();
 		mViaPointButton->show();
-		emit updateViaPointFromManualTool(mViaPointButton->isChecked());
-	}
 	else
-	{
-		mTargetPointButton->hide();
 		mViaPointButton->hide();
-	}
+
+	emit updateRoute();
 }
 
-void PinpointWidget::setTargetPointEnabled()
+void PinpointWidget::setTargetPoint()
 {
-	emit updateViaPointFromManualTool(false);
+	emit updateTargetPointFromManualTool();
 }
 
-void PinpointWidget::setViaPointEnabled()
+void PinpointWidget::setViaPoint()
 {
-	emit updateViaPointFromManualTool(true);
+	emit updateViaPointFromManualTool();
 }
 
 bool PinpointWidget::getViaOption()

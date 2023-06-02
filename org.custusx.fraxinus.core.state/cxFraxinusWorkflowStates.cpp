@@ -858,6 +858,7 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	
 	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::targetMetricSet, Qt::UniqueConnection);
+	connect(this->getPinpointWidget(), &PinpointWidget::updateRoute, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	if(!targetPoint)
@@ -892,16 +893,13 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	PinpointWidget* pinPointWidget = this->getPinpointWidget();
 	if(pinPointWidget)
 	{
-		connect(pinPointWidget, &PinpointWidget::updateViaPointFromManualTool, this, &PinpointWorkflowState::setUpdateViaPoint);
+		connect(pinPointWidget, &PinpointWidget::updateTargetPointFromManualTool, this, &PinpointWorkflowState::updateTargetPoint);
+		connect(pinPointWidget, &PinpointWidget::updateViaPointFromManualTool, this, &PinpointWorkflowState::updateViaPoint);
 
 		StructuresSelectionWidget* structureSelectionWidget = pinPointWidget->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
 			structureSelectionWidget->onEntry();
 	}
-
-	ToolPtr manualTool = mServices->tracking()->getManualTool();
-	if(manualTool)
-		connect(manualTool.get(), &Tool::toolTransformAndTimestamp, this, &PinpointWorkflowState::updateTargetPoint);
 
 	this->setPointPickerIn3Dview(true);
 	this->setDefaultCameraStyle();
@@ -977,21 +975,27 @@ void PinpointWorkflowState::updateTargetPoint()
 	if(!mUpdateTargetAllowed)
 		return;
 	mUpdateTargetAllowed = false;
-	PointMetricPtr point;
-	if(mUpdateViaPoint)
-		point = this->getViaPoint();
-	else
-		point = this->getTargetPoint();
-	if(point)
+	PointMetricPtr target = this->getTargetPoint();
+	if(target)
 	{
 		Vector3D p_ref = mServices->spaceProvider()->getActiveToolTipPoint(CoordinateSystem::reference(), true);
-		point->setCoordinate(p_ref);
+		target->setCoordinate(p_ref);
 	}
+	mUpdateTargetAllowed = true;
 }
 
-void PinpointWorkflowState::setUpdateViaPoint(bool updateViaPoint)
+void PinpointWorkflowState::updateViaPoint()
 {
-	mUpdateViaPoint = updateViaPoint;
+	if(!mUpdateTargetAllowed)
+		return;
+	mUpdateTargetAllowed = false;
+	PointMetricPtr viaPoint = this->getViaPoint();
+	if(viaPoint)
+	{
+		Vector3D p_ref = mServices->spaceProvider()->getActiveToolTipPoint(CoordinateSystem::reference(), true);
+		viaPoint->setCoordinate(p_ref);
+	}
+	mUpdateTargetAllowed = true;
 }
 
 void PinpointWorkflowState::showRouteToTarget()
@@ -1070,15 +1074,6 @@ void PinpointWorkflowState::deleteOldRouteToTarget()
 
 void PinpointWorkflowState::onExit(QEvent * event)
 {
-	ToolPtr manualTool = mServices->tracking()->getManualTool();
-	if(manualTool)
-		disconnect(manualTool.get(), &Tool::toolTransformAndTimestamp, this, &PinpointWorkflowState::updateTargetPoint);
-
-	PinpointWidget* pinPointWidget = this->getPinpointWidget();
-	if(pinPointWidget)
-		disconnect(pinPointWidget, &PinpointWidget::updateViaPointFromManualTool, this, &PinpointWorkflowState::setUpdateViaPoint);
-
-
 	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
 	if(airways)
 		this->setMeshOpacity(airways, 1.0);

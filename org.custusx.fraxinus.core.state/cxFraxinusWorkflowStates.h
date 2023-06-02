@@ -196,13 +196,13 @@ private slots:
 	void createRoute();
 	void pointChanged();
 	void updateTargetPoint();
+	void updateViaPoint();
 
 private:
 	void addDataToView();
 	void setManualToolToTargetPosition();
 	void showRouteToTarget();
 	void deleteOldRouteToTarget();
-	void setUpdateViaPoint(bool updateViaPoint);
 
 	bool mPointChanged;
 	bool mUpdateTargetAllowed = true;

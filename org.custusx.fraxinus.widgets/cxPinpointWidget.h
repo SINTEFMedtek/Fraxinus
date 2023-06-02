@@ -63,7 +63,9 @@ public:
 
 signals:
 	void targetMetricSet();
-	void updateViaPointFromManualTool(bool useViaPoint = false);
+	void updateTargetPointFromManualTool();
+	void updateViaPointFromManualTool();
+	void updateRoute();
 
 private slots:
 	void setTargetMetric();
@@ -82,8 +84,8 @@ private:
 	void setNameOfViaMetric();
 	QString getNameOfPointMetric() const;
 	void useViaPointOn(bool checked);
-	void setTargetPointEnabled();
-	void setViaPointEnabled();
+	void setTargetPoint();
+	void setViaPoint();
 
 	QLineEdit *mPointMetricNameLineEdit;
 	VisServicesPtr mServices;
@@ -94,8 +96,8 @@ private:
 	QString mViaMetricName;
 	StructuresSelectionWidget* mStructuresSelectionWidget;
 	QCheckBox* mViaPointCheckBox;
-	QRadioButton* mViaPointButton;
-	QRadioButton* mTargetPointButton;
+	QPushButton* mViaPointButton;
+	QPushButton* mTargetPointButton;
 	QPushButton *mSetViaMetric;
 	bool mUseViaPoint = false;
 };
