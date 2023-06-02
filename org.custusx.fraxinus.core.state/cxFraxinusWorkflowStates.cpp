@@ -861,20 +861,29 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	connect(this->getPinpointWidget(), &PinpointWidget::updateRoute, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	if(!targetPoint)
+	PointMetricPtr viaPoint = this->getViaPoint();
+	if(!targetPoint || !viaPoint)
 	{
 		PinpointWidget* pinPointWidget = this->getPinpointWidget();
 		if(pinPointWidget)
 		{
-			pinPointWidget->createPointMetric();
-			targetPoint = this->getTargetPoint();
+			if(!targetPoint)
+			{
+				pinPointWidget->createPointMetric();
+				targetPoint = this->getTargetPoint();
+			}
+			if(!viaPoint)
+			{
+				pinPointWidget->createViaMetric();
+				viaPoint = this->getViaPoint();
+			}
 		}
 	}
+
 	if(targetPoint)
 	{
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
-	PointMetricPtr viaPoint = this->getViaPoint();
 	if(viaPoint)
 	{
 		connect(viaPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
