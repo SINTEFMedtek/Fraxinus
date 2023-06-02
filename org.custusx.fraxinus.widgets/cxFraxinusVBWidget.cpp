@@ -174,7 +174,7 @@ void FraxinusVBWidget::updateRttInfo(double cameraPositionInPercent)
 	mStaticTotalLegth->setText(QString("Total route inside airways: <b>%1 mm</b> ").arg(mRouteLength, 0, 'f', 0));
 	mDistanceToTarget->setText(this->createDistanceFromPathToTargetText());
 
-	mRemainingRttLegth->setText(QString("Remaining route inside airways: %1 mm").
+	mRemainingRttLegth->setText(QString("Remaining route length: %1 mm").
 															arg(getRemainingRouteInsideAirways(cameraPositionInPercent), 0, 'f', 0));
 	mDirectDistance->setText(QString("Distance to target: %1 mm").
 													 arg(this->getTargetDistance(), 0, 'f', 0));
