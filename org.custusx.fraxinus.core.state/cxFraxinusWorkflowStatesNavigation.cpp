@@ -309,10 +309,10 @@ void NavigationWorkflowState::addDataToView()
 	ImagePtr ctImage = this->getCTImage();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr nodules = mFraxinusSegmentations->getNodules();
+	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 
 

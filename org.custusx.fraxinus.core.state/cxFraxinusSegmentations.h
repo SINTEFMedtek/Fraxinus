@@ -24,6 +24,7 @@ namespace cx
 {
 typedef boost::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
 typedef boost::shared_ptr<class BinaryThinningImageFilter3DFilter> BinaryThinningImageFilter3DFilterPtr;
+typedef boost::shared_ptr<class GenericScriptFilter> GenericScriptFilterPtr;
 class DisplayTimerWidget;
 
 class org_custusx_fraxinus_core_state_EXPORT FraxinusSegmentations : public QObject
@@ -36,28 +37,13 @@ public:
 	ImagePtr getCTImage() const;
 	ImagePtr getAirwaysVolume() const;
 
-	MeshPtr getRawCenterline();
+//	MeshPtr getRawCenterline();
 	MeshPtr getCenterline();
-	MeshPtr getAirwaysContour();
+//	MeshPtr getAirwaysContour();
 	MeshPtr getAirwaysTubes();
 	MeshPtr getLungVessels();
 	MeshPtr getMesh(QString contain_str_1, QString contain_str_2 = "", QString not_contain_str_1="", QString not_contain_str_2="");
-	MeshPtr getLungs();
-	MeshPtr getLymphNodes();
-	MeshPtr getNodules();
-	MeshPtr getTumors();
-	MeshPtr getVenaCava();
-	MeshPtr getAorticArch();
-	MeshPtr getAscendingAorta();
-	MeshPtr getDescendingAorta();
-	MeshPtr getSpine();
-	MeshPtr getSubCarArt();
-	MeshPtr getEsophagus();
-	MeshPtr getBrachiocephalicVeins();
-	MeshPtr getAzygos();
-	MeshPtr getHeart();
-	MeshPtr getPulmonaryVeins();
-	MeshPtr getPulmonaryTrunk();
+	MeshPtr getMesh(ORGAN_TYPE organType);
 	
 	void createSelectSegmentationBox();
 	void createProcessingInfo();
@@ -68,8 +54,22 @@ public:
 	void checkIfSegmentationSucceeded();
 	void close();
 
+	//Utility functions
+	static QString getReadableString(ORGAN_TYPE target);
+	static QString getReadableString(QString string);///< Adds space to CamelCase strings. All words, including first must start with Uppercase setters
+
 signals:
 	void segmentationFinished();
+
+protected:
+	bool mSegmentAirways = false;
+	bool mSegmentLungs = false;
+	bool mSegmentLymphNodes = false;
+	bool mSegmentHeart = false;
+	bool mSegmentMediumOrgans = false;
+	bool mSegmentSmallOrgans = false;
+
+	QStringList getRaidionicsOutputClasses(bool startTimers = true);
 
 private slots:
 	void imageSelected();
@@ -107,32 +107,28 @@ private:
 	QCheckBox* mCheckBoxNodules;
 	QCheckBox* mCheckBoxTumors;
 	QCheckBox* mCheckBoxLungVessels;
-	bool mAirwaysProcessed = false;
-	bool mCenterlineProcessed = false;
+	bool mRaidionicsRun = false;
+//	bool mAirwaysProcessed = false;
+//	bool mCenterlineProcessed = false;
 	bool mLungVesselsProcessed = false;
-	bool mLungsProcessed = false;
-	bool mLymphNodesProcessed = false;
-	bool mHeartProcessed = false;
-	bool mMediumOrgansProcessed = false;
-	bool mSmallOrgansProcessed = false;
+//	bool mLungsProcessed = false;
+//	bool mLymphNodesProcessed = false;
+//	bool mHeartProcessed = false;
+//	bool mMediumOrgansProcessed = false;
+//	bool mSmallOrgansProcessed = false;
 	bool mNodulesProcessed = false;
 	bool mTumorsProcessed = false;
-	bool mSegmentAirways;
-	bool mSegmentLungVessels;
-	bool mSegmentLungs;
-	bool mSegmentLymphNodes;
-	bool mSegmentHeart;
-	bool mSegmentSmallOrgans;
-	bool mSegmentMediumOrgans;
-	bool mSegmentNodules;
-	bool mSegmentTumors;
+	bool mSegmentLungVessels = false;
+	bool mSegmentNodules = false;
+	bool mSegmentTumors = false;
 	LUNG_STRUCTURES mCurrentSegmentationType;
 
-	void setMeshNameAndStopTimer(MeshPtr mesh);
-	void setMeshName(MeshPtr mesh, LUNG_STRUCTURES segmentationType);
-	void stopTimer(MeshPtr mesh);
+	void setMeshNameAndStopTimer(ORGAN_TYPE target);
+	void setMeshName(ORGAN_TYPE target);
+	void stopTimer(ORGAN_TYPE target);
 	void generateCenterline();
-
+	bool runRaidionics(GenericScriptFilterPtr scriptFilter);
+	DisplayTimerWidget *getTimer(ORGAN_TYPE target);
 };
 }//cx
 #endif // CXFRAXINUSSEGMENTATIONS_H

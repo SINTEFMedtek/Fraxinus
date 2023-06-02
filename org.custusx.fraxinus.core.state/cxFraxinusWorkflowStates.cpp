@@ -432,81 +432,81 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	widget->resetButtons();
 
 	std::vector<DataPtr> lungObjects;
-	MeshPtr lungs = mFraxinusSegmentations->getLungs();
+	MeshPtr lungs = mFraxinusSegmentations->getMesh(otLUNGS);
 	if(lungs)
 		lungObjects.push_back(lungs);
 	
 	std::vector<DataPtr> tumorObjects;
-	MeshPtr tumors = mFraxinusSegmentations->getTumors();
+	MeshPtr tumors = mFraxinusSegmentations->getMesh(otTUMORS);
 	if(tumors)
-		tumorObjects.push_back(mFraxinusSegmentations->getTumors());
+		tumorObjects.push_back(tumors);
 
 	std::vector<DataPtr> noduleObjects;
-	MeshPtr nodules = mFraxinusSegmentations->getNodules();
+	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
 	if(nodules)
-		noduleObjects.push_back(mFraxinusSegmentations->getNodules());
+		noduleObjects.push_back(nodules);
 	
 	std::vector<DataPtr> lymphNodeObjects;
-	MeshPtr lymphNodes = mFraxinusSegmentations->getLymphNodes();
+	MeshPtr lymphNodes = mFraxinusSegmentations->getMesh(otLYMPH_NODES);
 	if(lymphNodes)
 		lymphNodeObjects.push_back(lymphNodes);
 	
 	std::vector<DataPtr> spineObjects;
-	MeshPtr spine = mFraxinusSegmentations->getSpine();
+	MeshPtr spine = mFraxinusSegmentations->getMesh(otSPINE);
 	if(spine)
 		spineObjects.push_back(spine);
 	
 	std::vector<DataPtr> VenaCavaObjects;
-	MeshPtr venaCava = mFraxinusSegmentations->getVenaCava();
+	MeshPtr venaCava = mFraxinusSegmentations->getMesh(otVENA_CAVA);
 	if(venaCava)
 		VenaCavaObjects.push_back(venaCava);
-	MeshPtr brachiocephalicVeins = mFraxinusSegmentations->getBrachiocephalicVeins();
+	MeshPtr brachiocephalicVeins = mFraxinusSegmentations->getMesh(otBRACHIO_CEPHALIC_VEINS);
 	if(brachiocephalicVeins)
 		VenaCavaObjects.push_back(brachiocephalicVeins);
 	
 	std::vector<DataPtr> AortaObjects;
-	MeshPtr aorticArch = mFraxinusSegmentations->getAorticArch();
+	MeshPtr aorticArch = mFraxinusSegmentations->getMesh(otAORTIC_ARCH);
 	if(aorticArch)
 		AortaObjects.push_back(aorticArch);
-	MeshPtr ascendingAorta = mFraxinusSegmentations->getAscendingAorta();
+	MeshPtr ascendingAorta = mFraxinusSegmentations->getMesh(otASCENDING_AORTA);
 	if(ascendingAorta)
 		AortaObjects.push_back(ascendingAorta);
-	MeshPtr descendingAorta = mFraxinusSegmentations->getDescendingAorta();
+	MeshPtr descendingAorta = mFraxinusSegmentations->getMesh(otDESCENDING_AORTA);
 	if(descendingAorta)
 		AortaObjects.push_back(descendingAorta);
 	
 	std::vector<DataPtr> AzygosObjects;
-	MeshPtr azygos = mFraxinusSegmentations->getAzygos();
+	MeshPtr azygos = mFraxinusSegmentations->getMesh(otAZYGOS);
 	if(azygos)
 		AzygosObjects.push_back(azygos);
 	
 	std::vector<DataPtr> SubclavianObjects;
-	MeshPtr subCarArt = mFraxinusSegmentations->getSubCarArt();
+	MeshPtr subCarArt = mFraxinusSegmentations->getMesh(otSUBCAR_ART);
 	if(subCarArt)
 		SubclavianObjects.push_back(subCarArt);
 	
 	std::vector<DataPtr> smallVesselsObjects;
-	MeshPtr smallVessels = mFraxinusSegmentations->getLungVessels();
+	MeshPtr smallVessels = mFraxinusSegmentations->getMesh(otLUNG_VESSELS);
 	if(smallVessels)
 		smallVesselsObjects.push_back(smallVessels);
 	
 	std::vector<DataPtr> heartObjects;
-	MeshPtr heart = mFraxinusSegmentations->getHeart();
+	MeshPtr heart = mFraxinusSegmentations->getMesh(otHEART);
 	if(heart)
 		heartObjects.push_back(heart);
 
 	std::vector<DataPtr> pulmonaryVeinObjects;
-	MeshPtr pulmonaryVeins = mFraxinusSegmentations->getPulmonaryVeins();
+	MeshPtr pulmonaryVeins = mFraxinusSegmentations->getMesh(otPULMONARY_VEINS);
 	if(pulmonaryVeins)
 		pulmonaryVeinObjects.push_back(pulmonaryVeins);
 	
 	std::vector<DataPtr> pulmonaryTrunkObjects;
-	MeshPtr pulmonaryTrunk = mFraxinusSegmentations->getPulmonaryTrunk();
+	MeshPtr pulmonaryTrunk = mFraxinusSegmentations->getMesh(otPULMONARY_TRUNK);
 	if(pulmonaryTrunk)
 		pulmonaryTrunkObjects.push_back(pulmonaryTrunk);
 
 	std::vector<DataPtr> esophagusObjects;
-	MeshPtr esophagus = mFraxinusSegmentations->getEsophagus();
+	MeshPtr esophagus = mFraxinusSegmentations->getMesh(otESOPHAGUS);
 	if(esophagus)
 		esophagusObjects.push_back(esophagus);
 	
@@ -788,7 +788,7 @@ bool ProcessWorkflowState::canEnter() const
 void ProcessWorkflowState::addDataToView()
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
-	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	ImagePtr ctImage = this->getCTImage();
 	
 	
@@ -992,8 +992,8 @@ void PinpointWorkflowState::addDataToView()
 	
 	ImagePtr ctImage = this->getCTImage();
 	
-	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
-	MeshPtr nodules = mFraxinusSegmentations->getNodules();
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
+	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
 	
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
@@ -1050,7 +1050,7 @@ void PinpointWorkflowState::onExit(QEvent * event)
 	if(manualTool)
 		disconnect(manualTool.get(), &Tool::toolTransformAndTimestamp, this, &PinpointWorkflowState::updateTargetPoint);
 
-	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	if(airways)
 		this->setMeshOpacity(airways, 1.0);
 
@@ -1109,10 +1109,10 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
 	PointMetricPtr targetPoint = this->getTargetPoint();
-		MeshPtr nodules = mFraxinusSegmentations->getNodules();
+		MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 	
 	
@@ -1217,10 +1217,10 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr nodules = mFraxinusSegmentations->getNodules();
+	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 	
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
@@ -1334,10 +1334,10 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 	ImagePtr ctImage = this->getCTImage();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr nodules = mFraxinusSegmentations->getNodules();
+	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 
 
