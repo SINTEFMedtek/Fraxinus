@@ -1431,6 +1431,8 @@ void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
 		camera_control->setAnteriorView();
 	}
 
+	this->setPointPickerIn3Dview(true);
+
 //	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 //	if(services)
 //		services->view()->zoomCamera3D(m3DViewGroupNumber, 1);
@@ -1440,6 +1442,7 @@ void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
 
 void ProcedurePlanningWorkflowState::onExit(QEvent * event)
 {
+		this->setPointPickerIn3Dview(false);
 	WorkflowState::onExit(event);
 }
 
