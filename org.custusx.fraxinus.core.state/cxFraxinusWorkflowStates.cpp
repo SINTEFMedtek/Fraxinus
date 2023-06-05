@@ -564,10 +564,8 @@ void FraxinusWorkflowState::setupPinPointWidget(std::vector<unsigned int> viewGr
 		this->setupViewOptionsForStructuresSelection(pinPointWidget->getStructuresSelectionWidget(), viewGroupNumbers);
 }
 
-void FraxinusWorkflowState::setupProcedurePlanningWidget(int viewGroupNumber)
+void FraxinusWorkflowState::setupProcedurePlanningWidget(std::vector<unsigned int> viewGroupNumbers)
 {
-	std::vector<unsigned int> viewGroupNumbers;
-	viewGroupNumbers.push_back(viewGroupNumber);
 	ProcedurePlanningWidget* procedurePlanningWidget = this->getProcedurePlanningWidget();
 	if (procedurePlanningWidget)
 		this->setupViewOptionsForStructuresSelection(procedurePlanningWidget->getStructuresSelectionWidget(), viewGroupNumbers);
@@ -1413,7 +1411,10 @@ void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
-	this->setupProcedurePlanningWidget(m3DViewGroupNumber);
+	std::vector<unsigned int> viewGroupNumbers;
+	viewGroupNumbers.push_back(m3DViewGroupNumber);
+	viewGroupNumbers.push_back(m2DViewGroupNumber);
+	this->setupProcedurePlanningWidget(viewGroupNumbers);
 	ProcedurePlanningWidget* procedurePlanningWidget = this->getProcedurePlanningWidget();
 	if(procedurePlanningWidget)
 	{

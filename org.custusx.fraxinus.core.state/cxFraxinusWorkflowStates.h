@@ -104,7 +104,7 @@ protected:
 	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
 	void cleanupVBWidget();
 	void setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers);
-	void setupProcedurePlanningWidget(int viewGroupNumber);
+	void setupProcedurePlanningWidget(std::vector<unsigned int> viewGroupNumbers);
 
 	InteractiveClipperPtr enableInvertedClipper(QString clipper_name, bool on);
 	void removeAllDataFromClipper(InteractiveClipperPtr clipper);
