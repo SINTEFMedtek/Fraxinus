@@ -273,38 +273,35 @@ ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
 	return imageCopied;
 }
 
-PointMetricPtr FraxinusWorkflowState::getTargetPoint() const
+PointMetricPtr FraxinusWorkflowState::getPointMetric(QString pointMetricName) const
 {
 	std::map<QString, PointMetricPtr> metrics = mServices->patient()->getDataOfType<PointMetric>();
 	std::map<QString, PointMetricPtr>::iterator it = metrics.begin();
 	PointMetricPtr metric;
 	for( ; it != metrics.end(); ++it)
 	{
-		if(it->first.contains(PinpointWidget::getTargetMetricUid()))
+		if(it->first.contains(pointMetricName))
 		{
 			metric = it->second;
 			break;
 		}
 	}
-	
 	return metric;
+}
+
+PointMetricPtr FraxinusWorkflowState::getTargetPoint() const
+{
+	return getPointMetric(PinpointWidget::getTargetMetricUid());
+}
+
+PointMetricPtr FraxinusWorkflowState::getViaPoint() const
+{
+	return getPointMetric(PinpointWidget::getViaPointMetricUid());
 }
 
 PointMetricPtr FraxinusWorkflowState::getEndoscopePoint() const
 {
-	std::map<QString, PointMetricPtr> metrics = mServices->patient()->getDataOfType<PointMetric>();
-	std::map<QString, PointMetricPtr>::iterator it = metrics.begin();
-	PointMetricPtr metric;
-	for( ; it != metrics.end(); ++it)
-	{
-		if(it->first.contains(PinpointWidget::getEndoscopeMetricUid()))
-		{
-			metric = it->second;
-			break;
-		}
-	}
-	
-	return metric;
+	return getPointMetric(PinpointWidget::getEndoscopeMetricUid());
 }
 
 DistanceMetricPtr FraxinusWorkflowState::getDistanceToTargetMetric() const
@@ -604,6 +601,17 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 
 	input[0]->setValue(centerline->getUid());
 	input[1]->setValue(targetPoint->getUid());
+
+	PinpointWidget* pinPointWidget = this->getPinpointWidget();
+	if(pinPointWidget)
+	{
+		if(pinPointWidget->getViaOption())
+		{
+			PointMetricPtr viaPoint =this->getViaPoint();
+			if(viaPoint)
+				input[2]->setValue(viaPoint->getUid());
+		}
+	}
 	
 	if(routeToTargetFilter->execute())
 	{
@@ -850,20 +858,35 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	
 	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::targetMetricSet, Qt::UniqueConnection);
+	connect(this->getPinpointWidget(), &PinpointWidget::updateRoute, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	if(!targetPoint)
+	PointMetricPtr viaPoint = this->getViaPoint();
+	if(!targetPoint || !viaPoint)
 	{
 		PinpointWidget* pinPointWidget = this->getPinpointWidget();
 		if(pinPointWidget)
 		{
-			pinPointWidget->createPointMetric();
-			targetPoint = this->getTargetPoint();
+			if(!targetPoint)
+			{
+				pinPointWidget->createPointMetric();
+				targetPoint = this->getTargetPoint();
+			}
+			if(!viaPoint)
+			{
+				pinPointWidget->createViaMetric();
+				viaPoint = this->getViaPoint();
+			}
 		}
 	}
+
 	if(targetPoint)
 	{
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
+	}
+	if(viaPoint)
+	{
+		connect(viaPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
 
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
@@ -879,14 +902,13 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	PinpointWidget* pinPointWidget = this->getPinpointWidget();
 	if(pinPointWidget)
 	{
+		connect(pinPointWidget, &PinpointWidget::updateTargetPointFromManualTool, this, &PinpointWorkflowState::updateTargetPoint);
+		connect(pinPointWidget, &PinpointWidget::updateViaPointFromManualTool, this, &PinpointWorkflowState::updateViaPoint);
+
 		StructuresSelectionWidget* structureSelectionWidget = pinPointWidget->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
 			structureSelectionWidget->onEntry();
 	}
-
-	ToolPtr manualTool = mServices->tracking()->getManualTool();
-	if(manualTool)
-		connect(manualTool.get(), &Tool::toolTransformAndTimestamp, this, &PinpointWorkflowState::updateTargetPoint);
 
 	this->setPointPickerIn3Dview(true);
 	this->setDefaultCameraStyle();
@@ -968,6 +990,21 @@ void PinpointWorkflowState::updateTargetPoint()
 		Vector3D p_ref = mServices->spaceProvider()->getActiveToolTipPoint(CoordinateSystem::reference(), true);
 		target->setCoordinate(p_ref);
 	}
+	mUpdateTargetAllowed = true;
+}
+
+void PinpointWorkflowState::updateViaPoint()
+{
+	if(!mUpdateTargetAllowed)
+		return;
+	mUpdateTargetAllowed = false;
+	PointMetricPtr viaPoint = this->getViaPoint();
+	if(viaPoint)
+	{
+		Vector3D p_ref = mServices->spaceProvider()->getActiveToolTipPoint(CoordinateSystem::reference(), true);
+		viaPoint->setCoordinate(p_ref);
+	}
+	mUpdateTargetAllowed = true;
 }
 
 void PinpointWorkflowState::showRouteToTarget()
@@ -1046,10 +1083,6 @@ void PinpointWorkflowState::deleteOldRouteToTarget()
 
 void PinpointWorkflowState::onExit(QEvent * event)
 {
-	ToolPtr manualTool = mServices->tracking()->getManualTool();
-	if(manualTool)
-		disconnect(manualTool.get(), &Tool::toolTransformAndTimestamp, this, &PinpointWorkflowState::updateTargetPoint);
-
 	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
 	if(airways)
 		this->setMeshOpacity(airways, 1.0);
