@@ -82,8 +82,10 @@ protected:
 	PinpointWidget *getPinpointWidget();
 	ImagePtr getCTImageCopied() const;
 	ImagePtr createCopiedImage(ImagePtr originalImage) const;
-	PointMetricPtr getTargetPoint() const;
-	PointMetricPtr getEndoscopePoint() const;
+	PointMetricPtr getPointMetric(QString pointMetricName) const;
+	PointMetricPtr	getTargetPoint() const;
+	PointMetricPtr getViaPoint() const;
+	PointMetricPtr	getEndoscopePoint() const;
 	DistanceMetricPtr getDistanceToTargetMetric() const;
 	void createRouteToTarget(bool makeRouteInformationFile);
 	void setMeshOpacity(MeshPtr mesh, double opacity);
@@ -194,6 +196,8 @@ private slots:
 	void createRoute();
 	void pointChanged();
 	void updateTargetPoint();
+	void updateViaPoint();
+
 private:
 	void addDataToView();
 	void setManualToolToTargetPosition();
@@ -202,6 +206,7 @@ private:
 
 	bool mPointChanged;
 	bool mUpdateTargetAllowed = true;
+	bool mUpdateViaPoint = false;
 	int m3DViewGroupNumber;
 	int m2DViewGroupNumber;
 };
