@@ -784,7 +784,7 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 		setMeshName(otVENA_CAVA);
 		stopTimer(otESOPHAGUS);
 		setMeshName(otESOPHAGUS);
-		setMeshName(otSUBCAR_ART);
+		setMeshName(otSUBCLAVIAN_ARTERY);
 		setMeshName(otBRACHIO_CEPHALIC_VEINS);
 		setMeshName(otAZYGOS);
 	}
@@ -896,7 +896,7 @@ DisplayTimerWidget* FraxinusSegmentations::getTimer(ORGAN_TYPE target)
 	case otSPINE:
 		timer = mMediumOrgansTimerWidget; break;
 	case otBRACHIO_CEPHALIC_VEINS:
-	case otSUBCAR_ART:
+	case otSUBCLAVIAN_ARTERY:
 	case otAZYGOS:
 	case otESOPHAGUS:
 		timer = mSmallOrgansTimerWidget; break;
