@@ -103,35 +103,35 @@ TEST_CASE("FraxinusSegmentations: getRaidionicsOutputClasses", "[unit]")
 	CHECK(outputClasses.size() == cx::otRAIDIONICS_END);
 }
 
-TEST_CASE("FraxinusSegmentations: getReadableString", "[unit]")
+TEST_CASE("FraxinusSegmentations: convertToReadableString", "[unit]")
 {
-	QString string = cx::FraxinusSegmentations::getReadableString("");
+	QString string = cx::convertToReadableString("");
 	{
 		INFO(string.toStdString());
 		CHECK((string == ""));
 	}
 
-	string = cx::FraxinusSegmentations::getReadableString("test");
+	string = cx::convertToReadableString("test");
 	{
 		INFO(string.toStdString());
 		CHECK((string == ""));
 	}
-	string = cx::FraxinusSegmentations::getReadableString("Test");
+	string = cx::convertToReadableString("Test");
 	{
 		INFO(string.toStdString());
 		CHECK((string == "Test"));
 	}
-	string = cx::FraxinusSegmentations::getReadableString("TestString");
+	string = cx::convertToReadableString("TestString");
 	{
 		INFO(string.toStdString());
 		CHECK((string == "Test String"));
 	}
-	string = cx::FraxinusSegmentations::getReadableString("TestTestString");
+	string = cx::convertToReadableString("TestTestString");
 	{
 		INFO(string.toStdString());
 		CHECK((string == "Test Test String"));
 	}
-	string = cx::FraxinusSegmentations::getReadableString(cx::otLYMPH_NODES);
+	string = cx::convertToReadableString(cx::otLYMPH_NODES);
 	{
 		INFO(string.toStdString());
 		CHECK((string == "Lymph Nodes"));
@@ -140,7 +140,7 @@ TEST_CASE("FraxinusSegmentations: getReadableString", "[unit]")
 	for(int target = cx::otAIRWAYS; target < cx::organtypeCOUNT; ++target)
 	{
 		cx::ORGAN_TYPE targetEnum = cx::ORGAN_TYPE(target);
-		string = cx::FraxinusSegmentations::getReadableString(targetEnum);
+		string = cx::convertToReadableString(targetEnum);
 		if(!string.contains(" "))
 			CHECK(string == enum2string(targetEnum));
 		else if(targetEnum == cx::otLYMPH_NODES)

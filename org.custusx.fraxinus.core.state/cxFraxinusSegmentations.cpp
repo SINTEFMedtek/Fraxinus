@@ -101,32 +101,6 @@ MeshPtr FraxinusSegmentations::getMesh(ORGAN_TYPE organType)
 	return MeshPtr();
 }
 
-//otCENTERLINES
-//MeshPtr FraxinusSegmentations::getRawCenterline()
-//{
-//	return this->getMesh(airwaysFilterGetNameSuffixCenterline(), "", RouteToTargetFilter::getNameSuffix(), airwaysFilterGetNameSuffixTubes());
-//}
-
-//Replace?
-MeshPtr FraxinusSegmentations::getCenterline()
-{
-//	return this->getMesh(airwaysFilterGetNameSuffixCenterline(), airwaysFilterGetNameSuffixTubes(), RouteToTargetFilter::getNameSuffix());
-	return this->getMesh(otAIRWAYS_CENTERLINES);
-}
-
-
-//Is this otAIRWAYS?
-//MeshPtr FraxinusSegmentations::getAirwaysContour()
-//{
-//	return this->getMesh(airwaysFilterGetNameSuffixAirways(), "", airwaysFilterGetNameSuffixTubes(), airwaysFilterGetNameSuffixCenterline());
-//}
-
-MeshPtr FraxinusSegmentations::getAirwaysTubes()
-{
-	return this->getMesh(airwaysFilterGetNameSuffixTubes(), airwaysFilterGetNameSuffixAirways(), airwaysFilterGetNameSuffixCenterline());
-//	return this->getMesh(otAIRWAYS_TUBES);//TODO: Where to set otAIRWAYS_TUBES?
-}
-
 MeshPtr FraxinusSegmentations::getLungVessels()
 {
 	return this->getMesh(airwaysFilterGetNameSuffixLungVessels());
@@ -699,8 +673,8 @@ void FraxinusSegmentations::postProcessAirways()
 	airwayWalls->setVtkPolyData(airwaysFromCLPtr->generateTubes(0, true));
 	airwayWalls->get_rMd_History()->setParentSpace(CTimage->getUid());
 	airwayWalls->get_rMd_History()->setRegistration(CTimage->get_rMd());
-	airwayWalls->setOrganType(otAIRWAYS);
-//	airwayWalls->setOrganType(otAIRWAYS_TUBES);//TODO: Where to set?
+	airwayWalls->setOrganType(otAIRWAYS_ENHANCED);
+	setMeshName(airwayWalls, otAIRWAYS_ENHANCED);
 	//mServices->patient()->insertData(airwayWalls);
 
 	//Apply color varition
@@ -709,8 +683,10 @@ void FraxinusSegmentations::postProcessAirways()
 	double globaleVariance = 50.0;
 	double localeVariance = 5.0;
 	int smoothingIterations = 5;
+	//NB: New object for airwayWalls
 	airwayWalls = coloringFilter->execute(airwayWalls, globaleVariance, localeVariance, smoothingIterations);
-	setMeshName(otAIRWAYS);
+	airwayWalls->setOrganType(otAIRWAYS_ENHANCED);
+	setMeshName(airwayWalls, otAIRWAYS_ENHANCED);
 
 	//insert filtered centerline from airwaysFromCenterline
 	QString uidCenterline = CTimage->getUid() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes() + airwaysFilterGetNameSuffixCenterline();
@@ -719,9 +695,9 @@ void FraxinusSegmentations::postProcessAirways()
 	centerline->setVtkPolyData(airwaysFromCLPtr->getVTKPoints());
 	centerline->get_rMd_History()->setParentSpace(rawCenterline->getUid());
 	centerline->get_rMd_History()->setRegistration(rawCenterline->get_rMd());
-	centerline->setOrganType(otAIRWAYS_CENTERLINES);//TODO: Is this correct?
+	centerline->setOrganType(otAIRWAYS_CENTERLINES);
+	setMeshName(centerline, otAIRWAYS_CENTERLINES);
 	mServices->patient()->insertData(centerline);
-	setMeshName(otAIRWAYS_CENTERLINES);
 	//mServices->patient()->removeData(airwaysVolume->getUid());
 }
 
@@ -752,7 +728,7 @@ void FraxinusSegmentations::generateCenterline()
 			mServices->patient()->removeData(centerline->getUid()); //TO DO: Fix when starting to use enum as indentifier for mesh. Do not need to delete it.
 			centerline->setUid(airwaysVolume->getUid() + airwaysFilterGetNameSuffixCenterline());
 			centerline->setOrganType(otCENTERLINES);
-			this->setMeshName(otCENTERLINES);
+			setMeshName(centerline, otCENTERLINES);
 			centerline->setColor(QColor(255,255,0,255));
 			mServices->patient()->insertData(centerline);
 			return;
@@ -788,46 +764,6 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 		setMeshName(otBRACHIO_CEPHALIC_VEINS);
 		setMeshName(otAZYGOS);
 	}
-	/*else if(mCurrentSegmentationType == lsCENTERLINES)
-	{
-		setMeshNameAndStopTimer(this->getCenterline());
-	}
-	else if(mCurrentSegmentationType == lsLUNG_VESSELS)
-	{
-		setMeshNameAndStopTimer(this->getLungVessels());
-	}
-	else if(mCurrentSegmentationType == lsLUNG)
-	{
-		setMeshNameAndStopTimer(this->getLungs());
-	}
-	else if(mCurrentSegmentationType == lsLYMPH_NODES)
-	{
-		setMeshNameAndStopTimer(this->getLymphNodes());
-	}
-	else if(mCurrentSegmentationType == lsHEART)
-	{
-		stopTimer(this->getHeart());
-		setMeshName(this->getHeart(), lsHEART);
-		setMeshName(this->getPulmonaryVeins(), lsPULMONARY_VEINS);
-		setMeshName(this->getPulmonaryTrunk(), lsPULMONARY_TRUNK);
-	}
-	else if(mCurrentSegmentationType == lsMEDIUM_ORGANS)
-	{
-		stopTimer(this->getSpine());
-		setMeshName(this->getAorticArch(), lsAORTA);
-		setMeshName(this->getDescendingAorta(), lsAORTA);
-		setMeshName(this->getAscendingAorta(), lsAORTA);
-		setMeshName(this->getSpine(), lsSPINE);
-		setMeshName(this->getVenaCava(), lsVENA_CAVA);
-	}
-	else if(mCurrentSegmentationType == lsSMALL_ORGANS)
-	{
-		stopTimer(this->getEsophagus());
-		setMeshName(this->getEsophagus(), lsESOPHAGUS);
-		setMeshName(this->getSubCarArt(), lsSUBCLAVIAN_ARTERY);
-		setMeshName(this->getBrachiocephalicVeins(), lsVENA_CAVA);//lsPULMONARY_VESSELS
-		setMeshName(this->getAzygos(), lsVENA_AZYGOS);
-	}*/
 	else if(mCurrentSegmentationType == lsNODULES)
 	{
 		setMeshNameAndStopTimer(otNODULES);
@@ -840,24 +776,25 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 }
 
 
-//void FraxinusSegmentations::setMeshNameAndStopTimer(MeshPtr mesh)
 void FraxinusSegmentations::setMeshNameAndStopTimer(ORGAN_TYPE target)
 {
 	stopTimer(target);
 	setMeshName(target);
 }
 
-//void FraxinusSegmentations::setMeshName(MeshPtr mesh, LUNG_STRUCTURES segmentationType)
+void FraxinusSegmentations::setMeshName(MeshPtr mesh, ORGAN_TYPE target)
+{
+		mesh->setName(convertToReadableString(target));
+}
+
+//Needs to be called after patient()->insertData to work
 void FraxinusSegmentations::setMeshName(ORGAN_TYPE target)
 {
 	MeshPtr mesh = this->getMesh(target);
 	if(mesh)
-	{
-		mesh->setName(this->getReadableString(target));
-	}
+		this->setMeshName(mesh, target);
 	else
-		CX_LOG_DEBUG() << "Found no segmentation for: " << enum2string(target);
-
+		CX_LOG_DEBUG() << "FraxinusSegmentations::setMeshName: Found no segmentation for: " << enum2string(target);
 }
 
 void FraxinusSegmentations::stopTimer(ORGAN_TYPE target)
@@ -909,26 +846,6 @@ DisplayTimerWidget* FraxinusSegmentations::getTimer(ORGAN_TYPE target)
 	}
 
 	return timer;
-}
-
-QString FraxinusSegmentations::getReadableString(ORGAN_TYPE target)
-{
-	//TODO: Add special cases for when Raidionics class names need to be improved, like SubCarArt
-	QString string = enum2string(target);
-	return getReadableString(string);
-}
-
-QString FraxinusSegmentations::getReadableString(QString string )
-{
-	QRegularExpression regexp("[A-Z][^A-Z]*");
-	QRegularExpressionMatchIterator match = regexp.globalMatch(string);
-
-	string.clear();
-	if(match.hasNext())
-		string = match.next().capturedTexts().join("");
-	while(match.hasNext())
-		string += " "+match.next().capturedTexts().join("");
-	return string;
 }
 
 }//cx

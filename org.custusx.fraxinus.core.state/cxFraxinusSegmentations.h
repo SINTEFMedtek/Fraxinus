@@ -37,10 +37,6 @@ public:
 	ImagePtr getCTImage() const;
 	ImagePtr getAirwaysVolume() const;
 
-//	MeshPtr getRawCenterline();
-	MeshPtr getCenterline();
-//	MeshPtr getAirwaysContour();
-	MeshPtr getAirwaysTubes();
 	MeshPtr getLungVessels();
 	MeshPtr getMesh(QString contain_str_1, QString contain_str_2 = "", QString not_contain_str_1="", QString not_contain_str_2="");
 	MeshPtr getMesh(ORGAN_TYPE organType);
@@ -53,10 +49,6 @@ public:
 	void postProcessAirways();
 	void checkIfSegmentationSucceeded();
 	void close();
-
-	//Utility functions
-	static QString getReadableString(ORGAN_TYPE target);
-	static QString getReadableString(QString string);///< Adds space to CamelCase strings. All words, including first must start with Uppercase setters
 
 signals:
 	void segmentationFinished();
@@ -124,7 +116,8 @@ private:
 	LUNG_STRUCTURES mCurrentSegmentationType;
 
 	void setMeshNameAndStopTimer(ORGAN_TYPE target);
-	void setMeshName(ORGAN_TYPE target);
+	void setMeshName(ORGAN_TYPE target);///< Needs to be called after patient()->insertData to work. Better to use: setMeshName(MeshPtr mesh, ORGAN_TYPE target)
+	void setMeshName(MeshPtr mesh, ORGAN_TYPE target);
 	void stopTimer(ORGAN_TYPE target);
 	void generateCenterline();
 	bool runRaidionics(GenericScriptFilterPtr scriptFilter);

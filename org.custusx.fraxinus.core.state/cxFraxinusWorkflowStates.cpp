@@ -189,18 +189,6 @@ void FraxinusWorkflowState::onEntry(QEvent * event)
 	this->onEntryDefault(event);
 }
 
-MeshPtr FraxinusWorkflowState::getTubeCenterline() const
-{
-	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
-	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
-	{
-		if(iter->first.contains(airwaysFilterGetNameSuffixCenterline()) && !iter->first.contains(RouteToTargetFilter::getNameSuffix())
-			 && iter->first.contains(airwaysFilterGetNameSuffixTubes()))
-			return iter->second;
-	}
-	return MeshPtr();
-}
-
 MeshPtr FraxinusWorkflowState::getRouteToTarget() const
 {
 	QStringList allRoutes;
@@ -405,7 +393,7 @@ void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroup
 	volumeViewObjects.push_back(ctImage_copied);
 	
 	std::vector<DataPtr> tubeViewObjects;
-	MeshPtr tubes = mFraxinusSegmentations->getAirwaysTubes();
+	MeshPtr tubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
 	tubeViewObjects.push_back(tubes);
 	
 	FraxinusVBWidget* VBWidget = this->getVBWidget();
@@ -589,7 +577,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	}
 	
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr centerline = this->getTubeCenterline();
+	MeshPtr centerline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
 	
 	if(!targetPoint)
 	{
@@ -898,7 +886,7 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 
 bool PinpointWorkflowState::canEnter() const
 {
-	if(mFraxinusSegmentations->getCenterline())
+	if(mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES))
 		return true;
 	else
 		return false;
@@ -907,7 +895,7 @@ bool PinpointWorkflowState::canEnter() const
 void PinpointWorkflowState::dataAddedOrRemovedSlot()
 {
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr centerline = mFraxinusSegmentations->getCenterline();
+	MeshPtr centerline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	
 	if(targetPoint && centerline && !routeToTarget)
@@ -1110,7 +1098,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
+	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
 		MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
@@ -1161,7 +1149,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 {
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr centerline = mFraxinusSegmentations->getCenterline();
+	MeshPtr centerline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	return targetPoint && centerline && routeToTarget;
 }
@@ -1218,7 +1206,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
+	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
@@ -1270,7 +1258,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
 {
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr centerline = mFraxinusSegmentations->getCenterline();
+	MeshPtr centerline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	return targetPoint && centerline && routeToTarget;
 }
@@ -1335,7 +1323,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
+	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
@@ -1385,7 +1373,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 bool VirtualBronchoscopyAnyplaneWorkflowState::canEnter() const
 {
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr centerline = mFraxinusSegmentations->getCenterline();
+	MeshPtr centerline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	return targetPoint && centerline && routeToTarget;
 }
@@ -1448,7 +1436,7 @@ void ProcedurePlanningWorkflowState::addDataToView()
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	
 	ImagePtr ctImage = this->getCTImage();
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getAirwaysTubes();
+	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);

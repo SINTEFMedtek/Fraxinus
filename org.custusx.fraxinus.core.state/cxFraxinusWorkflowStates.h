@@ -73,7 +73,6 @@ public:
 	ImagePtr getCTImage() const;
 
 protected:
-	MeshPtr getTubeCenterline() const;
 	MeshPtr getRouteToTarget() const;
 	MeshPtr getExtendedRouteToTarget() const;
 	QMainWindow *getMainWindow();
