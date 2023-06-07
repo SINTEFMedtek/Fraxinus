@@ -16,6 +16,8 @@
 #include "cxPatientModelService.h"
 #include "cxSpaceProvider.h"
 #include "cxLogger.h"
+#include "cxViewService.h"
+#include "cxCameraControl.h"
 
 
 namespace cx {
@@ -150,6 +152,12 @@ void PinpointWidget::loadNameOfPointMetric()
 
 void PinpointWidget::centerToImage()
 {
+	triggerMainWindowActionWithObjectName("CenterToImageCenter");
+
+	CameraControlPtr cameraControl = mServices->view()->getCameraControl();
+	ViewPtr view3D = mServices->view()->get3DView();
+	cameraControl->setView(view3D);
+	cameraControl->setStandard3DView(CameraControl::AnteriorDirection());
 	triggerMainWindowActionWithObjectName("CenterToImageCenter");
 }
 
