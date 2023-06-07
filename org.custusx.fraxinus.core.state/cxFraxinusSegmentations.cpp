@@ -61,7 +61,7 @@ ImagePtr FraxinusSegmentations::getCTImage() const
 	{
 		if(!it->first.contains("_copy")
 				&& !it->first.contains(airwaysFilterGetNameSuffixAirways())
-				&& (it->second->getOrganType() == otUNKNOWN)
+				&& ((it->second->getOrganType() == otUNKNOWN) || (it->second->getOrganType() == organtypeCOUNT))
 				&& (it->second->getModality() == imCT))
 		{
 			image = it->second;
@@ -79,7 +79,6 @@ ImagePtr FraxinusSegmentations::getAirwaysVolume() const
 	for( ; it != images.end(); ++it)
 	{
 		if(it->second->getOrganType() == otAIRWAYS)
-//		if((it->second->getOrganType() == otAIRWAYS) && it->first.contains(airwaysFilterGetNameSuffixAirways()))//Not needed?
 		{
 			image = it->second;
 			break;
