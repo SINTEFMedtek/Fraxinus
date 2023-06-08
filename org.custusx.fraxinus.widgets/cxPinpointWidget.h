@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class QLineEdit;
 class QRadioButton;
 class QCheckBox;
+class QRadioButton;
 
 namespace cx {
 
@@ -60,12 +61,15 @@ public:
 	void createPointMetric();
 	void createViaMetric();
 	bool getViaOption();
+	void setLungWindowButtonOn();
 
 signals:
 	void targetMetricSet();
 	void updateTargetPointFromManualTool();
 	void updateViaPointFromManualTool();
 	void updateRoute();
+	void useLungWindow();
+	void useAbdomenWindow();
 
 private slots:
 	void setTargetMetric();
@@ -86,6 +90,8 @@ private:
 	void useViaPointOn(bool checked);
 	void setTargetPoint();
 	void setViaPoint();
+	void setLungWindow();
+	void setAbdomenWindow();
 
 	QLineEdit *mPointMetricNameLineEdit;
 	VisServicesPtr mServices;
@@ -99,6 +105,9 @@ private:
 	QPushButton* mViaPointButton;
 	QPushButton* mTargetPointButton;
 	QPushButton *mSetViaMetric;
+	QRadioButton* mLungWindow;
+	QRadioButton* mAbdomenWindow;
+	ImagePtr mCTimage;
 	bool mUseViaPoint = false;
 };
 

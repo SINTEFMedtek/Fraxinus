@@ -203,6 +203,8 @@ private:
 	void setManualToolToTargetPosition();
 	void showRouteToTarget();
 	void deleteOldRouteToTarget();
+	void setLungWindow();
+	void setAbdomenWindow();
 
 	bool mPointChanged;
 	bool mUpdateTargetAllowed = true;
