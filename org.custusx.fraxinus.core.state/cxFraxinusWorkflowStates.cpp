@@ -288,38 +288,35 @@ ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
 	return imageCopied;
 }
 
-PointMetricPtr FraxinusWorkflowState::getTargetPoint() const
+PointMetricPtr FraxinusWorkflowState::getPointMetric(QString pointMetricName) const
 {
 	std::map<QString, PointMetricPtr> metrics = mServices->patient()->getDataOfType<PointMetric>();
 	std::map<QString, PointMetricPtr>::iterator it = metrics.begin();
 	PointMetricPtr metric;
 	for( ; it != metrics.end(); ++it)
 	{
-		if(it->first.contains(PinpointWidget::getTargetMetricUid()))
+		if(it->first.contains(pointMetricName))
 		{
 			metric = it->second;
 			break;
 		}
 	}
-	
 	return metric;
+}
+
+PointMetricPtr FraxinusWorkflowState::getTargetPoint() const
+{
+	return getPointMetric(PinpointWidget::getTargetMetricUid());
+}
+
+PointMetricPtr FraxinusWorkflowState::getViaPoint() const
+{
+	return getPointMetric(PinpointWidget::getViaPointMetricUid());
 }
 
 PointMetricPtr FraxinusWorkflowState::getEndoscopePoint() const
 {
-	std::map<QString, PointMetricPtr> metrics = mServices->patient()->getDataOfType<PointMetric>();
-	std::map<QString, PointMetricPtr>::iterator it = metrics.begin();
-	PointMetricPtr metric;
-	for( ; it != metrics.end(); ++it)
-	{
-		if(it->first.contains(PinpointWidget::getEndoscopeMetricUid()))
-		{
-			metric = it->second;
-			break;
-		}
-	}
-	
-	return metric;
+	return getPointMetric(PinpointWidget::getEndoscopeMetricUid());
 }
 
 DistanceMetricPtr FraxinusWorkflowState::getDistanceToTargetMetric() const
@@ -405,6 +402,7 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 		this->createRouteToTarget(false);
 		widget->setRoutePositions(mRouteToTargetPositions);
 		widget->setCameraRotationAlongRoute(mRouteToTargetCameraRotations);
+		widget->setGenerationNumbersAlongRoute(mRouteToTargetGenerationNumbers);
 		
 		MeshPtr routeToTarget = this->getRouteToTarget();
 		if(routeToTarget)
@@ -455,10 +453,10 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	if(tumors)
 		tumorObjects.push_back(mFraxinusSegmentations->getTumors());
 
-	std::vector<DataPtr> lesionObjects;
-	MeshPtr lesions = mFraxinusSegmentations->getNodules();
-	if(lesions)
-		lesionObjects.push_back(mFraxinusSegmentations->getNodules());
+	std::vector<DataPtr> noduleObjects;
+	MeshPtr nodules = mFraxinusSegmentations->getNodules();
+	if(nodules)
+		noduleObjects.push_back(mFraxinusSegmentations->getNodules());
 	
 	std::vector<DataPtr> lymphNodeObjects;
 	MeshPtr lymphNodes = mFraxinusSegmentations->getLymphNodes();
@@ -508,13 +506,17 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	MeshPtr heart = mFraxinusSegmentations->getHeart();
 	if(heart)
 		heartObjects.push_back(heart);
-	MeshPtr pulmonaryTrunk = mFraxinusSegmentations->getPulmonaryTrunk();
-	if(pulmonaryTrunk)
-		heartObjects.push_back(pulmonaryTrunk);
+
+	std::vector<DataPtr> pulmonaryVeinObjects;
 	MeshPtr pulmonaryVeins = mFraxinusSegmentations->getPulmonaryVeins();
 	if(pulmonaryVeins)
-		heartObjects.push_back(pulmonaryVeins);
+		pulmonaryVeinObjects.push_back(pulmonaryVeins);
 	
+	std::vector<DataPtr> pulmonaryTrunkObjects;
+	MeshPtr pulmonaryTrunk = mFraxinusSegmentations->getPulmonaryTrunk();
+	if(pulmonaryTrunk)
+		pulmonaryTrunkObjects.push_back(pulmonaryTrunk);
+
 	std::vector<DataPtr> esophagusObjects;
 	MeshPtr esophagus = mFraxinusSegmentations->getEsophagus();
 	if(esophagus)
@@ -524,8 +526,8 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 		widget->addObject(lsLUNG, object);
 	for(DataPtr object : tumorObjects)
 		widget->addObject(lsTUMORS, object);
-	for(DataPtr object : lesionObjects)
-		widget->addObject(lsLESIONS, object);
+	for(DataPtr object : noduleObjects)
+		widget->addObject(lsNODULES, object);
 	for(DataPtr object : lymphNodeObjects)
 		widget->addObject(lsLYMPH_NODES, object);
 	for(DataPtr object : spineObjects)
@@ -542,6 +544,10 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 		widget->addObject(lsSUBCLAVIAN_ARTERY, object);
 	for(DataPtr object : heartObjects)
 		widget->addObject(lsHEART, object);
+	for(DataPtr object : pulmonaryVeinObjects)
+		widget->addObject(lsPULMONARY_VEINS, object);
+	for(DataPtr object : pulmonaryTrunkObjects)
+		widget->addObject(lsPULMONARY_TRUNK, object);
 	for(DataPtr object : esophagusObjects)
 		widget->addObject(lsESOPHAGUS, object);
 	
@@ -558,7 +564,7 @@ void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int s
 	if(services)
 		services->view()->zoomCamera3D(flyThrough3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
 	
-	this->getVBWidget()->grabKeyboard(); //NB! This make this widget take all keyboard input. E.g. "R" doesn't work in this workflow step.
+	//this->getVBWidget()->grabKeyboard(); //NB! This make this widget take all keyboard input. E.g. "R" doesn't work in this workflow step.
 	//Actually, "R" seems to be a special case since it is from VTK. Other key input might work, but maybe not if the menu bar is off.
 	//this->getVBWidget()->setFocus(); // Can't seem to get any affect from this regarding key input.
 }
@@ -570,10 +576,8 @@ void FraxinusWorkflowState::setupPinPointWidget(std::vector<unsigned int> viewGr
 		this->setupViewOptionsForStructuresSelection(pinPointWidget->getStructuresSelectionWidget(), viewGroupNumbers);
 }
 
-void FraxinusWorkflowState::setupProcedurePlanningWidget(int viewGroupNumber)
+void FraxinusWorkflowState::setupProcedurePlanningWidget(std::vector<unsigned int> viewGroupNumbers)
 {
-	std::vector<unsigned int> viewGroupNumbers;
-	viewGroupNumbers.push_back(viewGroupNumber);
 	ProcedurePlanningWidget* procedurePlanningWidget = this->getProcedurePlanningWidget();
 	if (procedurePlanningWidget)
 		this->setupViewOptionsForStructuresSelection(procedurePlanningWidget->getStructuresSelectionWidget(), viewGroupNumbers);
@@ -621,12 +625,24 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 
 	input[0]->setValue(centerline->getUid());
 	input[1]->setValue(targetPoint->getUid());
+
+	PinpointWidget* pinPointWidget = this->getPinpointWidget();
+	if(pinPointWidget)
+	{
+		if(pinPointWidget->getViaOption())
+		{
+			PointMetricPtr viaPoint =this->getViaPoint();
+			if(viaPoint)
+				input[2]->setValue(viaPoint->getUid());
+		}
+	}
 	
 	if(routeToTargetFilter->execute())
 	{
 		routeToTargetFilter->postProcess();
 		mRouteToTargetPositions = routeToTargetFilter->getRoutePositions(true);
 		mRouteToTargetCameraRotations = routeToTargetFilter->getCameraRotation();
+		mRouteToTargetGenerationNumbers = routeToTargetFilter->getGenerationNumbers();
 		emit routeToTargetCreated();
 	}
 	mBranchList = routeToTargetFilter->getBranchList();
@@ -644,7 +660,7 @@ void FraxinusWorkflowState::setMeshOpacity(MeshPtr mesh, double opacity)
 
 void FraxinusWorkflowState::cleanupVBWidget()
 {
-	this->getVBWidget()->releaseKeyboard();
+	//this->getVBWidget()->releaseKeyboard();
 	//this->getVBWidget()->clearFocus();
 }
 
@@ -866,20 +882,35 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	
 	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::targetMetricSet, Qt::UniqueConnection);
+	connect(this->getPinpointWidget(), &PinpointWidget::updateRoute, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	if(!targetPoint)
+	PointMetricPtr viaPoint = this->getViaPoint();
+	if(!targetPoint || !viaPoint)
 	{
 		PinpointWidget* pinPointWidget = this->getPinpointWidget();
 		if(pinPointWidget)
 		{
-			pinPointWidget->createPointMetric();
-			targetPoint = this->getTargetPoint();
+			if(!targetPoint)
+			{
+				pinPointWidget->createPointMetric();
+				targetPoint = this->getTargetPoint();
+			}
+			if(!viaPoint)
+			{
+				pinPointWidget->createViaMetric();
+				viaPoint = this->getViaPoint();
+			}
 		}
 	}
+
 	if(targetPoint)
 	{
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
+	}
+	if(viaPoint)
+	{
+		connect(viaPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
 
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
@@ -895,14 +926,13 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	PinpointWidget* pinPointWidget = this->getPinpointWidget();
 	if(pinPointWidget)
 	{
+		connect(pinPointWidget, &PinpointWidget::updateTargetPointFromManualTool, this, &PinpointWorkflowState::updateTargetPoint);
+		connect(pinPointWidget, &PinpointWidget::updateViaPointFromManualTool, this, &PinpointWorkflowState::updateViaPoint);
+
 		StructuresSelectionWidget* structureSelectionWidget = pinPointWidget->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
 			structureSelectionWidget->onEntry();
 	}
-
-	ToolPtr manualTool = mServices->tracking()->getManualTool();
-	if(manualTool)
-		connect(manualTool.get(), &Tool::toolTransformAndTimestamp, this, &PinpointWorkflowState::updateTargetPoint);
 
 	this->setPointPickerIn3Dview(true);
 	this->setDefaultCameraStyle();
@@ -984,6 +1014,21 @@ void PinpointWorkflowState::updateTargetPoint()
 		Vector3D p_ref = mServices->spaceProvider()->getActiveToolTipPoint(CoordinateSystem::reference(), true);
 		target->setCoordinate(p_ref);
 	}
+	mUpdateTargetAllowed = true;
+}
+
+void PinpointWorkflowState::updateViaPoint()
+{
+	if(!mUpdateTargetAllowed)
+		return;
+	mUpdateTargetAllowed = false;
+	PointMetricPtr viaPoint = this->getViaPoint();
+	if(viaPoint)
+	{
+		Vector3D p_ref = mServices->spaceProvider()->getActiveToolTipPoint(CoordinateSystem::reference(), true);
+		viaPoint->setCoordinate(p_ref);
+	}
+	mUpdateTargetAllowed = true;
 }
 
 void PinpointWorkflowState::showRouteToTarget()
@@ -1062,10 +1107,6 @@ void PinpointWorkflowState::deleteOldRouteToTarget()
 
 void PinpointWorkflowState::onExit(QEvent * event)
 {
-	ToolPtr manualTool = mServices->tracking()->getManualTool();
-	if(manualTool)
-		disconnect(manualTool.get(), &Tool::toolTransformAndTimestamp, this, &PinpointWorkflowState::updateTargetPoint);
-
 	MeshPtr airways = mFraxinusSegmentations->getAirwaysContour();
 	if(airways)
 		this->setMeshOpacity(airways, 1.0);
@@ -1113,7 +1154,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onExit(QEvent * event)
 {
-	this->cleanupVBWidget();
+	//this->cleanupVBWidget();
 	WorkflowState::onExit(event);
 }
 
@@ -1221,7 +1262,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onExit(QEvent *event)
 {
-	this->cleanupVBWidget();
+	//this->cleanupVBWidget();
 	WorkflowState::onExit(event);
 }
 
@@ -1339,7 +1380,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
 
 void VirtualBronchoscopyAnyplaneWorkflowState::onExit(QEvent * event)
 {
-	this->cleanupVBWidget();
+	//this->cleanupVBWidget();
 	WorkflowState::onExit(event);
 }
 
@@ -1429,7 +1470,10 @@ void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
-	this->setupProcedurePlanningWidget(m3DViewGroupNumber);
+	std::vector<unsigned int> viewGroupNumbers;
+	viewGroupNumbers.push_back(m3DViewGroupNumber);
+	viewGroupNumbers.push_back(m2DViewGroupNumber);
+	this->setupProcedurePlanningWidget(viewGroupNumbers);
 	ProcedurePlanningWidget* procedurePlanningWidget = this->getProcedurePlanningWidget();
 	if(procedurePlanningWidget)
 	{
@@ -1447,6 +1491,8 @@ void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
 		camera_control->setAnteriorView();
 	}
 
+	this->setPointPickerIn3Dview(true);
+
 //	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 //	if(services)
 //		services->view()->zoomCamera3D(m3DViewGroupNumber, 1);
@@ -1456,6 +1502,7 @@ void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
 
 void ProcedurePlanningWorkflowState::onExit(QEvent * event)
 {
+		this->setPointPickerIn3Dview(false);
 	WorkflowState::onExit(event);
 }
 

@@ -83,8 +83,10 @@ protected:
 	PinpointWidget *getPinpointWidget();
 	ImagePtr getCTImageCopied() const;
 	ImagePtr createCopiedImage(ImagePtr originalImage) const;
-	PointMetricPtr getTargetPoint() const;
-	PointMetricPtr getEndoscopePoint() const;
+	PointMetricPtr getPointMetric(QString pointMetricName) const;
+	PointMetricPtr	getTargetPoint() const;
+	PointMetricPtr getViaPoint() const;
+	PointMetricPtr	getEndoscopePoint() const;
 	DistanceMetricPtr getDistanceToTargetMetric() const;
 	void createRouteToTarget(bool makeRouteInformationFile);
 	void setMeshOpacity(MeshPtr mesh, double opacity);
@@ -92,6 +94,7 @@ protected:
 	BranchListPtr mBranchList;
 	std::vector< Eigen::Vector3d > mRouteToTargetPositions;
 	std::vector< double > mRouteToTargetCameraRotations;
+	std::vector< int > mRouteToTargetGenerationNumbers;
 	FraxinusSegmentationsPtr mFraxinusSegmentations;
 
 
@@ -104,7 +107,7 @@ protected:
 	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
 	void cleanupVBWidget();
 	void setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers);
-	void setupProcedurePlanningWidget(int viewGroupNumber);
+	void setupProcedurePlanningWidget(std::vector<unsigned int> viewGroupNumbers);
 
 	InteractiveClipperPtr enableInvertedClipper(QString clipper_name, bool on);
 	void removeAllDataFromClipper(InteractiveClipperPtr clipper);
@@ -194,6 +197,8 @@ private slots:
 	void createRoute();
 	void pointChanged();
 	void updateTargetPoint();
+	void updateViaPoint();
+
 private:
 	void addDataToView();
 	void setManualToolToTargetPosition();
@@ -202,6 +207,7 @@ private:
 
 	bool mPointChanged;
 	bool mUpdateTargetAllowed = true;
+	bool mUpdateViaPoint = false;
 	int m3DViewGroupNumber;
 	int m2DViewGroupNumber;
 };

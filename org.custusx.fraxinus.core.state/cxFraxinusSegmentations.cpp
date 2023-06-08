@@ -196,17 +196,17 @@ MeshPtr FraxinusSegmentations::getAzygos()
 
 MeshPtr FraxinusSegmentations::getHeart()
 {
-	return this->getMesh("_pulmSystHeart", "Heart");
+	return this->getMesh("_pulmSyst", "Heart");
 }
 
 MeshPtr FraxinusSegmentations::getPulmonaryVeins()
 {
-	return this->getMesh("_pulmSystHeart", "PulmonaryVeins");
+	return this->getMesh("_pulmSyst", "PulmonaryVeins");
 }
 
 MeshPtr FraxinusSegmentations::getPulmonaryTrunk()
 {
-	return this->getMesh("_pulmSystHeart", "PulmonaryTrunk");
+	return this->getMesh("_pulmSyst", "PulmonaryTrunk");
 }
 
 void FraxinusSegmentations::createSelectSegmentationBox()
@@ -217,7 +217,7 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mSegmentationSelectionInput->setWindowTitle(tr("Select structures for segmentation"));
 	mSegmentationSelectionInput->setWindowFlags(Qt::WindowStaysOnTopHint);
 	
-	mCheckBoxAirways = new QCheckBox(tr("Airways (<1 min)"));
+	mCheckBoxAirways = new QCheckBox(tr("Airways (~5 min)"));
 	mCheckBoxAirways->setChecked(true);
 	mCheckBoxAirways->setDisabled(true);
 	mCheckBoxLungs = new QCheckBox(tr("Lungs (~2 min)"));
@@ -225,9 +225,9 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mCheckBoxHeart = new QCheckBox(tr("Heart, Pulmonary Veins, Pulmonary Trunk  (~4 min)"));
 	mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine (~3 min)"));
 	mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)"));
-	mCheckBoxNodules = new QCheckBox(tr("Lesions (~2 min)"));
+	mCheckBoxNodules = new QCheckBox(tr("Nodules (~2 min)"));
 	mCheckBoxTumors = new QCheckBox(tr("Tumors (~3 min)"));
-	mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (<1 min)"));
+	//mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (<1 min)"));
 	
 	QPushButton* OKbutton = new QPushButton(tr("&OK"));
 	QPushButton* Cancelbutton = new QPushButton(tr("&Cancel"));
@@ -244,7 +244,7 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	checkBoxLayout->addWidget(mCheckBoxSmallOrgans);
 	checkBoxLayout->addWidget(mCheckBoxNodules);
 	checkBoxLayout->addWidget(mCheckBoxTumors);
-	checkBoxLayout->addWidget(mCheckBoxLungVessels);
+	//checkBoxLayout->addWidget(mCheckBoxLungVessels);
 	
 	QGridLayout* mainLayout = new QGridLayout;
 	mainLayout->setSizeConstraint(QLayout::SetFixedSize);
@@ -260,7 +260,8 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 void FraxinusSegmentations::imageSelected()
 {
 	mSegmentAirways = mCheckBoxAirways->isChecked();
-	mSegmentLungVessels = mCheckBoxLungVessels->isChecked();
+	//mSegmentLungVessels = mCheckBoxLungVessels->isChecked();
+	mSegmentLungVessels = false;
 	mSegmentLungs = mCheckBoxLungs->isChecked();
 	mSegmentLymphNodes = mCheckBoxLymphNodes->isChecked();
 	mSegmentHeart = mCheckBoxHeart->isChecked();
@@ -381,7 +382,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		mNodulesTimerWidget = new DisplayTimerWidget(timerWidget);
 		mNodulesTimerWidget->setFontSize(3);
 		mNodulesTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("Lesions:");
+		QLabel* label = new QLabel("Nodules:");
 		gridLayout->addWidget(label,7,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,7,1);
 		if(this->getNodules())
@@ -480,13 +481,6 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = scriptFilter->getInputTypes();
 	scriptFilter->getOutputTypes();
 	scriptFilter->getOptions();
-
-//	if(mSegmentAirways && this->getAirwaysVolume()) //debug - remove
-//	{
-//		CX_LOG_DEBUG() << "Extracting centerlines";
-//		this->postProcessAirways();
-//		return;
-//	}
 	
 	if(mSegmentAirways && !mAirwaysProcessed && !this->getAirwaysTubes())
 	{
@@ -553,7 +547,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 		mActiveTimerWidget = mNodulesTimerWidget;
 		if(mActiveTimerWidget)
 			mActiveTimerWidget->start();
-		CX_LOG_DEBUG() << "Segmenting Lesions";
+		CX_LOG_DEBUG() << "Segmenting Nodules";
 		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_Nodules.ini");
 		mCurrentSegmentationType = lsNODULES;
 		mNodulesProcessed = true;

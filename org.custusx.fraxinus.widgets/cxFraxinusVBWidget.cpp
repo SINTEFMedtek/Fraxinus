@@ -78,12 +78,14 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 	mDirectDistance = new QLabel();
 	mDistanceToTarget = new QLabel();
 	mWarningLabel = new QLabel();
+	mGenerationNumber = new QLabel();
 	routeVLayout->addWidget(mStaticTotalLegth);
 	routeVLayout->addWidget(mDistanceToTarget);
 	routeVLayout->addWidget(mWarningLabel);
 	//routeVLayout->addSpacing(10);
 	routeVLayout->addWidget(mRemainingRttLegth);
 	routeVLayout->addWidget(mDirectDistance);
+	routeVLayout->addWidget(mGenerationNumber);
 
 	QGroupBox* routeBox = new QGroupBox(tr("Route length"));
 	routeBox->setLayout(routeVLayout);
@@ -113,7 +115,7 @@ void FraxinusVBWidget::playbackSliderChanged(int cameraPositionInPermill)
 	//Using a lambda function to add the cameraPositionInPercent parameter
 	mCameraPositionInPercentAdjusted = positionPercentageAdjusted(cameraPositionInPermill/10.0);
 	QTimer::singleShot(0, this, [=](){this->updateRttInfo(mCameraPositionInPercentAdjusted);});
-	QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(mCameraPositionInPercentAdjusted);});
+	//QTimer::singleShot(0, this, [=](){this->updateAirwaysOpacity(mCameraPositionInPercentAdjusted);});
 }
 
 void FraxinusVBWidget::updateAirwaysOpacity(double cameraPositionInPercent)
@@ -147,6 +149,15 @@ double FraxinusVBWidget::getRemainingRouteInsideAirways(double cameraPositionInP
 	return distance;
 }
 
+int FraxinusVBWidget::getGenerationNumber(double cameraPositionInPercent)
+{
+	int generationNumber = 0;
+	int index =(int) (cameraPositionInPercent * mGenerationNumbersAlongRoute.size() / 100.0);
+	if(index>=0 && index<mGenerationNumbersAlongRoute.size())
+		generationNumber = mGenerationNumbersAlongRoute[index];
+	return generationNumber;
+}
+
 double FraxinusVBWidget::getTargetDistance()
 {
 	QString distanceMetricUid = PinpointWidget::getDistanceMetricUid();
@@ -163,10 +174,13 @@ void FraxinusVBWidget::updateRttInfo(double cameraPositionInPercent)
 	mStaticTotalLegth->setText(QString("Total route inside airways: <b>%1 mm</b> ").arg(mRouteLength, 0, 'f', 0));
 	mDistanceToTarget->setText(this->createDistanceFromPathToTargetText());
 
-	mRemainingRttLegth->setText(QString("Remaining route inside airways: %1 mm").
+	mRemainingRttLegth->setText(QString("Remaining route length: %1 mm").
 															arg(getRemainingRouteInsideAirways(cameraPositionInPercent), 0, 'f', 0));
 	mDirectDistance->setText(QString("Distance to target: %1 mm").
 													 arg(this->getTargetDistance(), 0, 'f', 0));
+
+	mGenerationNumber->setText(QString("Current generation: %1").
+													 arg(this->getGenerationNumber(cameraPositionInPercent)));
 }
 
 QString FraxinusVBWidget::createDistanceFromPathToTargetText()
@@ -273,6 +287,11 @@ void FraxinusVBWidget::addObjectToTubeView(DataPtr object)
 StructuresSelectionWidget* FraxinusVBWidget::getStructuresSelectionWidget()
 {
 	return mStructuresSelectionWidget;
+}
+
+void FraxinusVBWidget::setGenerationNumbersAlongRoute(std::vector< int > generationNumbers)
+{
+	mGenerationNumbersAlongRoute = generationNumbers;
 }
 
 } //namespace cx
