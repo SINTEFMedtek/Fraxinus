@@ -854,12 +854,6 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	viewGroupNumbers.push_back(m2DViewGroupNumber);
 	this->setupPinPointWidget(viewGroupNumbers);
 	
-	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
-	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::targetMetricSet, Qt::UniqueConnection);
-	connect(this->getPinpointWidget(), &PinpointWidget::updateRoute, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
-	connect(this->getPinpointWidget(), &PinpointWidget::useLungWindow, this, &PinpointWorkflowState::setLungWindow, Qt::UniqueConnection);
-	connect(this->getPinpointWidget(), &PinpointWidget::useAbdomenWindow, this, &PinpointWorkflowState::setAbdomenWindow, Qt::UniqueConnection);
-	
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	PointMetricPtr viaPoint = this->getViaPoint();
 	if(!targetPoint || !viaPoint)
@@ -904,6 +898,11 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	{
 		connect(pinPointWidget, &PinpointWidget::updateTargetPointFromManualTool, this, &PinpointWorkflowState::updateTargetPoint);
 		connect(pinPointWidget, &PinpointWidget::updateViaPointFromManualTool, this, &PinpointWorkflowState::updateViaPoint);
+		connect(pinPointWidget, &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::targetMetricSet, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::updateRoute, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::useLungWindow, this, &PinpointWorkflowState::setLungWindow, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::useAbdomenWindow, this, &PinpointWorkflowState::setAbdomenWindow, Qt::UniqueConnection);
 
 		StructuresSelectionWidget* structureSelectionWidget = pinPointWidget->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
