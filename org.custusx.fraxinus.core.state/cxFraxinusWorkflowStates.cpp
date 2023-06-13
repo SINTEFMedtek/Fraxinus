@@ -880,10 +880,6 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	viewGroupNumbers.push_back(m2DViewGroupNumber);
 	this->setupPinPointWidget(viewGroupNumbers);
 	
-	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
-	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::targetMetricSet, Qt::UniqueConnection);
-	connect(this->getPinpointWidget(), &PinpointWidget::updateRoute, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
-	
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	PointMetricPtr viaPoint = this->getViaPoint();
 	if(!targetPoint || !viaPoint)
@@ -928,6 +924,11 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	{
 		connect(pinPointWidget, &PinpointWidget::updateTargetPointFromManualTool, this, &PinpointWorkflowState::updateTargetPoint);
 		connect(pinPointWidget, &PinpointWidget::updateViaPointFromManualTool, this, &PinpointWorkflowState::updateViaPoint);
+		connect(pinPointWidget, &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::targetMetricSet, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::updateRoute, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::useLungWindow, this, &PinpointWorkflowState::setLungWindow, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::useAbdomenWindow, this, &PinpointWorkflowState::setAbdomenWindow, Qt::UniqueConnection);
 
 		StructuresSelectionWidget* structureSelectionWidget = pinPointWidget->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
@@ -1047,6 +1048,20 @@ void PinpointWorkflowState::showRouteToTarget()
 	}
 }
 
+	void PinpointWorkflowState::setLungWindow()
+	{
+		ImagePtr CTimage = this->getCTImage();
+		if(CTimage)
+			this->setTransferfunction2D("2D CT Lung", CTimage);
+	}
+
+	void PinpointWorkflowState::setAbdomenWindow()
+	{
+		ImagePtr CTimage = this->getCTImage();
+		if(CTimage)
+			this->setTransferfunction2D("2D CT Abdomen", CTimage);
+	}
+
 void PinpointWorkflowState::addDataToView()
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
@@ -1111,6 +1126,10 @@ void PinpointWorkflowState::onExit(QEvent * event)
 	if(airways)
 		this->setMeshOpacity(airways, 1.0);
 
+	PinpointWidget* pinPointWidget = this->getPinpointWidget();
+	if(pinPointWidget)
+		pinPointWidget->setLungWindowButtonOn();
+	this->setLungWindow();
 	this->setPointPickerIn3Dview(false);
 	WorkflowState::onExit(event);
 }
