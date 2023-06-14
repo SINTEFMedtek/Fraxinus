@@ -61,14 +61,21 @@ ImagePtr FraxinusSegmentations::getCTImage() const
 	{
 		if(!it->first.contains("_copy")
 				&& !it->first.contains(airwaysFilterGetNameSuffixAirways())
+				&& !it->first.contains(airwaysFilterGetNameSuffixLungs(), Qt::CaseInsensitive)
 				&& ((it->second->getOrganType() == otUNKNOWN) || (it->second->getOrganType() == organtypeCOUNT))
-				&& (it->second->getModality() == imCT))
+				//&& (it->second->getModality() == imCT)
+			 )
 		{
 			image = it->second;
 			break;
 		}
 	}
 	return image;
+}
+
+BranchListPtr FraxinusSegmentations::getBranchList()
+{
+	return mBranchList;
 }
 
 ImagePtr FraxinusSegmentations::getAirwaysVolume() const
@@ -388,20 +395,20 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 {
 	QStringList retval;
 
-	if(mSegmentAirways)
+	if(mSegmentAirways && !this->getMesh(otAIRWAYS_CENTERLINES))
 	{
 		mActiveTimerWidget = mAirwaysTimerWidget;
 		retval << enum2string(otAIRWAYS);
 		if(startTimers)
 			mAirwaysTimerWidget->start();
 	}
-	if(mSegmentLungs)
+	if(mSegmentLungs && !this->getMesh(otLUNGS))
 	{
 		retval << enum2string(otLUNGS);
 		if(startTimers)
 		mLungsTimerWidget->start();
 	}
-	if(mSegmentLymphNodes)
+	if(mSegmentLymphNodes && !this->getMesh(otLYMPH_NODES))
 	{
 		retval << enum2string(otLYMPH_NODES);
 		if(startTimers)
@@ -409,19 +416,19 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 	}
 
 	//Multiple targets, will be expanded in Raidionics::createTargetList()
-	if(mSegmentHeart)
+	if(mSegmentHeart && !this->getMesh(otHEART))
 	{
 		retval << enum2string(lmPULMSYST_HEART);
 		if(startTimers)
 			mHeartTimerWidget->start();
 	}
-	if(mSegmentMediumOrgans)
+	if(mSegmentMediumOrgans && !this->getMesh(otVENA_CAVA))
 	{
 		retval << enum2string(lmMEDIUM_ORGANS_MEDIASTINUM);
 		if(startTimers)
 			mMediumOrgansTimerWidget->start();
 	}
-	if(mSegmentSmallOrgans)
+	if(mSegmentSmallOrgans && !this->getMesh(otAZYGOS))
 	{
 		retval << enum2string(lmSMALL_ORGANS_MEDIASTINUM);
 		if(startTimers)
@@ -663,6 +670,8 @@ void FraxinusSegmentations::postProcessAirways()
 
 	airwaysFromCLPtr->processCenterline(rawCenterline->getVtkPolyData());
 	airwaysFromCLPtr->setSegmentedVolume(airwaysVolume->getBaseVtkImageData(), airwaysVolume->get_rMd());
+
+	mBranchList = airwaysFromCLPtr->getBranchList();
 
 	// Create mesh object from the airway walls
 	QString uidMesh = CTimage->getUid() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes();

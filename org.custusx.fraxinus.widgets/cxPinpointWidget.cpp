@@ -50,15 +50,28 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	viaPointSelectorGroup->addButton(mViaPointButton);
 	viaPointSelectorGroup->addButton(mTargetPointButton);
 
-	QGridLayout* gridLayout = new QGridLayout;
-	gridLayout->addWidget(mViaPointCheckBox,1,0);
-	gridLayout->addWidget(mTargetPointButton,0,1);
-	gridLayout->addWidget(mViaPointButton,1,1);
+	QGridLayout* gridLayoutSetTarget = new QGridLayout;
+	gridLayoutSetTarget->addWidget(mViaPointCheckBox,1,0);
+	gridLayoutSetTarget->addWidget(mTargetPointButton,0,1);
+	gridLayoutSetTarget->addWidget(mViaPointButton,1,1);
 
 	mViaPointButton->hide();
 
 
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWidget::loadNameOfPointMetric);
+
+	// Selector for 2D Window type
+	QButtonGroup *windowGroup = new QButtonGroup(this);
+	mLungWindow = new QRadioButton(tr("Lung"));
+	mAbdomenWindow = new QRadioButton(tr("Abdomen"));
+	mLungWindow->setChecked(true);
+	windowGroup->addButton(mLungWindow);
+	windowGroup->addButton(mAbdomenWindow);
+	QGridLayout* gridLayoutWindow = new QGridLayout;
+	gridLayoutWindow->addWidget(mLungWindow,0,0);
+	gridLayoutWindow->addWidget(mAbdomenWindow,0,1);
+	QGroupBox* windowBox = new QGroupBox(tr("CT Window Type"));
+	windowBox->setLayout(gridLayoutWindow);
 
 	QVBoxLayout *v_layout = new QVBoxLayout();
 	QHBoxLayout *h_layout = new QHBoxLayout();
@@ -67,10 +80,13 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	v_layout->addSpacing(50);
 	v_layout->addLayout(h_layout);
 	v_layout->addSpacing(30);
-	v_layout->addLayout(gridLayout);
+	v_layout->addLayout(gridLayoutSetTarget);
 	v_layout->addSpacing(30);
 	v_layout->addWidget(centerToImage);
 	v_layout->addStretch();
+	v_layout->addWidget(windowBox);
+	v_layout->addSpacing(30);
+
 
 	mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this);
 	QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
@@ -85,6 +101,9 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	connect(mViaPointCheckBox, &QCheckBox::clicked, this, &PinpointWidget::useViaPointOn);
 	connect(mTargetPointButton, &QPushButton::clicked, this, &PinpointWidget::setTargetPoint);
 	connect(mViaPointButton, &QPushButton::clicked, this, &PinpointWidget::setViaPoint);
+
+	connect(mLungWindow, &QRadioButton::clicked, this, &PinpointWidget::setLungWindow);
+	connect(mAbdomenWindow, &QRadioButton::clicked, this, &PinpointWidget::setAbdomenWindow);
 }
 
 QString PinpointWidget::getTargetMetricUid()
@@ -277,6 +296,21 @@ void PinpointWidget::setViaPoint()
 bool PinpointWidget::getViaOption()
 {
 	return mUseViaPoint;
+}
+
+void PinpointWidget::setLungWindow()
+{
+	emit useLungWindow();
+}
+
+void PinpointWidget::setAbdomenWindow()
+{
+	emit useAbdomenWindow();
+}
+
+void PinpointWidget::setLungWindowButtonOn()
+{
+	mLungWindow->setChecked(true);
 }
 
 }

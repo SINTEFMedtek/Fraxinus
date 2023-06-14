@@ -37,6 +37,12 @@ public:
 	ImagePtr getCTImage() const;
 	ImagePtr getAirwaysVolume() const;
 
+	BranchListPtr getBranchList();
+
+//	MeshPtr getRawCenterline();
+//	MeshPtr getCenterline();
+//	MeshPtr getAirwaysContour();
+//	MeshPtr getAirwaysTubes();
 	MeshPtr getLungVessels();
 	MeshPtr getMesh(QString contain_str_1, QString contain_str_2 = "", QString not_contain_str_1="", QString not_contain_str_2="");
 	MeshPtr getMesh(ORGAN_TYPE organType);
@@ -114,6 +120,7 @@ private:
 	bool mSegmentNodules = false;
 	bool mSegmentTumors = false;
 	LUNG_STRUCTURES mCurrentSegmentationType;
+	BranchListPtr mBranchList;
 
 	void setMeshNameAndStopTimer(ORGAN_TYPE target);
 	void setMeshName(ORGAN_TYPE target);///< Needs to be called after patient()->insertData to work. Better to use: setMeshName(MeshPtr mesh, ORGAN_TYPE target)

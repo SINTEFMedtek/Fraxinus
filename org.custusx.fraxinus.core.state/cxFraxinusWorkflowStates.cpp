@@ -63,6 +63,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusVBWidget.h"
 #include "cxProcedurePlanningWidget.h"
 #include "cxFraxinusSegmentations.h"
+#include "cxBranchList.h"
+#include "cxRouteToTarget.h"
+#include "cxAirwaysFromCenterline.h"
 
 namespace cx
 {
@@ -593,14 +596,9 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	routeToTargetFilter->getOptions();
 	
 	routeToTargetFilter->setSmoothing(false);
-	if(mBranchList)
-	{ //avoid reprocessing same centerline multiple times for every new target point set
-		routeToTargetFilter->setBranchList(mBranchList);
-		routeToTargetFilter->setReprocessCenterline(false);
-	}
 	
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr centerline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
+	MeshPtr centerline = mFraxinusSegmentations->getMesh(otCENTERLINES);
 	
 	if(!targetPoint)
 	{
@@ -611,6 +609,22 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	{
 		CX_LOG_WARNING() << "In FraxinusWorkflowState::createRouteToTarget: Cannot create route, no airway centerline found";
 		return;
+	}
+
+	if(!mBranchList && mFraxinusSegmentations) //get BranchList from segmentation result
+		mBranchList = mFraxinusSegmentations->getBranchList();
+
+	if(!mBranchList) // In case of restart of Fraxinus, BranchList from segmentation result is deleted on shut down
+	{
+		AirwaysFromCenterlinePtr airwaysFromCLPtr = AirwaysFromCenterlinePtr(new AirwaysFromCenterline());
+		airwaysFromCLPtr->processCenterline(centerline->getVtkPolyData());
+		mBranchList = airwaysFromCLPtr->getBranchList();
+	}
+
+	if(mBranchList)
+	{ //avoid reprocessing same centerline multiple times for every new target point set
+		routeToTargetFilter->setBranchList(mBranchList);
+		routeToTargetFilter->setReprocessCenterline(false);
 	}
 
 	input[0]->setValue(centerline->getUid());
@@ -865,10 +879,6 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	viewGroupNumbers.push_back(m2DViewGroupNumber);
 	this->setupPinPointWidget(viewGroupNumbers);
 	
-	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
-	connect(this->getPinpointWidget(), &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::targetMetricSet, Qt::UniqueConnection);
-	connect(this->getPinpointWidget(), &PinpointWidget::updateRoute, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
-	
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	PointMetricPtr viaPoint = this->getViaPoint();
 	if(!targetPoint || !viaPoint)
@@ -912,6 +922,11 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	{
 		connect(pinPointWidget, &PinpointWidget::updateTargetPointFromManualTool, this, &PinpointWorkflowState::updateTargetPoint);
 		connect(pinPointWidget, &PinpointWidget::updateViaPointFromManualTool, this, &PinpointWorkflowState::updateViaPoint);
+		connect(pinPointWidget, &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::targetMetricSet, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::updateRoute, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::useLungWindow, this, &PinpointWorkflowState::setLungWindow, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::useAbdomenWindow, this, &PinpointWorkflowState::setAbdomenWindow, Qt::UniqueConnection);
 
 		StructuresSelectionWidget* structureSelectionWidget = pinPointWidget->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
@@ -1030,6 +1045,20 @@ void PinpointWorkflowState::showRouteToTarget()
 	}
 }
 
+	void PinpointWorkflowState::setLungWindow()
+	{
+		ImagePtr CTimage = this->getCTImage();
+		if(CTimage)
+			this->setTransferfunction2D("2D CT Lung", CTimage);
+	}
+
+	void PinpointWorkflowState::setAbdomenWindow()
+	{
+		ImagePtr CTimage = this->getCTImage();
+		if(CTimage)
+			this->setTransferfunction2D("2D CT Abdomen", CTimage);
+	}
+
 void PinpointWorkflowState::addDataToView()
 {
 	ImagePtr ctImage = this->getCTImage();
@@ -1091,6 +1120,10 @@ void PinpointWorkflowState::onExit(QEvent * event)
 	if(airways)
 		this->setMeshOpacity(airways, 1.0);
 
+	PinpointWidget* pinPointWidget = this->getPinpointWidget();
+	if(pinPointWidget)
+		pinPointWidget->setLungWindowButtonOn();
+	this->setLungWindow();
 	this->setPointPickerIn3Dview(false);
 	WorkflowState::onExit(event);
 }
