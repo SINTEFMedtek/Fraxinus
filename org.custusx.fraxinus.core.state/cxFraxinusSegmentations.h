@@ -36,6 +36,8 @@ public:
 	ImagePtr getCTImage() const;
 	ImagePtr getAirwaysVolume() const;
 
+	BranchListPtr getBranchList();
+
 	MeshPtr getRawCenterline();
 	MeshPtr getCenterline();
 	MeshPtr getAirwaysContour();
@@ -127,6 +129,7 @@ private:
 	bool mSegmentNodules;
 	bool mSegmentTumors;
 	LUNG_STRUCTURES mCurrentSegmentationType;
+	BranchListPtr mBranchList;
 
 	void setMeshNameAndStopTimer(MeshPtr mesh);
 	void setMeshName(MeshPtr mesh, LUNG_STRUCTURES segmentationType);

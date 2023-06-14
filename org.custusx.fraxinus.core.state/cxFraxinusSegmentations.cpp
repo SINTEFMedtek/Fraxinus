@@ -59,13 +59,18 @@ ImagePtr FraxinusSegmentations::getCTImage() const
 	ImagePtr image;
 	for( ; it != images.end(); ++it)
 	{
-		if(!it->first.contains("_copy") && !it->first.contains(airwaysFilterGetNameSuffixAirways()))
+		if(!it->first.contains("_copy") && !it->first.contains(airwaysFilterGetNameSuffixAirways(), Qt::CaseInsensitive) && !it->first.contains(airwaysFilterGetNameSuffixLungs(), Qt::CaseInsensitive))
 		{
 			image = it->second;
 			break;
 		}
 	}
 	return image;
+}
+
+BranchListPtr FraxinusSegmentations::getBranchList()
+{
+	return mBranchList;
 }
 
 ImagePtr FraxinusSegmentations::getAirwaysVolume() const
@@ -676,6 +681,8 @@ void FraxinusSegmentations::postProcessAirways()
 
 	airwaysFromCLPtr->processCenterline(rawCenterline->getVtkPolyData());
 	airwaysFromCLPtr->setSegmentedVolume(airwaysVolume->getBaseVtkImageData(), airwaysVolume->get_rMd());
+
+	mBranchList = airwaysFromCLPtr->getBranchList();
 
 	// Create mesh object from the airway walls
 	QString uidMesh = CTimage->getUid() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes();
