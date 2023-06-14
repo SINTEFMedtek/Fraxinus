@@ -446,8 +446,8 @@ bool FraxinusSegmentations::runRaidionics(GenericScriptFilterPtr scriptFilter)
 	QStringList outputClasses = getRaidionicsOutputClasses();
 	if(outputClasses.isEmpty())
 		return false;
-	scriptFilter->setOutputClasses(outputClasses);
 	scriptFilter->setParameterFilePath(getFilterScriptsPath() + "raidionics_LungAll.ini");
+	scriptFilter->setOutputClasses(outputClasses);
 	mCurrentSegmentationType = lsAIRWAYS;
 
 	mRaidionicsRun = true;
