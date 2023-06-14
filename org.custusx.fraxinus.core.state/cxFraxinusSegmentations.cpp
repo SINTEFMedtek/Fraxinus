@@ -638,7 +638,7 @@ void FraxinusSegmentations::pythonFinishedSlot()
 
 void FraxinusSegmentations::MLFinishedSlot()
 {
-	if(mCurrentSegmentationType == lsAIRWAYS)
+	if(mCurrentSegmentationType == lsAIRWAYS && !this->getMesh(otAIRWAYS_CENTERLINES))
 		this->postProcessAirways();
 
 	mTimedAlgorithmProgressBar->detach(mThread);
