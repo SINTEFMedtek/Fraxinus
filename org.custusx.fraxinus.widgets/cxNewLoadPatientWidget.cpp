@@ -85,7 +85,7 @@ void NewLoadPatientWidget::selectCTData()
 {
 	if(mPatient->isPatientValid())
 	{
-		triggerMainWindowActionWithObjectName("AddFilesForImportWithDialog");
+		triggerMainWindowActionWithObjectName("AddFilesForImportWithDialogCT");
 		triggerMainWindowActionWithObjectName("ImportSelectedData");
 	}
 }
