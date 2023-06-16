@@ -162,7 +162,7 @@ void FraxinusWorkflowState::onEntryDefault(QEvent * event, bool setCamera)
 	//Hack to make sure camera style is set correctly
 	//This is needed as set camera style needs the views to be shown before trying to set style
 	if(setCamera)
-		QTimer::singleShot(0, this, SLOT(setDefaultCameraStyle()));
+		QTimer::singleShot(200, this, SLOT(setDefaultCameraStyle()));
 }
 
 void FraxinusWorkflowState::setDefaultCameraStyle()
@@ -908,14 +908,16 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 		connect(viaPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
 
-	CameraControlPtr camera_control = viewService()->getCameraControl();
-	if(camera_control)
-	{
-		int viewGroupNumber3D = 0;
-		ViewPtr view_3D = viewService()->get3DView(viewGroupNumber3D);
-		camera_control->setView(view_3D);
-		camera_control->setAnteriorView();
-	}
+//	CameraControlPtr camera_control = viewService()->getCameraControl();
+//	if(camera_control)
+//	{
+//		int viewGroupNumber3D = 0;
+//		ViewPtr view_3D = viewService()->get3DView(viewGroupNumber3D);
+//		camera_control->setView(view_3D);
+//		camera_control->setAnteriorView();
+//	}
+
+
 
 	PinpointWidget* pinPointWidget = this->getPinpointWidget();
 	if(pinPointWidget)
@@ -934,7 +936,7 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	}
 
 	this->setPointPickerIn3Dview(true);
-	QTimer::singleShot(0, this, SLOT(setDefaultCameraStyle()));
+	//QTimer::singleShot(0, this, SLOT(setDefaultCameraStyle()));
 
 	mUpdateTargetAllowed = false;
 	this->setManualToolToTargetPosition();

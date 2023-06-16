@@ -35,16 +35,10 @@ public:
 	~FraxinusSegmentations();
 	
 	ImagePtr getCTImage() const;
-	ImagePtr getAirwaysVolume() const;
+	ImagePtr getVolume(ORGAN_TYPE organType) const;
 
 	BranchListPtr getBranchList();
 
-//	MeshPtr getRawCenterline();
-//	MeshPtr getCenterline();
-//	MeshPtr getAirwaysContour();
-//	MeshPtr getAirwaysTubes();
-	MeshPtr getLungVessels();
-	MeshPtr getMesh(QString contain_str_1, QString contain_str_2 = "", QString not_contain_str_1="", QString not_contain_str_2="");
 	MeshPtr getMesh(ORGAN_TYPE organType);
 	
 	void createSelectSegmentationBox();
@@ -106,14 +100,7 @@ private:
 	QCheckBox* mCheckBoxTumors;
 	QCheckBox* mCheckBoxLungVessels;
 	bool mRaidionicsRun = false;
-//	bool mAirwaysProcessed = false;
-//	bool mCenterlineProcessed = false;
 	bool mLungVesselsProcessed = false;
-//	bool mLungsProcessed = false;
-//	bool mLymphNodesProcessed = false;
-//	bool mHeartProcessed = false;
-//	bool mMediumOrgansProcessed = false;
-//	bool mSmallOrgansProcessed = false;
 	bool mNodulesProcessed = false;
 	bool mTumorsProcessed = false;
 	bool mSegmentLungVessels = false;
@@ -123,8 +110,8 @@ private:
 	BranchListPtr mBranchList;
 
 	void setMeshNameAndStopTimer(ORGAN_TYPE target);
-	void setMeshName(ORGAN_TYPE target);///< Needs to be called after patient()->insertData to work. Better to use: setMeshName(MeshPtr mesh, ORGAN_TYPE target)
-	void setMeshName(MeshPtr mesh, ORGAN_TYPE target);
+	void setMeshName(ORGAN_TYPE target);///< Needs to be called after patient()->insertData to work. Better to use: setMeshNameAndType(MeshPtr mesh, ORGAN_TYPE target)
+	void setMeshNameAndType(MeshPtr mesh, ORGAN_TYPE target);
 	void stopTimer(ORGAN_TYPE target);
 	void generateCenterline();
 	bool runRaidionics(GenericScriptFilterPtr scriptFilter);
