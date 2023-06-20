@@ -46,7 +46,7 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	mViaPointCheckBox->setChecked(false);
 	QButtonGroup *viaPointSelectorGroup = new QButtonGroup(this);
 	mTargetPointButton = new QPushButton("&Set target point", this);
-	mViaPointButton = new QPushButton("&Set via point", this);
+	mViaPointButton = new QPushButton("&Set airway end point", this);
 	viaPointSelectorGroup->addButton(mViaPointButton);
 	viaPointSelectorGroup->addButton(mTargetPointButton);
 
