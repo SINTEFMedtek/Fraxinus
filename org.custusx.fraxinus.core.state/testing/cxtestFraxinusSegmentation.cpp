@@ -32,7 +32,6 @@ public:
 	int setSingleTargetSegmentations()
 	{
 		mSegmentAirways = true;
-		mSegmentLungs = true;
 		mSegmentLymphNodes = true;
 		return 3;
 	}

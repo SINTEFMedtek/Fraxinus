@@ -113,10 +113,9 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mSegmentationSelectionInput->setWindowTitle(tr("Select structures for segmentation"));
 	mSegmentationSelectionInput->setWindowFlags(Qt::WindowStaysOnTopHint);
 	
-	mCheckBoxAirways = new QCheckBox(tr("Airways (~5 min)"));
+	mCheckBoxAirways = new QCheckBox(tr("Airways, Lungs (~7 min)"));
 	mCheckBoxAirways->setChecked(true);
 	mCheckBoxAirways->setDisabled(true);
-	mCheckBoxLungs = new QCheckBox(tr("Lungs (~2 min)"));
 	mCheckBoxLymphNodes = new QCheckBox(tr("Lymph Nodes (~2 min)"));
 	mCheckBoxHeart = new QCheckBox(tr("Heart, Pulmonary Veins, Pulmonary Trunk  (~4 min)"));
 	mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine (~3 min)"));
@@ -133,7 +132,6 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	
 	QVBoxLayout* checkBoxLayout = new QVBoxLayout;
 	checkBoxLayout->addWidget(mCheckBoxAirways);
-	checkBoxLayout->addWidget(mCheckBoxLungs);
 	checkBoxLayout->addWidget(mCheckBoxLymphNodes);
 	checkBoxLayout->addWidget(mCheckBoxHeart);
 	checkBoxLayout->addWidget(mCheckBoxMediumOrgans);
@@ -158,7 +156,6 @@ void FraxinusSegmentations::imageSelected()
 	mSegmentAirways = mCheckBoxAirways->isChecked();
 	//mSegmentLungVessels = mCheckBoxLungVessels->isChecked();
 	mSegmentLungVessels = false;
-	mSegmentLungs = mCheckBoxLungs->isChecked();
 	mSegmentLymphNodes = mCheckBoxLymphNodes->isChecked();
 	mSegmentHeart = mCheckBoxHeart->isChecked();
 	mSegmentMediumOrgans = mCheckBoxMediumOrgans->isChecked();
@@ -194,7 +191,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		mAirwaysTimerWidget->setFontSize(3);
 		mAirwaysTimerWidget->setFixedWidth(50);
 		mAirwaysTimerWidget->show();
-		QLabel* label = new QLabel("Airways:");
+		QLabel* label = new QLabel("Airways, Lungs:");
 		gridLayout->addWidget(label,0,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,0,1);
 		if(this->getMesh(otAIRWAYS_CENTERLINES))
@@ -211,18 +208,6 @@ void FraxinusSegmentations::createProcessingInfo()
 		gridLayout->addWidget(timerWidget,1,1);
 		if(this->getMesh(otLUNG_VESSELS))
 			mLungVesselsTimerWidget->stop();
-	}
-	if (mSegmentLungs)
-	{
-		QWidget* timerWidget = new QWidget;
-		mLungsTimerWidget = new DisplayTimerWidget(timerWidget);
-		mLungsTimerWidget->setFontSize(3);
-		mLungsTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("Lungs:");
-		gridLayout->addWidget(label,2,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,2,1);
-		if(this->getMesh(otLUNGS))
-			mLungsTimerWidget->stop();
 	}
 	if (mSegmentLymphNodes)
 	{
@@ -373,14 +358,10 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 	{
 		mActiveTimerWidget = mAirwaysTimerWidget;
 		retval << enum2string(otAIRWAYS);
+		if(!this->getMesh(otLUNGS))
+			retval << enum2string(otLUNGS);
 		if(startTimers)
 			mAirwaysTimerWidget->start();
-	}
-	if(mSegmentLungs && !this->getMesh(otLUNGS))
-	{
-		retval << enum2string(otLUNGS);
-		if(startTimers)
-		mLungsTimerWidget->start();
 	}
 	if(mSegmentLymphNodes && !this->getMesh(otLYMPH_NODES))
 	{
@@ -644,28 +625,39 @@ void FraxinusSegmentations::generateCenterline()
 void FraxinusSegmentations::checkIfSegmentationSucceeded()
 {
 	if(mCurrentSegmentationType == lsAIRWAYS)
-	{
+	{//Running Raidionics. Need to handle all meshes and timers
 		// Not stopping timer before centerlines are created
-		setMeshNameAndStopTimer(otAIRWAYS);
-
-		//Running Raidionics. Need to handle all meshes and timers
-		setMeshNameAndStopTimer(otLUNGS);
-		setMeshNameAndStopTimer(otLYMPH_NODES);
-		stopTimer(otHEART);
-		setMeshName(otHEART);
-		setMeshName(otPULMONARY_VEINS);
-		setMeshName(otPULMONARY_TRUNK);
-		stopTimer(otSPINE);
-		setMeshName(otAORTIC_ARCH);
-		setMeshName(otDESCENDING_AORTA);
-		setMeshName(otASCENDING_AORTA);
-		setMeshName(otSPINE);
-		setMeshName(otVENA_CAVA);
-		stopTimer(otESOPHAGUS);
-		setMeshName(otESOPHAGUS);
-		setMeshName(otSUBCLAVIAN_ARTERY);
-		setMeshName(otBRACHIO_CEPHALIC_VEINS);
-		setMeshName(otAZYGOS);
+		if(mSegmentAirways)
+		{
+			setMeshNameAndStopTimer(otAIRWAYS);
+			setMeshName(otLUNGS);
+		}
+		if(mSegmentLymphNodes)
+			setMeshNameAndStopTimer(otLYMPH_NODES);
+		if(mSegmentHeart)
+		{
+			stopTimer(otHEART);
+			setMeshName(otHEART);
+			setMeshName(otPULMONARY_VEINS);
+			setMeshName(otPULMONARY_TRUNK);
+		}
+		if(mSegmentMediumOrgans)
+		{
+			stopTimer(otSPINE);
+			setMeshName(otAORTIC_ARCH);
+			setMeshName(otDESCENDING_AORTA);
+			setMeshName(otASCENDING_AORTA);
+			setMeshName(otSPINE);
+			setMeshName(otVENA_CAVA);
+		}
+		if(mSegmentSmallOrgans)
+		{
+			stopTimer(otESOPHAGUS);
+			setMeshName(otESOPHAGUS);
+			setMeshName(otSUBCLAVIAN_ARTERY);
+			setMeshName(otBRACHIO_CEPHALIC_VEINS);
+			setMeshName(otAZYGOS);
+		}
 	}
 	else if(mCurrentSegmentationType == lsNODULES)
 	{
@@ -722,8 +714,6 @@ DisplayTimerWidget* FraxinusSegmentations::getTimer(ORGAN_TYPE target)
 	{
 	case otAIRWAYS:
 		timer = mAirwaysTimerWidget; break;
-	case otLUNGS:
-		timer = mLungsTimerWidget; break;
 	case otLYMPH_NODES:
 		timer = mLymphNodesTimerWidget; break;
 	case otHEART:
