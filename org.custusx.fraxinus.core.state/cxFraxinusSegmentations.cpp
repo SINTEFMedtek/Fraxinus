@@ -123,6 +123,9 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mCheckBoxNodules = new QCheckBox(tr("Nodules (~2 min)"));
 	mCheckBoxTumors = new QCheckBox(tr("Tumors (~3 min)"));
 	//mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (<1 min)"));
+	mCheckBoxSelectAll = new QCheckBox(tr("Select all"));
+
+	connect(mCheckBoxSelectAll, &QCheckBox::clicked, this, &FraxinusSegmentations::selectAll);
 	
 	QPushButton* OKbutton = new QPushButton(tr("&OK"));
 	QPushButton* Cancelbutton = new QPushButton(tr("&Cancel"));
@@ -139,6 +142,7 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	checkBoxLayout->addWidget(mCheckBoxNodules);
 	checkBoxLayout->addWidget(mCheckBoxTumors);
 	//checkBoxLayout->addWidget(mCheckBoxLungVessels);
+	checkBoxLayout->addWidget(mCheckBoxSelectAll);
 	
 	QGridLayout* mainLayout = new QGridLayout;
 	mainLayout->setSizeConstraint(QLayout::SetFixedSize);
@@ -149,6 +153,17 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mSegmentationSelectionInput->setLayout(mainLayout);
 	mSegmentationSelectionInput->show();
 	mSegmentationSelectionInput->activateWindow();
+}
+
+void FraxinusSegmentations::selectAll(bool checked)
+{
+	mCheckBoxLymphNodes->setChecked(checked);
+	mCheckBoxHeart->setChecked(checked);
+	mCheckBoxMediumOrgans->setChecked(checked);
+	mCheckBoxSmallOrgans->setChecked(checked);
+	mCheckBoxNodules->setChecked(checked);
+	mCheckBoxTumors->setChecked(checked);
+	//mCheckBoxLungVessels->setChecked(checked);
 }
 
 void FraxinusSegmentations::imageSelected()
