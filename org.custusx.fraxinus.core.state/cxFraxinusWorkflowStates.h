@@ -68,13 +68,12 @@ class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public Work
 public:
 	FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction = true);
 	virtual void setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx);
-	virtual void onEntry(QEvent* event);
+	virtual void onEntry(QEvent* event, bool setCamera = true);
 
 	ImagePtr getCTImage() const;
 
 protected:
-	MeshPtr getTubeCenterline() const;
-	MeshPtr getRawCenterline() const;
+	ViewServicePtr viewService();
 	MeshPtr getRouteToTarget() const;
 	MeshPtr getExtendedRouteToTarget() const;
 	QMainWindow *getMainWindow();
@@ -111,20 +110,21 @@ protected:
 
 	InteractiveClipperPtr enableInvertedClipper(QString clipper_name, bool on);
 	void removeAllDataFromClipper(InteractiveClipperPtr clipper);
+	void setCamera(int viewGroupNr);
 
 	virtual void addDataToView() = 0;
 
 protected slots:
 	virtual void setDefaultCameraStyle();
-	virtual void setVBFlythroughCameraStyle();
-	virtual void setVBCutplanesCameraStyle();
-	virtual void setAnyplaneCameraStyle();
+	virtual void setVBFlythroughCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+	virtual void setVBCutplanesCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+	virtual void setAnyplaneCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
 
 signals:
 	void routeToTargetCreated();
 
 private:
-	void onEntryDefault(QEvent *event);
+	void onEntryDefault(QEvent *event, bool setCamera = true);
 	ImagePtr getActiveImage();
 	TransferFunctions3DPresetsPtr getTransferfunctionPresets();
 };
