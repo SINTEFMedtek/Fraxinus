@@ -34,6 +34,10 @@ mkdir ~/Fraxinus_settings/models/raidionics_models
 cd ~/Fraxinus
 cp -r ~/Fraxinus/models/raidionics_models/CT_Airways ~/Fraxinus_settings/models/raidionics_models/
 cp -r ~/Fraxinus/models/raidionics_models/CT_Lungs ~/Fraxinus_settings/models/raidionics_models/
+cp -r ~/Fraxinus/models/raidionics_models/CT_LymphNodes ~/Fraxinus_settings/models/raidionics_models/
+cp -r ~/Fraxinus/models/raidionics_models/CT_MediumOrgansMediastinum ~/Fraxinus_settings/models/raidionics_models/
+cp -r ~/Fraxinus/models/raidionics_models/CT_PulmSystHeart ~/Fraxinus_settings/models/raidionics_models/
+cp -r ~/Fraxinus/models/raidionics_models/CT_SmallOrgansMediastinum ~/Fraxinus_settings/models/raidionics_models/
 
 FRAXINUS_PATH=$(ls -d Fraxinus_*)
 
