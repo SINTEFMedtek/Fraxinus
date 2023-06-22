@@ -55,7 +55,6 @@ signals:
 
 protected:
 	bool mSegmentAirways = false;
-	bool mSegmentLungs = false;
 	bool mSegmentLymphNodes = false;
 	bool mSegmentHeart = false;
 	bool mSegmentMediumOrgans = false;
