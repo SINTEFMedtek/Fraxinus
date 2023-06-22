@@ -125,7 +125,7 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	//mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (<1 min)"));
 	mCheckBoxSelectAll = new QCheckBox(tr("Select all"));
 
-	connect(mCheckBoxSelectAll, &QCheckBox::clicked, this, &FraxinusSegmentations::selectAll);
+	connect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &FraxinusSegmentations::selectAll);
 	
 	QPushButton* OKbutton = new QPushButton(tr("&OK"));
 	QPushButton* Cancelbutton = new QPushButton(tr("&Cancel"));
