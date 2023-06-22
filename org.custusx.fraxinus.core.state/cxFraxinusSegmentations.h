@@ -63,6 +63,7 @@ protected:
 	QStringList getRaidionicsOutputClasses(bool startTimers = true);
 
 private slots:
+	void selectAll(bool checked);
 	void imageSelected();
 	void cancel();
 	void runPythonFilterSlot();
@@ -98,6 +99,7 @@ private:
 	QCheckBox* mCheckBoxNodules;
 	QCheckBox* mCheckBoxTumors;
 	QCheckBox* mCheckBoxLungVessels;
+	QCheckBox* mCheckBoxSelectAll;
 	bool mRaidionicsRun = false;
 	bool mLungVesselsProcessed = false;
 	bool mNodulesProcessed = false;
