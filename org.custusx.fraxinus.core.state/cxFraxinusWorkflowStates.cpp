@@ -253,34 +253,23 @@ MeshPtr FraxinusWorkflowState::getExtendedRouteToTarget() const
 
 ImagePtr FraxinusWorkflowState::getCTImage() const
 {
-	return mFraxinusSegmentations->getCTImage();
+	return mFraxinusSegmentations->getImage(imCT, istTHORAX_CT);
 }
 
 ImagePtr FraxinusWorkflowState::getCTImageCopied() const
 {
-	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
-	
-	if(images.empty())
-		return ImagePtr();
-	
-	std::map<QString, ImagePtr>::iterator it = images.begin();
-	ImagePtr imageCopied;
-	ImagePtr originalImage;
-	for( ; it != images.end(); ++it)
+	ImagePtr imageCopied = mFraxinusSegmentations->getImage(imCT, istCOPY);
+
+	if(imageCopied)
+		return imageCopied;
+	else
 	{
-		if(it->first.contains("_copy"))
-		{
-			imageCopied = it->second;
-			break;
-		}
-		else if(!it->first.contains(airwaysFilterGetNameSuffixAirways()))
-			originalImage = it->second;
+		ImagePtr imageOriginal = mFraxinusSegmentations->getImage(imCT, istTHORAX_CT);
+		if(imageOriginal)
+			return createCopiedImage(imageOriginal);
 	}
-	
-	if (!imageCopied && originalImage)
-		imageCopied = createCopiedImage(originalImage);
-	
-	return imageCopied;
+
+	return ImagePtr();
 }
 
 ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
@@ -288,6 +277,7 @@ ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
 	ImagePtr imageCopied = originalImage->copy();
 	imageCopied->setName(originalImage->getName()+"_copy");
 	imageCopied->setUid(originalImage->getUid()+"_copy");
+	imageCopied->setImageType(istCOPY);
 	mServices->patient()->insertData(imageCopied);
 	
 	return imageCopied;
@@ -813,6 +803,8 @@ bool ProcessWorkflowState::canEnter() const
 {
 	if(this->getCTImage())
 		return true;
+	else if(mFraxinusSegmentations->findAndLabelThoraxCT())
+			return true;
 	else
 		return false;
 }

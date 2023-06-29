@@ -52,21 +52,39 @@ void FraxinusSegmentations::close()
 		mSegmentationSelectionInput->close();
 }
 
-ImagePtr FraxinusSegmentations::getCTImage() const
+ImagePtr FraxinusSegmentations::getImage(IMAGE_MODALITY modality, IMAGE_SUBTYPE subtype) const
 {
 	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
 	std::map<QString, ImagePtr>::iterator it = images.begin();
 	ImagePtr image;
 	for( ; it != images.end(); ++it)
 	{
-		if(!it->first.contains("_copy")
+		if((it->second->getModality() == modality) && (it->second->getImageType() == subtype))
+		{
+			image = it->second;
+			return image;
+		}
+	}
+	return image;
+}
+
+ImagePtr FraxinusSegmentations::findAndLabelThoraxCT() const
+{
+	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
+	std::map<QString, ImagePtr>::iterator it = images.begin();
+	ImagePtr image;
+	for( ; it != images.end(); ++it)
+	{
+		if(		 !it->first.contains("_copy")
 				&& !it->first.contains(airwaysFilterGetNameSuffixAirways())
 				&& !it->first.contains(airwaysFilterGetNameSuffixLungs())
-				&& ((it->second->getOrganType() == otUNKNOWN) || (it->second->getOrganType() == organtypeCOUNT))
-				//&& (it->second->getModality() == imCT)
+				&& !(it->second->getOrganType() == otLUNGS)
+				&& !(it->second->getOrganType() == otAIRWAYS)
 			 )
 		{
 			image = it->second;
+			image->setModality(imCT);
+			image->setImageType(istTHORAX_CT);
 			break;
 		}
 	}
@@ -122,6 +140,9 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)"));
 	mCheckBoxNodules = new QCheckBox(tr("Nodules (~2 min)"));
 	mCheckBoxTumors = new QCheckBox(tr("Tumors (~3 min)"));
+	mCheckBoxPET = new QCheckBox(tr("PET to CT (~2 min)"));
+	if(!( getImage(imCT, istTHORAX_CT) && getImage(imCT, istPET_CT) && getImage(imPET, istPET) ))
+		mCheckBoxPET->setDisabled(true);
 	//mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (<1 min)"));
 	mCheckBoxSelectAll = new QCheckBox(tr("Select all"));
 
@@ -141,6 +162,7 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	checkBoxLayout->addWidget(mCheckBoxSmallOrgans);
 	checkBoxLayout->addWidget(mCheckBoxNodules);
 	checkBoxLayout->addWidget(mCheckBoxTumors);
+	checkBoxLayout->addWidget(mCheckBoxPET);
 	//checkBoxLayout->addWidget(mCheckBoxLungVessels);
 	checkBoxLayout->addWidget(mCheckBoxSelectAll);
 	
@@ -163,6 +185,8 @@ void FraxinusSegmentations::selectAll(bool checked)
 	mCheckBoxSmallOrgans->setChecked(checked);
 	mCheckBoxNodules->setChecked(checked);
 	mCheckBoxTumors->setChecked(checked);
+	if(mCheckBoxPET->isEnabled())
+		mCheckBoxAirways->setChecked(checked);
 	//mCheckBoxLungVessels->setChecked(checked);
 }
 
@@ -177,11 +201,17 @@ void FraxinusSegmentations::imageSelected()
 	mSegmentSmallOrgans = mCheckBoxSmallOrgans->isChecked();
 	mSegmentNodules = mCheckBoxNodules->isChecked();
 	mSegmentTumors = mCheckBoxTumors->isChecked();
+	mRegisterPET = mCheckBoxPET->isChecked();
 	mSegmentationSelectionInput->close();
-	
+
 	this->createProcessingInfo();
-	ImagePtr image = this->getCTImage();
-	this->performPythonSegmentation(image);
+
+	ImagePtr image = this->getImage(imCT, istTHORAX_CT);
+
+	if(mRegisterPET)
+		this->performPETCTregistration();
+	else
+		this->performPythonSegmentation(image);
 }
 
 void FraxinusSegmentations::cancel()
@@ -292,9 +322,21 @@ void FraxinusSegmentations::createProcessingInfo()
 		mTumorsTimerWidget->setFixedWidth(50);
 		QLabel* label = new QLabel("Tumors:");
 		gridLayout->addWidget(label,8,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,8,1,9,3);
+		gridLayout->addWidget(timerWidget,8,1);
 		if(this->getMesh(otTUMORS))
 			mTumorsTimerWidget->stop();
+	}
+	if (mRegisterPET)
+	{
+		QWidget* timerWidget = new QWidget;
+		mPETTimerWidget = new DisplayTimerWidget(timerWidget);
+		mPETTimerWidget->setFontSize(3);
+		mPETTimerWidget->setFixedWidth(50);
+		QLabel* label = new QLabel("PET:");
+		gridLayout->addWidget(label,9,0,Qt::AlignRight);
+		gridLayout->addWidget(timerWidget,9,1,10,3);
+		if(this->getImage(imPET, istPET_REGISTERED))
+			mPETTimerWidget->stop();
 	}
 	
 	
@@ -463,6 +505,20 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 	this->runMLFilterSlot();
 }
 
+void FraxinusSegmentations::performPETCTregistration()
+{
+//TO DO: Run elastix and transformix for PET-to-CT registration
+	//Label registered PET image: imPET + istPET_REGISTERED
+	//call this->performPythonSegmentation(CT); at end of function to continue processing pipeline
+	ImagePtr CTimage = this->getImage(imCT, istTHORAX_CT);
+	ImagePtr PETimage = this->getImage(imPET, istPET);
+	ImagePtr PET_CTimage = this->getImage(imCT, istPET_CT);
+
+
+
+	this->performPythonSegmentation(CTimage);
+}
+
 void FraxinusSegmentations::runPythonFilterSlot()
 {
 	if (!mCurrentFilter)
@@ -521,13 +577,13 @@ void FraxinusSegmentations::pythonFinishedSlot()
 
 
 	if(mCurrentSegmentationType == lsAIRWAYS)
-		this->performPythonSegmentation(this->getCTImage());
+		this->performPythonSegmentation(this->getImage(imCT, istTHORAX_CT));
 	else if(mCurrentSegmentationType == lsCENTERLINES && (mSegmentLungVessels || mSegmentTumors))
-		this->performPythonSegmentation(this->getCTImage());
+		this->performPythonSegmentation(this->getImage(imCT, istTHORAX_CT));
 	else if(mCurrentSegmentationType == lsLUNG_VESSELS && mSegmentTumors)
-		this->performPythonSegmentation(this->getCTImage());
+		this->performPythonSegmentation(this->getImage(imCT, istTHORAX_CT));
 	else
-		this->performMLSegmentation(this->getCTImage());
+		this->performMLSegmentation(this->getImage(imCT, istTHORAX_CT));
 
 }
 
@@ -545,14 +601,14 @@ void FraxinusSegmentations::MLFinishedSlot()
 	
 	this->checkIfSegmentationSucceeded();
 	
-	this->performMLSegmentation(this->getCTImage());
+	this->performMLSegmentation(getImage(imCT, istTHORAX_CT));
 }
 
 void FraxinusSegmentations::postProcessAirways()
 {
 	this->generateCenterline();
 	AirwaysFromCenterlinePtr airwaysFromCLPtr = AirwaysFromCenterlinePtr(new AirwaysFromCenterline());
-	ImagePtr CTimage = this->getCTImage();
+	ImagePtr CTimage = this->getImage(imCT, istTHORAX_CT);
 	if(!CTimage)
 		return;
 	MeshPtr rawCenterline = this->getMesh(otCENTERLINES);

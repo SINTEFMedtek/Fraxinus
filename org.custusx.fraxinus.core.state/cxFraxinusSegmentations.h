@@ -34,7 +34,8 @@ public:
 	FraxinusSegmentations(CoreServicesPtr services);
 	~FraxinusSegmentations();
 	
-	ImagePtr getCTImage() const;
+	ImagePtr getImage(IMAGE_MODALITY modality, IMAGE_SUBTYPE subtype) const;
+	ImagePtr findAndLabelThoraxCT() const;
 	ImagePtr getVolume(ORGAN_TYPE organType) const;
 
 	BranchListPtr getBranchList();
@@ -43,6 +44,7 @@ public:
 	
 	void createSelectSegmentationBox();
 	void createProcessingInfo();
+	void performPETCTregistration();
 	void performPythonSegmentation(ImagePtr image);
 	void performMLSegmentation(ImagePtr image);
 	QString getFilterScriptsPath();
@@ -88,6 +90,7 @@ private:
 	DisplayTimerWidget* mSmallOrgansTimerWidget;
 	DisplayTimerWidget* mNodulesTimerWidget;
 	DisplayTimerWidget* mTumorsTimerWidget;
+	DisplayTimerWidget* mPETTimerWidget;
 	DisplayTimerWidget* mLungVesselsTimerWidget;
 	DisplayTimerWidget* mActiveTimerWidget = NULL;
 	QCheckBox* mCheckBoxAirways;
@@ -98,6 +101,7 @@ private:
 	QCheckBox* mCheckBoxSmallOrgans;
 	QCheckBox* mCheckBoxNodules;
 	QCheckBox* mCheckBoxTumors;
+	QCheckBox* mCheckBoxPET;
 	QCheckBox* mCheckBoxLungVessels;
 	QCheckBox* mCheckBoxSelectAll;
 	bool mRaidionicsRun = false;
@@ -107,6 +111,7 @@ private:
 	bool mSegmentLungVessels = false;
 	bool mSegmentNodules = false;
 	bool mSegmentTumors = false;
+	bool mRegisterPET = false;
 	LUNG_STRUCTURES mCurrentSegmentationType;
 	BranchListPtr mBranchList;
 
