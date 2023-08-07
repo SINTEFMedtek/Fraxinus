@@ -53,7 +53,7 @@ class medtekAI(cx.build.cxComponents.CppComponent):
         return 'medtekAI'
     def repository(self):
         #return '%s/medtekAI.git' % self.controlData.gitrepo_main_site_base
-        return 'ssh://git@git.code.sintef.no/mt/medtekAI.git'
+        return 'git@gitlab.sintef.no:custusx/medtekAI.git'
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
         self._getBuilder().gitCheckoutSha('1c6adbfc1f3e05b5c1473a756e898fb724724271')
@@ -88,7 +88,7 @@ class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
         return 'org.custusx.fraxinus.tracking'
     def repository(self):
         #return '%s/org.custusx.fraxinus.tracking.git' % self.controlData.gitrepo_main_site_base
-        return 'ssh://git@git.code.sintef.no/mt/org.custusx.fraxinus.tracking.git'
+        return 'git@gitlab.sintef.no:custusx/org.custusx.fraxinus.tracking.git'
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
         self._getBuilder().gitCheckoutSha('d36f50caf6298c82f69646a744bdbf66ea92a5d2')
