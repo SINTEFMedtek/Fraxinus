@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusWorkflowStateMachine.h"
 #include "cxFraxinusWorkflowStates.h"
 #include "cxFraxinusWorkflowStatesNavigation.h"
-#include "cxVisServices.h"
+#include "cxRegServices.h"
 #include "cxPatientModelService.h"
 #include "cxTrackingService.h"
 #include "cxActiveData.h"
@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cx
 {
 
-FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(VisServicesPtr services) :
+FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(RegServicesPtr services) :
 	WorkflowStateMachine(services)
 {
 	CX_LOG_DEBUG() << "FraxinusWorkflowStateMachine is being created.";

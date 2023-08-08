@@ -30,12 +30,13 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxRegistrationTransform.h"
 #include "cxEnumConversion.h"
 #include "cxBinaryThinningImageFilter3DFilter.h"
+#include "cxElastixManager.h"
 
 
 namespace cx
 {
 
-FraxinusSegmentations::FraxinusSegmentations(CoreServicesPtr services) :
+FraxinusSegmentations::FraxinusSegmentations(RegServicesPtr services) :
 	mServices(services)
 {
 	mTimedAlgorithmProgressBar = new cx::TimedAlgorithmProgressBar;
@@ -514,7 +515,7 @@ void FraxinusSegmentations::performPETCTregistration()
 	ImagePtr PETimage = this->getImage(imPET, istPET);
 	ImagePtr PET_CTimage = this->getImage(imCT, istPET_CT);
 
-
+	ElastixManagerPtr mElastixManager = ElastixManagerPtr(new ElastixManager(mServices));
 
 	this->performPythonSegmentation(CTimage);
 }

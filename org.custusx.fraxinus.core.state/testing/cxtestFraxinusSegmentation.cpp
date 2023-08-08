@@ -12,7 +12,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "catch.hpp"
 #include <QFileInfo>
 #include "cxFraxinusSegmentations.h"
-#include "cxCoreServices.h"
+#include "cxRegServices.h"
 #include "cxRaidionics.h"
 #include "cxEnumConverter.h"
 
@@ -22,7 +22,7 @@ class TestFraxinusSegmentations : public cx::FraxinusSegmentations
 {
 public:
 	TestFraxinusSegmentations() :
-		cx::FraxinusSegmentations(cx::CoreServices::getNullObjects())
+		cx::FraxinusSegmentations(cx::RegServices::getNullObjects())
 	{}
 
 	QStringList testGetRaidionicsOutputClasses()
@@ -58,7 +58,7 @@ public:
 
 TEST_CASE("FraxinusSegmentations: getFilterScriptsPath", "[unit]")
 {
-	cx::FraxinusSegmentations segmentations(cx::CoreServices::getNullObjects());
+	cx::FraxinusSegmentations segmentations(cx::RegServices::getNullObjects());
 	QString scriptFilePath = segmentations.getFilterScriptsPath();
 	CHECK(QFileInfo::exists(scriptFilePath));
 	

@@ -31,7 +31,7 @@ class org_custusx_fraxinus_core_state_EXPORT FraxinusSegmentations : public QObj
 {
 	Q_OBJECT
 public:
-	FraxinusSegmentations(CoreServicesPtr services);
+	FraxinusSegmentations(RegServicesPtr services);
 	~FraxinusSegmentations();
 	
 	ImagePtr getImage(IMAGE_MODALITY modality, IMAGE_SUBTYPE subtype) const;
@@ -74,7 +74,7 @@ private slots:
 	void MLFinishedSlot();
 	
 private:
-	CoreServicesPtr mServices;
+	RegServicesPtr mServices;
 	
 	FilterPtr mCurrentFilter;
 	FilterTimedAlgorithmPtr mThread;

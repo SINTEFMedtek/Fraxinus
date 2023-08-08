@@ -66,7 +66,7 @@ class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public Work
 {
 	Q_OBJECT
 public:
-	FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction = true);
+	FraxinusWorkflowState(QState* parent, QString uid, QString name, RegServicesPtr services, bool enableAction = true);
 	virtual void setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx);
 	virtual void onEntry(QEvent* event, bool setCamera = true);
 
@@ -134,7 +134,7 @@ class org_custusx_fraxinus_core_state_EXPORT PatientWorkflowState: public Fraxin
 Q_OBJECT
 
 public:
-	PatientWorkflowState(QState* parent, CoreServicesPtr services);
+	PatientWorkflowState(QState* parent, RegServicesPtr services);
 	virtual ~PatientWorkflowState();
 	virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
@@ -149,7 +149,7 @@ class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public Fraxinu
 Q_OBJECT
 
 public:
-	ImportWorkflowState(QState* parent, VisServicesPtr services);
+	ImportWorkflowState(QState* parent, RegServicesPtr services);
 	virtual ~ImportWorkflowState();
 	virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
@@ -165,7 +165,7 @@ class org_custusx_fraxinus_core_state_EXPORT ProcessWorkflowState: public Fraxin
 Q_OBJECT
 
 public:
-	ProcessWorkflowState(QState* parent, CoreServicesPtr services);
+	ProcessWorkflowState(QState* parent, RegServicesPtr services);
 	virtual ~ProcessWorkflowState();
 	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
@@ -184,7 +184,7 @@ class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public Fraxi
 Q_OBJECT
 
 public:
-	PinpointWorkflowState(QState* parent, CoreServicesPtr services);
+	PinpointWorkflowState(QState* parent, RegServicesPtr services);
 	virtual ~PinpointWorkflowState();
 	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent *event);
@@ -219,7 +219,7 @@ class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkfl
 Q_OBJECT
 
 public:
-	VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services);
+	VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, RegServicesPtr services);
 	virtual ~VirtualBronchoscopyFlyThroughWorkflowState();
 	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
@@ -236,7 +236,7 @@ class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyCutPlanesWorkflo
 Q_OBJECT
 
 public:
-	VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, VisServicesPtr services);
+	VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, RegServicesPtr services);
 	virtual ~VirtualBronchoscopyCutPlanesWorkflowState();
 	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
@@ -254,7 +254,7 @@ class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyAnyplaneWorkflow
 Q_OBJECT
 
 public:
-	VirtualBronchoscopyAnyplaneWorkflowState(QState* parent, CoreServicesPtr services);
+	VirtualBronchoscopyAnyplaneWorkflowState(QState* parent, RegServicesPtr services);
 	virtual ~VirtualBronchoscopyAnyplaneWorkflowState();
 	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);
@@ -271,7 +271,7 @@ class org_custusx_fraxinus_core_state_EXPORT ProcedurePlanningWorkflowState: pub
 Q_OBJECT
 
 public:
-	ProcedurePlanningWorkflowState(QState* parent, CoreServicesPtr services);
+	ProcedurePlanningWorkflowState(QState* parent, RegServicesPtr services);
 	virtual ~ProcedurePlanningWorkflowState();
 	virtual QIcon getIcon() const;
 	virtual void onEntry(QEvent* event);

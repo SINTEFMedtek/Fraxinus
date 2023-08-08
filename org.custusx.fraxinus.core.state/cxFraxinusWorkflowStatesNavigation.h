@@ -65,7 +65,7 @@ class org_custusx_fraxinus_core_state_EXPORT TrackingWorkflowState: public Fraxi
 Q_OBJECT
 
 public:
-	TrackingWorkflowState(QState* parent, CoreServicesPtr services);
+	TrackingWorkflowState(QState* parent, RegServicesPtr services);
 	virtual ~TrackingWorkflowState();
 	virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
@@ -81,7 +81,7 @@ class org_custusx_fraxinus_core_state_EXPORT RegistrationWorkflowState: public F
 Q_OBJECT
 
 public:
-	RegistrationWorkflowState(QState* parent, VisServicesPtr services);
+	RegistrationWorkflowState(QState* parent, RegServicesPtr services);
 	virtual ~RegistrationWorkflowState();
 	virtual QIcon getIcon() const;
 	FraxinusRegistrationWidget* getFraxinusRegistrationWidget();
@@ -99,7 +99,7 @@ class org_custusx_fraxinus_core_state_EXPORT NavigationWorkflowState: public Fra
 Q_OBJECT
 
 public:
-	NavigationWorkflowState(QState* parent, CoreServicesPtr services);
+	NavigationWorkflowState(QState* parent, RegServicesPtr services);
 	virtual ~NavigationWorkflowState();
 	virtual QIcon getIcon() const;
 	FraxinusNavigationWidget* getFraxinusNavigationWidget();
@@ -119,7 +119,7 @@ class org_custusx_fraxinus_core_state_EXPORT SimulatorWorkflowState: public Frax
 Q_OBJECT
 
 public:
-	SimulatorWorkflowState(QState* parent, VisServicesPtr services);
+	SimulatorWorkflowState(QState* parent, RegServicesPtr services);
 	virtual ~SimulatorWorkflowState();
 	virtual QIcon getIcon() const;
 	FraxinusSimulatorWidget* getFraxinusSimulatorWidget();
@@ -138,7 +138,7 @@ class org_custusx_fraxinus_core_state_EXPORT RobotWorkflowState: public Fraxinus
 Q_OBJECT
 
 public:
-	RobotWorkflowState(QState* parent, VisServicesPtr services);
+	RobotWorkflowState(QState* parent, RegServicesPtr services);
 	virtual ~RobotWorkflowState();
 	virtual QIcon getIcon() const;
 	FraxinusRobotWidget* getFraxinusRobotWidget();
