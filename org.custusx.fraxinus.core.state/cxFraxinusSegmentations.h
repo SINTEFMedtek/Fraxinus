@@ -19,6 +19,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxFilterTimedAlgorithm.h"
 #include "cxTimedAlgorithmProgressBar.h"
 #include "cxDefinitions.h"
+#include "cxElastixManager.h"
 
 namespace cx
 {
@@ -63,6 +64,7 @@ protected:
 	bool mSegmentSmallOrgans = false;
 
 	QStringList getRaidionicsOutputClasses(bool startTimers = true);
+	void setElastixParameters();
 
 private slots:
 	void selectAll(bool checked);
@@ -72,6 +74,8 @@ private slots:
 	void runMLFilterSlot();
 	void pythonFinishedSlot();
 	void MLFinishedSlot();
+	void runElastixSlot();
+	void elastixFinishedSlot();
 	
 private:
 	RegServicesPtr mServices;
@@ -114,6 +118,7 @@ private:
 	bool mRegisterPET = false;
 	LUNG_STRUCTURES mCurrentSegmentationType;
 	BranchListPtr mBranchList;
+	ElastixManagerPtr mElastixManager;
 
 	void setMeshNameAndStopTimer(ORGAN_TYPE target);
 	void setMeshName(ORGAN_TYPE target);///< Needs to be called after patient()->insertData to work. Better to use: setMeshNameAndType(MeshPtr mesh, ORGAN_TYPE target)

@@ -30,7 +30,11 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxRegistrationTransform.h"
 #include "cxEnumConversion.h"
 #include "cxBinaryThinningImageFilter3DFilter.h"
-#include "cxElastixManager.h"
+
+#include "cxElastixParameters.h"
+#include "cxElastixExecuter.h"
+#include "cxFilePathProperty.h"
+#include "cxRegistrationService.h"
 
 
 namespace cx
@@ -508,15 +512,67 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 
 void FraxinusSegmentations::performPETCTregistration()
 {
-//TO DO: Run elastix and transformix for PET-to-CT registration
+	if(this->getImage(imPET, istPET_REGISTERED))
+	{
+//		CX_LOG_DEBUG() << "FraxinusSegmentations::performPETCTregistration(): PET image already registered";
+		ImagePtr CTimage = this->getImage(imCT, istTHORAX_CT);
+		this->performPythonSegmentation(CTimage);
+		return;
+	}
+
+	//TO DO: Run elastix and transformix for PET-to-CT registration
 	//Label registered PET image: imPET + istPET_REGISTERED
 	//call this->performPythonSegmentation(CT); at end of function to continue processing pipeline
 	ImagePtr CTimage = this->getImage(imCT, istTHORAX_CT);
-	ImagePtr PETimage = this->getImage(imPET, istPET);
 	ImagePtr PET_CTimage = this->getImage(imCT, istPET_CT);
 
-	ElastixManagerPtr mElastixManager = ElastixManagerPtr(new ElastixManager(mServices));
 
+	mActiveTimerWidget = mPETTimerWidget;
+	if(mActiveTimerWidget)
+		mActiveTimerWidget->start();
+
+	//NB: Elastix creates (modified) copies of PETimage and PET_CTimage
+	//Setting Image Type to istPET_REGISTERED for new PET volume in ElastixManager::addNonlinearData()
+
+	mServices->registration()->setFixedData(CTimage);
+	mServices->registration()->setMovingData(PET_CTimage);
+
+	this->setElastixParameters();
+
+	runElastixSlot();
+}
+
+void FraxinusSegmentations::setElastixParameters()
+{
+	ImagePtr PETimage = this->getImage(imPET, istPET);//TODO: Set PET transfer function (2D/3D)?
+
+	mElastixManager = ElastixManagerPtr(new ElastixManager(mServices));
+
+	ElastixParametersPtr elastixParameters = mElastixManager->getParameters();
+	elastixParameters->setDeformImage(PETimage->getUid());
+
+	elastixParameters->getActiveParameterFile0()->setValue("elastix/par/p_Rigid.txt");
+	elastixParameters->getActiveParameterFile1()->setValue("elastix/par/p_BSpline.txt");
+	elastixParameters->getActiveParameterFile2()->setValue("elastix/par/p_BSpline.txt");
+	QString elastixExe = "/home/olevs/dev/elastix/build_Release/bin/elastix";//TODO
+	elastixParameters->getActiveExecutable()->setValue(elastixExe);
+}
+
+void FraxinusSegmentations::runElastixSlot()
+{
+	mTimedAlgorithmProgressBar->attach(mElastixManager->getExecuter());
+	connect(mElastixManager->getExecuter().get(), &TimedBaseAlgorithm::finished, this, &FraxinusSegmentations::elastixFinishedSlot);
+	mElastixManager->execute();
+}
+
+void FraxinusSegmentations::elastixFinishedSlot()
+{
+	mTimedAlgorithmProgressBar->detach(mThread);
+	disconnect(mElastixManager->getExecuter().get(), &TimedBaseAlgorithm::finished, this, &FraxinusSegmentations::elastixFinishedSlot);
+
+	mPETTimerWidget->stop();
+
+	ImagePtr CTimage = this->getImage(imCT, istTHORAX_CT);
 	this->performPythonSegmentation(CTimage);
 }
 
