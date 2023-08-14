@@ -61,6 +61,7 @@ public:
 	void addObjectToTubeView(DataPtr object);
 	StructuresSelectionWidget *getStructuresSelectionWidget();
 	void setGenerationNumbersAlongRoute(std::vector< int > generationNumbers);
+	void setRadiusAlongRoute(std::vector<double> radius);
 
 
 private slots:
@@ -77,6 +78,7 @@ private:
 	double getTargetDistance();
 	double getRemainingRouteInsideAirways(double cameraPositionInPercent);
 	int getGenerationNumber(double cameraPositionInPercent);
+	double getDiameter(double cameraPositionInPercent);
 
 	ViewSelectionWidget* mViewSelectionWidget;
 	StructuresSelectionWidget* mStructuresSelectionWidget;
@@ -88,10 +90,12 @@ private:
 	QLabel* mDistanceToTarget;
 	QLabel* mWarningLabel;
 	QLabel* mGenerationNumber;
+	QLabel* mDiameter;
 	double mRouteLength;
 	double mDistanceFromPathEndToTarget;
 	double mCameraPositionInPercentAdjusted;
 	std::vector<int> mGenerationNumbersAlongRoute;
+	std::vector<double> mRadiusAlongRoute;
 
 };
 

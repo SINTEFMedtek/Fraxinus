@@ -78,6 +78,7 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 	mDirectDistance = new QLabel();
 	mDistanceToTarget = new QLabel();
 	mWarningLabel = new QLabel();
+	mDiameter = new QLabel();
 	mGenerationNumber = new QLabel();
 	routeVLayout->addWidget(mStaticTotalLegth);
 	routeVLayout->addWidget(mDistanceToTarget);
@@ -85,6 +86,7 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 	//routeVLayout->addSpacing(10);
 	routeVLayout->addWidget(mRemainingRttLegth);
 	routeVLayout->addWidget(mDirectDistance);
+	routeVLayout->addWidget(mDiameter);
 	routeVLayout->addWidget(mGenerationNumber);
 
 	QGroupBox* routeBox = new QGroupBox(tr("Route length"));
@@ -158,6 +160,16 @@ int FraxinusVBWidget::getGenerationNumber(double cameraPositionInPercent)
 	return generationNumber;
 }
 
+double FraxinusVBWidget::getDiameter(double cameraPositionInPercent)
+{
+	double radius = 0.0;
+	int index =(int) (cameraPositionInPercent * mRadiusAlongRoute.size() / 100.0);
+	if(index>=0 && index<mRadiusAlongRoute.size())
+		radius = mRadiusAlongRoute[index];
+
+	return std::round(2*radius*10)/10;
+}
+
 double FraxinusVBWidget::getTargetDistance()
 {
 	QString distanceMetricUid = PinpointWidget::getDistanceMetricUid();
@@ -181,6 +193,9 @@ void FraxinusVBWidget::updateRttInfo(double cameraPositionInPercent)
 
 	mGenerationNumber->setText(QString("Current generation: %1").
 													 arg(this->getGenerationNumber(cameraPositionInPercent)));
+
+	mDiameter->setText(QString("Airway diameter: %1 mm").
+													 arg(this->getDiameter(cameraPositionInPercent)));
 }
 
 QString FraxinusVBWidget::createDistanceFromPathToTargetText()
@@ -292,6 +307,11 @@ StructuresSelectionWidget* FraxinusVBWidget::getStructuresSelectionWidget()
 void FraxinusVBWidget::setGenerationNumbersAlongRoute(std::vector< int > generationNumbers)
 {
 	mGenerationNumbersAlongRoute = generationNumbers;
+}
+
+void FraxinusVBWidget::setRadiusAlongRoute(std::vector< double > radius)
+{
+	mRadiusAlongRoute = radius;
 }
 
 } //namespace cx
