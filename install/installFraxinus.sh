@@ -23,6 +23,7 @@ sudo apt install -y python3.8-venv
 sudo apt install -y libpcre2-16-0
 sudo apt install -y libdouble-conversion3
 sudo apt install -y git
+sudo apt install wget
 
 #Unpack compressed archive to /home/username/Fraxinus
 tar -xf Fraxinus.tar.xz -C ~
@@ -39,6 +40,12 @@ cp -r ~/Fraxinus/models/raidionics_models/CT_MediumOrgansMediastinum ~/Fraxinus_
 cp -r ~/Fraxinus/models/raidionics_models/CT_PulmSystHeart ~/Fraxinus_settings/models/raidionics_models/
 cp -r ~/Fraxinus/models/raidionics_models/CT_SmallOrgansMediastinum ~/Fraxinus_settings/models/raidionics_models/
 
+#install elastix
+wget https://github.com/SuperElastix/elastix/releases/download/5.1.0/elastix-5.1.0-linux.zip
+unzip elastix-5.1.0-linux.zip elastix
+chmod +x elastix/bin/elastix
+chmod +x elastix/bin/transformix
+
 FRAXINUS_PATH=$(ls -d Fraxinus_*)
 
 # Update desktop launcher with correct paths
@@ -51,7 +58,7 @@ rm Fraxinus22.04.desktop-bak
 #Copy desktop launcher, and make it executable
 cp Fraxinus22.04.desktop ~/Desktop
 gio set ~/Desktop/Fraxinus22.04.desktop metadata::trusted true
-chmod a+x ~/Desktop/Fraxinus22.04.desktop
+chmod +x ~/Desktop/Fraxinus22.04.desktop
 
 
 #Create virtual python environments
