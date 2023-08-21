@@ -41,16 +41,21 @@ cp -r ~/Fraxinus/models/raidionics_models/CT_PulmSystHeart ~/Fraxinus_settings/m
 cp -r ~/Fraxinus/models/raidionics_models/CT_SmallOrgansMediastinum ~/Fraxinus_settings/models/raidionics_models/
 
 #install elastix
-wget https://github.com/SuperElastix/elastix/releases/download/5.1.0/elastix-5.1.0-linux.zip
-unzip elastix-5.1.0-linux.zip -d elastix
-chmod +x elastix/bin/elastix
-chmod +x elastix/bin/transformix
-# Set Elastix paths in .bashrc
-echo '' >> ~/.bashrc
-echo '#Path to Elastix installation' >> ~/.bashrc
-echo 'export PATH=$HOME/Fraxinus/elastix/bin:$PATH' >> ~/.bashrc
-echo 'export LD_LIBRARY_PATH=$HOME/Fraxinus/elastix/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
-source ~/.bashrc
+if command -v elastix > /dev/null 2>&1; then
+  echo "Elastix is already installed"
+else
+  echo "Installing Elastix"
+  wget https://github.com/SuperElastix/elastix/releases/download/5.1.0/elastix-5.1.0-linux.zip
+  unzip elastix-5.1.0-linux.zip -d elastix
+  chmod +x elastix/bin/elastix
+  chmod +x elastix/bin/transformix
+  echo "Installing Elastix paths in .bashrc"
+  echo '' >> ~/.bashrc
+  echo '#Path to Elastix installation' >> ~/.bashrc
+  echo 'export PATH=$HOME/Fraxinus/elastix/bin:$PATH' >> ~/.bashrc
+  echo 'export LD_LIBRARY_PATH=$HOME/Fraxinus/elastix/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
+  source ~/.bashrc
+fi
 
 FRAXINUS_PATH=$(ls -d Fraxinus_*)
 
