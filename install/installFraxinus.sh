@@ -45,6 +45,12 @@ wget https://github.com/SuperElastix/elastix/releases/download/5.1.0/elastix-5.1
 unzip elastix-5.1.0-linux.zip -d elastix
 chmod +x elastix/bin/elastix
 chmod +x elastix/bin/transformix
+# Set Elastix paths in .bashrc
+echo '' >> ~/.bashrc
+echo '#Path to Elastix installation' >> ~/.bashrc
+echo 'export PATH=$HOME/Fraxinus/elastix/bin:$PATH' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=$HOME/Fraxinus/elastix/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
+source ~/.bashrc
 
 FRAXINUS_PATH=$(ls -d Fraxinus_*)
 
