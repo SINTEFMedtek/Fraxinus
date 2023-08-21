@@ -42,7 +42,7 @@ cp -r ~/Fraxinus/models/raidionics_models/CT_SmallOrgansMediastinum ~/Fraxinus_s
 
 #install elastix
 wget https://github.com/SuperElastix/elastix/releases/download/5.1.0/elastix-5.1.0-linux.zip
-unzip elastix-5.1.0-linux.zip elastix
+unzip elastix-5.1.0-linux.zip -d elastix
 chmod +x elastix/bin/elastix
 chmod +x elastix/bin/transformix
 
