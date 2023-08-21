@@ -545,7 +545,7 @@ void FraxinusSegmentations::performPETCTregistration()
 
 void FraxinusSegmentations::setElastixParameters()
 {
-	ImagePtr PETimage = this->getImage(imPET, istPET);//TODO: Set PET transfer function (2D/3D)?
+	ImagePtr PETimage = this->getImage(imPET, istPET);
 
 	mElastixManager = ElastixManagerPtr(new ElastixManager(mServices));
 
@@ -555,8 +555,6 @@ void FraxinusSegmentations::setElastixParameters()
 	elastixParameters->getActiveParameterFile0()->setValue("elastix/par/p_Rigid.txt");
 	elastixParameters->getActiveParameterFile1()->setValue("elastix/par/p_BSpline.txt");
 	elastixParameters->getActiveParameterFile2()->setValue("elastix/par/p_BSpline.txt");
-	QString elastixExe = "/home/olevs/dev/elastix/build_Release/bin/elastix";//TODO
-	elastixParameters->getActiveExecutable()->setValue(elastixExe);
 }
 
 void FraxinusSegmentations::runElastixSlot()
