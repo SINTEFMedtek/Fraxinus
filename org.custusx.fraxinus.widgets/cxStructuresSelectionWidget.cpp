@@ -39,6 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxViewGroupData.h"
 #include "cxLogger.h"
 #include "cxEnumConversion.h"
+#include "cxTransferFunctionWidget.h"
+#include "cxDoubleWidgets.h"
 
 namespace cx {
 
@@ -53,29 +55,20 @@ SelectableStructure::SelectableStructure()
 
 StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QWidget* parent):
 	BaseWidget(parent, this->getWidgetName(), "Select Structures"),
+	mStructuresLayout(new QVBoxLayout),
 	mServices(services)
 {
-	QVBoxLayout* structuresLayout = new QVBoxLayout;
+	mPETSlider.reset(new DoublePropertyImageTFSlider2DAnd3D);
+	mPETSlider->setDisplayName("PET");
 
 	for(int i = lsFIRST_STRUCTURE_BUTTON; i <= lsLAST_STRUCTURE_BUTTON; ++i)
 	{
-		QString name = enum2string(LUNG_STRUCTURES(i));
-		SelectableStructure structure(name);
-
-		structure.mButton = new QPushButton(name);
-		structure.mButtonBackgroundColor = structure.mButton->palette();
-		structure.mButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
-		structure.mButton->setPalette(structure.mButtonBackgroundColor);
-		structure.mButton->setEnabled(false);
-		structuresLayout->addWidget(structure.mButton);
-
-		//Need to store the connection to be able to disconnect, because of the lambda function
-		structure.mConnection = connect(structure.mButton, &QPushButton::clicked, this, [=]() { this->viewStructureSlot(LUNG_STRUCTURES(i)); });
-
-		mSelectableStructuresMap.insert(LUNG_STRUCTURES(i), structure);
+		addLungStructureButton(LUNG_STRUCTURES(i));
 	}
+	addLungStructureButton(lsPET_REGISTERED);
 
-	this->setLayout(structuresLayout);
+	mStructuresLayout->addWidget(this->getSliderWidget());
+	this->setLayout(mStructuresLayout);
 }
 
 StructuresSelectionWidget::~StructuresSelectionWidget()
@@ -86,7 +79,35 @@ StructuresSelectionWidget::~StructuresSelectionWidget()
 		i.next();
 		disconnect(i.value().mConnection);
 	}
+}
 
+QWidget* StructuresSelectionWidget::getSliderWidget()
+{
+//	QWidget* sliderWidget = new SliderGroupWidget(this, mPETSlider);
+	ScalarInteractionWidget* sliderWidget = new ScalarInteractionWidget(this, mPETSlider);
+	//Don't show all the slider widgets
+	sliderWidget->enableLabel();
+	sliderWidget->enableSlider();
+	sliderWidget->addToOwnLayout();
+	return sliderWidget;
+}
+
+void StructuresSelectionWidget::addLungStructureButton(LUNG_STRUCTURES lungStructure)
+{
+	QString name = enum2string(lungStructure);
+	SelectableStructure structure(name);
+
+	structure.mButton = new QPushButton(name);
+	structure.mButtonBackgroundColor = structure.mButton->palette();
+	structure.mButtonBackgroundColor.setColor(QPalette::Button, Qt::black);
+	structure.mButton->setPalette(structure.mButtonBackgroundColor);
+	structure.mButton->setEnabled(false);
+	mStructuresLayout->addWidget(structure.mButton);
+
+	//Need to store the connection to be able to disconnect, because of the lambda function
+	structure.mConnection = connect(structure.mButton, &QPushButton::clicked, this, [=]() { this->viewStructureSlot(lungStructure); });
+
+	mSelectableStructuresMap.insert(lungStructure, structure);
 }
 
 void StructuresSelectionWidget::resetButtons()
@@ -149,12 +170,17 @@ void StructuresSelectionWidget::setViewGroupNumbers(std::vector<unsigned int> vi
 
 void StructuresSelectionWidget::addObject(LUNG_STRUCTURES name, DataPtr object)
 {
+	if(!object)
+		return;
 	SelectableStructure structure = mSelectableStructuresMap.take(name);
 	structure.mButton->setEnabled(true);
 	structure.mObjects.push_back(object);
 	structure.mButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
 	structure.mButton->setPalette(structure.mButtonBackgroundColor);
 	mSelectableStructuresMap.insert(name, structure);
+
+	if(name == lsPET_REGISTERED)
+		mPETSlider->setImage(boost::dynamic_pointer_cast<Image>(object));
 }
 
 void StructuresSelectionWidget::viewStructureSlot(LUNG_STRUCTURES name)

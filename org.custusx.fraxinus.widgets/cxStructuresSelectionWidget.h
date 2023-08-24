@@ -35,7 +35,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
-#include <cxStructuresSelectionWidget.h>
 #include "cxBaseWidget.h"
 #include "cxForwardDeclarations.h"
 #include "cxDefinitions.h"
@@ -43,6 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class QPushButton;
 
 namespace cx {
+
+typedef boost::shared_ptr<class DoublePropertyImageTFSlider2DAnd3D> DoublePropertyImageTFSlider2DAnd3DPtr;
 
 struct org_custusx_fraxinus_widgets_EXPORT SelectableStructure
 {
@@ -70,15 +71,20 @@ public:
 	void onEntry();
 	void resetButtons();
 
-
 private slots:
 	void viewStructureSlot(LUNG_STRUCTURES name);
 
 private:
+	void addLungStructureButton(LUNG_STRUCTURES lungStructure);
 	void displayDataObjects(std::vector<DataPtr> objects);
 	void hideDataObjects(std::vector<DataPtr> objects);
+	QWidget *getSliderWidget();
 
 	VisServicesPtr mServices;
+
+	QVBoxLayout* mStructuresLayout = nullptr;
+	DoublePropertyImageTFSlider2DAnd3DPtr mPETSlider;
+
 	std::vector<unsigned int> mViewGroupNumbers;
 	std::vector<DataPtr> mLungsObjects;
 	std::vector<DataPtr> mLesionsObjects;

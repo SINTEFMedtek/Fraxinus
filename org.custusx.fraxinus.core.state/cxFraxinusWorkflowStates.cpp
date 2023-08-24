@@ -517,6 +517,8 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	if(esophagus)
 		esophagusObjects.push_back(esophagus);
 	
+	ImagePtr registeredPet = mFraxinusSegmentations->getImage(imPET, istPET_REGISTERED);
+
 	for(DataPtr object : lungObjects)
 		widget->addObject(lsLUNG, object);
 	for(DataPtr object : tumorObjects)
@@ -545,6 +547,8 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 		widget->addObject(lsPULMONARY_TRUNK, object);
 	for(DataPtr object : esophagusObjects)
 		widget->addObject(lsESOPHAGUS, object);
+
+	widget->addObject(lsPET_REGISTERED, registeredPet);
 	
 	widget->setViewGroupNumbers(viewGroupNumbers);
 	
