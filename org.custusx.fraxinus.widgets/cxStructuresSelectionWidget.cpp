@@ -67,7 +67,7 @@ StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QW
 	}
 	addLungStructureButton(lsPET_REGISTERED);
 
-	mStructuresLayout->addWidget(this->getSliderWidget());
+	mStructuresLayout->addLayout(this->getPETSliderLayout());
 	this->setLayout(mStructuresLayout);
 }
 
@@ -79,6 +79,20 @@ StructuresSelectionWidget::~StructuresSelectionWidget()
 		i.next();
 		disconnect(i.value().mConnection);
 	}
+
+	disconnect(mResetButton, &QPushButton::pressed, this, &StructuresSelectionWidget::resetButtonPressed);
+}
+
+QLayout* StructuresSelectionWidget::getPETSliderLayout()
+{
+	QHBoxLayout *layout = new QHBoxLayout();
+	mResetButton = new QPushButton();
+	mResetButton->setIcon(QIcon(":/icons/preset_reset.png"));
+	connect(mResetButton, &QPushButton::pressed, this, &StructuresSelectionWidget::resetButtonPressed);
+
+	layout->addWidget(mResetButton);
+	layout->addWidget(this->getSliderWidget());
+	return layout;
 }
 
 QWidget* StructuresSelectionWidget::getSliderWidget()
@@ -90,6 +104,12 @@ QWidget* StructuresSelectionWidget::getSliderWidget()
 	sliderWidget->enableSlider();
 	sliderWidget->addToOwnLayout();
 	return sliderWidget;
+}
+
+void StructuresSelectionWidget::resetButtonPressed()
+{
+	if(mPETImage)
+		mPETImage->resetTransferFunctions();
 }
 
 void StructuresSelectionWidget::addLungStructureButton(LUNG_STRUCTURES lungStructure)
@@ -180,7 +200,26 @@ void StructuresSelectionWidget::addObject(LUNG_STRUCTURES name, DataPtr object)
 	mSelectableStructuresMap.insert(name, structure);
 
 	if(name == lsPET_REGISTERED)
-		mPETSlider->setImage(boost::dynamic_pointer_cast<Image>(object));
+		this->setPETImage(boost::dynamic_pointer_cast<Image>(object));
+}
+
+void StructuresSelectionWidget::setPETImage(ImagePtr image)
+{
+	if(image)
+	{
+		if(mPETImage)
+			disconnect(mPETImage.get(), &Image::transferFunctionsChanged, this, &StructuresSelectionWidget::transferFunctionsChanged);
+
+		mPETImage = image;
+		mPETSlider->setImage(mPETImage);
+
+		connect(mPETImage.get(), &Image::transferFunctionsChanged, this, &StructuresSelectionWidget::transferFunctionsChanged);
+	}
+}
+
+void StructuresSelectionWidget::transferFunctionsChanged()
+{
+	mPETSlider->setImage(mPETImage);
 }
 
 void StructuresSelectionWidget::viewStructureSlot(LUNG_STRUCTURES name)

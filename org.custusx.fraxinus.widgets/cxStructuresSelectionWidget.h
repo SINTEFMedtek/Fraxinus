@@ -73,17 +73,23 @@ public:
 
 private slots:
 	void viewStructureSlot(LUNG_STRUCTURES name);
+	void resetButtonPressed();
+	void transferFunctionsChanged();
 
 private:
 	void addLungStructureButton(LUNG_STRUCTURES lungStructure);
 	void displayDataObjects(std::vector<DataPtr> objects);
 	void hideDataObjects(std::vector<DataPtr> objects);
+	QLayout *getPETSliderLayout();
 	QWidget *getSliderWidget();
+	void setPETImage(ImagePtr image);
 
 	VisServicesPtr mServices;
 
 	QVBoxLayout* mStructuresLayout = nullptr;
 	DoublePropertyImageTFSlider2DAnd3DPtr mPETSlider;
+	ImagePtr mPETImage = nullptr;
+	QPushButton *mResetButton;
 
 	std::vector<unsigned int> mViewGroupNumbers;
 	std::vector<DataPtr> mLungsObjects;
