@@ -60,6 +60,7 @@ StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QW
 {
 	mPETSlider.reset(new DoublePropertyImageTFSlider2DAnd3D);
 	mPETSlider->setDisplayName("PET");
+	mPETSlider->setEnabled(false);
 
 	for(int i = lsFIRST_STRUCTURE_BUTTON; i <= lsLAST_STRUCTURE_BUTTON; ++i)
 	{
@@ -69,6 +70,8 @@ StructuresSelectionWidget::StructuresSelectionWidget(VisServicesPtr services, QW
 
 	mStructuresLayout->addLayout(this->getPETSliderLayout());
 	this->setLayout(mStructuresLayout);
+
+	mResetButton->setEnabled(false);
 }
 
 StructuresSelectionWidget::~StructuresSelectionWidget()
@@ -236,6 +239,12 @@ void StructuresSelectionWidget::viewStructureSlot(LUNG_STRUCTURES name)
 		this->hideDataObjects(mSelectableStructuresMap[name].mObjects);
 		mSelectableStructuresMap[name].mButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
 		mSelectableStructuresMap[name].mButton->setPalette(mSelectableStructuresMap[name].mButtonBackgroundColor);
+	}
+
+	if(name == lsPET_REGISTERED)
+	{
+		mPETSlider->setEnabled(mSelectableStructuresMap[name].mViewEnabled);
+		mResetButton->setEnabled(mSelectableStructuresMap[name].mViewEnabled);
 	}
 }
 
