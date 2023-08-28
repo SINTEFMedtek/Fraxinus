@@ -76,6 +76,7 @@ private slots:
 	void MLFinishedSlot();
 	void runElastixSlot();
 	void elastixFinishedSlot();
+	void checkForPETData();
 	
 private:
 	RegServicesPtr mServices;

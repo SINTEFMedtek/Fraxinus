@@ -147,11 +147,11 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mCheckBoxNodules = new QCheckBox(tr("Nodules (~2 min)"));
 	mCheckBoxTumors = new QCheckBox(tr("Tumors (~3 min)"));
 	mCheckBoxPET = new QCheckBox(tr("PET to CT (~2 min)"));
-	if(!( getImage(imCT, istTHORAX_CT) && getImage(imCT, istPET_CT) && getImage(imPET, istPET) ))
-		mCheckBoxPET->setDisabled(true);
+	this->checkForPETData();
 	//mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (<1 min)"));
 	mCheckBoxSelectAll = new QCheckBox(tr("Select all"));
 
+	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusSegmentations::checkForPETData);
 	connect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &FraxinusSegmentations::selectAll);
 	
 	QPushButton* OKbutton = new QPushButton(tr("&OK"));
@@ -183,6 +183,14 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mSegmentationSelectionInput->activateWindow();
 }
 
+void FraxinusSegmentations::checkForPETData()
+{
+	if(!( getImage(imCT, istTHORAX_CT) && getImage(imCT, istPET_CT) && getImage(imPET, istPET) ))
+		mCheckBoxPET->setDisabled(true);
+	else
+		mCheckBoxPET->setDisabled(false);
+}
+
 void FraxinusSegmentations::selectAll(bool checked)
 {
 	mCheckBoxLymphNodes->setChecked(checked);
@@ -192,7 +200,7 @@ void FraxinusSegmentations::selectAll(bool checked)
 	mCheckBoxNodules->setChecked(checked);
 	mCheckBoxTumors->setChecked(checked);
 	if(mCheckBoxPET->isEnabled())
-		mCheckBoxAirways->setChecked(checked);
+		mCheckBoxPET->setChecked(checked);
 	//mCheckBoxLungVessels->setChecked(checked);
 }
 
