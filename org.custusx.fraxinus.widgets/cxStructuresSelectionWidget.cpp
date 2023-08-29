@@ -198,7 +198,10 @@ void StructuresSelectionWidget::addObject(LUNG_STRUCTURES name, DataPtr object)
 	SelectableStructure structure = mSelectableStructuresMap.take(name);
 	structure.mButton->setEnabled(true);
 	structure.mObjects.push_back(object);
-	structure.mButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+	if(structure.mViewEnabled)
+		structure.mButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
+	else
+		structure.mButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
 	structure.mButton->setPalette(structure.mButtonBackgroundColor);
 	mSelectableStructuresMap.insert(name, structure);
 
