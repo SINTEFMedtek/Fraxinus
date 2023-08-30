@@ -85,7 +85,7 @@ private:
 	FilterTimedAlgorithmPtr mThread;
 	TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
 	
-	QDialog* mSegmentationSelectionInput;
+	QDialog* mSegmentationSelectionInput = nullptr;
 	QDialog* mSegmentationProcessingInfo;
 	DisplayTimerWidget* mAirwaysTimerWidget;
 	DisplayTimerWidget* mLungsTimerWidget;

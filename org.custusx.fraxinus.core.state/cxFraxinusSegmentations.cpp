@@ -54,13 +54,14 @@ FraxinusSegmentations::~FraxinusSegmentations()
 
 void FraxinusSegmentations::close()
 {
+	if(!mSegmentationSelectionInput)
+		return;
 	disconnect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusSegmentations::checkForPETData);
 	disconnect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &FraxinusSegmentations::selectAll);
 	disconnect(mOKbutton, &QPushButton::clicked, this, &FraxinusSegmentations::imageSelected);
 	disconnect(mCancelbutton, &QPushButton::clicked, this, &FraxinusSegmentations::cancel);
-
-	if(mSegmentationSelectionInput)
-		mSegmentationSelectionInput->close();
+	mSegmentationSelectionInput->close();
+	mSegmentationSelectionInput = nullptr;
 }
 
 ImagePtr FraxinusSegmentations::getImage(IMAGE_MODALITY modality, IMAGE_SUBTYPE subtype) const
@@ -222,7 +223,7 @@ void FraxinusSegmentations::imageSelected()
 	mSegmentNodules = mCheckBoxNodules->isChecked();
 	mSegmentTumors = mCheckBoxTumors->isChecked();
 	mRegisterPET = mCheckBoxPET->isChecked();
-	mSegmentationSelectionInput->close();
+	this->close();
 
 	this->createProcessingInfo();
 
@@ -236,7 +237,7 @@ void FraxinusSegmentations::imageSelected()
 
 void FraxinusSegmentations::cancel()
 {
-	mSegmentationSelectionInput->close();
+	this->close();
 }
 
 void FraxinusSegmentations::createProcessingInfo()
