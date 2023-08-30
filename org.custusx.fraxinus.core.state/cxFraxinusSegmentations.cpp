@@ -53,6 +53,11 @@ FraxinusSegmentations::~FraxinusSegmentations()
 
 void FraxinusSegmentations::close()
 {
+	disconnect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusSegmentations::checkForPETData);
+	disconnect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &FraxinusSegmentations::selectAll);
+	disconnect(mOKbutton, &QPushButton::clicked, this, &FraxinusSegmentations::imageSelected);
+	disconnect(mCancelbutton, &QPushButton::clicked, this, &FraxinusSegmentations::cancel);
+
 	if(mSegmentationSelectionInput)
 		mSegmentationSelectionInput->close();
 }
@@ -154,11 +159,11 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusSegmentations::checkForPETData);
 	connect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &FraxinusSegmentations::selectAll);
 	
-	QPushButton* OKbutton = new QPushButton(tr("&OK"));
-	QPushButton* Cancelbutton = new QPushButton(tr("&Cancel"));
+	mOKbutton = new QPushButton(tr("&OK"));
+	mCancelbutton = new QPushButton(tr("&Cancel"));
 	
-	connect(OKbutton, &QPushButton::clicked, this, &FraxinusSegmentations::imageSelected);
-	connect(Cancelbutton, &QPushButton::clicked, this, &FraxinusSegmentations::cancel);
+	connect(mOKbutton, &QPushButton::clicked, this, &FraxinusSegmentations::imageSelected);
+	connect(mCancelbutton, &QPushButton::clicked, this, &FraxinusSegmentations::cancel);
 	
 	QVBoxLayout* checkBoxLayout = new QVBoxLayout;
 	checkBoxLayout->addWidget(mCheckBoxAirways);
@@ -175,8 +180,8 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	QGridLayout* mainLayout = new QGridLayout;
 	mainLayout->setSizeConstraint(QLayout::SetFixedSize);
 	mainLayout->addLayout(checkBoxLayout, 0, 0);
-	mainLayout->addWidget(Cancelbutton, 1, 1);
-	mainLayout->addWidget(OKbutton, 1, 2);
+	mainLayout->addWidget(mCancelbutton, 1, 1);
+	mainLayout->addWidget(mOKbutton, 1, 2);
 	
 	mSegmentationSelectionInput->setLayout(mainLayout);
 	mSegmentationSelectionInput->show();
