@@ -49,6 +49,7 @@ else
   unzip elastix-5.1.0-linux.zip -d elastix
   chmod +x elastix/bin/elastix
   chmod +x elastix/bin/transformix
+  cp elastix/lib/libANNlib* elastix/bin/
   echo "Installing Elastix paths in .bashrc"
   echo '' >> ~/.bashrc
   echo '#Path to Elastix installation' >> ~/.bashrc
