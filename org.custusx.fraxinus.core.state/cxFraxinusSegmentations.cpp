@@ -30,6 +30,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxRegistrationTransform.h"
 #include "cxEnumConversion.h"
 #include "cxBinaryThinningImageFilter3DFilter.h"
+#include "cxBranchList.h"
 
 #include "cxElastixParameters.h"
 #include "cxElastixExecuter.h"
@@ -692,6 +693,8 @@ void FraxinusSegmentations::postProcessAirways()
 
 	mBranchList = airwaysFromCLPtr->getBranchList();
 
+	mBranchList->setRadius(airwaysVolume);
+
 	// Create mesh object from the airway walls
 	QString uidMesh = CTimage->getUid() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes();
 	QString nameMesh = CTimage->getName() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes();
@@ -725,8 +728,8 @@ void FraxinusSegmentations::postProcessAirways()
 	ImagePtr lungsVolume = getVolume(otLUNGS);
 	if(lungsVolume)
 		mServices->patient()->removeData(lungsVolume->getUid());
-	if(airwaysVolume)
-		mServices->patient()->removeData(airwaysVolume->getUid());
+//	if(airwaysVolume) // do not remove, needed for airway radius calculation at Fraxinus restart
+//		mServices->patient()->removeData(airwaysVolume->getUid());
 }
 
 void FraxinusSegmentations::generateCenterline()

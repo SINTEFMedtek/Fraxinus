@@ -398,6 +398,7 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 		widget->setRoutePositions(mRouteToTargetPositions);
 		widget->setCameraRotationAlongRoute(mRouteToTargetCameraRotations);
 		widget->setGenerationNumbersAlongRoute(mRouteToTargetGenerationNumbers);
+		widget->setRadiusAlongRoute(mRouteToTargetRadius);
 		
 		MeshPtr routeToTarget = this->getRouteToTarget();
 		if(routeToTarget)
@@ -635,12 +636,16 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 		}
 	}
 	
+	if(!mBranchList->isRadiusAvailable())
+		mBranchList->setRadius(mFraxinusSegmentations->getVolume(otAIRWAYS));
+
 	if(routeToTargetFilter->execute())
 	{
 		routeToTargetFilter->postProcess();
 		mRouteToTargetPositions = routeToTargetFilter->getRoutePositions(true);
 		mRouteToTargetCameraRotations = routeToTargetFilter->getCameraRotation();
 		mRouteToTargetGenerationNumbers = routeToTargetFilter->getGenerationNumbers();
+		mRouteToTargetRadius = routeToTargetFilter->getRadius();
 		emit routeToTargetCreated();
 	}
 	mBranchList = routeToTargetFilter->getBranchList();

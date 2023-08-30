@@ -94,6 +94,7 @@ protected:
 	std::vector< Eigen::Vector3d > mRouteToTargetPositions;
 	std::vector< double > mRouteToTargetCameraRotations;
 	std::vector< int > mRouteToTargetGenerationNumbers;
+	std::vector< double > mRouteToTargetRadius;
 	FraxinusSegmentationsPtr mFraxinusSegmentations;
 
 
