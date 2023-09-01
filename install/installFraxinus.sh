@@ -70,16 +70,16 @@ else
 fi
 
 # Update desktop launcher with correct paths
-mv Fraxinus22.04.desktop Fraxinus22.04.desktop-bak
-sed -e "s,Icon=.*,Icon=$HOME/Fraxinus/Icon/Fraxinus.icns,g" Fraxinus22.04.desktop-bak > Fraxinus22.04.desktop
-mv Fraxinus22.04.desktop Fraxinus22.04.desktop-bak
-sed -e "s,Path=.*,Path=$HOME/Fraxinus/$FRAXINUS_PATH/Fraxinus,g" Fraxinus22.04.desktop-bak > Fraxinus22.04.desktop
-rm Fraxinus22.04.desktop-bak
+mv Fraxinus.desktop Fraxinus.desktop-bak
+sed -e "s,Icon=.*,Icon=$HOME/Fraxinus/Icon/Fraxinus.icns,g" Fraxinus.desktop-bak > Fraxinus.desktop
+mv Fraxinus.desktop Fraxinus.desktop-bak
+sed -e "s,Path=.*,Path=$HOME/Fraxinus/$FRAXINUS_PATH/Fraxinus,g" Fraxinus.desktop-bak > Fraxinus.desktop
+rm Fraxinus.desktop-bak
 
 #Copy desktop launcher, and make it executable
-cp Fraxinus22.04.desktop ~/Desktop
-gio set ~/Desktop/Fraxinus22.04.desktop metadata::trusted true
-chmod +x ~/Desktop/Fraxinus22.04.desktop
+cp Fraxinus.desktop ~/Desktop
+gio set ~/Desktop/Fraxinus.desktop metadata::trusted true
+chmod +x ~/Desktop/Fraxinus.desktop
 
 
 #Create virtual python environments
