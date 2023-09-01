@@ -38,7 +38,6 @@ namespace cx
 {
 void FraxinusMainWindowApplicationComponent::addAdditionalDefaultLayouts()
 {
-	std::cout << "addAdditionalDefaultLayouts" << std::endl;
 	ViewServicePtr viewService = logicManager()->getViewService();
 	{
 		LayoutData layout = LayoutData::create("LAYOUT_VB_FLY_THROUGH", "VB FLY-THROUGH", 3, 5);
