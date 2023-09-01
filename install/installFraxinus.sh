@@ -57,7 +57,7 @@ if command -v elastix > /dev/null 2>&1; then
 else
   echo "Installing Elastix"
   wget https://github.com/SuperElastix/elastix/releases/download/5.1.0/elastix-5.1.0-linux.zip
-  unzip elastix-5.1.0-linux.zip -d elastix
+  unzip -o elastix-5.1.0-linux.zip -d elastix
   chmod +x elastix/bin/elastix
   chmod +x elastix/bin/transformix
   cp elastix/lib/libANNlib* elastix/bin/
