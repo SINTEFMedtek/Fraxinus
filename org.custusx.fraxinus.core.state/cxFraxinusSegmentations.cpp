@@ -530,18 +530,13 @@ void FraxinusSegmentations::performPETCTregistration()
 {
 	if(this->getImage(imPET, istPET_REGISTERED))
 	{
-//		CX_LOG_DEBUG() << "FraxinusSegmentations::performPETCTregistration(): PET image already registered";
 		ImagePtr CTimage = this->getImage(imCT, istTHORAX_CT);
 		this->performPythonSegmentation(CTimage);
 		return;
 	}
 
-	//TO DO: Run elastix and transformix for PET-to-CT registration
-	//Label registered PET image: imPET + istPET_REGISTERED
-	//call this->performPythonSegmentation(CT); at end of function to continue processing pipeline
 	ImagePtr CTimage = this->getImage(imCT, istTHORAX_CT);
 	ImagePtr PET_CTimage = this->getImage(imCT, istPET_CT);
-
 
 	mActiveTimerWidget = mPETTimerWidget;
 	if(mActiveTimerWidget)

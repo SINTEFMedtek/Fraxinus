@@ -100,7 +100,6 @@ QLayout* StructuresSelectionWidget::getPETSliderLayout()
 
 QWidget* StructuresSelectionWidget::getSliderWidget()
 {
-//	QWidget* sliderWidget = new SliderGroupWidget(this, mPETSlider);
 	ScalarInteractionWidget* sliderWidget = new ScalarInteractionWidget(this, mPETSlider);
 	//Don't show all the slider widgets
 	sliderWidget->enableLabel();
