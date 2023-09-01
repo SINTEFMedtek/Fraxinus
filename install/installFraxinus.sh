@@ -26,7 +26,18 @@ sudo apt install -y git
 sudo apt install wget
 
 #Unpack compressed archive to /home/username/Fraxinus
-tar -xf Fraxinus.tar.xz -C ~
+if [ -d "Fraxinus_temp" ]; then
+  rm -rf Fraxinus_temp #Remove if it exists
+fi
+mkdir Fraxinus_temp
+tar -xf Fraxinus.tar.xz -C Fraxinus_temp
+cd Fraxinus_temp/Fraxinus
+FRAXINUS_PATH=$(ls -d Fraxinus_*)
+mkdir -p ~/Fraxinus #Make dir if it does not exist
+cd ../..
+cp -r Fraxinus_temp/Fraxinus/* ~/Fraxinus #Copy and replace
+rm -rf Fraxinus_temp
+
 
 #Place Raidionics AI networks in correct position
 mkdir ~/Fraxinus_settings
@@ -57,8 +68,6 @@ else
   echo 'export LD_LIBRARY_PATH=$HOME/Fraxinus/elastix/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
   source ~/.bashrc
 fi
-
-FRAXINUS_PATH=$(ls -d Fraxinus_*)
 
 # Update desktop launcher with correct paths
 mv Fraxinus22.04.desktop Fraxinus22.04.desktop-bak
