@@ -79,7 +79,7 @@ class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowStateMachine : publ
 {
 	Q_OBJECT
 public:
-	FraxinusWorkflowStateMachine(VisServicesPtr services);
+	FraxinusWorkflowStateMachine(RegServicesPtr services);
 	virtual ~FraxinusWorkflowStateMachine();
 
 

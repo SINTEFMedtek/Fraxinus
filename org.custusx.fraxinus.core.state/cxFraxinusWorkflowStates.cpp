@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVideoService.h"
 #include "cxPatientModelService.h"
 #include "cxLogger.h"
-#include "cxVisServices.h"
+#include "cxRegServices.h"
 #include "cxClippers.h"
 #include "cxInteractiveClipper.h"
 #include "cxActiveData.h"
@@ -70,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace cx
 {
 
-FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QString name, CoreServicesPtr services, bool enableAction) :
+FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QString name, RegServicesPtr services, bool enableAction) :
 	WorkflowState(parent, uid, name, services, enableAction)
 {
 	mFraxinusSegmentations = FraxinusSegmentationsPtr(new FraxinusSegmentations(services));
@@ -253,34 +253,23 @@ MeshPtr FraxinusWorkflowState::getExtendedRouteToTarget() const
 
 ImagePtr FraxinusWorkflowState::getCTImage() const
 {
-	return mFraxinusSegmentations->getCTImage();
+	return mFraxinusSegmentations->getImage(imCT, istTHORAX_CT);
 }
 
 ImagePtr FraxinusWorkflowState::getCTImageCopied() const
 {
-	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
-	
-	if(images.empty())
-		return ImagePtr();
-	
-	std::map<QString, ImagePtr>::iterator it = images.begin();
-	ImagePtr imageCopied;
-	ImagePtr originalImage;
-	for( ; it != images.end(); ++it)
+	ImagePtr imageCopied = mFraxinusSegmentations->getImage(imCT, istCOPY);
+
+	if(imageCopied)
+		return imageCopied;
+	else
 	{
-		if(it->first.contains("_copy"))
-		{
-			imageCopied = it->second;
-			break;
-		}
-		else if(!it->first.contains(airwaysFilterGetNameSuffixAirways()))
-			originalImage = it->second;
+		ImagePtr imageOriginal = mFraxinusSegmentations->getImage(imCT, istTHORAX_CT);
+		if(imageOriginal)
+			return createCopiedImage(imageOriginal);
 	}
-	
-	if (!imageCopied && originalImage)
-		imageCopied = createCopiedImage(originalImage);
-	
-	return imageCopied;
+
+	return ImagePtr();
 }
 
 ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
@@ -288,6 +277,7 @@ ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
 	ImagePtr imageCopied = originalImage->copy();
 	imageCopied->setName(originalImage->getName()+"_copy");
 	imageCopied->setUid(originalImage->getUid()+"_copy");
+	imageCopied->setImageType(istCOPY);
 	mServices->patient()->insertData(imageCopied);
 	
 	return imageCopied;
@@ -528,6 +518,8 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	if(esophagus)
 		esophagusObjects.push_back(esophagus);
 	
+	ImagePtr registeredPet = mFraxinusSegmentations->getImage(imPET, istPET_REGISTERED);
+
 	for(DataPtr object : lungObjects)
 		widget->addObject(lsLUNG, object);
 	for(DataPtr object : tumorObjects)
@@ -556,6 +548,8 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 		widget->addObject(lsPULMONARY_TRUNK, object);
 	for(DataPtr object : esophagusObjects)
 		widget->addObject(lsESOPHAGUS, object);
+
+	widget->addObject(lsPET_REGISTERED, registeredPet);
 	
 	widget->setViewGroupNumbers(viewGroupNumbers);
 	
@@ -676,7 +670,7 @@ void FraxinusWorkflowState::cleanupVBWidget()
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-PatientWorkflowState::PatientWorkflowState(QState* parent, CoreServicesPtr services) :
+PatientWorkflowState::PatientWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusPatientUid", "New/Load Patient", services, true)
 {}
 
@@ -715,7 +709,7 @@ void PatientWorkflowState::addDataToView()
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-ImportWorkflowState::ImportWorkflowState(QState* parent, VisServicesPtr services) :
+ImportWorkflowState::ImportWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusImportUid", "Import", services, false)
 {
 }
@@ -773,7 +767,7 @@ void ImportWorkflowState::addDataToView()
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-ProcessWorkflowState::ProcessWorkflowState(QState* parent, CoreServicesPtr services) :
+ProcessWorkflowState::ProcessWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusProcessUid", "Process", services, false)
 {
 }
@@ -818,6 +812,8 @@ bool ProcessWorkflowState::canEnter() const
 {
 	if(this->getCTImage())
 		return true;
+	else if(mFraxinusSegmentations->findAndLabelThoraxCT())
+			return true;
 	else
 		return false;
 }
@@ -858,7 +854,7 @@ void ProcessWorkflowState::onExit(QEvent * event)
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-PinpointWorkflowState::PinpointWorkflowState(QState* parent, CoreServicesPtr services) :
+PinpointWorkflowState::PinpointWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusPinpointUid", "Set target", services, false),
 	mPointChanged(false),
 	m3DViewGroupNumber(0),
@@ -1139,7 +1135,7 @@ void PinpointWorkflowState::onExit(QEvent * event)
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, CoreServicesPtr services)
+VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflowState(QState* parent, RegServicesPtr services)
 	: FraxinusWorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services, false)
 	, mFlyThrough3DViewGroupNumber(2)
 	, mSurfaceModel3DViewGroupNumber(0)
@@ -1244,7 +1240,7 @@ bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, VisServicesPtr services) :
+VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services, false)
 , mFlyThrough3DViewGroupNumber(2)
 , mSurfaceModel3DViewGroupNumber(0)
@@ -1349,7 +1345,7 @@ bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-VirtualBronchoscopyAnyplaneWorkflowState::VirtualBronchoscopyAnyplaneWorkflowState(QState* parent, CoreServicesPtr services)
+VirtualBronchoscopyAnyplaneWorkflowState::VirtualBronchoscopyAnyplaneWorkflowState(QState* parent, RegServicesPtr services)
   : FraxinusWorkflowState(parent, "VirtualBronchoscopyAnyplaneUid", "Virtual Bronchoscopy Anyplane", services, false)
   , mFlyThrough3DViewGroupNumber(2)
   , mSurfaceModel3DViewGroupNumber(0)
@@ -1452,7 +1448,7 @@ bool VirtualBronchoscopyAnyplaneWorkflowState::canEnter() const
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-ProcedurePlanningWorkflowState::ProcedurePlanningWorkflowState(QState* parent, CoreServicesPtr services) :
+ProcedurePlanningWorkflowState::ProcedurePlanningWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "ProcedurePlanningUid", "Procedure Plannig", services, true)
 , m3DViewGroupNumber(0)
 , m2DViewGroupNumber(1)

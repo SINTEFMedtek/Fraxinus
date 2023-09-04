@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxApplicationsParser.h"
 #include "cxProfile.h"
 #include "cxLogger.h"
-#include "cxVisServices.h"
+#include "cxRegServices.h"
 #include "cxTrackerConfigurationImpl.h"
 
 namespace cx
@@ -62,7 +62,7 @@ namespace cx
 
 StateServiceImpl::StateServiceImpl(ctkPluginContext* context)
 {
-	mServices = VisServices::create(context);
+	mServices = RegServices::create(context);
 	this->initialize();
 }
 

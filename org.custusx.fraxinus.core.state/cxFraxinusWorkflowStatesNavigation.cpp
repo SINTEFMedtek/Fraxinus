@@ -61,13 +61,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusNavigationWidget.h"
 #include "cxFraxinusRegistrationWidget.h"
 #include "cxFraxinusSimulatorWidget.h"
-# include "cxFraxinusRobotWidget.h"
+#include "cxFraxinusRobotWidget.h"
 #include "cxVBCameraZoomSetting3D.h"
 
 namespace cx
 {
 
-TrackingWorkflowState::TrackingWorkflowState(QState* parent, CoreServicesPtr services) :
+TrackingWorkflowState::TrackingWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusTrackingUid", "Tracking", services, true),
 	m3DViewGroupNumber(0)
 {}
@@ -116,7 +116,7 @@ void TrackingWorkflowState::addDataToView()
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-RegistrationWorkflowState::RegistrationWorkflowState(QState* parent, VisServicesPtr services) :
+RegistrationWorkflowState::RegistrationWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusRegistrationUid", "Registration", services, false),
 	m3DViewGroupNumber(0)
 {
@@ -212,7 +212,7 @@ void RegistrationWorkflowState::addDataToView()
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-NavigationWorkflowState::NavigationWorkflowState(QState* parent, CoreServicesPtr services) :
+NavigationWorkflowState::NavigationWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusNavigationUid", "Navigation", services, false),
 	mFlyThrough3DViewGroupNumber(2),
 	mSurfaceModel3DViewGroupNumber(0)
@@ -367,7 +367,7 @@ void NavigationWorkflowState::onExit(QEvent * event)
 // --------------------------------------------------------
 // --------------------------------------------------------
 
-SimulatorWorkflowState::SimulatorWorkflowState(QState* parent, VisServicesPtr services) :
+SimulatorWorkflowState::SimulatorWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusSimulatorUid", "Simulator", services, true),
 	m3DViewGroupNumber(0)
 {
@@ -474,7 +474,7 @@ void SimulatorWorkflowState::addDataToView()
 // --------------------------------------------------------
 
 
-RobotWorkflowState::RobotWorkflowState(QState* parent, VisServicesPtr services) :
+RobotWorkflowState::RobotWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusRobotUid", "Robot", services, true),
 	m3DViewGroupNumber(0)
 {

@@ -19,6 +19,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxFilterTimedAlgorithm.h"
 #include "cxTimedAlgorithmProgressBar.h"
 #include "cxDefinitions.h"
+#include "cxElastixManager.h"
 
 namespace cx
 {
@@ -31,10 +32,11 @@ class org_custusx_fraxinus_core_state_EXPORT FraxinusSegmentations : public QObj
 {
 	Q_OBJECT
 public:
-	FraxinusSegmentations(CoreServicesPtr services);
+	FraxinusSegmentations(RegServicesPtr services);
 	~FraxinusSegmentations();
 	
-	ImagePtr getCTImage() const;
+	ImagePtr getImage(IMAGE_MODALITY modality, IMAGE_SUBTYPE subtype) const;
+	ImagePtr findAndLabelThoraxCT() const;
 	ImagePtr getVolume(ORGAN_TYPE organType) const;
 
 	BranchListPtr getBranchList();
@@ -43,6 +45,7 @@ public:
 	
 	void createSelectSegmentationBox();
 	void createProcessingInfo();
+	void performPETCTregistration();
 	void performPythonSegmentation(ImagePtr image);
 	void performMLSegmentation(ImagePtr image);
 	QString getFilterScriptsPath();
@@ -61,6 +64,7 @@ protected:
 	bool mSegmentSmallOrgans = false;
 
 	QStringList getRaidionicsOutputClasses(bool startTimers = true);
+	void setElastixParameters();
 
 private slots:
 	void selectAll(bool checked);
@@ -70,15 +74,18 @@ private slots:
 	void runMLFilterSlot();
 	void pythonFinishedSlot();
 	void MLFinishedSlot();
+	void runElastixSlot();
+	void elastixFinishedSlot();
+	void checkForPETData();
 	
 private:
-	CoreServicesPtr mServices;
+	RegServicesPtr mServices;
 	
 	FilterPtr mCurrentFilter;
 	FilterTimedAlgorithmPtr mThread;
 	TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
 	
-	QDialog* mSegmentationSelectionInput;
+	QDialog* mSegmentationSelectionInput = nullptr;
 	QDialog* mSegmentationProcessingInfo;
 	DisplayTimerWidget* mAirwaysTimerWidget;
 	DisplayTimerWidget* mLungsTimerWidget;
@@ -88,6 +95,7 @@ private:
 	DisplayTimerWidget* mSmallOrgansTimerWidget;
 	DisplayTimerWidget* mNodulesTimerWidget;
 	DisplayTimerWidget* mTumorsTimerWidget;
+	DisplayTimerWidget* mPETTimerWidget;
 	DisplayTimerWidget* mLungVesselsTimerWidget;
 	DisplayTimerWidget* mActiveTimerWidget = NULL;
 	QCheckBox* mCheckBoxAirways;
@@ -98,6 +106,7 @@ private:
 	QCheckBox* mCheckBoxSmallOrgans;
 	QCheckBox* mCheckBoxNodules;
 	QCheckBox* mCheckBoxTumors;
+	QCheckBox* mCheckBoxPET;
 	QCheckBox* mCheckBoxLungVessels;
 	QCheckBox* mCheckBoxSelectAll;
 	bool mRaidionicsRun = false;
@@ -107,8 +116,12 @@ private:
 	bool mSegmentLungVessels = false;
 	bool mSegmentNodules = false;
 	bool mSegmentTumors = false;
+	bool mRegisterPET = false;
 	LUNG_STRUCTURES mCurrentSegmentationType;
 	BranchListPtr mBranchList;
+	ElastixManagerPtr mElastixManager;
+	QPushButton* mOKbutton;
+	QPushButton* mCancelbutton;
 
 	void setMeshNameAndStopTimer(ORGAN_TYPE target);
 	void setMeshName(ORGAN_TYPE target);///< Needs to be called after patient()->insertData to work. Better to use: setMeshNameAndType(MeshPtr mesh, ORGAN_TYPE target)

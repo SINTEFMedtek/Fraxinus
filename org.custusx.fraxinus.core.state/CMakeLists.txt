@@ -93,6 +93,8 @@ set(PLUGIN_target_libraries
     org_custusx_virtualbronchoscopy
     org_custusx_fraxinus_widgets
     org_custusx_filter_airwaysfromcenterline
+    org_custusx_registration_method_commandline
+    org_custusx_registration
     )
 
 #if(CX_LINUX)
