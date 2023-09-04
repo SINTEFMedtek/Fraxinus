@@ -557,6 +557,7 @@ void FraxinusSegmentations::performPETCTregistration()
 void FraxinusSegmentations::setElastixParameters()
 {
 	ImagePtr PETimage = this->getImage(imPET, istPET);
+	PETimage->get_rMd_History()->clear();
 
 	mElastixManager = ElastixManagerPtr(new ElastixManager(mServices));
 
