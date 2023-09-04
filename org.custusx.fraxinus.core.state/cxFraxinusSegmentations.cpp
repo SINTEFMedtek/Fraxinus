@@ -545,7 +545,7 @@ void FraxinusSegmentations::performPETCTregistration()
 	//NB: Elastix creates (modified) copies of PETimage and PET_CTimage
 	//Setting Image Type to istPET_REGISTERED for new PET volume in ElastixManager::addNonlinearData()
 
-	PET_CTimage->get_rMd_History()->clear(); //Make sure we don't move any other images
+	PET_CTimage->get_rMd_History()->setParentSpace(""); //Make sure we don't move any other images
 	mServices->registration()->setFixedData(CTimage);
 	mServices->registration()->setMovingData(PET_CTimage);
 
@@ -557,7 +557,7 @@ void FraxinusSegmentations::performPETCTregistration()
 void FraxinusSegmentations::setElastixParameters()
 {
 	ImagePtr PETimage = this->getImage(imPET, istPET);
-	PETimage->get_rMd_History()->clear();
+	PETimage->get_rMd_History()->setParentSpace("");
 
 	mElastixManager = ElastixManagerPtr(new ElastixManager(mServices));
 
