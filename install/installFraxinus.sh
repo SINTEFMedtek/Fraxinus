@@ -100,7 +100,7 @@ deactivate
 python3 -m venv venvLungTumorMask
 source venvLungTumorMask/bin/activate
 pip install --upgrade pip
-pip install https://github.com/VemundFredriksen/LungTumorMask/releases/download/v1.2.1/lungtumormask-1.2.1-py2.py3-none-any.whl
+pip install https://github.com/VemundFredriksen/LungTumorMask/releases/download/v1.3.0/lungtumormask-1.3.0-py2.py3-none-any.whl
 deactivate
 
 #Add more swap space for AI networks
