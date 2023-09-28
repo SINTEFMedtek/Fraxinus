@@ -103,8 +103,11 @@ pip install --upgrade pip
 pip install https://github.com/VemundFredriksen/LungTumorMask/releases/download/v1.3.0/lungtumormask-1.3.0-py2.py3-none-any.whl
 deactivate
 
-#Add more swap space for AI networks
-sudo fallocate -l 10G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
+#Add more swap space for AI networks if it does not exist
+if ! grep -q '/swapfile swap swap defaults' /etc/fstab; then
+	sudo fallocate -l 10G /swapfile
+	sudo chmod 600 /swapfile
+	sudo mkswap /swapfile
+	sudo swapon /swapfile
+	echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+fi
