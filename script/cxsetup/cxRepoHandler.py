@@ -73,6 +73,9 @@ class RepoHandler(object):
         self.root_path = root_path
         self.repo_path = repo_path
 
+    def is_git_directory(self, path = '.'):
+        return subprocess.call(['git', '-C', path, 'status'], stderr=subprocess.STDOUT, stdout = open(os.devnull, 'w')) == 0
+
     def cloneRepoWithPrompt(self):
         '''
         Checkout the repository, clone if needed.
@@ -81,9 +84,12 @@ class RepoHandler(object):
          - checkout folder
          - root path
         '''
+        if self.is_git_directory(self.repo_path):
+            return
         pathfound = os.path.exists(self.repo_path)
         if pathfound:
-            return
+          print("Not a git repo, removing folder and contents of %s." % self.repo_path)
+          shutil.rmtree(self.repo_path)
         
         print('*** %s will be cloned in [%s]' % (self.getName(), self.root_path))
         doprompt = not (self.silent or args.silent_mode)
