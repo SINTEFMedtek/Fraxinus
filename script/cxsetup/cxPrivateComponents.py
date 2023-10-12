@@ -86,8 +86,7 @@ class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
     def sourceFolder(self):
         return 'org.custusx.fraxinus.tracking'
     def repository(self):
-        #return '%s/org.custusx.fraxinus.tracking.git' % self.controlData.gitrepo_main_site_base
-        return 'git@gitlab.sintef.no:custusx/org.custusx.fraxinus.tracking.git'
+        return '%s/org.custusx.fraxinus.tracking.git' % self.controlData.gitrepo_main_site_base
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
         self._getBuilder().gitCheckoutSha('d36f50caf6298c82f69646a744bdbf66ea92a5d2')
