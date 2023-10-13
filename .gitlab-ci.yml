@@ -37,7 +37,7 @@ build-job:       # This job runs in the build stage, which runs first.
     - echo "Compile complete."
   artifacts:
     paths:
-      - package_artefacts/Frazinus*.tar.gz
+      - package_artefacts/Fraxinus*.tar.gz
       - package_artefacts/doc/html_pure/*.*
 
 test-job:   # This job runs the Unit + Integration tests
