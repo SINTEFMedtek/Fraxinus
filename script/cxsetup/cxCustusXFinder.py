@@ -64,7 +64,7 @@ class RepoLocations(object):
     def getPublicRepoPath(self):
         r = self.getRootPath()
         p = self.getPublicRepoFolder()
-        return '%s/%s/%s' % (r, p, p)
+        return '%s/%s/%s' % (r, self.getProjectFolder(), p)
     
     def getPublicRepoFolder(self):
         '''
@@ -72,8 +72,20 @@ class RepoLocations(object):
         otherwise return new style (2015-02-25)
         '''
         cs_name = self.getPrivateRepoFolder()
+        if cs_name=='CustusXSetup' or cs_name=='Fraxinus':
+            return 'CustusX'
+        else:
+            return 'CX'
+
+    def getProjectFolder(self):
+        '''
+        Get the base folder (below the repo folder)
+        '''
+        cs_name = self.getPrivateRepoFolder()
         if cs_name=='CustusXSetup':
             return 'CustusX'
+        elif cs_name=='Fraxinus':
+          return 'custusx'
         else:
             return 'CX'
 ###########################################################    
@@ -90,8 +102,9 @@ class CustusXFinder(object):
         root = self.locations.getRootPath()
         print('===== ensure CustusX is checked out [root: %s] ===' % root)
         cx_name = self.locations.getPublicRepoFolder()
+        cx_base = self.locations.getProjectFolder()
 
-        cx_root = '%s/%s' % (root, cx_name)
+        cx_root = '%s/%s' % (root, cx_base)
         url_base = 'git@github.com:SINTEFMedtek'
         url_name = 'custusx.git'
         cx_repo_path='%s/%s' % (cx_root, cx_name)

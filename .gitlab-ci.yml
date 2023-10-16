@@ -33,7 +33,7 @@ build-job:       # This job runs in the build stage, which runs first.
     - ./script/cxJenkinsMasterBuildScript.py --coverage --create_package --developer_doc --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
     #TODO: For only building open source
     #- ./script/cxOpenSourceMasterBuildScript.py --coverage --create_package --developer_doc --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
-    - cp -r /builds/CX/CX/package_artefacts ${CI_PROJECT_DIR}/package_artefacts
+    - cp -r /builds/custusx/CustusX/package_artefacts ${CI_PROJECT_DIR}/package_artefacts
     - echo "Compile complete."
   artifacts:
     paths:
@@ -44,11 +44,11 @@ test-job:   # This job runs the Unit + Integration tests
   stage: test    # It only starts when the job in the build stage completes successfully.
   script:
     - echo "Running unit tests... "
-    - cp -r ${CI_PROJECT_DIR}/package_artefacts /builds/CX/CX/package_artefacts #Copy the installer back into the CX filepath, for the CX scripts to work
+    - cp -r ${CI_PROJECT_DIR}/package_artefacts /builds/custusx/CustusX/package_artefacts #Copy the installer back into the CX filepath, for the CX scripts to work
     - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
     #Open source:
     #- xvfb-run ./script/cxOpenSourceMasterBuildScript.py --test_package --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
-    - cp -r /builds/CX/CX/test_results ${CI_PROJECT_DIR}/test_results
+    - cp -r /builds/custusx/CustusX/test_results ${CI_PROJECT_DIR}/test_results
     - gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o ${CI_PROJECT_DIR}/test_results/coverage.xml --root $CI_PROJECT_DIR/../build_Release
   coverage: /^\s*lines:\s*\d+.\d+\%/
   artifacts:
