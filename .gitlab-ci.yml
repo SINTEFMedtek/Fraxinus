@@ -33,7 +33,7 @@ build-job:       # This job runs in the build stage, which runs first.
     - ./script/cxJenkinsMasterBuildScript.py --coverage --create_package --developer_doc --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
     #TODO: For only building open source
     #- ./script/cxOpenSourceMasterBuildScript.py --coverage --create_package --developer_doc --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
-    - cp -r /builds/custusx/CustusX/package_artefacts ${CI_PROJECT_DIR}/package_artefacts
+    - cp -r /builds/custusx/Fraxinus/package_artefacts ${CI_PROJECT_DIR}/package_artefacts
     - echo "Compile complete."
   artifacts:
     paths:
