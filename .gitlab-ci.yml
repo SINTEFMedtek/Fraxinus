@@ -44,7 +44,9 @@ test-job:   # This job runs the Unit + Integration tests
   stage: test    # It only starts when the job in the build stage completes successfully.
   script:
     - echo "Running unit tests... "
-    - cp -r ${CI_PROJECT_DIR}/package_artefacts /builds/custusx/CustusX/package_artefacts #Copy the installer back into the CX filepath, for the CX scripts to work
+    #- cp -r ${CI_PROJECT_DIR}/package_artefacts /builds/custusx/CustusX/package_artefacts #Copy the installer back into the CX filepath, for the CX scripts to work
+    # The copied installer gets deleted in cxRepoHandler with the latest clone fix
+    # Use project dir instead in _getStandardInstallerPackagePath() in cxCustusXBuilder.py?
     - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
     #Open source:
     #- xvfb-run ./script/cxOpenSourceMasterBuildScript.py --test_package --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
