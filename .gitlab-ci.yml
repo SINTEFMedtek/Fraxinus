@@ -1,23 +1,8 @@
-# This file is a template, and might need editing before it works on your project.
-# This is a sample GitLab CI/CD configuration file that should run without any modifications.
-# It demonstrates a basic 3 stage CI/CD pipeline. Instead of real tests or scripts,
-# it uses echo commands to simulate the pipeline execution.
-#
-# A pipeline is composed of independent jobs that run scripts, grouped into stages.
-# Stages run in sequential order, but jobs within stages run in parallel.
-#
-# For more information, see: https://docs.gitlab.com/ee/ci/yaml/index.html#stages
-#
-# You can copy and paste this template into a new `.gitlab-ci.yml` file.
-# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
-#
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/ee/development/cicd/templates.html
-# This specific template is located at:
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
+# Fraxinus GitLab CI/CD configuration file
 
 default:
-  image: olevs/custusx-build-ubuntu2004
+  #image: olevs/custusx-build-ubuntu2004 #Dockerhub
+  image: gitlab.sintef.no:5050/custusx/custusx/custusx-build-ubuntu2004
 
 stages:          # List of stages for jobs, and their order of execution
   - build
@@ -33,20 +18,17 @@ build-job:       # This job runs in the build stage, which runs first.
     - ./script/cxJenkinsMasterBuildScript.py --coverage --create_package --developer_doc --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
     #TODO: For only building open source
     #- ./script/cxOpenSourceMasterBuildScript.py --coverage --create_package --developer_doc --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
-    #- cp -r /builds/custusx/Fraxinus/package_artefacts ${CI_PROJECT_DIR}/package_artefacts
     - echo "Compile complete."
   artifacts:
     paths:
       - package_artefacts/Fraxinus*.tar.gz
-      - package_artefacts/doc/html_pure/*.*
+      - package_artefacts/html_pure/
+      - package_artefacts/html_dev/
 
 test-job:   # This job runs the Unit + Integration tests
   stage: test    # It only starts when the job in the build stage completes successfully.
   script:
     - echo "Running unit tests... "
-    #- cp -r ${CI_PROJECT_DIR}/package_artefacts /builds/custusx/CustusX/package_artefacts #Copy the installer back into the CX filepath, for the CX scripts to work
-    # The copied installer gets deleted in cxRepoHandler with the latest clone fix
-    # Use project dir instead in _getStandardInstallerPackagePath() in cxCustusXBuilder.py?
     - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
     #Open source:
     #- xvfb-run ./script/cxOpenSourceMasterBuildScript.py --test_package --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
@@ -69,3 +51,10 @@ deploy-job:      # This job runs in the deploy stage.
   environment: production
   script:
     - echo "Deploying application..."
+    - cd $CI_PROJECT_DIR/package_artefacts
+    - INSTALLER_FILE=$(find Fraxinus*.tar.gz)
+    - 'curl
+      --header "JOB-TOKEN: $CI_JOB_TOKEN"
+      --upload-file $INSTALLER_FILE
+      "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Fraxinus/${CI_COMMIT_SHORT_SHA}/$INSTALLER_FILE"'
+
