@@ -58,11 +58,14 @@ deploy-job:      # This job runs in the deploy stage.
       --upload-file $INSTALLER_FILE
       "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Fraxinus/${CI_COMMIT_SHORT_SHA}/$INSTALLER_FILE"'
 
-deploy-documentation:
+pages:
   stage: deploy
   environment: production
   script:
     - cd $CI_PROJECT_DIR
     - mv package_artefacts/html_pure/ public/user_doc/
-    - mv package_artefacts/html_dev/ public/developer_doc/
+#    - mv package_artefacts/html_dev/ public/developer_doc/
+  artifacts:
+    paths:
+      - public
 
