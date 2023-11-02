@@ -69,7 +69,7 @@ class medtekAI(cx.build.cxComponents.CppComponent):
     def thoraxCTdataFolder(self):
         return 'ThoraxCT'
     def thoraxCTdataPath(self):
-        return '%s/%s/%s' % (self.controlData.getWorkingPath(), 'custusx/CustusX/data', self.thoraxCTdataFolder())
+        return '%s/%s/%s/%s/%s' % (self.controlData.getWorkingPath(), cxCustusXFinder.RepoLocations().getPublicRepoFolder(), cxCustusXFinder.RepoLocations().getProjectFolder(), 'data', self.thoraxCTdataFolder())
     def url_link(self):
         return 'https://datadryad.org/stash/downloads/file_stream/15192' #Patient016.zip
 # ---------------------------------------------------------
