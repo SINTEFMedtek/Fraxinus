@@ -46,17 +46,38 @@ test-job:   # This job runs the Unit + Integration tests
         coverage_format: cobertura
         path: ${CI_PROJECT_DIR}/test_results/coverage.xml
 
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+.deploy:
+  stage: deploy
   environment: production
+  variables:
+    VERSION: ${CI_COMMIT_SHORT_SHA}
   script:
-    - echo "Deploying application..."
-    - cd $CI_PROJECT_DIR/package_artefacts
-    - INSTALLER_FILE=$(find Fraxinus*.tar.gz)
-    - 'curl
-      --header "JOB-TOKEN: $CI_JOB_TOKEN"
-      --upload-file $INSTALLER_FILE
-      "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Fraxinus/${CI_COMMIT_SHORT_SHA}/$INSTALLER_FILE"'
+  - echo "Deploying application..."
+  - cd $CI_PROJECT_DIR/package_artefacts
+  - INSTALLER_FILE=$(find Fraxinus*.tar.gz)
+  - 'curl
+     --header "JOB-TOKEN: $CI_JOB_TOKEN"
+     --upload-file $INSTALLER_FILE
+     "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Fraxinus/$VERSION/$INSTALLER_FILE"'
+
+deploy-commmit:
+  extends: .deploy
+  variables:
+    VERSION: ${CI_COMMIT_SHORT_SHA}
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH # Only run for changes to the default (develop) branch
+      when: never
+    - if: '$CI_COMMIT_TAG == null' # Run for all commits, except tags
+
+deploy-tag:
+  extends: .deploy
+  variables:
+    VERSION: ${CI_COMMIT_TAG}
+  rules:
+    - if: '$CI_COMMIT_TAG != null' # Run if a tag is present (= release or release candidate)
+
 
 pages:
   stage: deploy
@@ -68,4 +89,5 @@ pages:
   artifacts:
     paths:
       - public
-
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run for all changes to the default (develop) branch only
