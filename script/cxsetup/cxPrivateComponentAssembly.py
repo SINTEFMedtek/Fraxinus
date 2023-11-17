@@ -24,7 +24,7 @@ class PrivateControlData(cx.build.cxInstallData.Common):
         self.publish_developer_documentation_target = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/developer_doc", user)
         self.publish_user_documentation_target      = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/user_doc", user)
         self.publish_coverage_info_target           = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/gcov", user)
-        self.gitrepo_open_site_base = "git@github.com:SINTEFMedtek"
+        self.gitrepo_open_site_base = "https://github.com/SINTEFMedtek"
         self.gitrepo_main_site_base = "git@gitlab.sintef.no:custusx"
 
         self.system_base_name = "Fraxinus"
@@ -39,8 +39,8 @@ class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
         super(LibraryAssembly, self).__init__(controlData)
 
         self.addComponent(cxPrivateComponents.medtekAI())
-        self.addComponent(cxPrivateComponents.org_custusx_fraxinus_tracking())
         self.addComponent(cxPrivateComponents.Fraxinus())
+        self.addComponent(cxPrivateComponents.org_custusx_fraxinus_tracking())
 	#self.addComponent(cxPrivateComponents.thoraxCTdata())
         self.libraries.remove(self.custusx)
         self.addComponent(self.custusx)

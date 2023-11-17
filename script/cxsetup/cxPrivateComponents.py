@@ -52,8 +52,7 @@ class medtekAI(cx.build.cxComponents.CppComponent):
     def sourceFolder(self):
         return 'medtekAI'
     def repository(self):
-        #return '%s/medtekAI.git' % self.controlData.gitrepo_main_site_base
-        return 'git@gitlab.sintef.no:custusx/medtekAI.git'
+        return '%s/medtekAI.git' % self.controlData.gitrepo_main_site_base
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
         self._getBuilder().gitCheckoutSha('1c6adbfc1f3e05b5c1473a756e898fb724724271')
@@ -70,7 +69,7 @@ class medtekAI(cx.build.cxComponents.CppComponent):
     def thoraxCTdataFolder(self):
         return 'ThoraxCT'
     def thoraxCTdataPath(self):
-        return '%s/%s/%s' % (self.controlData.getWorkingPath(), 'CX/CX/data', self.thoraxCTdataFolder())
+        return '%s/%s/%s/%s/%s' % (self.controlData.getWorkingPath(), cxCustusXFinder.RepoLocations().getProjectFolder(), cxCustusXFinder.RepoLocations().getPublicRepoFolder(), 'data', self.thoraxCTdataFolder())
     def url_link(self):
         return 'https://datadryad.org/stash/downloads/file_stream/15192' #Patient016.zip
 # ---------------------------------------------------------
@@ -87,8 +86,7 @@ class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
     def sourceFolder(self):
         return 'org.custusx.fraxinus.tracking'
     def repository(self):
-        #return '%s/org.custusx.fraxinus.tracking.git' % self.controlData.gitrepo_main_site_base
-        return 'git@gitlab.sintef.no:custusx/org.custusx.fraxinus.tracking.git'
+        return '%s/org.custusx.fraxinus.tracking.git' % self.controlData.gitrepo_main_site_base
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
         self._getBuilder().gitCheckoutSha('d36f50caf6298c82f69646a744bdbf66ea92a5d2')
