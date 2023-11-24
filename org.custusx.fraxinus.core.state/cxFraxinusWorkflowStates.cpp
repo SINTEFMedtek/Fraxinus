@@ -873,6 +873,8 @@ QIcon PinpointWorkflowState::getIcon() const
 
 void PinpointWorkflowState::onEntry(QEvent * event)
 {
+	viewService()->setSenterToTool2D(false);
+
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
 	std::vector<unsigned int> viewGroupNumbers;
@@ -978,6 +980,7 @@ void PinpointWorkflowState::setManualToolToTargetPosition()
 	manualTool_rMt(1,3) = targetPosition(1);
 	manualTool_rMt(2,3) = targetPosition(2);
 	manualTool->set_prMt(rMpr.inverse()*manualTool_rMt);
+	mServices->patient()->setCenter(targetPosition);
 }
 
 void PinpointWorkflowState::createRoute()
@@ -1115,6 +1118,8 @@ void PinpointWorkflowState::deleteOldRouteToTarget()
 
 void PinpointWorkflowState::onExit(QEvent * event)
 {
+	viewService()->setSenterToTool2D(true);
+
 	ToolPtr manualTool = mServices->tracking()->getManualTool();
 	if(manualTool)
 		disconnect(manualTool.get(), &Tool::toolTransformAndTimestamp, this, &PinpointWorkflowState::updateTargetPoint);
@@ -1466,6 +1471,7 @@ QIcon ProcedurePlanningWorkflowState::getIcon() const
 
 void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
 {
+	viewService()->setSenterToTool2D(false);
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
 	std::vector<unsigned int> viewGroupNumbers;
@@ -1482,11 +1488,13 @@ void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
 
 	this->setPointPickerIn3Dview(true);
 	viewService()->zoomCamera3D(m3DViewGroupNumber, 1);
+	triggerMainWindowActionWithObjectName("CenterToImageCenter");
 }
 
 void ProcedurePlanningWorkflowState::onExit(QEvent * event)
 {
-		this->setPointPickerIn3Dview(false);
+	viewService()->setSenterToTool2D(true);
+	this->setPointPickerIn3Dview(false);
 	WorkflowState::onExit(event);
 }
 
