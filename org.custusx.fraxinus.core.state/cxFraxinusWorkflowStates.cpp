@@ -873,7 +873,7 @@ QIcon PinpointWorkflowState::getIcon() const
 
 void PinpointWorkflowState::onEntry(QEvent * event)
 {
-	viewService()->setSenterToTool2D(false);
+	viewService()->setCenterToTool2D(false);
 
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
@@ -1118,7 +1118,7 @@ void PinpointWorkflowState::deleteOldRouteToTarget()
 
 void PinpointWorkflowState::onExit(QEvent * event)
 {
-	viewService()->setSenterToTool2D(true);
+	viewService()->setCenterToTool2D(true);
 
 	ToolPtr manualTool = mServices->tracking()->getManualTool();
 	if(manualTool)
@@ -1471,7 +1471,7 @@ QIcon ProcedurePlanningWorkflowState::getIcon() const
 
 void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
 {
-	viewService()->setSenterToTool2D(false);
+	viewService()->setCenterToTool2D(false);
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
 	std::vector<unsigned int> viewGroupNumbers;
@@ -1493,7 +1493,7 @@ void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
 
 void ProcedurePlanningWorkflowState::onExit(QEvent * event)
 {
-	viewService()->setSenterToTool2D(true);
+	viewService()->setCenterToTool2D(true);
 	this->setPointPickerIn3Dview(false);
 	WorkflowState::onExit(event);
 }
