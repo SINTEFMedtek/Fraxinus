@@ -566,6 +566,7 @@ void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int s
 	//this->getVBWidget()->grabKeyboard(); //NB! This make this widget take all keyboard input. E.g. "R" doesn't work in this workflow step.
 	//Actually, "R" seems to be a special case since it is from VTK. Other key input might work, but maybe not if the menu bar is off.
 	//this->getVBWidget()->setFocus(); // Can't seem to get any affect from this regarding key input.
+	this->getVBWidget()->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void FraxinusWorkflowState::setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers)
