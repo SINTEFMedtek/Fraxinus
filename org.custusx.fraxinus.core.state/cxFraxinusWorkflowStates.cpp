@@ -882,11 +882,11 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	viewGroupNumbers.push_back(m2DViewGroupNumber);
 	this->setupPinPointWidget(viewGroupNumbers);
 	
+	PinpointWidget* pinPointWidget = this->getPinpointWidget();
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	PointMetricPtr viaPoint = this->getViaPoint();
 	if(!targetPoint || !viaPoint)
 	{
-		PinpointWidget* pinPointWidget = this->getPinpointWidget();
 		if(pinPointWidget)
 		{
 			if(!targetPoint)
@@ -904,10 +904,17 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 
 	if(targetPoint)
 	{
+		ViewGroupDataPtr viewGroup0_3D = viewService()->getGroup(m3DViewGroupNumber);
+		ViewGroupDataPtr viewGroup1_2D = viewService()->getGroup(m2DViewGroupNumber);
+		if(viewGroup0_3D)
+			viewGroup0_3D->addData(targetPoint->getUid());
+		if(viewGroup1_2D)
+			viewGroup1_2D->addData(targetPoint->getUid());
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
 	if(viaPoint)
 	{
+		this->showViaPoint(pinPointWidget->getViaOption());
 		connect(viaPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
 
@@ -920,9 +927,6 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 //		camera_control->setAnteriorView();
 //	}
 
-
-
-	PinpointWidget* pinPointWidget = this->getPinpointWidget();
 	if(pinPointWidget)
 	{
 		connect(pinPointWidget, &PinpointWidget::updateTargetPointFromManualTool, this, &PinpointWorkflowState::updateTargetPoint);
@@ -930,6 +934,7 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 		connect(pinPointWidget, &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 		connect(pinPointWidget, &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::targetMetricSet, Qt::UniqueConnection);
 		connect(pinPointWidget, &PinpointWidget::updateRoute, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::showViaPoint, this, &PinpointWorkflowState::showViaPoint, Qt::UniqueConnection);
 		connect(pinPointWidget, &PinpointWidget::useLungWindow, this, &PinpointWorkflowState::setLungWindow, Qt::UniqueConnection);
 		connect(pinPointWidget, &PinpointWidget::useAbdomenWindow, this, &PinpointWorkflowState::setAbdomenWindow, Qt::UniqueConnection);
 
@@ -1034,6 +1039,32 @@ void PinpointWorkflowState::updateViaPoint()
 		viaPoint->setCoordinate(p_ref);
 	}
 	mUpdateTargetAllowed = true;
+}
+
+void PinpointWorkflowState::showTargetPoint(bool show)
+{
+	this->showPointMetric(this->getTargetPoint(), show);
+}
+
+void PinpointWorkflowState::showViaPoint(bool show)
+{
+	this->showPointMetric(this->getViaPoint(), show);
+}
+
+void PinpointWorkflowState::showPointMetric(PointMetricPtr point, bool show)
+{
+	ViewGroupDataPtr viewGroup0_3D = viewService()->getGroup(m3DViewGroupNumber);
+	ViewGroupDataPtr viewGroup1_2D = viewService()->getGroup(m2DViewGroupNumber);
+	if(viewGroup0_3D)
+		if (show)
+			viewGroup0_3D->addData(point->getUid());
+		else
+			viewGroup0_3D->removeData(point->getUid());
+	if(viewGroup1_2D)
+		if (show)
+			viewGroup1_2D->addData(point->getUid());
+		else
+			viewGroup1_2D->removeData(point->getUid());
 }
 
 void PinpointWorkflowState::showRouteToTarget()

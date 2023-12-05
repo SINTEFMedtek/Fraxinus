@@ -199,6 +199,7 @@ private slots:
 	void pointChanged();
 	void updateTargetPoint();
 	void updateViaPoint();
+	void showViaPoint(bool show);
 
 private:
 	void addDataToView();
@@ -207,6 +208,8 @@ private:
 	void deleteOldRouteToTarget();
 	void setLungWindow();
 	void setAbdomenWindow();
+	void showTargetPoint(bool show);
+	void showPointMetric(PointMetricPtr point, bool show);
 
 	bool mPointChanged;
 	bool mUpdateTargetAllowed = true;

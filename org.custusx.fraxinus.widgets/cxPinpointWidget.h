@@ -70,6 +70,7 @@ signals:
 	void updateRoute();
 	void useLungWindow();
 	void useAbdomenWindow();
+	void showViaPoint(bool show);
 
 private slots:
 	void setTargetMetric();
