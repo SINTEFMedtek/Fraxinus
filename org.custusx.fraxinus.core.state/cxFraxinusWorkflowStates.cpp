@@ -996,6 +996,7 @@ void PinpointWorkflowState::createRoute()
 		this->createRouteToTarget(true);
 		PointMetricPtr targetPoint = this->getTargetPoint();
 		mPointChanged = false;
+		this->showRouteToTarget();
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
 	else if(mPointChanged)
