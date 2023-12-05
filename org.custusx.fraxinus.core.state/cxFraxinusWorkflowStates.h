@@ -102,9 +102,9 @@ protected:
 	void setTransferfunction2D(QString transferfunction, ImagePtr image);
 	void setPointPickerIn3Dview(bool active);
 	void setRTTInVBWidget();
-	void setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+	void setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
 	void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
-	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
 	void cleanupVBWidget();
 	void setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers);
 	void setupProcedurePlanningWidget(std::vector<unsigned int> viewGroupNumbers);
@@ -117,9 +117,9 @@ protected:
 
 protected slots:
 	virtual void setDefaultCameraStyle();
-	virtual void setVBFlythroughCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
-	virtual void setVBCutplanesCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
-	virtual void setAnyplaneCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+	virtual void setVBFlythroughCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
+	virtual void setVBCutplanesCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
+	virtual void setAnyplaneCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
 
 signals:
 	void routeToTargetCreated();
@@ -233,6 +233,7 @@ private:
 	void addDataToView();
 	int mFlyThrough3DViewGroupNumber;
 	int mSurfaceModel3DViewGroupNumber;
+	int m2DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyCutPlanesWorkflowState: public FraxinusWorkflowState
@@ -251,6 +252,7 @@ private:
 	void addDataToView();
 	int mFlyThrough3DViewGroupNumber;
 	int mSurfaceModel3DViewGroupNumber;
+	int m2DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyAnyplaneWorkflowState: public FraxinusWorkflowState
@@ -268,6 +270,7 @@ private:
 	void addDataToView();
 	int mFlyThrough3DViewGroupNumber;
 	int mSurfaceModel3DViewGroupNumber;
+	int m2DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ProcedurePlanningWorkflowState: public FraxinusWorkflowState

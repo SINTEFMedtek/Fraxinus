@@ -175,31 +175,31 @@ void FraxinusWorkflowState::setDefaultCameraStyle()
 	}
 }
 
-void FraxinusWorkflowState::setVBFlythroughCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
+void FraxinusWorkflowState::setVBFlythroughCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
 	this->setCamera(surfaceModel3DViewGroupNumber);
 	this->setCamera(flyThrough3DViewGroupNumber);
-	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber);
+	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 
 	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, surfaceModel3DViewGroupNumber);
 	this->setCameraStyleInGroup(cstTOOL_STYLE, flyThrough3DViewGroupNumber);
 }
 
-void FraxinusWorkflowState::setVBCutplanesCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
+void FraxinusWorkflowState::setVBCutplanesCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
 	this->setCamera(surfaceModel3DViewGroupNumber);
 	this->setCamera(flyThrough3DViewGroupNumber);
-	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber);
+	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 
 	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, surfaceModel3DViewGroupNumber);
 	this->setCameraStyleInGroup(cstTOOL_STYLE, flyThrough3DViewGroupNumber);
 }
 
-void FraxinusWorkflowState::setAnyplaneCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
+void FraxinusWorkflowState::setAnyplaneCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
 	this->setCamera(surfaceModel3DViewGroupNumber);
 	this->setCamera(flyThrough3DViewGroupNumber);
-	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber);
+	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 
 	this->setCameraStyleInGroup(cstDEFAULT_STYLE, surfaceModel3DViewGroupNumber);
 	this->setCameraStyleInGroup(cstTOOL_STYLE, flyThrough3DViewGroupNumber);
@@ -406,7 +406,7 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 	}
 }
 
-void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
+void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
 	ImagePtr ctImage_copied = this->getCTImageCopied();
 	std::vector<DataPtr> volumeViewObjects;
@@ -429,6 +429,7 @@ void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroup
 	viewGroupNumbers.push_back(flyThrough3DViewGroupNumber);
 	if (surfaceModel3DViewGroupNumber >= 0)
 		viewGroupNumbers.push_back(surfaceModel3DViewGroupNumber);
+	viewGroupNumbers.push_back(m2DViewGroupNumber);
 	this->setupViewOptionsForStructuresSelection(VBWidget->getStructuresSelectionWidget(), viewGroupNumbers);
 	
 	VBWidget->setViewGroupNumber(flyThrough3DViewGroupNumber);
@@ -556,10 +557,10 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 }
 
 
-void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
+void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
 	this->setRTTInVBWidget();
-	this->setupViewOptionsInVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber);
+	this->setupViewOptionsInVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 	if(viewService())
 		viewService()->zoomCamera3D(flyThrough3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
 	
@@ -1176,6 +1177,7 @@ VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflo
 	: FraxinusWorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services, false)
 	, mFlyThrough3DViewGroupNumber(2)
 	, mSurfaceModel3DViewGroupNumber(0)
+	, m2DViewGroupNumber(1)
 {
 	
 }
@@ -1201,7 +1203,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 			structureSelectionWidget->onEntry();
 	}
 
-	QTimer::singleShot(0, this, [=](){this->setVBFlythroughCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);});
+	QTimer::singleShot(0, this, [=](){this->setVBFlythroughCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber, m2DViewGroupNumber);});
 }
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onExit(QEvent * event)
@@ -1281,6 +1283,7 @@ VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowS
 	FraxinusWorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services, false)
 , mFlyThrough3DViewGroupNumber(2)
 , mSurfaceModel3DViewGroupNumber(0)
+, m2DViewGroupNumber(1)
 {
 	
 }
@@ -1306,7 +1309,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 			structureSelectionWidget->onEntry();
 	}
 	
-	QTimer::singleShot(0, this, [=](){this->setVBCutplanesCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);});
+	QTimer::singleShot(0, this, [=](){this->setVBCutplanesCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber, m2DViewGroupNumber);});
 }
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onExit(QEvent *event)
@@ -1386,6 +1389,7 @@ VirtualBronchoscopyAnyplaneWorkflowState::VirtualBronchoscopyAnyplaneWorkflowSta
   : FraxinusWorkflowState(parent, "VirtualBronchoscopyAnyplaneUid", "Virtual Bronchoscopy Anyplane", services, false)
   , mFlyThrough3DViewGroupNumber(2)
   , mSurfaceModel3DViewGroupNumber(0)
+	, m2DViewGroupNumber(1)
 {
 
 }
@@ -1412,7 +1416,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
 	}
 
 	//Using a lambda function to send parameters
-	QTimer::singleShot(0, this, [=](){this->setAnyplaneCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);});
+	QTimer::singleShot(0, this, [=](){this->setAnyplaneCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber, m2DViewGroupNumber);});
 }
 
 void VirtualBronchoscopyAnyplaneWorkflowState::onExit(QEvent * event)
