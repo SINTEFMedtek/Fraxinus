@@ -713,6 +713,17 @@ void FraxinusSegmentations::postProcessAirways()
 	airwayWalls = coloringFilter->execute(airwayWalls, globaleVariance, localeVariance, smoothingIterations);
 	setMeshNameAndType(airwayWalls, otAIRWAYS_ENHANCED);
 
+	//create copied airways
+	QString uidAirwayWallsCopy = airwayWalls->getUid() + airwaysFilterGetNameSuffixCopy();
+	QString nameAirwayWallsCopy = airwayWalls->getUid() + airwaysFilterGetNameSuffixCopy();
+	MeshPtr airwayWallsCopy = mServices->patient()->createSpecificData<Mesh>(uidAirwayWallsCopy, nameAirwayWallsCopy);
+	airwayWallsCopy->setVtkPolyData(airwayWalls->getVtkPolyData());
+	airwayWallsCopy->setColor(airwayWalls->getColor());
+	airwayWallsCopy->get_rMd_History()->setParentSpace(airwayWalls->getUid());
+	airwayWallsCopy->get_rMd_History()->setRegistration(airwayWalls->get_rMd());
+	setMeshNameAndType(airwayWallsCopy, otAIRWAYS_ENHANCED_COPY);
+	mServices->patient()->insertData(airwayWallsCopy, true);
+
 	//insert filtered centerline from airwaysFromCenterline
 	QString uidCenterline = CTimage->getUid() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes() + airwaysFilterGetNameSuffixCenterline();
 	QString nameCenterline = CTimage->getName() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes() + airwaysFilterGetNameSuffixCenterline();

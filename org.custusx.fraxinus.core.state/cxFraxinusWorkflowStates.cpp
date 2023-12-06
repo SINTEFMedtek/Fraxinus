@@ -821,7 +821,9 @@ bool ProcessWorkflowState::canEnter() const
 
 void ProcessWorkflowState::addDataToView()
 {
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	if(!airways)
+		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	ImagePtr ctImage = this->getCTImage();
 	
 	
@@ -1102,7 +1104,9 @@ void PinpointWorkflowState::addDataToView()
 {
 	ImagePtr ctImage = this->getCTImage();
 	
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	if(!airways)
+		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
 	
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
@@ -1218,7 +1222,9 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	if(!airways)
+		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
 		MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
@@ -1324,7 +1330,9 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	if(!airways)
+		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
@@ -1430,7 +1438,9 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 	ImagePtr ctImage = this->getCTImage();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	if(!airways)
+		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
