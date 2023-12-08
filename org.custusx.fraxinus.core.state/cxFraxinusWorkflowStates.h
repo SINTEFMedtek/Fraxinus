@@ -97,6 +97,8 @@ protected:
 	std::vector< double > mRouteToTargetRadius;
 	FraxinusSegmentationsPtr mFraxinusSegmentations;
 
+	bool mUpdateFocus = false;
+
 
 	void setTransferfunction3D(QString transferfunction, ImagePtr image);
 	void setTransferfunction2D(QString transferfunction, ImagePtr image);
@@ -120,6 +122,7 @@ protected slots:
 	virtual void setVBFlythroughCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
 	virtual void setVBCutplanesCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
 	virtual void setAnyplaneCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
+	void updateFocus();
 
 signals:
 	void routeToTargetCreated();
