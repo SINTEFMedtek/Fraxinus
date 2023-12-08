@@ -566,8 +566,20 @@ void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int s
 	//this->getVBWidget()->grabKeyboard(); //NB! This make this widget take all keyboard input. E.g. "R" doesn't work in this workflow step.
 	//Actually, "R" seems to be a special case since it is from VTK. Other key input might work, but maybe not if the menu bar is off.
 	//this->getVBWidget()->setFocus(); // Can't seem to get any affect from this regarding key input.
-	this->getVBWidget()->setFocus(Qt::ActiveWindowFocusReason);
+
+	mUpdateFocus = true;
+	this->updateFocus();
 }
+
+void FraxinusWorkflowState::updateFocus()
+{
+	if(mUpdateFocus)
+	{
+		this->getVBWidget()->setFocus(Qt::ActiveWindowFocusReason);
+		QTimer::singleShot(500, this, SLOT(updateFocus()));
+	}
+}
+
 
 void FraxinusWorkflowState::setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers)
 {
@@ -664,6 +676,7 @@ void FraxinusWorkflowState::setMeshOpacity(MeshPtr mesh, double opacity)
 
 void FraxinusWorkflowState::cleanupVBWidget()
 {
+	this->mUpdateFocus = false;
 	//this->getVBWidget()->releaseKeyboard();
 	//this->getVBWidget()->clearFocus();
 }
@@ -1175,7 +1188,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onExit(QEvent * event)
 {
-	//this->cleanupVBWidget();
+	this->cleanupVBWidget();
 	WorkflowState::onExit(event);
 }
 
@@ -1280,7 +1293,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onExit(QEvent *event)
 {
-	//this->cleanupVBWidget();
+	this->cleanupVBWidget();
 	WorkflowState::onExit(event);
 }
 
@@ -1386,7 +1399,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
 
 void VirtualBronchoscopyAnyplaneWorkflowState::onExit(QEvent * event)
 {
-	//this->cleanupVBWidget();
+	this->cleanupVBWidget();
 	WorkflowState::onExit(event);
 }
 
