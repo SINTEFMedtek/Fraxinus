@@ -104,9 +104,9 @@ protected:
 	void setTransferfunction2D(QString transferfunction, ImagePtr image);
 	void setPointPickerIn3Dview(bool active);
 	void setRTTInVBWidget();
-	void setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+	void setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
 	void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
-	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
 	void cleanupVBWidget();
 	void setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers);
 	void setupProcedurePlanningWidget(std::vector<unsigned int> viewGroupNumbers);
@@ -119,9 +119,9 @@ protected:
 
 protected slots:
 	virtual void setDefaultCameraStyle();
-	virtual void setVBFlythroughCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
-	virtual void setVBCutplanesCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
-	virtual void setAnyplaneCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber);
+	virtual void setVBFlythroughCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
+	virtual void setVBCutplanesCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
+	virtual void setAnyplaneCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
 	void updateFocus();
 
 signals:
@@ -202,6 +202,7 @@ private slots:
 	void pointChanged();
 	void updateTargetPoint();
 	void updateViaPoint();
+	void showViaPoint(bool show);
 
 private:
 	void addDataToView();
@@ -210,6 +211,8 @@ private:
 	void deleteOldRouteToTarget();
 	void setLungWindow();
 	void setAbdomenWindow();
+	void showTargetPoint(bool show);
+	void showPointMetric(PointMetricPtr point, bool show);
 
 	bool mPointChanged;
 	bool mUpdateTargetAllowed = true;
@@ -233,6 +236,7 @@ private:
 	void addDataToView();
 	int mFlyThrough3DViewGroupNumber;
 	int mSurfaceModel3DViewGroupNumber;
+	int m2DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyCutPlanesWorkflowState: public FraxinusWorkflowState
@@ -251,6 +255,7 @@ private:
 	void addDataToView();
 	int mFlyThrough3DViewGroupNumber;
 	int mSurfaceModel3DViewGroupNumber;
+	int m2DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyAnyplaneWorkflowState: public FraxinusWorkflowState
@@ -268,6 +273,7 @@ private:
 	void addDataToView();
 	int mFlyThrough3DViewGroupNumber;
 	int mSurfaceModel3DViewGroupNumber;
+	int m2DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ProcedurePlanningWorkflowState: public FraxinusWorkflowState

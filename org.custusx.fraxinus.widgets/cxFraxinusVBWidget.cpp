@@ -247,38 +247,38 @@ QString FraxinusVBWidget::getWidgetName()
 	return "fraxinus_virtual_bronchoscopy_widget";
 }
 
-void FraxinusVBWidget::keyPressEvent(QKeyEvent* event)
-{
-	enum class Key7{NONE, SHOWVOLUME, SHOWTUBES};
-	Key7 key7 = Key7::NONE;
-	if (event->key()==Qt::Key_7)
-	{
-		if(mViewSelectionWidget->isVolumeButtonChecked())
-			key7 = Key7::SHOWTUBES;
-		else if(mViewSelectionWidget->isTubeButtonChecked())
-			key7 = Key7::SHOWVOLUME;
-	}
+//void FraxinusVBWidget::keyPressEvent(QKeyEvent* event)
+//{
+//	enum class Key7{NONE, SHOWVOLUME, SHOWTUBES};
+//	Key7 key7 = Key7::NONE;
+//	if (event->key()==Qt::Key_7)
+//	{
+//		if(mViewSelectionWidget->isVolumeButtonChecked())
+//			key7 = Key7::SHOWTUBES;
+//		else if(mViewSelectionWidget->isTubeButtonChecked())
+//			key7 = Key7::SHOWVOLUME;
+//	}
 
-	if (event->key()==Qt::Key_V || key7 == Key7::SHOWVOLUME)
-	{
-		if(mControlsEnabled) {
-			mViewSelectionWidget->setVolumeButtonChecked(true);
-			mViewSelectionWidget->displayVolume();
-			return;
-		}
-	}
+//	if (event->key()==Qt::Key_V || key7 == Key7::SHOWVOLUME)
+//	{
+//		if(mControlsEnabled) {
+//			mViewSelectionWidget->setVolumeButtonChecked(true);
+//			mViewSelectionWidget->displayVolume();
+//			return;
+//		}
+//	}
 
-	if (event->key()==Qt::Key_T || key7 == Key7::SHOWTUBES)
-	{
-		if(mControlsEnabled) {
-			mViewSelectionWidget->setTubeButtonChecked(true);
-			mViewSelectionWidget->displayTubes();
-			return;
-		}
-	}
+//	if (event->key()==Qt::Key_T || key7 == Key7::SHOWTUBES)
+//	{
+//		if(mControlsEnabled) {
+//			mViewSelectionWidget->setTubeButtonChecked(true);
+//			mViewSelectionWidget->displayTubes();
+//			return;
+//		}
+//	}
 
-	VBWidget::keyPressEvent(event);
-}
+//	VBWidget::keyPressEvent(event);
+//}
 
 void FraxinusVBWidget::setViewGroupNumber(unsigned int viewGroupNumber)
 {

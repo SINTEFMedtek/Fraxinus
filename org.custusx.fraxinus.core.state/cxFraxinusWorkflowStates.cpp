@@ -175,31 +175,31 @@ void FraxinusWorkflowState::setDefaultCameraStyle()
 	}
 }
 
-void FraxinusWorkflowState::setVBFlythroughCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
+void FraxinusWorkflowState::setVBFlythroughCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
 	this->setCamera(surfaceModel3DViewGroupNumber);
 	this->setCamera(flyThrough3DViewGroupNumber);
-	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber);
+	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 
 	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, surfaceModel3DViewGroupNumber);
 	this->setCameraStyleInGroup(cstTOOL_STYLE, flyThrough3DViewGroupNumber);
 }
 
-void FraxinusWorkflowState::setVBCutplanesCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
+void FraxinusWorkflowState::setVBCutplanesCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
 	this->setCamera(surfaceModel3DViewGroupNumber);
 	this->setCamera(flyThrough3DViewGroupNumber);
-	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber);
+	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 
 	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, surfaceModel3DViewGroupNumber);
 	this->setCameraStyleInGroup(cstTOOL_STYLE, flyThrough3DViewGroupNumber);
 }
 
-void FraxinusWorkflowState::setAnyplaneCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
+void FraxinusWorkflowState::setAnyplaneCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
 	this->setCamera(surfaceModel3DViewGroupNumber);
 	this->setCamera(flyThrough3DViewGroupNumber);
-	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber);
+	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 
 	this->setCameraStyleInGroup(cstDEFAULT_STYLE, surfaceModel3DViewGroupNumber);
 	this->setCameraStyleInGroup(cstTOOL_STYLE, flyThrough3DViewGroupNumber);
@@ -406,7 +406,7 @@ void FraxinusWorkflowState::setRTTInVBWidget()
 	}
 }
 
-void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
+void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
 	ImagePtr ctImage_copied = this->getCTImageCopied();
 	std::vector<DataPtr> volumeViewObjects;
@@ -429,6 +429,7 @@ void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroup
 	viewGroupNumbers.push_back(flyThrough3DViewGroupNumber);
 	if (surfaceModel3DViewGroupNumber >= 0)
 		viewGroupNumbers.push_back(surfaceModel3DViewGroupNumber);
+	viewGroupNumbers.push_back(m2DViewGroupNumber);
 	this->setupViewOptionsForStructuresSelection(VBWidget->getStructuresSelectionWidget(), viewGroupNumbers);
 	
 	VBWidget->setViewGroupNumber(flyThrough3DViewGroupNumber);
@@ -556,10 +557,10 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 }
 
 
-void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
+void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
 	this->setRTTInVBWidget();
-	this->setupViewOptionsInVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber);
+	this->setupViewOptionsInVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 	if(viewService())
 		viewService()->zoomCamera3D(flyThrough3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
 	
@@ -834,7 +835,9 @@ bool ProcessWorkflowState::canEnter() const
 
 void ProcessWorkflowState::addDataToView()
 {
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	if(!airways)
+		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	ImagePtr ctImage = this->getCTImage();
 	
 	
@@ -896,11 +899,11 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	viewGroupNumbers.push_back(m2DViewGroupNumber);
 	this->setupPinPointWidget(viewGroupNumbers);
 	
+	PinpointWidget* pinPointWidget = this->getPinpointWidget();
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	PointMetricPtr viaPoint = this->getViaPoint();
 	if(!targetPoint || !viaPoint)
 	{
-		PinpointWidget* pinPointWidget = this->getPinpointWidget();
 		if(pinPointWidget)
 		{
 			if(!targetPoint)
@@ -918,10 +921,17 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 
 	if(targetPoint)
 	{
+		ViewGroupDataPtr viewGroup0_3D = viewService()->getGroup(m3DViewGroupNumber);
+		ViewGroupDataPtr viewGroup1_2D = viewService()->getGroup(m2DViewGroupNumber);
+		if(viewGroup0_3D)
+			viewGroup0_3D->addData(targetPoint->getUid());
+		if(viewGroup1_2D)
+			viewGroup1_2D->addData(targetPoint->getUid());
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
 	if(viaPoint)
 	{
+		this->showViaPoint(pinPointWidget->getViaOption());
 		connect(viaPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
 
@@ -934,9 +944,6 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 //		camera_control->setAnteriorView();
 //	}
 
-
-
-	PinpointWidget* pinPointWidget = this->getPinpointWidget();
 	if(pinPointWidget)
 	{
 		connect(pinPointWidget, &PinpointWidget::updateTargetPointFromManualTool, this, &PinpointWorkflowState::updateTargetPoint);
@@ -944,6 +951,7 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 		connect(pinPointWidget, &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 		connect(pinPointWidget, &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::targetMetricSet, Qt::UniqueConnection);
 		connect(pinPointWidget, &PinpointWidget::updateRoute, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::showViaPoint, this, &PinpointWorkflowState::showViaPoint, Qt::UniqueConnection);
 		connect(pinPointWidget, &PinpointWidget::useLungWindow, this, &PinpointWorkflowState::setLungWindow, Qt::UniqueConnection);
 		connect(pinPointWidget, &PinpointWidget::useAbdomenWindow, this, &PinpointWorkflowState::setAbdomenWindow, Qt::UniqueConnection);
 
@@ -1005,6 +1013,7 @@ void PinpointWorkflowState::createRoute()
 		this->createRouteToTarget(true);
 		PointMetricPtr targetPoint = this->getTargetPoint();
 		mPointChanged = false;
+		this->showRouteToTarget();
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
 	else if(mPointChanged)
@@ -1050,6 +1059,32 @@ void PinpointWorkflowState::updateViaPoint()
 	mUpdateTargetAllowed = true;
 }
 
+void PinpointWorkflowState::showTargetPoint(bool show)
+{
+	this->showPointMetric(this->getTargetPoint(), show);
+}
+
+void PinpointWorkflowState::showViaPoint(bool show)
+{
+	this->showPointMetric(this->getViaPoint(), show);
+}
+
+void PinpointWorkflowState::showPointMetric(PointMetricPtr point, bool show)
+{
+	ViewGroupDataPtr viewGroup0_3D = viewService()->getGroup(m3DViewGroupNumber);
+	ViewGroupDataPtr viewGroup1_2D = viewService()->getGroup(m2DViewGroupNumber);
+	if(viewGroup0_3D)
+		if (show)
+			viewGroup0_3D->addData(point->getUid());
+		else
+			viewGroup0_3D->removeData(point->getUid());
+	if(viewGroup1_2D)
+		if (show)
+			viewGroup1_2D->addData(point->getUid());
+		else
+			viewGroup1_2D->removeData(point->getUid());
+}
+
 void PinpointWorkflowState::showRouteToTarget()
 {
 	MeshPtr routeToTarget = this->getRouteToTarget();
@@ -1083,7 +1118,9 @@ void PinpointWorkflowState::addDataToView()
 {
 	ImagePtr ctImage = this->getCTImage();
 	
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	if(!airways)
+		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
 	
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
@@ -1158,6 +1195,7 @@ VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflo
 	: FraxinusWorkflowState(parent, "VirtualBronchoscopyFlyThroughUid", "Virtual Bronchoscopy Fly Through", services, false)
 	, mFlyThrough3DViewGroupNumber(2)
 	, mSurfaceModel3DViewGroupNumber(0)
+	, m2DViewGroupNumber(1)
 {
 	
 }
@@ -1183,7 +1221,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 			structureSelectionWidget->onEntry();
 	}
 
-	QTimer::singleShot(0, this, [=](){this->setVBFlythroughCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);});
+	QTimer::singleShot(0, this, [=](){this->setVBFlythroughCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber, m2DViewGroupNumber);});
 }
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onExit(QEvent * event)
@@ -1198,7 +1236,9 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	if(!airways)
+		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
 		MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
@@ -1263,6 +1303,7 @@ VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowS
 	FraxinusWorkflowState(parent, "VirtualBronchoscopyCutPlanesUid", "Virtual Bronchoscopy Cut Planes", services, false)
 , mFlyThrough3DViewGroupNumber(2)
 , mSurfaceModel3DViewGroupNumber(0)
+, m2DViewGroupNumber(1)
 {
 	
 }
@@ -1288,7 +1329,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 			structureSelectionWidget->onEntry();
 	}
 	
-	QTimer::singleShot(0, this, [=](){this->setVBCutplanesCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);});
+	QTimer::singleShot(0, this, [=](){this->setVBCutplanesCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber, m2DViewGroupNumber);});
 }
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onExit(QEvent *event)
@@ -1303,7 +1344,9 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	if(!airways)
+		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
@@ -1368,6 +1411,7 @@ VirtualBronchoscopyAnyplaneWorkflowState::VirtualBronchoscopyAnyplaneWorkflowSta
   : FraxinusWorkflowState(parent, "VirtualBronchoscopyAnyplaneUid", "Virtual Bronchoscopy Anyplane", services, false)
   , mFlyThrough3DViewGroupNumber(2)
   , mSurfaceModel3DViewGroupNumber(0)
+	, m2DViewGroupNumber(1)
 {
 
 }
@@ -1394,7 +1438,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
 	}
 
 	//Using a lambda function to send parameters
-	QTimer::singleShot(0, this, [=](){this->setAnyplaneCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);});
+	QTimer::singleShot(0, this, [=](){this->setAnyplaneCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber, m2DViewGroupNumber);});
 }
 
 void VirtualBronchoscopyAnyplaneWorkflowState::onExit(QEvent * event)
@@ -1408,7 +1452,9 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 	ImagePtr ctImage = this->getCTImage();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
+	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	if(!airways)
+		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);

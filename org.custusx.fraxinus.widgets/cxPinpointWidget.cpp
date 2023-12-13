@@ -280,6 +280,7 @@ void PinpointWidget::useViaPointOn(bool checked)
 	else
 		mViaPointButton->hide();
 
+	emit showViaPoint(checked);
 	emit updateRoute();
 }
 
