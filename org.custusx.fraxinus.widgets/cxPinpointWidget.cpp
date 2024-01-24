@@ -28,8 +28,7 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	mMetricManager(new MetricManager(services->view(), services->patient(), services->tracking(), services->spaceProvider(), services->file())),
 	mTargetMetricUid(this->getTargetMetricUid()),
 	mTargetMetricName("Target"),
-	mViaMetricUid(this->getViaPointMetricUid()),
-	mViaMetricName("Via")
+	mAirwayPointMetricUid(this->getExtraAirwayMetricUid())
 {
 	mMetricManager->setActiveUid(mTargetMetricUid);
 
@@ -40,23 +39,22 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	mPointMetricNameLineEdit = new QLineEdit(mTargetMetricName, this);
 	connect(mPointMetricNameLineEdit, &QLineEdit::textEdited, this, &PinpointWidget::targetNameChanged);
 
-
-	// Selector for using via point in route to target
-	mViaPointCheckBox = new QCheckBox(tr("Use via point"));
-	mViaPointCheckBox->setChecked(false);
-	QButtonGroup *viaPointSelectorGroup = new QButtonGroup(this);
 	mTargetPointButton = new QPushButton("&Set target point", this);
-	mViaPointButton = new QPushButton("&Set airway end point", this);
-	viaPointSelectorGroup->addButton(mViaPointButton);
-	viaPointSelectorGroup->addButton(mTargetPointButton);
+
+	// Selector for adding airway points
+	mAddAirwayCheckBox = new QCheckBox(tr("Add manual airway"));
+	mAddAirwayCheckBox->setChecked(false);
+	mAddAirwayPointButton = new QPushButton("&Add airway point", this);
+	mDeletePointButton = new QPushButton("&Delete last point", this);
 
 	QGridLayout* gridLayoutSetTarget = new QGridLayout;
-	gridLayoutSetTarget->addWidget(mViaPointCheckBox,1,0);
-	gridLayoutSetTarget->addWidget(mTargetPointButton,0,1);
-	gridLayoutSetTarget->addWidget(mViaPointButton,1,1);
+	gridLayoutSetTarget->addWidget(mTargetPointButton,0,2);
+	gridLayoutSetTarget->addWidget(mAddAirwayCheckBox,1,0);
+	gridLayoutSetTarget->addWidget(mAddAirwayPointButton,1,1);
+	gridLayoutSetTarget->addWidget(mDeletePointButton,1,2);
 
-	mViaPointButton->hide();
-
+	mAddAirwayPointButton->hide();
+	mDeletePointButton->hide();
 
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWidget::loadNameOfPointMetric);
 
@@ -98,9 +96,10 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 
 	this->setLayout(v_layout);
 
-	connect(mViaPointCheckBox, &QCheckBox::clicked, this, &PinpointWidget::useViaPointOn);
+	connect(mAddAirwayCheckBox, &QCheckBox::clicked, this, &PinpointWidget::addAirwayPointOn);
 	connect(mTargetPointButton, &QPushButton::clicked, this, &PinpointWidget::setTargetPoint);
-	connect(mViaPointButton, &QPushButton::clicked, this, &PinpointWidget::setViaPoint);
+	connect(mAddAirwayPointButton, &QPushButton::clicked, this, &PinpointWidget::addAirwayPoint);
+	connect(mDeletePointButton, &QPushButton::clicked, this, &PinpointWidget::deleteAirwayPoint);
 
 	connect(mLungWindow, &QRadioButton::clicked, this, &PinpointWidget::setLungWindow);
 	connect(mAbdomenWindow, &QRadioButton::clicked, this, &PinpointWidget::setAbdomenWindow);
@@ -114,6 +113,11 @@ QString PinpointWidget::getTargetMetricUid()
 QString PinpointWidget::getViaPointMetricUid()
 {
 	return "fraxinus_via_point";
+}
+
+QString PinpointWidget::getExtraAirwayMetricUid()
+{
+	return "AirwayPoint";
 }
 
 QString PinpointWidget::getEndoscopeMetricUid()
@@ -143,14 +147,6 @@ void PinpointWidget::setTargetMetric()
 		this->createDistanceMetric();
 
 	emit targetMetricSet();
-}
-
-void PinpointWidget::setViaMetric()
-{
-	if(!mServices->patient()->getData(mViaMetricUid))
-		this->createViaMetric();
-	else
-		this->updateCoordinateOfViaMetric();
 }
 
 void PinpointWidget::targetNameChanged(const QString &text)
@@ -191,15 +187,24 @@ void PinpointWidget::createPointMetric()
 	this->setNameOfPointMetric();
 }
 
-void PinpointWidget::createViaMetric()
+void PinpointWidget::addAirwayMetric()
 {
 	CoordinateSystem ref = CoordinateSystem::reference();
 	QColor color = QColor(250, 0, 0, 255);
 	Vector3D p_ref = mServices->spaceProvider()->getActiveToolTipPoint(ref, true);
 
-	mMetricManager->addPoint(p_ref, ref, mViaMetricUid, color);
+	mMetricManager->addPoint(p_ref, ref, mAirwayPointMetricUid+"%1", color);
 
-	this->setNameOfViaMetric();
+}
+
+void PinpointWidget::deleteLastAirwayMetric()
+{
+	std::map<QString, PointMetricPtr> airwayMetrics = mMetricManager->getPointMetrics(mAirwayPointMetricUid);
+	if(airwayMetrics.empty())
+		return;
+	std::map<QString, PointMetricPtr>::iterator it = airwayMetrics.end();
+	--it;
+	mServices->patient()->removeData(it->first);
 }
 
 void PinpointWidget::createEndoscopeMetric()
@@ -237,23 +242,11 @@ void PinpointWidget::updateCoordinateOfTargetMetric()
 	this->updateCoordinateOfPointMetric(mTargetMetricUid);
 }
 
-void PinpointWidget::updateCoordinateOfViaMetric()
-{
-	this->updateCoordinateOfPointMetric(mViaMetricUid);
-}
-
 void PinpointWidget::setNameOfPointMetric()
 {
 	DataMetricPtr data = mMetricManager->getMetric(mTargetMetricUid);
 	if(data)
 		data->setName(mTargetMetricName);
-}
-
-void PinpointWidget::setNameOfViaMetric()
-{
-	DataMetricPtr data = mMetricManager->getMetric(mViaMetricUid);
-	if(data)
-		data->setName(mViaMetricName);
 }
 
 QString PinpointWidget::getNameOfPointMetric() const
@@ -272,15 +265,20 @@ StructuresSelectionWidget* PinpointWidget::getStructuresSelectionWidget()
 	return mStructuresSelectionWidget;
 }
 
-void PinpointWidget::useViaPointOn(bool checked)
+void PinpointWidget::addAirwayPointOn(bool checked)
 {
-	mUseViaPoint = mViaPointCheckBox->isChecked();
+	mAddAirwayPoints = mAddAirwayCheckBox->isChecked();
 	if(checked)
-		mViaPointButton->show();
+	{
+		mAddAirwayPointButton->show();
+		mDeletePointButton->show();
+	}
 	else
-		mViaPointButton->hide();
-
-	emit showViaPoint(checked);
+	{
+		mAddAirwayPointButton->hide();
+		mDeletePointButton->hide();
+	}
+	emit showViaPoints(checked);
 	emit updateRoute();
 }
 
@@ -289,14 +287,22 @@ void PinpointWidget::setTargetPoint()
 	emit updateTargetPointFromManualTool();
 }
 
-void PinpointWidget::setViaPoint()
+void PinpointWidget::addAirwayPoint()
 {
-	emit updateViaPointFromManualTool();
+	this->addAirwayMetric();
+	emit updateRoute();
+	emit showViaPoints(true);
 }
 
-bool PinpointWidget::getViaOption()
+void PinpointWidget::deleteAirwayPoint()
 {
-	return mUseViaPoint;
+	this->deleteLastAirwayMetric();
+	emit updateRoute();
+}
+
+bool PinpointWidget::getAirwayPointsOption()
+{
+	return mAddAirwayPoints;
 }
 
 void PinpointWidget::setLungWindow()
@@ -312,6 +318,11 @@ void PinpointWidget::setAbdomenWindow()
 void PinpointWidget::setLungWindowButtonOn()
 {
 	mLungWindow->setChecked(true);
+}
+
+MetricManagerPtr PinpointWidget::getMetricManager()
+{
+	return mMetricManager;
 }
 
 }
