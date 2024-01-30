@@ -57,7 +57,9 @@ public:
 	virtual ~FraxinusEBUSSimulatorWidget(){};
 
 	static QString getWidgetName(){return "fraxinus_ebus_simulator_widget";};
+
 	//virtual void enableEBUSSimulator() = 0;
+
 
 };
 
