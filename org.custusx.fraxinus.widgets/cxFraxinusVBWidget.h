@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cxVBWidget.h>
 #include <cxStructuresSelectionWidget.h>
 #include <cxViewSelectionWidget.h>
+#include <cxFraxinusEBUSSimulatorWidget.h>
 
 class QRadioButton;
 class QLabel;
@@ -79,9 +80,12 @@ private:
 	double getRemainingRouteInsideAirways(double cameraPositionInPercent);
 	int getGenerationNumber(double cameraPositionInPercent);
 	double getDiameter(double cameraPositionInPercent);
+	FraxinusEBUSSimulatorWidget* getFraxinusEBUSSimulatorWidget();
+	QMainWindow* getMainWindow();
 
 	ViewSelectionWidget* mViewSelectionWidget;
 	StructuresSelectionWidget* mStructuresSelectionWidget;
+	FraxinusEBUSSimulatorWidget* mEBUSSimulatorWidget;
 	VisServicesPtr mServices;
 	std::vector<DataPtr> mTubeViewObjects;
 	QLabel* mStaticTotalLegth;

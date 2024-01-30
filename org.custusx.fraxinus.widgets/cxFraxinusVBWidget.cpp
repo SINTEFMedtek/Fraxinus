@@ -50,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxDistanceMetric.h"
 #include "cxVBcameraPath.h"
 #include "cxStructuresSelectionWidget.h"
+#include "cxFraxinusEBUSSimulatorWidget.h"
 
 namespace cx {
 
@@ -64,6 +65,14 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 	//Disable the select RTT box, as it is only confusing.
 	//To use it you still need to manually change many objects in the graphics.
 	mRouteToTarget->setEnabled(false);
+
+	mEBUSSimulatorWidget = this->getFraxinusEBUSSimulatorWidget();
+	if(mEBUSSimulatorWidget)
+	{
+		QGroupBox* EBUSSimulatorBox = new QGroupBox(tr("EBUS Simulator"));
+		EBUSSimulatorBox->setLayout(mEBUSSimulatorWidget->layout());
+		mVerticalLayout->insertWidget(mVerticalLayout->count()-1, EBUSSimulatorBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+	}
 
 	QGroupBox* viewBox = new QGroupBox(tr("View"));
 	mViewSelectionWidget = new ViewSelectionWidget(mServices, this);
@@ -275,7 +284,7 @@ QString FraxinusVBWidget::getWidgetName()
 //			mViewSelectionWidget->displayTubes();
 //			return;
 //		}
-//	}
+//	}fraxinus_ebus_simulator_widget
 
 //	VBWidget::keyPressEvent(event);
 //}
@@ -312,6 +321,23 @@ void FraxinusVBWidget::setGenerationNumbersAlongRoute(std::vector< int > generat
 void FraxinusVBWidget::setRadiusAlongRoute(std::vector< double > radius)
 {
 	mRadiusAlongRoute = radius;
+}
+
+FraxinusEBUSSimulatorWidget* FraxinusVBWidget::getFraxinusEBUSSimulatorWidget()
+{
+	QMainWindow* mainWindow = this->getMainWindow();
+
+	QString widgetName(FraxinusEBUSSimulatorWidget::getWidgetName());
+	return mainWindow->findChild<FraxinusEBUSSimulatorWidget*>(widgetName);
+}
+
+QMainWindow* FraxinusVBWidget::getMainWindow()
+{
+	QWidgetList widgets = qApp->topLevelWidgets();
+	for (QWidgetList::iterator i = widgets.begin(); i != widgets.end(); ++i)
+		if ((*i)->objectName() == "main_window")
+			return (QMainWindow*) (*i);
+	return NULL;
 }
 
 } //namespace cx
