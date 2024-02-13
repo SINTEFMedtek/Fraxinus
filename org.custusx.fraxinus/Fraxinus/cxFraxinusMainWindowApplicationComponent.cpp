@@ -64,6 +64,15 @@ void FraxinusMainWindowApplicationComponent::addAdditionalDefaultLayouts()
 		layout.setView(1, ptRADIALPLANE, LayoutRegion(1, 0, 1, 1));
 		viewService->addDefaultLayout(layout);
 	}
+	{//EBUS simulator
+		LayoutData layout = LayoutData::create("LAYOUT_RT_3D_ANY", "RT 3D ANY", 2, 3);
+		layout.setView(3, View::VIEW_REAL_TIME, LayoutRegion(0, 0, 1, 1));
+		layout.setView(0, View::VIEW_3D, LayoutRegion(0, 2, 2, 1));
+		layout.setView(1, ptAXIAL, LayoutRegion(0, 1, 1, 1));
+		layout.setView(1, ptINVERSEANYPLANE, LayoutRegion(1, 1, 1, 1));
+		layout.setView(1, ptRADIALPLANE, LayoutRegion(1, 0, 1, 1));
+		viewService->addDefaultLayout(layout);
+	}
 	{
 		// ACS 3D
 		LayoutData layout = LayoutData::create("LAYOUT_ACS3D", "ACS3D", 2, 2);

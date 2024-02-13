@@ -36,6 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QKeyEvent>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QDial>
 #include <QTimer>
 #include <QPushButton>
 #include <QApplication>
@@ -72,6 +73,8 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 		QGroupBox* EBUSSimulatorBox = new QGroupBox(tr("EBUS Simulator"));
 		EBUSSimulatorBox->setLayout(mEBUSSimulatorWidget->layout());
 		mVerticalLayout->insertWidget(mVerticalLayout->count()-1, EBUSSimulatorBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+		connect(mEBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::EBUSSimulatorStarted, this, &FraxinusVBWidget::setLeftRightOrientationTo90Deg);
+		connect(mEBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::EBUSSimulatorStopped, this, &FraxinusVBWidget::resetEndoscopeSlot);
 	}
 
 	QGroupBox* viewBox = new QGroupBox(tr("View"));
@@ -113,6 +116,7 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 	connect(mPlaybackSlider, &QSlider::valueChanged, this, &FraxinusVBWidget::playbackSliderChanged);
 	connect(mRouteToTarget.get(), &SelectDataStringPropertyBase::dataChanged,
 						this, &FraxinusVBWidget::calculateRouteLength);
+
 }
 
 FraxinusVBWidget::~FraxinusVBWidget()
@@ -313,6 +317,11 @@ StructuresSelectionWidget* FraxinusVBWidget::getStructuresSelectionWidget()
 	return mStructuresSelectionWidget;
 }
 
+FraxinusEBUSSimulatorWidget* FraxinusVBWidget::getEBUSSimulatorWidget()
+{
+	return mEBUSSimulatorWidget;
+}
+
 void FraxinusVBWidget::setGenerationNumbersAlongRoute(std::vector< int > generationNumbers)
 {
 	mGenerationNumbersAlongRoute = generationNumbers;
@@ -321,6 +330,13 @@ void FraxinusVBWidget::setGenerationNumbersAlongRoute(std::vector< int > generat
 void FraxinusVBWidget::setRadiusAlongRoute(std::vector< double > radius)
 {
 	mRadiusAlongRoute = radius;
+}
+
+void FraxinusVBWidget::setLeftRightOrientationTo90Deg()
+{//Used for EBUS simulator
+	int angleDeg = 90;
+	mViewDialLeftRight->setValue(angleDeg);
+	mCameraPath->cameraViewAngleXSlot(angleDeg);
 }
 
 FraxinusEBUSSimulatorWidget* FraxinusVBWidget::getFraxinusEBUSSimulatorWidget()

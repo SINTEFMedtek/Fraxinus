@@ -62,6 +62,8 @@ public:
 	static QString getWidgetName(){return "fraxinus_tracking_widget";};
 	virtual void startTracking() = 0;
 	virtual void stopTracking() = 0;
+	virtual void startUltrasoundSimulation() = 0;
+	virtual void stopUltrasoundSimulation() = 0;
 
 };
 

@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class QPushButton;
 class QMainWindow;
+class ctkPluginContext;
 
 namespace cx {
 class WidgetObscuredListener;
@@ -52,14 +53,18 @@ class org_custusx_fraxinus_widgets_EXPORT FraxinusEBUSSimulatorWidget : public B
 	Q_OBJECT
 
 public:
-	FraxinusEBUSSimulatorWidget(QWidget* parent, QString objectName, QString windowTitle):
+	FraxinusEBUSSimulatorWidget(QWidget* parent, ctkPluginContext* context, QString objectName, QString windowTitle):
 	  BaseWidget(parent, objectName, windowTitle){};
 	virtual ~FraxinusEBUSSimulatorWidget(){};
 
 	static QString getWidgetName(){return "fraxinus_ebus_simulator_widget";};
-
+	virtual void setParentWidget(QWidget* parent) = 0;
+	virtual void setCTImage(ImagePtr CTImage) = 0;
 	//virtual void enableEBUSSimulator() = 0;
 
+signals:
+	void EBUSSimulatorStarted();
+	void EBUSSimulatorStopped();
 
 };
 

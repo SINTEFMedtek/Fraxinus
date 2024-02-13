@@ -61,15 +61,16 @@ public:
 	void addObjectToVolumeView(DataPtr object);
 	void addObjectToTubeView(DataPtr object);
 	StructuresSelectionWidget *getStructuresSelectionWidget();
+	FraxinusEBUSSimulatorWidget* getEBUSSimulatorWidget();
 	void setGenerationNumbersAlongRoute(std::vector< int > generationNumbers);
 	void setRadiusAlongRoute(std::vector<double> radius);
 
 
-private slots:
+protected slots:
 //	virtual void keyPressEvent(QKeyEvent* event);
 	void calculateRouteLength();
 	void playbackSliderChanged(int cameraPositionInPermill);
-
+	void setLeftRightOrientationTo90Deg();
 
 private:
 	void updateRttInfo(double cameraPositionInPercent);

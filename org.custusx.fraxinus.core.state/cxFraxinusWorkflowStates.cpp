@@ -1435,6 +1435,10 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
 		StructuresSelectionWidget* structureSelectionWidget = FraxinusVBWidgetPtr->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
 			structureSelectionWidget->onEntry();
+
+		FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr->getEBUSSimulatorWidget();
+		if(EBUSSimulatorWidget)
+			EBUSSimulatorWidget->setCTImage(this->getCTImage());
 	}
 
 	//Using a lambda function to send parameters
