@@ -70,6 +70,7 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 	mEBUSSimulatorWidget = this->getFraxinusEBUSSimulatorWidget();
 	if(mEBUSSimulatorWidget)
 	{
+		mEBUSSimulatorWidget->setVBWidget(this);
 		QGroupBox* EBUSSimulatorBox = new QGroupBox(tr("EBUS Simulator"));
 		EBUSSimulatorBox->setLayout(mEBUSSimulatorWidget->layout());
 		mVerticalLayout->insertWidget(mVerticalLayout->count()-1, EBUSSimulatorBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
@@ -330,6 +331,12 @@ void FraxinusVBWidget::setGenerationNumbersAlongRoute(std::vector< int > generat
 void FraxinusVBWidget::setRadiusAlongRoute(std::vector< double > radius)
 {
 	mRadiusAlongRoute = radius;
+	mCameraPath->setRadiusAlongRoute(radius);
+}
+
+void FraxinusVBWidget::setNavigateAlongAirwayWall(bool navigateAlongAirwayWall)
+{
+	mCameraPath->setNavigateAlongAirwayWall(navigateAlongAirwayWall);
 }
 
 void FraxinusVBWidget::setLeftRightOrientationTo90Deg()

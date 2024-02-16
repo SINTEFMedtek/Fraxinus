@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxBaseWidget.h"
 #include <cxFraxinusNavigationWidget.h>
 #include <cxFraxinusTrackingWidget.h>
+#include <cxFraxinusVBWidget.h>
 #include "cxForwardDeclarations.h"
 #include "cxTrackerConfiguration.h"
 
@@ -47,6 +48,7 @@ class ctkPluginContext;
 
 namespace cx {
 class WidgetObscuredListener;
+class FraxinusVBWidget;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusEBUSSimulatorWidget : public BaseWidget
 {
@@ -60,6 +62,7 @@ public:
 	static QString getWidgetName(){return "fraxinus_ebus_simulator_widget";};
 	virtual void setParentWidget(QWidget* parent) = 0;
 	virtual void setCTImage(ImagePtr CTImage) = 0;
+	virtual void setVBWidget(FraxinusVBWidget* fraxinusVBWidget) = 0;
 	//virtual void enableEBUSSimulator() = 0;
 
 signals:

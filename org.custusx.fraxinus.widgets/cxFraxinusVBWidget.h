@@ -48,6 +48,7 @@ class QMainWindow;
 namespace cx {
 
 typedef boost::shared_ptr<class Data> DataPtr;
+class FraxinusEBUSSimulatorWidget;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusVBWidget : public VBWidget
 {
@@ -64,6 +65,7 @@ public:
 	FraxinusEBUSSimulatorWidget* getEBUSSimulatorWidget();
 	void setGenerationNumbersAlongRoute(std::vector< int > generationNumbers);
 	void setRadiusAlongRoute(std::vector<double> radius);
+	void setNavigateAlongAirwayWall(bool navigateAlongAirwayWall);
 
 
 protected slots:
