@@ -65,6 +65,9 @@ public:
 	virtual void startUltrasoundSimulation() = 0;
 	virtual void stopUltrasoundSimulation() = 0;
 
+signals:
+	void trackingReady();
+
 };
 
 
