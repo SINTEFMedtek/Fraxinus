@@ -1221,6 +1221,13 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 			structureSelectionWidget->onEntry();
 	}
 
+	FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr->getEBUSSimulatorWidget();
+	if(EBUSSimulatorWidget)
+	{
+		EBUSSimulatorWidget->setCTImage(this->getCTImage());
+		connect(this, &VirtualBronchoscopyFlyThroughWorkflowState::aboutToExit, EBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::stopEBUSSimulatorOnWorkflowExitSlot);
+	}
+
 	QTimer::singleShot(0, this, [=](){this->setVBFlythroughCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber, m2DViewGroupNumber);});
 }
 
@@ -1327,6 +1334,13 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 		StructuresSelectionWidget* structureSelectionWidget = FraxinusVBWidgetPtr->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
 			structureSelectionWidget->onEntry();
+	}
+
+	FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr->getEBUSSimulatorWidget();
+	if(EBUSSimulatorWidget)
+	{
+		EBUSSimulatorWidget->setCTImage(this->getCTImage());
+		connect(this, &VirtualBronchoscopyCutPlanesWorkflowState::aboutToExit, EBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::stopEBUSSimulatorOnWorkflowExitSlot);
 	}
 	
 	QTimer::singleShot(0, this, [=](){this->setVBCutplanesCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber, m2DViewGroupNumber);});
