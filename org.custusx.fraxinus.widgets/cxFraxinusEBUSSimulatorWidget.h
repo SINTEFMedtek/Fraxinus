@@ -65,6 +65,9 @@ public:
 	virtual void setVBWidget(FraxinusVBWidget* fraxinusVBWidget) = 0;
 	//virtual void enableEBUSSimulator() = 0;
 
+public slots:
+	virtual void stopEBUSSimulatorOnWorkflowExitSlot() = 0;
+
 signals:
 	void EBUSSimulatorStarted();
 	void EBUSSimulatorStopped();

@@ -1438,7 +1438,10 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
 
 		FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr->getEBUSSimulatorWidget();
 		if(EBUSSimulatorWidget)
+		{
 			EBUSSimulatorWidget->setCTImage(this->getCTImage());
+			connect(this, &VirtualBronchoscopyAnyplaneWorkflowState::aboutToExit, EBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::stopEBUSSimulatorOnWorkflowExitSlot);
+		}
 	}
 
 	//Using a lambda function to send parameters
