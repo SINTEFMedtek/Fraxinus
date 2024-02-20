@@ -73,7 +73,7 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 		mEBUSSimulatorWidget->setVBWidget(this);
 		QGroupBox* EBUSSimulatorBox = new QGroupBox(tr("EBUS Simulator"));
 		EBUSSimulatorBox->setLayout(mEBUSSimulatorWidget->layout());
-		mVerticalLayout->insertWidget(mVerticalLayout->count()-1, EBUSSimulatorBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+		mVerticalLayout->insertWidget(mVerticalLayout->count()-1, EBUSSimulatorBox);
 		connect(mEBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::EBUSSimulatorStarted, this, &FraxinusVBWidget::setLeftRightOrientationTo90Deg);
 		connect(mEBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::EBUSSimulatorStopped, this, &FraxinusVBWidget::resetEndoscopeSlot);
 	}
@@ -349,7 +349,6 @@ void FraxinusVBWidget::setLeftRightOrientationTo90Deg()
 FraxinusEBUSSimulatorWidget* FraxinusVBWidget::getFraxinusEBUSSimulatorWidget()
 {
 	QMainWindow* mainWindow = this->getMainWindow();
-
 	QString widgetName(FraxinusEBUSSimulatorWidget::getWidgetName());
 	return mainWindow->findChild<FraxinusEBUSSimulatorWidget*>(widgetName);
 }

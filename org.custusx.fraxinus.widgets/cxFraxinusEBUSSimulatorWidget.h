@@ -63,7 +63,6 @@ public:
 	virtual void setParentWidget(QWidget* parent) = 0;
 	virtual void setCTImage(ImagePtr CTImage) = 0;
 	virtual void setVBWidget(FraxinusVBWidget* fraxinusVBWidget) = 0;
-	//virtual void enableEBUSSimulator() = 0;
 
 public slots:
 	virtual void stopEBUSSimulatorOnWorkflowExitSlot() = 0;
