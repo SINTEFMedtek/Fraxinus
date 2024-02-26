@@ -289,7 +289,7 @@ QString FraxinusVBWidget::getWidgetName()
 //			mViewSelectionWidget->displayTubes();
 //			return;
 //		}
-//	}fraxinus_ebus_simulator_widget
+//	}
 
 //	VBWidget::keyPressEvent(event);
 //}
