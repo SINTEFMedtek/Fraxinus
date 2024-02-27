@@ -89,7 +89,7 @@ class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
         return '%s/org.custusx.fraxinus.tracking.git' % self.controlData.gitrepo_main_site_base
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
-        self._getBuilder().gitCheckoutSha('d36f50caf6298c82f69646a744bdbf66ea92a5d2')
+        self._getBuilder().gitCheckoutSha('a216eca7b250c6919ffc7ba30e461286cffc77ef')
         #self._getBuilder().gitCheckoutDefaultBranch()
     def configure(self):
         pass
