@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "org_custusx_fraxinus_core_state_Export.h"
 
 #include <QObject>
-#include "boost/shared_ptr.hpp"
+#include <boost/shared_ptr.hpp>
 #include "cxWorkflowStateMachine.h"
 
 namespace cx

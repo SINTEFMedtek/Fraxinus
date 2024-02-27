@@ -35,10 +35,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
-#include <cxVBWidget.h>
-#include <cxStructuresSelectionWidget.h>
-#include <cxViewSelectionWidget.h>
-#include <cxFraxinusEBUSSimulatorWidget.h>
+#include "cxVBWidget.h"
+#include "cxStructuresSelectionWidget.h"
+#include "cxViewSelectionWidget.h"
+#include "cxFraxinusEBUSSimulatorWidget.h"
 
 class QRadioButton;
 class QLabel;
