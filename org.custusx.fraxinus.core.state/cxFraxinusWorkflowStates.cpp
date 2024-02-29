@@ -1224,7 +1224,9 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 	FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr->getEBUSSimulatorWidget();
 	if(EBUSSimulatorWidget)
 	{
-		EBUSSimulatorWidget->setCTImage(this->getCTImage());
+		ImagePtr ctImage_copied = this->getCTImageCopied();
+		EBUSSimulatorWidget->setCTImage(ctImage_copied);
+		this->setTransferfunction2D("2D CT Abdomen", ctImage_copied);
 		connect(this, &VirtualBronchoscopyFlyThroughWorkflowState::aboutToExit, EBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::stopEBUSSimulatorOnWorkflowExitSlot);
 	}
 
@@ -1339,7 +1341,9 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 	FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr->getEBUSSimulatorWidget();
 	if(EBUSSimulatorWidget)
 	{
-		EBUSSimulatorWidget->setCTImage(this->getCTImage());
+		ImagePtr ctImage_copied = this->getCTImageCopied();
+		EBUSSimulatorWidget->setCTImage(ctImage_copied);
+		this->setTransferfunction2D("2D CT Abdomen", ctImage_copied);
 		connect(this, &VirtualBronchoscopyCutPlanesWorkflowState::aboutToExit, EBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::stopEBUSSimulatorOnWorkflowExitSlot);
 	}
 	
@@ -1453,7 +1457,9 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
 		FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr->getEBUSSimulatorWidget();
 		if(EBUSSimulatorWidget)
 		{
-			EBUSSimulatorWidget->setCTImage(this->getCTImage());
+			ImagePtr ctImage_copied = this->getCTImageCopied();
+			EBUSSimulatorWidget->setCTImage(ctImage_copied);
+			this->setTransferfunction2D("2D CT Abdomen", ctImage_copied);
 			connect(this, &VirtualBronchoscopyAnyplaneWorkflowState::aboutToExit, EBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::stopEBUSSimulatorOnWorkflowExitSlot);
 		}
 	}
