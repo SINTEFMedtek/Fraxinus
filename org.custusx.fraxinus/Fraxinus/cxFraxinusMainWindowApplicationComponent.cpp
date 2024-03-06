@@ -69,7 +69,7 @@ void FraxinusMainWindowApplicationComponent::addAdditionalDefaultLayouts()
 		layout.setView(3, View::VIEW_REAL_TIME, LayoutRegion(0, 0, 1, 1));
 		layout.setView(0, View::VIEW_3D, LayoutRegion(0, 1, 2, 1));
 		//layout.setView(1, ptAXIAL, LayoutRegion(0, 1, 1, 1));
-		layout.setView(1, ptINVERSEANYPLANE, LayoutRegion(1, 0, 1, 1));
+		layout.setView(1, ptANYPLANE, LayoutRegion(1, 0, 1, 1));
 		//layout.setView(1, ptRADIALPLANE, LayoutRegion(1, 0, 1, 1));
 		viewService->addDefaultLayout(layout);
 	}
