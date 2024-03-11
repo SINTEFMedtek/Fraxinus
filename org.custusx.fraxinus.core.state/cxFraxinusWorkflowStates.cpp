@@ -66,6 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxBranchList.h"
 #include "cxRouteToTarget.h"
 #include "cxAirwaysFromCenterline.h"
+#include "cxMetricManager.h"
 
 namespace cx
 {
@@ -302,11 +303,6 @@ PointMetricPtr FraxinusWorkflowState::getPointMetric(QString pointMetricName) co
 PointMetricPtr FraxinusWorkflowState::getTargetPoint() const
 {
 	return getPointMetric(PinpointWidget::getTargetMetricUid());
-}
-
-PointMetricPtr FraxinusWorkflowState::getViaPoint() const
-{
-	return getPointMetric(PinpointWidget::getViaPointMetricUid());
 }
 
 PointMetricPtr FraxinusWorkflowState::getEndoscopePoint() const
@@ -642,12 +638,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	PinpointWidget* pinPointWidget = this->getPinpointWidget();
 	if(pinPointWidget)
 	{
-		if(pinPointWidget->getViaOption())
-		{
-			PointMetricPtr viaPoint =this->getViaPoint();
-			if(viaPoint)
-				input[2]->setValue(viaPoint->getUid());
-		}
+		routeToTargetFilter->setUseExtraAirwayPoints(pinPointWidget->getAirwayPointsOption());
 	}
 	
 	if(!mBranchList->isRadiusAvailable())
@@ -901,22 +892,10 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	
 	PinpointWidget* pinPointWidget = this->getPinpointWidget();
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	PointMetricPtr viaPoint = this->getViaPoint();
-	if(!targetPoint || !viaPoint)
+	if(!targetPoint && pinPointWidget)
 	{
-		if(pinPointWidget)
-		{
-			if(!targetPoint)
-			{
-				pinPointWidget->createPointMetric();
-				targetPoint = this->getTargetPoint();
-			}
-			if(!viaPoint)
-			{
-				pinPointWidget->createViaMetric();
-				viaPoint = this->getViaPoint();
-			}
-		}
+		pinPointWidget->createPointMetric();
+		targetPoint = this->getTargetPoint();
 	}
 
 	if(targetPoint)
@@ -929,11 +908,8 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 			viewGroup1_2D->addData(targetPoint->getUid());
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
-	if(viaPoint)
-	{
-		this->showViaPoint(pinPointWidget->getViaOption());
-		connect(viaPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
-	}
+
+	this->showViaPoints(pinPointWidget->getAirwayPointsOption());
 
 //	CameraControlPtr camera_control = viewService()->getCameraControl();
 //	if(camera_control)
@@ -947,11 +923,10 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	if(pinPointWidget)
 	{
 		connect(pinPointWidget, &PinpointWidget::updateTargetPointFromManualTool, this, &PinpointWorkflowState::updateTargetPoint);
-		connect(pinPointWidget, &PinpointWidget::updateViaPointFromManualTool, this, &PinpointWorkflowState::updateViaPoint);
 		connect(pinPointWidget, &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
 		connect(pinPointWidget, &PinpointWidget::targetMetricSet, this, &PinpointWorkflowState::targetMetricSet, Qt::UniqueConnection);
 		connect(pinPointWidget, &PinpointWidget::updateRoute, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
-		connect(pinPointWidget, &PinpointWidget::showViaPoint, this, &PinpointWorkflowState::showViaPoint, Qt::UniqueConnection);
+		connect(pinPointWidget, &PinpointWidget::showViaPoints, this, &PinpointWorkflowState::showViaPoints, Qt::UniqueConnection);
 		connect(pinPointWidget, &PinpointWidget::useLungWindow, this, &PinpointWorkflowState::setLungWindow, Qt::UniqueConnection);
 		connect(pinPointWidget, &PinpointWidget::useAbdomenWindow, this, &PinpointWorkflowState::setAbdomenWindow, Qt::UniqueConnection);
 
@@ -967,7 +942,6 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	this->setManualToolToTargetPosition();
 	mUpdateTargetAllowed = true;
 }
-
 bool PinpointWorkflowState::canEnter() const
 {
 	if(mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES))
@@ -1045,28 +1019,23 @@ void PinpointWorkflowState::updateTargetPoint()
 	mUpdateTargetAllowed = true;
 }
 
-void PinpointWorkflowState::updateViaPoint()
-{
-	if(!mUpdateTargetAllowed)
-		return;
-	mUpdateTargetAllowed = false;
-	PointMetricPtr viaPoint = this->getViaPoint();
-	if(viaPoint)
-	{
-		Vector3D p_ref = mServices->spaceProvider()->getActiveToolTipPoint(CoordinateSystem::reference(), true);
-		viaPoint->setCoordinate(p_ref);
-	}
-	mUpdateTargetAllowed = true;
-}
-
 void PinpointWorkflowState::showTargetPoint(bool show)
 {
 	this->showPointMetric(this->getTargetPoint(), show);
 }
 
-void PinpointWorkflowState::showViaPoint(bool show)
+void PinpointWorkflowState::showViaPoints(bool show)
 {
-	this->showPointMetric(this->getViaPoint(), show);
+	PinpointWidget* pinPointWidget = this->getPinpointWidget();
+	if(!pinPointWidget)
+		return;
+	MetricManagerPtr metricManager = pinPointWidget->getMetricManager();
+	if(!metricManager)
+		return;
+	std::map<QString, PointMetricPtr> airwayMetrics = metricManager->getPointMetrics(pinPointWidget->getExtraAirwayMetricUid());
+	std::map<QString, PointMetricPtr>::iterator it = airwayMetrics.begin();
+	for( ; it != airwayMetrics.end(); ++it)
+		this->showPointMetric(it->second, show);
 }
 
 void PinpointWorkflowState::showPointMetric(PointMetricPtr point, bool show)
