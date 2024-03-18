@@ -593,5 +593,54 @@ void RobotWorkflowState::addDataToView()
 
 // --------------------------------------------------------
 // --------------------------------------------------------
+
+MDTWorkflowState::MDTWorkflowState(QState* parent, RegServicesPtr services) :
+	FraxinusWorkflowState(parent, "FraxinusMDTUid", "MDT", services, true),
+	m3DViewGroupNumber(0)
+{}
+
+MDTWorkflowState::~MDTWorkflowState()
+{}
+
+QIcon MDTWorkflowState::getIcon() const
+{
+	return QIcon(":/icons/icons/MDT.svg");
+}
+
+void MDTWorkflowState::onEntry(QEvent * event)
+{
+	FraxinusWorkflowState::onEntry(event);
+	this->addDataToView();
+}
+
+bool MDTWorkflowState::canEnter() const
+{
+	return true;
+}
+
+void MDTWorkflowState::addDataToView()
+{
+	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+
+	//Assuming 3D
+	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);
+
+	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
+	if(airwaysTubes)
+		viewGroup0_3D->addData(airwaysTubes->getUid());
+
+	CameraControlPtr camera_control = services->view()->getCameraControl();
+	if(camera_control)
+	{
+		ViewPtr view_3D = services->view()->get3DView(m3DViewGroupNumber);
+		camera_control->setView(view_3D);
+		camera_control->setAnteriorView();
+		view_3D->setZoomFactor(0.5);
+	}
+	this->setDefaultCameraStyle();
+}
+
+// --------------------------------------------------------
+// --------------------------------------------------------
 } //namespace cx
 

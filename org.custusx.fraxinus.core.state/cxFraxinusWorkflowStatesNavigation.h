@@ -152,6 +152,22 @@ private:
 	int m3DViewGroupNumber;
 };
 
+class org_custusx_fraxinus_core_state_EXPORT MDTWorkflowState: public FraxinusWorkflowState
+{
+Q_OBJECT
+
+public:
+	MDTWorkflowState(QState* parent, RegServicesPtr services);
+	virtual ~MDTWorkflowState();
+	virtual QIcon getIcon() const;
+	virtual bool canEnter() const;
+	virtual void onEntry(QEvent* event);
+
+private:
+	virtual void addDataToView();
+	int m3DViewGroupNumber;
+};
+
 /**
  * @}
  */

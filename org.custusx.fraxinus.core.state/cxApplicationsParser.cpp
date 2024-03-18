@@ -201,6 +201,16 @@ ApplicationsParser::ApplicationsParser()
 	desktop.addPreset(FraxinusSimulatorWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["FraxinusSimulatorUid"] = desktop;
 	//-----------------------------------------------------
+
+	//-----------------------------------------------------
+	// MDT
+	desktop = Desktop("LAYOUT_3D_ACS", QByteArray::fromBase64(""));
+	toolbars.clear();
+	toolbars << standardToolbars;
+	this->addToolbarsToDesktop(desktop, toolbars);
+	desktop.addPreset(ProcedurePlanningWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+	mWorkflowDefaultDesktops["FraxinusMDTUid"] = desktop;
+	//-----------------------------------------------------
 }
 
 void ApplicationsParser::addToolbarsToDesktop(Desktop& desktop, QStringList toolbars)
