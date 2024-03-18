@@ -55,26 +55,27 @@ public:
 	PinpointWidget(VisServicesPtr services, QWidget *parent);
 	static QString getTargetMetricUid();
 	static QString getViaPointMetricUid();
+	static QString getExtraAirwayMetricUid();
 	static QString getEndoscopeMetricUid();
 	static QString getDistanceMetricUid();
 	StructuresSelectionWidget* getStructuresSelectionWidget();
 	void createPointMetric();
-	void createViaMetric();
-	bool getViaOption();
+	void addAirwayMetric();
+	void deleteLastAirwayMetric();
+	bool getAirwayPointsOption();
 	void setLungWindowButtonOn();
+	MetricManagerPtr getMetricManager();
 
 signals:
 	void targetMetricSet();
 	void updateTargetPointFromManualTool();
-	void updateViaPointFromManualTool();
 	void updateRoute();
 	void useLungWindow();
 	void useAbdomenWindow();
-	void showViaPoint(bool show);
+	void showViaPoints(bool show);
 
 private slots:
 	void setTargetMetric();
-	void setViaMetric();
 	void centerToImage();
 	void targetNameChanged(const QString &text);
 	void loadNameOfPointMetric();
@@ -84,13 +85,12 @@ private:
 	void createDistanceMetric();
 	void updateCoordinateOfPointMetric(QString pointMetricName);
 	void updateCoordinateOfTargetMetric();
-	void updateCoordinateOfViaMetric();
 	void setNameOfPointMetric();
-	void setNameOfViaMetric();
 	QString getNameOfPointMetric() const;
-	void useViaPointOn(bool checked);
+	void addAirwayPointOn(bool checked);
 	void setTargetPoint();
-	void setViaPoint();
+	void addAirwayPoint();
+	void deleteAirwayPoint();
 	void setLungWindow();
 	void setAbdomenWindow();
 
@@ -99,17 +99,17 @@ private:
 	MetricManagerPtr mMetricManager;
 	QString mTargetMetricUid;
 	QString mTargetMetricName;
-	QString mViaMetricUid;
-	QString mViaMetricName;
+	QString mAirwayPointMetricUid;
 	StructuresSelectionWidget* mStructuresSelectionWidget;
-	QCheckBox* mViaPointCheckBox;
-	QPushButton* mViaPointButton;
+	QCheckBox* mAddAirwayCheckBox;
+	QPushButton* mAddAirwayPointButton;
+	QPushButton* mDeletePointButton;
 	QPushButton* mTargetPointButton;
 	QPushButton *mSetViaMetric;
 	QRadioButton* mLungWindow;
 	QRadioButton* mAbdomenWindow;
 	ImagePtr mCTimage;
-	bool mUseViaPoint = false;
+	bool mAddAirwayPoints = false;
 };
 
 }

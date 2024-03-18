@@ -84,7 +84,6 @@ protected:
 	ImagePtr createCopiedImage(ImagePtr originalImage) const;
 	PointMetricPtr getPointMetric(QString pointMetricName) const;
 	PointMetricPtr	getTargetPoint() const;
-	PointMetricPtr getViaPoint() const;
 	PointMetricPtr	getEndoscopePoint() const;
 	DistanceMetricPtr getDistanceToTargetMetric() const;
 	void createRouteToTarget(bool makeRouteInformationFile);
@@ -201,8 +200,7 @@ private slots:
 	void createRoute();
 	void pointChanged();
 	void updateTargetPoint();
-	void updateViaPoint();
-	void showViaPoint(bool show);
+	void showViaPoints(bool show);
 
 private:
 	void addDataToView();
@@ -216,7 +214,6 @@ private:
 
 	bool mPointChanged;
 	bool mUpdateTargetAllowed = true;
-	bool mUpdateViaPoint = false;
 	int m3DViewGroupNumber;
 	int m2DViewGroupNumber;
 };
