@@ -57,6 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusNavigationWidget.h"
 #include "cxFraxinusSimulatorWidget.h"
 #include "cxFraxinusRobotWidget.h"
+#include "cxFraxinusMDTWidget.h"
 #include "cxLogger.h"
 
 
@@ -208,7 +209,7 @@ ApplicationsParser::ApplicationsParser()
 	toolbars.clear();
 	toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
-	desktop.addPreset(ProcedurePlanningWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+	desktop.addPreset(FraxinusMDTWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
 	mWorkflowDefaultDesktops["FraxinusMDTUid"] = desktop;
 	//-----------------------------------------------------
 }
