@@ -68,7 +68,7 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 	mRouteToTarget->setEnabled(false);
 
 	mEBUSSimulatorWidget = this->getFraxinusEBUSSimulatorWidget();
-	if(mEBUSSimulatorWidget)
+	if(mEBUSSimulatorWidget)  //BUG: EBUS simulator widget is sometimes(?) created after FraxinusVBWidget. Needs to be fixed.
 	{
 		mEBUSSimulatorWidget->setVBWidget(this);
 		QGroupBox* EBUSSimulatorBox = new QGroupBox(tr("EBUS Simulator"));
@@ -77,6 +77,8 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 		connect(mEBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::EBUSSimulatorStarted, this, &FraxinusVBWidget::setLeftRightOrientationTo90Deg);
 		connect(mEBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::EBUSSimulatorStopped, this, &FraxinusVBWidget::resetEndoscopeSlot);
 	}
+	else
+		CX_LOG_WARNING() << "Did not find EBUS simulator Widget";
 
 	QGroupBox* viewBox = new QGroupBox(tr("View"));
 	mViewSelectionWidget = new ViewSelectionWidget(mServices, this);
