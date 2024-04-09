@@ -56,6 +56,7 @@ class org_custusx_fraxinus_widgets_EXPORT FraxinusVBWidget : public VBWidget
 public:
 	FraxinusVBWidget(VisServicesPtr services, QWidget *parent = 0);
 	virtual ~FraxinusVBWidget();
+	void init();
 
 	static QString getWidgetName();
 	void setViewGroupNumber(unsigned int viewGroupNumber);

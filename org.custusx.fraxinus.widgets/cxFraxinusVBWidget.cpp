@@ -52,6 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVBcameraPath.h"
 #include "cxStructuresSelectionWidget.h"
 #include "cxFraxinusEBUSSimulatorWidget.h"
+#include "cxLogicManager.h"
 
 namespace cx {
 
@@ -60,6 +61,16 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 	mServices(services),
 	mRouteLength(0),
 	mDistanceFromPathEndToTarget(0)
+{
+	connect(LogicManager::getInstance(), &LogicManager::pluginsStarted, this, &FraxinusVBWidget::init);
+}
+
+FraxinusVBWidget::~FraxinusVBWidget()
+{
+
+}
+
+void FraxinusVBWidget::init()
 {
 	this->setObjectName(this->getWidgetName());
 
@@ -118,13 +129,7 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 
 	connect(mPlaybackSlider, &QSlider::valueChanged, this, &FraxinusVBWidget::playbackSliderChanged);
 	connect(mRouteToTarget.get(), &SelectDataStringPropertyBase::dataChanged,
-						this, &FraxinusVBWidget::calculateRouteLength);
-
-}
-
-FraxinusVBWidget::~FraxinusVBWidget()
-{
-
+			this, &FraxinusVBWidget::calculateRouteLength);
 }
 
 void FraxinusVBWidget::playbackSliderChanged(int cameraPositionInPermill)
