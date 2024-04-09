@@ -79,7 +79,7 @@ void FraxinusVBWidget::init()
 	mRouteToTarget->setEnabled(false);
 
 	mEBUSSimulatorWidget = this->getFraxinusEBUSSimulatorWidget();
-	if(mEBUSSimulatorWidget)  //BUG: EBUS simulator widget is sometimes(?) created after FraxinusVBWidget. Needs to be fixed.
+	if(mEBUSSimulatorWidget)
 	{
 		mEBUSSimulatorWidget->setVBWidget(this);
 		QGroupBox* EBUSSimulatorBox = new QGroupBox(tr("EBUS Simulator"));
