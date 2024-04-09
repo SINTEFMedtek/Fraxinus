@@ -62,6 +62,8 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 	mRouteLength(0),
 	mDistanceFromPathEndToTarget(0)
 {
+	this->setObjectName(this->getWidgetName());
+
 	connect(LogicManager::getInstance(), &LogicManager::pluginsStarted, this, &FraxinusVBWidget::init);
 }
 
@@ -72,8 +74,6 @@ FraxinusVBWidget::~FraxinusVBWidget()
 
 void FraxinusVBWidget::init()
 {
-	this->setObjectName(this->getWidgetName());
-
 	//Disable the select RTT box, as it is only confusing.
 	//To use it you still need to manually change many objects in the graphics.
 	mRouteToTarget->setEnabled(false);
