@@ -1190,6 +1190,15 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 			structureSelectionWidget->onEntry();
 	}
 
+	FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr->getEBUSSimulatorWidget();
+	if(EBUSSimulatorWidget)
+	{
+		ImagePtr ctImage_copied = this->getCTImageCopied();
+		EBUSSimulatorWidget->setCTImage(ctImage_copied);
+		this->setTransferfunction2D("2D CT Abdomen", ctImage_copied);
+		connect(this, &VirtualBronchoscopyFlyThroughWorkflowState::aboutToExit, EBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::stopEBUSSimulatorOnWorkflowExitSlot);
+	}
+
 	QTimer::singleShot(0, this, [=](){this->setVBFlythroughCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber, m2DViewGroupNumber);});
 }
 
@@ -1296,6 +1305,15 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 		StructuresSelectionWidget* structureSelectionWidget = FraxinusVBWidgetPtr->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
 			structureSelectionWidget->onEntry();
+	}
+
+	FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr->getEBUSSimulatorWidget();
+	if(EBUSSimulatorWidget)
+	{
+		ImagePtr ctImage_copied = this->getCTImageCopied();
+		EBUSSimulatorWidget->setCTImage(ctImage_copied);
+		this->setTransferfunction2D("2D CT Abdomen", ctImage_copied);
+		connect(this, &VirtualBronchoscopyCutPlanesWorkflowState::aboutToExit, EBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::stopEBUSSimulatorOnWorkflowExitSlot);
 	}
 	
 	QTimer::singleShot(0, this, [=](){this->setVBCutplanesCameraStyle(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber, m2DViewGroupNumber);});
@@ -1404,6 +1422,15 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
 		StructuresSelectionWidget* structureSelectionWidget = FraxinusVBWidgetPtr->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
 			structureSelectionWidget->onEntry();
+
+		FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr->getEBUSSimulatorWidget();
+		if(EBUSSimulatorWidget)
+		{
+			ImagePtr ctImage_copied = this->getCTImageCopied();
+			EBUSSimulatorWidget->setCTImage(ctImage_copied);
+			this->setTransferfunction2D("2D CT Abdomen", ctImage_copied);
+			connect(this, &VirtualBronchoscopyAnyplaneWorkflowState::aboutToExit, EBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::stopEBUSSimulatorOnWorkflowExitSlot);
+		}
 	}
 
 	//Using a lambda function to send parameters

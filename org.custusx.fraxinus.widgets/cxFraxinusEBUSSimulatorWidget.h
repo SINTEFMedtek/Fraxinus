@@ -30,43 +30,46 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
-#ifndef FRAXINUSTRACKINGWIDGET_H
-#define FRAXINUSTRACKINGWIDGET_H
+#ifndef FRAXINUSEBUSSIMULATORWIDGET_H
+#define FRAXINUSEBUSSIMULATORWIDGET_H
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
-#include "cxStructuresSelectionWidget.h"
-#include "cxFraxinusPatientOrientationWidget.h"
-#include "cxFraxinusNavigationWidget.h"
 #include "cxBaseWidget.h"
+#include "cxFraxinusNavigationWidget.h"
+#include "cxFraxinusTrackingWidget.h"
+#include "cxFraxinusVBWidget.h"
 #include "cxForwardDeclarations.h"
 #include "cxTrackerConfiguration.h"
 
-class QRadioButton;
-class QLabel;
 class QPushButton;
-class QComboBox;
+class QMainWindow;
+class ctkPluginContext;
 
 namespace cx {
+class WidgetObscuredListener;
+class FraxinusVBWidget;
 
-class ToolConfigureGroupBox;
-
-class org_custusx_fraxinus_widgets_EXPORT FraxinusTrackingWidget : public BaseWidget
+class org_custusx_fraxinus_widgets_EXPORT FraxinusEBUSSimulatorWidget : public BaseWidget
 {
 	Q_OBJECT
-public:
-	FraxinusTrackingWidget(QWidget* parent, QString objectName, QString windowTitle):
-	  BaseWidget(parent, objectName, windowTitle){};
-	virtual ~FraxinusTrackingWidget(){};
 
-	static QString getWidgetName(){return "fraxinus_tracking_widget";};
-	virtual void startTracking() = 0;
-	virtual void stopTracking() = 0;
-	virtual void startUltrasoundSimulation() = 0;
-	virtual void stopUltrasoundSimulation() = 0;
+public:
+	FraxinusEBUSSimulatorWidget(QWidget* parent, ctkPluginContext* context, QString objectName, QString windowTitle):
+	  BaseWidget(parent, objectName, windowTitle){};
+	virtual ~FraxinusEBUSSimulatorWidget(){};
+
+	static QString getWidgetName(){return "fraxinus_ebus_simulator_widget";};
+	virtual void setParentWidget(QWidget* parent) = 0;
+	virtual void setCTImage(ImagePtr CTImage) = 0;
+	virtual void setVBWidget(FraxinusVBWidget* fraxinusVBWidget) = 0;
+
+public slots:
+	virtual void stopEBUSSimulatorOnWorkflowExitSlot() = 0;
 
 signals:
-	void trackingReady();
+	void EBUSSimulatorStarted();
+	void EBUSSimulatorStopped();
 
 };
 
@@ -74,4 +77,4 @@ signals:
 } //namespace cx
 
 
-#endif //FRAXINUSTRACKINGWIDGET_H
+#endif //FRAXINUSEBUSSIMULATORWIDGET_H

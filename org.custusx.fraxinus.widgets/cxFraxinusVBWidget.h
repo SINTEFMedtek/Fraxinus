@@ -35,9 +35,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
-#include <cxVBWidget.h>
-#include <cxStructuresSelectionWidget.h>
-#include <cxViewSelectionWidget.h>
+#include "cxVBWidget.h"
+#include "cxStructuresSelectionWidget.h"
+#include "cxViewSelectionWidget.h"
+#include "cxFraxinusEBUSSimulatorWidget.h"
 
 class QRadioButton;
 class QLabel;
@@ -47,6 +48,7 @@ class QMainWindow;
 namespace cx {
 
 typedef boost::shared_ptr<class Data> DataPtr;
+class FraxinusEBUSSimulatorWidget;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusVBWidget : public VBWidget
 {
@@ -54,21 +56,24 @@ class org_custusx_fraxinus_widgets_EXPORT FraxinusVBWidget : public VBWidget
 public:
 	FraxinusVBWidget(VisServicesPtr services, QWidget *parent = 0);
 	virtual ~FraxinusVBWidget();
+	void init();
 
 	static QString getWidgetName();
 	void setViewGroupNumber(unsigned int viewGroupNumber);
 	void addObjectToVolumeView(DataPtr object);
 	void addObjectToTubeView(DataPtr object);
 	StructuresSelectionWidget *getStructuresSelectionWidget();
+	FraxinusEBUSSimulatorWidget* getEBUSSimulatorWidget();
 	void setGenerationNumbersAlongRoute(std::vector< int > generationNumbers);
 	void setRadiusAlongRoute(std::vector<double> radius);
+	void setNavigateAlongAirwayWall(bool navigateAlongAirwayWall);
 
 
-private slots:
+protected slots:
 //	virtual void keyPressEvent(QKeyEvent* event);
 	void calculateRouteLength();
 	void playbackSliderChanged(int cameraPositionInPermill);
-
+	void setLeftRightOrientationTo90Deg();
 
 private:
 	void updateRttInfo(double cameraPositionInPercent);
@@ -79,9 +84,12 @@ private:
 	double getRemainingRouteInsideAirways(double cameraPositionInPercent);
 	int getGenerationNumber(double cameraPositionInPercent);
 	double getDiameter(double cameraPositionInPercent);
+	FraxinusEBUSSimulatorWidget* getFraxinusEBUSSimulatorWidget();
+	QMainWindow* getMainWindow();
 
 	ViewSelectionWidget* mViewSelectionWidget;
 	StructuresSelectionWidget* mStructuresSelectionWidget;
+	FraxinusEBUSSimulatorWidget* mEBUSSimulatorWidget;
 	VisServicesPtr mServices;
 	std::vector<DataPtr> mTubeViewObjects;
 	QLabel* mStaticTotalLegth;
