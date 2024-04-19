@@ -89,7 +89,7 @@ class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
         return '%s/org.custusx.fraxinus.tracking.git' % self.controlData.gitrepo_main_site_base
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
-        self._getBuilder().gitCheckoutSha('d36f50caf6298c82f69646a744bdbf66ea92a5d2')
+        self._getBuilder().gitCheckoutSha('fcb48e6278a52c0b199cb707ffef5ace7f1aa2de')
         #self._getBuilder().gitCheckoutDefaultBranch()
     def configure(self):
         pass
@@ -104,4 +104,37 @@ class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
         add = builder.addCMakeOption
         add('CX_FRAXINUS_TRACKING:BOOL', 'ON');
         add('CX_EXTERNAL_PLUGIN_org_custusx_fraxinus_tracking', self.path() + '/' + self.sourceFolder())
+# ---------------------------------------------------------
+
+class org_custusx_ussimulator(cx.build.cxComponents.CppComponent):
+
+    def name(self):
+        return "USSimulator"
+    def help(self):
+        return 'Plugin for simulating streaming of ultrasound images from any kinda of volume.'
+    def path(self):
+        custusx = self._createSibling(cx.build.cxComponents.CustusX)
+        return '%s/%s/source/plugins' % (custusx.path(), custusx.sourceFolder())
+#        return self.controlData.getWorkingPath() + "/CustusX/CustusX/source/plugins"
+    def sourceFolder(self):
+        return 'org.custusx.ussimulator'
+    #def _rawCheckout(self):
+    #    self._getBuilder().gitClone(self.gitRepository(), self.sourceFolder())
+    def update(self):
+        self._getBuilder().gitSetRemoteURL(self.repository())
+        self._getBuilder().gitCheckout('72537a89660152be60fc5dfc458fe0df33bb18fd')
+    def configure(self):
+        pass
+    def build(self):
+        pass
+    def repository(self):
+        base = self.controlData.gitrepo_main_site_base
+        return '%s/org.custusx.ussimulator.git' % base
+    def makeClean(self):
+        pass
+    def pluginPath(self):
+        return '%s' % self.sourcePath()
+    def addConfigurationToDownstreamLib(self, builder):
+        add = builder.addCMakeOption
+        add('CX_PLUGIN_org.custusx.ussimulator:BOOL', 'ON');
 # ---------------------------------------------------------

@@ -61,6 +61,7 @@ set(PLUGIN_MOC_SRCS
     cxFraxinusRegistrationWidget.h
     cxFraxinusNavigationWidget.h
     cxFraxinusSimulatorWidget.h
+    cxFraxinusEBUSSimulatorWidget.h
     cxFraxinusRobotWidget.h
     cxFraxinusMDTWidget.h
     cxViewSelectionWidget.h
@@ -115,7 +116,7 @@ endif(CX_WINDOWS)
 ctkMacroBuildPlugin(
   NAME ${PROJECT_NAME}
   EXPORT_DIRECTIVE ${PLUGIN_export_directive}
-  SRCS ${PLUGIN_SRCS}
+  SRCS ${PLUGIN_SRCS} ${PLUGIN_MOC_SRCS}
   MOC_SRCS ${PLUGIN_MOC_SRCS}
   UI_FORMS ${PLUGIN_UI_FORMS}
   RESOURCES ${PLUGIN_resources}

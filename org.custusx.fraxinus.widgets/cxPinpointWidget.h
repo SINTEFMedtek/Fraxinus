@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "org_custusx_fraxinus_widgets_Export.h"
 #include "cxBaseWidget.h"
-#include <cxStructuresSelectionWidget.h>
+#include "cxStructuresSelectionWidget.h"
 
 class QLineEdit;
 class QRadioButton;

@@ -36,6 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QKeyEvent>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QDial>
 #include <QTimer>
 #include <QPushButton>
 #include <QApplication>
@@ -50,6 +51,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxDistanceMetric.h"
 #include "cxVBcameraPath.h"
 #include "cxStructuresSelectionWidget.h"
+#include "cxFraxinusEBUSSimulatorWidget.h"
+#include "cxLogicManager.h"
 
 namespace cx {
 
@@ -61,9 +64,32 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 {
 	this->setObjectName(this->getWidgetName());
 
+	connect(LogicManager::getInstance(), &LogicManager::pluginsStarted, this, &FraxinusVBWidget::init);
+}
+
+FraxinusVBWidget::~FraxinusVBWidget()
+{
+
+}
+
+void FraxinusVBWidget::init()
+{
 	//Disable the select RTT box, as it is only confusing.
 	//To use it you still need to manually change many objects in the graphics.
 	mRouteToTarget->setEnabled(false);
+
+	mEBUSSimulatorWidget = this->getFraxinusEBUSSimulatorWidget();
+	if(mEBUSSimulatorWidget)
+	{
+		mEBUSSimulatorWidget->setVBWidget(this);
+		QGroupBox* EBUSSimulatorBox = new QGroupBox(tr("EBUS Simulator"));
+		EBUSSimulatorBox->setLayout(mEBUSSimulatorWidget->layout());
+		mVerticalLayout->insertWidget(mVerticalLayout->count()-1, EBUSSimulatorBox);
+		connect(mEBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::EBUSSimulatorStarted, this, &FraxinusVBWidget::setLeftRightOrientationTo90Deg);
+		connect(mEBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::EBUSSimulatorStopped, this, &FraxinusVBWidget::resetEndoscopeSlot);
+	}
+	else
+		CX_LOG_WARNING() << "Did not find EBUS simulator Widget";
 
 	QGroupBox* viewBox = new QGroupBox(tr("View"));
 	mViewSelectionWidget = new ViewSelectionWidget(mServices, this);
@@ -103,12 +129,7 @@ FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 
 	connect(mPlaybackSlider, &QSlider::valueChanged, this, &FraxinusVBWidget::playbackSliderChanged);
 	connect(mRouteToTarget.get(), &SelectDataStringPropertyBase::dataChanged,
-						this, &FraxinusVBWidget::calculateRouteLength);
-}
-
-FraxinusVBWidget::~FraxinusVBWidget()
-{
-
+			this, &FraxinusVBWidget::calculateRouteLength);
 }
 
 void FraxinusVBWidget::playbackSliderChanged(int cameraPositionInPermill)
@@ -304,6 +325,11 @@ StructuresSelectionWidget* FraxinusVBWidget::getStructuresSelectionWidget()
 	return mStructuresSelectionWidget;
 }
 
+FraxinusEBUSSimulatorWidget* FraxinusVBWidget::getEBUSSimulatorWidget()
+{
+	return mEBUSSimulatorWidget;
+}
+
 void FraxinusVBWidget::setGenerationNumbersAlongRoute(std::vector< int > generationNumbers)
 {
 	mGenerationNumbersAlongRoute = generationNumbers;
@@ -312,6 +338,35 @@ void FraxinusVBWidget::setGenerationNumbersAlongRoute(std::vector< int > generat
 void FraxinusVBWidget::setRadiusAlongRoute(std::vector< double > radius)
 {
 	mRadiusAlongRoute = radius;
+	mCameraPath->setRadiusAlongRoute(radius);
+}
+
+void FraxinusVBWidget::setNavigateAlongAirwayWall(bool navigateAlongAirwayWall)
+{
+	mCameraPath->setNavigateAlongAirwayWall(navigateAlongAirwayWall);
+}
+
+void FraxinusVBWidget::setLeftRightOrientationTo90Deg()
+{//Used for EBUS simulator
+	int angleDeg = 90;
+	mViewDialLeftRight->setValue(angleDeg);
+	mCameraPath->cameraViewAngleXSlot(angleDeg);
+}
+
+FraxinusEBUSSimulatorWidget* FraxinusVBWidget::getFraxinusEBUSSimulatorWidget()
+{
+	QMainWindow* mainWindow = this->getMainWindow();
+	QString widgetName(FraxinusEBUSSimulatorWidget::getWidgetName());
+	return mainWindow->findChild<FraxinusEBUSSimulatorWidget*>(widgetName);
+}
+
+QMainWindow* FraxinusVBWidget::getMainWindow()
+{
+	QWidgetList widgets = qApp->topLevelWidgets();
+	for (QWidgetList::iterator i = widgets.begin(); i != widgets.end(); ++i)
+		if ((*i)->objectName() == "main_window")
+			return (QMainWindow*) (*i);
+	return NULL;
 }
 
 } //namespace cx
