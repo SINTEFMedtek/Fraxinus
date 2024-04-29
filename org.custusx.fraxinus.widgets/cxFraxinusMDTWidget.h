@@ -37,6 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "org_custusx_fraxinus_widgets_Export.h"
 #include "cxBaseWidget.h"
 #include "cxForwardDeclarations.h"
+#include "cxStructuresSelectionWidget.h"
 
 class QPushButton;
 
@@ -54,6 +55,8 @@ public:
 	FraxinusMDTWidget(QString objectName, QString windowTitle, QWidget* parent = nullptr):
 	  BaseWidget(parent, objectName, windowTitle){};
 	virtual ~FraxinusMDTWidget(){};
+
+	virtual StructuresSelectionWidget* getStructuresSelectionWidget() = 0;
 
 	static QString getWidgetName(){return "fraxinus_mdt_widget";};
 	static QString getWindowTitle(){return "MDT meeting";};

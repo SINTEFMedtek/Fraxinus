@@ -62,6 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusRegistrationWidget.h"
 #include "cxFraxinusSimulatorWidget.h"
 #include "cxFraxinusRobotWidget.h"
+#include "cxFraxinusMDTWidget.h"
 #include "cxVBCameraZoomSetting3D.h"
 
 namespace cx
@@ -596,7 +597,8 @@ void RobotWorkflowState::addDataToView()
 
 MDTWorkflowState::MDTWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusMDTUid", "MDT", services, true),
-	m3DViewGroupNumber(0)
+	m3DViewGroupNumber(0),
+	m2DViewGroupNumber(1)
 {}
 
 MDTWorkflowState::~MDTWorkflowState()
@@ -611,6 +613,18 @@ void MDTWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
+
+	std::vector<unsigned int> viewGroupNumbers;
+	viewGroupNumbers.push_back(m3DViewGroupNumber);
+	viewGroupNumbers.push_back(m2DViewGroupNumber);
+	FraxinusMDTWidget* fraxinusMDTWidget = this->getMDTWidget();
+	if(fraxinusMDTWidget)
+	{
+		this->setupViewOptionsForStructuresSelection(fraxinusMDTWidget->getStructuresSelectionWidget(), viewGroupNumbers);
+		StructuresSelectionWidget* structureSelectionWidget = fraxinusMDTWidget->getStructuresSelectionWidget();
+		if(structureSelectionWidget)
+			structureSelectionWidget->onEntry();
+	}
 }
 
 bool MDTWorkflowState::canEnter() const
@@ -618,26 +632,30 @@ bool MDTWorkflowState::canEnter() const
 	return true;
 }
 
+FraxinusMDTWidget* MDTWorkflowState::getMDTWidget()
+{
+	QMainWindow* mainWindow = this->getMainWindow();
+
+	QString widgetName(FraxinusMDTWidget::getWidgetName());
+	return mainWindow->findChild<FraxinusMDTWidget*>(widgetName);
+}
+
 void MDTWorkflowState::addDataToView()
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
-	//Assuming 3D
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);
-
 	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
 	if(airwaysTubes)
 		viewGroup0_3D->addData(airwaysTubes->getUid());
 
-	CameraControlPtr camera_control = services->view()->getCameraControl();
-	if(camera_control)
-	{
-		ViewPtr view_3D = services->view()->get3DView(m3DViewGroupNumber);
-		camera_control->setView(view_3D);
-		camera_control->setAnteriorView();
-		view_3D->setZoomFactor(0.5);
-	}
-	this->setDefaultCameraStyle();
+
+	ImagePtr ctImage = this->getCTImage();
+	ViewGroupDataPtr viewGroup1_2D = viewService()->getGroup(m2DViewGroupNumber);
+	viewGroup1_2D->getGroup2DZoom()->set(0.4);
+	viewGroup1_2D->getGlobal2DZoom()->set(0.4);
+	if(ctImage)
+		viewGroup1_2D->addData(ctImage->getUid());
 }
 
 // --------------------------------------------------------

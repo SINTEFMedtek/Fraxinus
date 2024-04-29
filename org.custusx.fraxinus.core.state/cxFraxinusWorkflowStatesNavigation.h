@@ -58,6 +58,7 @@ class FraxinusRegistrationWidget;
 class FraxinusNavigationWidget;
 class FraxinusSimulatorWidget;
 class FraxinusRobotWidget;
+class FraxinusMDTWidget;
 
 
 class org_custusx_fraxinus_core_state_EXPORT TrackingWorkflowState: public FraxinusWorkflowState
@@ -164,8 +165,10 @@ public:
 	virtual void onEntry(QEvent* event);
 
 private:
+	FraxinusMDTWidget* getMDTWidget();
 	virtual void addDataToView();
 	int m3DViewGroupNumber;
+	int m2DViewGroupNumber;
 };
 
 /**
