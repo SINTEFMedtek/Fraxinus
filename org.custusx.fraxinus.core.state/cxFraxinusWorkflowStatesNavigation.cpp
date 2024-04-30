@@ -64,6 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusRobotWidget.h"
 #include "cxFraxinusMDTWidget.h"
 #include "cxVBCameraZoomSetting3D.h"
+#include "cxProcedurePlanningWidget.h"
 
 namespace cx
 {
@@ -617,27 +618,22 @@ void MDTWorkflowState::onEntry(QEvent * event)
 	std::vector<unsigned int> viewGroupNumbers;
 	viewGroupNumbers.push_back(m3DViewGroupNumber);
 	viewGroupNumbers.push_back(m2DViewGroupNumber);
-	FraxinusMDTWidget* fraxinusMDTWidget = this->getMDTWidget();
-	if(fraxinusMDTWidget)
+	ProcedurePlanningWidget* procedurePlanningWidget = this->getProcedurePlanningWidget();
+	if(procedurePlanningWidget)
 	{
-		this->setupViewOptionsForStructuresSelection(fraxinusMDTWidget->getStructuresSelectionWidget(), viewGroupNumbers);
-		StructuresSelectionWidget* structureSelectionWidget = fraxinusMDTWidget->getStructuresSelectionWidget();
+		this->setupViewOptionsForStructuresSelection(procedurePlanningWidget->getStructuresSelectionWidget(), viewGroupNumbers);
+		StructuresSelectionWidget* structureSelectionWidget = procedurePlanningWidget->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
 			structureSelectionWidget->onEntry();
 	}
+
+	viewService()->setCenterToTool2D(false);
+	this->setPointPickerIn3Dview(true);
 }
 
 bool MDTWorkflowState::canEnter() const
 {
 	return true;
-}
-
-FraxinusMDTWidget* MDTWorkflowState::getMDTWidget()
-{
-	QMainWindow* mainWindow = this->getMainWindow();
-
-	QString widgetName(FraxinusMDTWidget::getWidgetName());
-	return mainWindow->findChild<FraxinusMDTWidget*>(widgetName);
 }
 
 void MDTWorkflowState::addDataToView()
@@ -656,6 +652,13 @@ void MDTWorkflowState::addDataToView()
 	viewGroup1_2D->getGlobal2DZoom()->set(0.4);
 	if(ctImage)
 		viewGroup1_2D->addData(ctImage->getUid());
+}
+
+void MDTWorkflowState::onExit(QEvent * event)
+{
+	viewService()->setCenterToTool2D(true);
+	this->setPointPickerIn3Dview(false);
+	WorkflowState::onExit(event);
 }
 
 // --------------------------------------------------------

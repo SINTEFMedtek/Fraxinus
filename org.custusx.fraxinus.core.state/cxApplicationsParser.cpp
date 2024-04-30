@@ -210,6 +210,7 @@ ApplicationsParser::ApplicationsParser()
 	toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset(FraxinusMDTWidget::getWidgetName(), Qt::LeftDockWidgetArea, true);
+	desktop.addPreset(ProcedurePlanningWidget::getWidgetName(), Qt::RightDockWidgetArea, false);
 	mWorkflowDefaultDesktops["FraxinusMDTUid"] = desktop;
 	//-----------------------------------------------------
 }

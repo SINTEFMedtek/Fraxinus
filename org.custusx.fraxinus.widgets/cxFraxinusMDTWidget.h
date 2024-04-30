@@ -56,7 +56,6 @@ public:
 	  BaseWidget(parent, objectName, windowTitle){};
 	virtual ~FraxinusMDTWidget(){};
 
-	virtual StructuresSelectionWidget* getStructuresSelectionWidget() = 0;
 
 	static QString getWidgetName(){return "fraxinus_mdt_widget";};
 	static QString getWindowTitle(){return "MDT meeting";};
