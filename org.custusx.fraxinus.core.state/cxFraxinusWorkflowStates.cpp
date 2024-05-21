@@ -640,6 +640,8 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	{
 		routeToTargetFilter->setUseExtraAirwayPoints(pinPointWidget->getAirwayPointsOption());
 	}
+
+	routeToTargetFilter->setMaxGenerationForCameraRotation(MAX_GENERATION_FOR_AUTOMATIC_CAMERA_ROTATION);
 	
 	if(!mBranchList->isRadiusAvailable())
 		mBranchList->setRadius(mFraxinusSegmentations->getVolume(otAIRWAYS));
