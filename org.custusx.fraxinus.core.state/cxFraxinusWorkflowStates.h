@@ -61,6 +61,8 @@ class PinpointWidget;
 class StructuresSelectionWidget;
 class ProcedurePlanningWidget;
 
+#define MAX_GENERATION_FOR_AUTOMATIC_CAMERA_ROTATION 3
+
 
 class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public WorkflowState
 {
