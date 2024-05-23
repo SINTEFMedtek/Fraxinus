@@ -856,6 +856,11 @@ void ProcessWorkflowState::addDataToView()
 
 void ProcessWorkflowState::onExit(QEvent * event)
 {
+	//Set tooltip offset to 0 after loading patient.
+	//If Fraxinus is closed then EBUS simulator is running the offset used in the simulator will remain in the patient file.
+	ToolPtr tool = mServices->tracking()->getManualTool();
+	tool->setTooltipOffset(0);
+
 	mFraxinusSegmentations->close();
 	
 	WorkflowState::onExit(event);
