@@ -1181,7 +1181,7 @@ VirtualBronchoscopyFlyThroughWorkflowState::~VirtualBronchoscopyFlyThroughWorkfl
 
 QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 {
-	return QIcon(":/icons/icons/vb_1.svg");
+	return QIcon(":/icons/icons/vb_2.svg");
 }
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
@@ -1298,7 +1298,7 @@ VirtualBronchoscopyCutPlanesWorkflowState::~VirtualBronchoscopyCutPlanesWorkflow
 
 QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
 {
-	return QIcon(":/icons/icons/vb_2.svg");
+	return QIcon(":/icons/icons/vb_3.svg");
 }
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
@@ -1415,7 +1415,7 @@ VirtualBronchoscopyAnyplaneWorkflowState::~VirtualBronchoscopyAnyplaneWorkflowSt
 
 QIcon VirtualBronchoscopyAnyplaneWorkflowState::getIcon() const
 {
-	return QIcon(":/icons/icons/vb_3.svg");
+	return QIcon(":/icons/icons/vb_1.svg");
 }
 
 void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
