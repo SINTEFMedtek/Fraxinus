@@ -85,7 +85,7 @@ void FraxinusVBWidget::init()
 		QGroupBox* EBUSSimulatorBox = new QGroupBox(tr("EBUS Simulator"));
 		EBUSSimulatorBox->setLayout(mEBUSSimulatorWidget->layout());
 		mVerticalLayout->insertWidget(mVerticalLayout->count()-1, EBUSSimulatorBox);
-		connect(mEBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::EBUSSimulatorStarted, this, &FraxinusVBWidget::setLeftRightOrientationTo90Deg);
+		connect(mEBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::EBUSSimulatorStarted, this, &FraxinusVBWidget::setCameraToEBUSMode);
 		connect(mEBUSSimulatorWidget, &FraxinusEBUSSimulatorWidget::EBUSSimulatorStopped, this, &FraxinusVBWidget::resetEndoscopeSlot);
 	}
 	else
@@ -346,11 +346,17 @@ void FraxinusVBWidget::setNavigateAlongAirwayWall(bool navigateAlongAirwayWall)
 	mCameraPath->setNavigateAlongAirwayWall(navigateAlongAirwayWall);
 }
 
-void FraxinusVBWidget::setLeftRightOrientationTo90Deg()
+void FraxinusVBWidget::setCameraToEBUSMode()
 {//Used for EBUS simulator
+	mViewDialLeftRight->setMinimum(60);
+	mViewDialLeftRight->setMaximum(120);
+	mViewDialUpDown->setMinimum(-20);
+	mViewDialUpDown->setMaximum(20);
 	int angleDeg = 90;
 	mViewDialLeftRight->setValue(angleDeg);
 	mCameraPath->cameraViewAngleXSlot(angleDeg);
+	mResetEndoscopeButton->hide();
+	mUseAutomaticRotationButton->hide();
 }
 
 FraxinusEBUSSimulatorWidget* FraxinusVBWidget::getFraxinusEBUSSimulatorWidget()

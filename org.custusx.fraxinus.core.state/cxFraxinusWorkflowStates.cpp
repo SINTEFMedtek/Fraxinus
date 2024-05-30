@@ -856,6 +856,11 @@ void ProcessWorkflowState::addDataToView()
 
 void ProcessWorkflowState::onExit(QEvent * event)
 {
+	//Set tooltip offset to 0 after loading patient.
+	//If Fraxinus is closed when EBUS simulator is running the offset used in the simulator will remain in the patient file.
+	ToolPtr tool = mServices->tracking()->getManualTool();
+	tool->setTooltipOffset(0);
+
 	mFraxinusSegmentations->close();
 	
 	WorkflowState::onExit(event);
@@ -1176,7 +1181,7 @@ VirtualBronchoscopyFlyThroughWorkflowState::~VirtualBronchoscopyFlyThroughWorkfl
 
 QIcon VirtualBronchoscopyFlyThroughWorkflowState::getIcon() const
 {
-	return QIcon(":/icons/icons/vb_1.svg");
+	return QIcon(":/icons/icons/vb_2.svg");
 }
 
 void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
@@ -1293,7 +1298,7 @@ VirtualBronchoscopyCutPlanesWorkflowState::~VirtualBronchoscopyCutPlanesWorkflow
 
 QIcon VirtualBronchoscopyCutPlanesWorkflowState::getIcon() const
 {
-	return QIcon(":/icons/icons/vb_2.svg");
+	return QIcon(":/icons/icons/vb_3.svg");
 }
 
 void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
@@ -1410,7 +1415,7 @@ VirtualBronchoscopyAnyplaneWorkflowState::~VirtualBronchoscopyAnyplaneWorkflowSt
 
 QIcon VirtualBronchoscopyAnyplaneWorkflowState::getIcon() const
 {
-	return QIcon(":/icons/icons/vb_3.svg");
+	return QIcon(":/icons/icons/vb_1.svg");
 }
 
 void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
