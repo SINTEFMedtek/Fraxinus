@@ -30,38 +30,60 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
-#ifndef NEWLOADPATIENTWIDGET_H
-#define NEWLOADPATIENTWIDGET_H
+#ifndef FRAXINUSVIDEORECORDERWIDGET_H
+#define FRAXINUSVIDEORECORDERWIDGET_H
 
+
+#include "org_custusx_fraxinus_widgets_Export.h"
 #include "cxBaseWidget.h"
-#include <QKeyEvent>
 #include "cxForwardDeclarations.h"
 
 class QPushButton;
+class QMainWindow;
 
-namespace cx
-{
+namespace cx {
 
-class NewLoadPatientWidget : public BaseWidget
+class FraxinusTrackingWidget;
+
+class org_custusx_fraxinus_widgets_EXPORT FraxinusVideoRecorderWidget : public BaseWidget
 {
 	Q_OBJECT
 public:
-	NewLoadPatientWidget(QWidget *parent, VisServicesPtr services, AcquisitionServicePtr acquisitionService, PatientModelServicePtr patientModelService);
+	FraxinusVideoRecorderWidget(VisServicesPtr services, AcquisitionServicePtr acquisitionService, QWidget *parent = 0);
+	virtual ~FraxinusVideoRecorderWidget();
+
+	static QString getWidgetName();
 
 private slots:
-	void createNewPatient();
-	void loadPatient();
-	void restoreToFactorySettings();
-	void selectCTData();
+	void startStopClickedSlot();
+	void recordStateChangedSlot();
 
 private:
-	void enableImportDataButton();
+	void startRecording();
+	void stopRecording();
+	void createNewPatient();
+	void startTracking();
+	void stopTracking();
+	void startStreaming();
+	void stopStreaming();
+	void startRecordingVideo();
+	void stopRecordingVideo();
+	QMainWindow* getMainWindow();
+	FraxinusTrackingWidget* getTrackingWidget();
+
 
 	VisServicesPtr mServices;
-	PatientModelServicePtr mPatientModelService;
-	QPushButton* mSelectCTDataButton;
+	AcquisitionServicePtr mAcquisitionService;
+
+	//QVBoxLayout* mVerticalLayout;
+	QPushButton* mStartStopButton;
+	bool mIsRecording = false;
+
+	FraxinusTrackingWidget* mFraxinusTrackingWidget;
+
 };
 
-}
+} //namespace cx
 
-#endif // NEWLOADPATIENTWIDGET_H
+
+#endif //FRAXINUSVIDEORECORDERWIDGET_H
