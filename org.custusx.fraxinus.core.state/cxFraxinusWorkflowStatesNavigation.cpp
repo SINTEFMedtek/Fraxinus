@@ -106,9 +106,12 @@ void TrackingWorkflowState::addDataToView()
 	if(camera_control)
 	{
 		ViewPtr view_3D = services->view()->get3DView(m3DViewGroupNumber);
-		camera_control->setView(view_3D);
-		camera_control->setAnteriorView();
-		view_3D->setZoomFactor(0.5);
+		if(view_3D)
+		{
+			camera_control->setView(view_3D);
+			camera_control->setAnteriorView();
+			view_3D->setZoomFactor(0.5);
+		}
 	}
 	this->setDefaultCameraStyle();
 }

@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxBaseWidget.h"
 #include "cxForwardDeclarations.h"
 #include "cxTrackerConfiguration.h"
+#include "cxTool.h"
 
 class QRadioButton;
 class QLabel;
@@ -64,6 +65,7 @@ public:
 	virtual void stopTracking() = 0;
 	virtual void startUltrasoundSimulation() = 0;
 	virtual void stopUltrasoundSimulation() = 0;
+	virtual TrackingServicePtr getTrackingService() = 0;
 
 signals:
 	void trackingReady();

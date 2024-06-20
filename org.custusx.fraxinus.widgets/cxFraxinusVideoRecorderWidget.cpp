@@ -40,10 +40,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxApplication.h"
 #include "cxFraxinusTrackingWidget.h"
 #include "cxVideoService.h"
-#include "cxAcquisitionService.h"
 #include "cxLogger.h"
 #include "cxPatientModelService.h"
 #include "cxViewService.h"
+#include "cxTrackingService.h"
 
 
 namespace cx {
@@ -51,18 +51,20 @@ namespace cx {
 FraxinusVideoRecorderWidget::FraxinusVideoRecorderWidget(VisServicesPtr services, AcquisitionServicePtr acquisitionService, QWidget* parent):
 	BaseWidget(parent, this->getWidgetName(), "Record video"),
 	mServices(services),
-	mAcquisitionService(acquisitionService)
+	mAcquisitionService(acquisitionService),
+	mContext(AcquisitionService::tUS)
 {
 	this->setObjectName(this->getWidgetName());
 	this->setWindowTitle("Virtual Bronchoscopy Video Recorder");
 
-
 	QGroupBox* recordBox = new QGroupBox(tr("Record bronchoscope video"));
 	QVBoxLayout* recordVLayout = new QVBoxLayout();
-	mStartStopButton = new QPushButton("Start Recording", this);
+	mStartStopButton = new QPushButton("Start video recording", this);
+	mStartStopButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+	mStartStopButton->setPalette(mStartStopButtonBackgroundColor);
 	recordVLayout->addWidget(mStartStopButton);
 	recordBox->setLayout(recordVLayout);
-	recordVLayout->insertWidget(recordVLayout->count()-1, recordBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+	recordVLayout->insertWidget(recordVLayout->count()-1, recordBox);
 
 	connect(mStartStopButton, &QPushButton::clicked, this, &FraxinusVideoRecorderWidget::startStopClickedSlot);
 
@@ -78,49 +80,36 @@ void FraxinusVideoRecorderWidget::startStopClickedSlot()
 {
 	if(!mIsRecording)
 	{
+		connect(mAcquisitionService.get(), &AcquisitionService::stateChanged, this, &FraxinusVideoRecorderWidget::recordStateChangedSlot);
+		mStartStopButton->setText("Stop video recording");
+		mStartStopButtonBackgroundColor.setColor(QPalette::Button, Qt::yellow);
+		mStartStopButton->setPalette(mStartStopButtonBackgroundColor);
 		startRecording();
-		mStartStopButton->setText("Stop Recording");
 	}
 	else
 	{
+		mStartStopButton->setText("Start video recording");
+		mStartStopButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+		mStartStopButton->setPalette(mStartStopButtonBackgroundColor);
 		stopRecording();
-		mStartStopButton->setText("Start Recording");
 	}
 }
 
-//void FraxinusVideoRecorderWidget::recordStateChangedSlot()
-//{
-//	AcquisitionService::STATE state = mAcquisitionService->getState();
+void FraxinusVideoRecorderWidget::recordStateChangedSlot()
+{
+	AcquisitionService::STATE state = mAcquisitionService->getState();
 
-//	mStartStopButton->blockSignals(true);
+	mStartStopButton->blockSignals(true);
 
-//	switch (state)
-//	{
-//	case AcquisitionService::sRUNNING :
-//			mStartStopButton->setChecked(true);
-//		mStartStopButton->setText("Stop");
-//		mStartStopButton->setIcon(QIcon(":/icons/open_icon_library/media-playback-stop.png"));
-//			mStartStopButton->setEnabled(true);
-//			mCancelButton->setEnabled(true);
-//		break;
-//	case AcquisitionService::sNOT_RUNNING :
-//			mStartStopButton->setChecked(false);
-//		mStartStopButton->setText("Start");
-//		mStartStopButton->setIcon(QIcon(":/icons/open_icon_library/media-record-3.png"));
-//			mStartStopButton->setEnabled(true);
-//		mCancelButton->setEnabled(false);
-//		break;
-//	case AcquisitionService::sPOST_PROCESSING :
-//			mStartStopButton->setChecked(false);
-//		mStartStopButton->setText("Processing...");
-//			mStartStopButton->setIcon(QIcon(":/icons/open_icon_library/media-record-3.png"));
-//			mStartStopButton->setEnabled(false);
-//			mCancelButton->setEnabled(false);
-//		break;
-//	}
+	if(state == AcquisitionService::sRUNNING)
+	{
+		mStartStopButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
+		mStartStopButton->setPalette(mStartStopButtonBackgroundColor);
+		disconnect(mAcquisitionService.get(), &AcquisitionService::stateChanged, this, &FraxinusVideoRecorderWidget::recordStateChangedSlot);
+	}
 
-//	mStartStopButton->blockSignals(false);
-//}
+	mStartStopButton->blockSignals(false);
+}
 
 void FraxinusVideoRecorderWidget::startRecording()
 {
@@ -129,29 +118,32 @@ void FraxinusVideoRecorderWidget::startRecording()
 		createNewPatient(); //create new patient if no patient
 
 	mServices->view()->setActiveLayout("LAYOUT_RT_1X1");
+	mFraxinusTrackingWidget = this->getTrackingWidget();
+	if(!mFraxinusTrackingWidget)
+		return;
+	mTrackingService = mFraxinusTrackingWidget->getTrackingService();
 	startTracking();
 	startStreaming();
-	startRecordingVideo();
+	checkIfReadyToRecordVideo();
 	mIsRecording = true;
 }
 
 void FraxinusVideoRecorderWidget::stopRecording()
 {
 	stopRecordingVideo();
-	stopStreaming();
+	//stopStreaming(); //Do not stop streaming, due to problems restarting it
 	stopTracking();
 	mIsRecording = false;
 }
 
 void FraxinusVideoRecorderWidget::createNewPatient()
 {
-	QString actionName = "NewPatient";
+	QString actionName = "CreatePatientWithoutDialog";
 	triggerMainWindowActionWithObjectName(actionName);
 }
 
 void FraxinusVideoRecorderWidget::startTracking()
 {
-	mFraxinusTrackingWidget = this->getTrackingWidget();
 	if(mFraxinusTrackingWidget)
 		mFraxinusTrackingWidget->startTracking();
 }
@@ -177,11 +169,46 @@ void FraxinusVideoRecorderWidget::stopStreaming()
 		mServices->video()->closeConnection();
 }
 
+void FraxinusVideoRecorderWidget::checkIfReadyToRecordVideo()
+{
+	VideoServicePtr videoService = mServices->video();
+	disconnect(mAcquisitionService.get(), &AcquisitionService::usReadinessChanged, this, &FraxinusVideoRecorderWidget::checkIfReadyToRecordVideo);
+	disconnect(videoService.get(), &VideoService::connected, this, &FraxinusVideoRecorderWidget::checkIfReadyToRecordVideo);
+
+	bool tracking = mTrackingService->getState()==Tool::tsTRACKING;
+	bool streaming = videoService->isConnected();
+	bool acquisition = mAcquisitionService->isReady(mContext);
+	if(!acquisition || !tracking || !streaming)
+	{
+		connect(mAcquisitionService.get(), &AcquisitionService::usReadinessChanged, this, &FraxinusVideoRecorderWidget::checkIfReadyToRecordVideo);
+		connect(videoService.get(), &VideoService::connected, this, &FraxinusVideoRecorderWidget::checkIfReadyToRecordVideo);
+		return;
+	}
+
+	ToolMap tools = mTrackingService->getTools();
+	for (ToolMap::iterator iter = tools.begin(); iter != tools.end(); ++iter)
+	{
+		ToolPtr	tool = iter->second;
+		if(tool->hasType(Tool::TOOL_US_PROBE))
+		{
+			mTool = tool;
+			break;
+		}
+	}
+	if(!mTool)
+	{
+		CX_LOG_WARNING() << "In FraxinusVideoRecorderWidget::checkIfReadyToRecordVideo: Cannot find tool - not able to record video.";
+		return;
+	}
+	connect(mTool.get(), &Tool::toolTransformAndTimestamp, this, &FraxinusVideoRecorderWidget::startRecordingVideo);
+}
+
 void FraxinusVideoRecorderWidget::startRecordingVideo()
 {
-	AcquisitionService::TYPES context(AcquisitionService::tUS);
+	disconnect(mTool.get(), &Tool::toolTransformAndTimestamp, this, &FraxinusVideoRecorderWidget::startRecordingVideo);
 	QString category = QString("BronchoscopyVideo");
-	mAcquisitionService->startRecord(context, category);
+	RecordSessionPtr session = mAcquisitionService->getSession("");
+	mAcquisitionService->startRecord(mContext, category, session);
 }
 
 void FraxinusVideoRecorderWidget::stopRecordingVideo()
@@ -201,11 +228,9 @@ QMainWindow* FraxinusVideoRecorderWidget::getMainWindow()
 FraxinusTrackingWidget* FraxinusVideoRecorderWidget::getTrackingWidget()
 {
 	QMainWindow* mainWindow = this->getMainWindow();
-
 	QString widgetName(FraxinusTrackingWidget::getWidgetName());
 	return mainWindow->findChild<FraxinusTrackingWidget*>(widgetName);
 }
-
 
 
 QString FraxinusVideoRecorderWidget::getWidgetName()

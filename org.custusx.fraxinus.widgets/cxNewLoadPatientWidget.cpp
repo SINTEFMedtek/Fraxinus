@@ -12,6 +12,7 @@
 #include "cxDataLocations.h"
 #include "cxPatientModelService.h"
 #include "cxFraxinusVideoRecorderWidget.h"
+#include "cxProfile.h"
 
 namespace cx
 {
@@ -51,10 +52,13 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	layout->addWidget(mSelectCTDataButton);
 	layout->addStretch();
 
-	//TO DO: Make this optional in settings
-	FraxinusVideoRecorderWidget* videoRecorderWidget = new FraxinusVideoRecorderWidget(mServices, acquisitionService, this);
-	layout->addWidget(videoRecorderWidget);
-	layout->addStretch();
+	QString profile = ProfileManager::getInstance()->activeProfile()->getUid();
+	if(profile == "VideoRecording")
+	{
+		FraxinusVideoRecorderWidget* videoRecorderWidget = new FraxinusVideoRecorderWidget(mServices, acquisitionService, this);
+		layout->addWidget(videoRecorderWidget);
+		layout->addStretch();
+	}
 
 	layout->addWidget(restoreToFactorySettingsButton);
 	this->setLayout(layout);

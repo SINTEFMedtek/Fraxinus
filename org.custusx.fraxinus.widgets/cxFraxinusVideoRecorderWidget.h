@@ -37,6 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "org_custusx_fraxinus_widgets_Export.h"
 #include "cxBaseWidget.h"
 #include "cxForwardDeclarations.h"
+#include "cxAcquisitionService.h"
 
 class QPushButton;
 class QMainWindow;
@@ -66,6 +67,7 @@ private:
 	void stopTracking();
 	void startStreaming();
 	void stopStreaming();
+	void checkIfReadyToRecordVideo();
 	void startRecordingVideo();
 	void stopRecordingVideo();
 	QMainWindow* getMainWindow();
@@ -74,12 +76,16 @@ private:
 
 	VisServicesPtr mServices;
 	AcquisitionServicePtr mAcquisitionService;
+	AcquisitionService::TYPES mContext;
+	ToolPtr mTool;
 
 	//QVBoxLayout* mVerticalLayout;
 	QPushButton* mStartStopButton;
+	QPalette mStartStopButtonBackgroundColor;
 	bool mIsRecording = false;
 
 	FraxinusTrackingWidget* mFraxinusTrackingWidget;
+	TrackingServicePtr mTrackingService;
 
 };
 
