@@ -185,6 +185,7 @@ void FraxinusVideoRecorderWidget::checkIfReadyToRecordVideo()
 		return;
 	}
 
+	mTool = ToolPtr();
 	ToolMap tools = mTrackingService->getTools();
 	for (ToolMap::iterator iter = tools.begin(); iter != tools.end(); ++iter)
 	{
