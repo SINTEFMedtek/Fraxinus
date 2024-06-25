@@ -46,7 +46,7 @@ class NewLoadPatientWidget : public BaseWidget
 {
 	Q_OBJECT
 public:
-	NewLoadPatientWidget(QWidget *parent, VisServicesPtr services, AcquisitionServicePtr acquisitionService, PatientModelServicePtr patientModelService);
+	NewLoadPatientWidget(QWidget *parent, VisServicesPtr services, AcquisitionServicePtr acquisitionService);
 
 private slots:
 	void createNewPatient();
@@ -58,7 +58,6 @@ private:
 	void enableImportDataButton();
 
 	VisServicesPtr mServices;
-	PatientModelServicePtr mPatientModelService;
 	QPushButton* mSelectCTDataButton;
 };
 

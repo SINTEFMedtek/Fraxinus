@@ -79,7 +79,6 @@ private:
 	AcquisitionService::TYPES mContext;
 	ToolPtr mTool;
 
-	//QVBoxLayout* mVerticalLayout;
 	QPushButton* mStartStopButton;
 	QPalette mStartStopButtonBackgroundColor;
 	bool mIsRecording = false;

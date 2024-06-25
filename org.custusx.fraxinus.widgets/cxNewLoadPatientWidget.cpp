@@ -13,14 +13,14 @@
 #include "cxPatientModelService.h"
 #include "cxFraxinusVideoRecorderWidget.h"
 #include "cxProfile.h"
+#include "cxVisServices.h"
 
 namespace cx
 {
 
-NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr services, AcquisitionServicePtr acquisitionService, PatientModelServicePtr patientModelService) :
+NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr services, AcquisitionServicePtr acquisitionService) :
 	BaseWidget(parent, "new_load_patient_widget", "New/Load Patient"),
-	mServices(services),
-	mPatientModelService(patientModelService)
+	mServices(services)
 {
 	this->setWindowTitle("Create or select patient");
 
@@ -81,7 +81,7 @@ void NewLoadPatientWidget::loadPatient()
 
 void NewLoadPatientWidget::enableImportDataButton()
 {
-	if(mPatientModelService->isPatientValid())
+	if(mServices->patient()->isPatientValid())
 		mSelectCTDataButton->setEnabled(true);
 	else
 		mSelectCTDataButton->setEnabled(false);
@@ -95,7 +95,7 @@ void NewLoadPatientWidget::restoreToFactorySettings()
 
 void NewLoadPatientWidget::selectCTData()
 {
-	if(mPatientModelService->isPatientValid())
+	if(mServices->patient()->isPatientValid())
 	{
 		triggerMainWindowActionWithObjectName("AddFilesForImportWithDialogCT");
 		triggerMainWindowActionWithObjectName("ImportSelectedData");
