@@ -10,13 +10,17 @@
 #include "cxLogger.h"
 #include "cxLogicManager.h"
 #include "cxDataLocations.h"
+#include "cxPatientModelService.h"
+#include "cxFraxinusVideoRecorderWidget.h"
+#include "cxProfile.h"
+#include "cxVisServices.h"
 
 namespace cx
 {
 
-NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, PatientModelServicePtr patient) :
+NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr services, AcquisitionServicePtr acquisitionService) :
 	BaseWidget(parent, "new_load_patient_widget", "New/Load Patient"),
-	mPatient(patient)
+	mServices(services)
 {
 	this->setWindowTitle("Create or select patient");
 
@@ -48,6 +52,14 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, PatientModelServiceP
 	layout->addWidget(mSelectCTDataButton);
 	layout->addStretch();
 
+	QString profile = ProfileManager::getInstance()->activeProfile()->getUid();
+	if(profile == "VideoRecording")
+	{
+		FraxinusVideoRecorderWidget* videoRecorderWidget = new FraxinusVideoRecorderWidget(mServices, acquisitionService, this);
+		layout->addWidget(videoRecorderWidget);
+		layout->addStretch();
+	}
+
 	layout->addWidget(restoreToFactorySettingsButton);
 	this->setLayout(layout);
 }
@@ -69,7 +81,7 @@ void NewLoadPatientWidget::loadPatient()
 
 void NewLoadPatientWidget::enableImportDataButton()
 {
-	if(mPatient->isPatientValid())
+	if(mServices->patient()->isPatientValid())
 		mSelectCTDataButton->setEnabled(true);
 	else
 		mSelectCTDataButton->setEnabled(false);
@@ -83,7 +95,7 @@ void NewLoadPatientWidget::restoreToFactorySettings()
 
 void NewLoadPatientWidget::selectCTData()
 {
-	if(mPatient->isPatientValid())
+	if(mServices->patient()->isPatientValid())
 	{
 		triggerMainWindowActionWithObjectName("AddFilesForImportWithDialogCT");
 		triggerMainWindowActionWithObjectName("ImportSelectedData");

@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cxBaseWidget.h"
 #include <QKeyEvent>
-#include "cxPatientModelService.h"
+#include "cxForwardDeclarations.h"
 
 class QPushButton;
 
@@ -46,7 +46,7 @@ class NewLoadPatientWidget : public BaseWidget
 {
 	Q_OBJECT
 public:
-	NewLoadPatientWidget(QWidget *parent, PatientModelServicePtr patient);
+	NewLoadPatientWidget(QWidget *parent, VisServicesPtr services, AcquisitionServicePtr acquisitionService);
 
 private slots:
 	void createNewPatient();
@@ -57,7 +57,7 @@ private slots:
 private:
 	void enableImportDataButton();
 
-	PatientModelServicePtr mPatient;
+	VisServicesPtr mServices;
 	QPushButton* mSelectCTDataButton;
 };
 
