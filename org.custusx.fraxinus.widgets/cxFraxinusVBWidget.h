@@ -73,7 +73,7 @@ protected slots:
 //	virtual void keyPressEvent(QKeyEvent* event);
 	void calculateRouteLength();
 	void playbackSliderChanged(int cameraPositionInPermill);
-	void setLeftRightOrientationTo90Deg();
+	void setCameraToEBUSMode();
 
 private:
 	void updateRttInfo(double cameraPositionInPercent);
