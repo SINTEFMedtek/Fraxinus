@@ -442,7 +442,7 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 		lungObjects.push_back(lungs);
 	
 	std::vector<DataPtr> tumorObjects;
-	MeshPtr tumors = mFraxinusSegmentations->getMesh(otTUMORS);
+	MeshPtr tumors = mFraxinusSegmentations->getMesh(otTUMOR);
 	if(tumors)
 		tumorObjects.push_back(tumors);
 
@@ -520,7 +520,7 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	for(DataPtr object : lungObjects)
 		widget->addObject(lsLUNG, object);
 	for(DataPtr object : tumorObjects)
-		widget->addObject(lsTUMORS, object);
+		widget->addObject(lsTUMOR, object);
 	for(DataPtr object : noduleObjects)
 		widget->addObject(lsNODULES, object);
 	for(DataPtr object : lymphNodeObjects)

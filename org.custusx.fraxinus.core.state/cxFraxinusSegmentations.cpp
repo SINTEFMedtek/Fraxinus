@@ -344,7 +344,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		QLabel* label = new QLabel("Tumors:");
 		gridLayout->addWidget(label,8,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,8,1);
-		if(this->getMesh(otTUMORS))
+		if(this->getMesh(otTUMOR))
 			mTumorsTimerWidget->stop();
 	}
 	if (mRegisterPET)
@@ -380,18 +380,12 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 		return;
 
 	DataPtr vessels = this->getMesh(otLUNG_VESSELS);
-	DataPtr tumors = this->getMesh(otTUMORS);
 	if(vessels || mLungVesselsProcessed || !mSegmentLungVessels)
 	{
-		if(vessels)
-			mLungVesselsProcessed = true;
-		if(tumors || mTumorsProcessed || !mSegmentTumors)
-		{
-			if(tumors)
-				mTumorsProcessed = true;
-			this->performMLSegmentation(image);
-			return;
-		}
+		mLungVesselsProcessed = true;
+
+		this->performMLSegmentation(image);
+		return;
 	}
 
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
@@ -411,16 +405,6 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 		mLungVesselsProcessed = true;
 		input[0]->setValue(image->getUid());
 	}
-	else if(!mTumorsProcessed && mSegmentTumors)
-	{
-		mActiveTimerWidget = mTumorsTimerWidget;
-		if(mActiveTimerWidget)
-				mActiveTimerWidget->start();
-		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_Tumors.ini");
-		mCurrentSegmentationType = lsTUMORS;
-		mTumorsProcessed = true;
-		input[0]->setValue(image->getUid());
-	}
 	else
 		return;
 
@@ -432,7 +416,7 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 {
 	QStringList retval;
 
-	if(mSegmentAirways && !this->getMesh(otAIRWAYS_CENTERLINES))
+	if(mSegmentAirways && !this->getMesh(otAIRWAYS_CENTERLINES) && !mAirwaysProcessed)
 	{
 		mActiveTimerWidget = mAirwaysTimerWidget;
 		retval << enum2string(otAIRWAYS);
@@ -441,27 +425,33 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 		if(startTimers)
 			mAirwaysTimerWidget->start();
 	}
-	if(mSegmentLymphNodes && !this->getMesh(otLYMPH_NODES))
+	if(mSegmentLymphNodes && !this->getMesh(otLYMPH_NODES) && !mLymphNodesProcessed)
 	{
 		retval << enum2string(otLYMPH_NODES);
 		if(startTimers)
 			mLymphNodesTimerWidget->start();
 	}
+	if(mSegmentTumors && !this->getMesh(otTUMOR) && !mTumorsProcessed)
+	{
+		retval << enum2string(otTUMOR);
+		if(startTimers)
+			mTumorsTimerWidget->start();
+	}
 
 	//Multiple targets, will be expanded in Raidionics::createTargetList()
-	if(mSegmentHeart && !this->getMesh(otHEART))
+	if(mSegmentHeart && !this->getMesh(otHEART)&& !mHeartProcessed)
 	{
 		retval << enum2string(lmPULMSYST_HEART);
 		if(startTimers)
 			mHeartTimerWidget->start();
 	}
-	if(mSegmentMediumOrgans && !this->getMesh(otVENA_CAVA))
+	if(mSegmentMediumOrgans && !this->getMesh(otVENA_CAVA) && !mMediumOrgansProcessed)
 	{
 		retval << enum2string(lmMEDIUM_ORGANS_MEDIASTINUM);
 		if(startTimers)
 			mMediumOrgansTimerWidget->start();
 	}
-	if(mSegmentSmallOrgans && !this->getMesh(otAZYGOS))
+	if(mSegmentSmallOrgans && !this->getMesh(otAZYGOS)&& !mSmallOrgansProcessed)
 	{
 		retval << enum2string(lmSMALL_ORGANS_MEDIASTINUM);
 		if(startTimers)
@@ -473,9 +463,6 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 
 bool FraxinusSegmentations::runRaidionics(GenericScriptFilterPtr scriptFilter)
 {
-	if(mRaidionicsRun)
-		return false;
-
 	QStringList outputClasses = getRaidionicsOutputClasses();
 	if(outputClasses.isEmpty())
 		return false;
@@ -483,7 +470,6 @@ bool FraxinusSegmentations::runRaidionics(GenericScriptFilterPtr scriptFilter)
 	scriptFilter->setOutputClasses(outputClasses);
 	mCurrentSegmentationType = lsAIRWAYS;
 
-	mRaidionicsRun = true;
 	return true;
 }
 
@@ -626,33 +612,13 @@ void FraxinusSegmentations::pythonFinishedSlot()
 	mTimedAlgorithmProgressBar->detach(mThread);
 	disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(pythonFinishedSlot()));
 	mThread.reset();
-	if(mCurrentSegmentationType == lsAIRWAYS)
-	{
-		MeshPtr airways = this->getMesh(otAIRWAYS);
-		if(airways)
-		{
-			airways->setColor("#FFCCCC");
-		}
-	}
-	else if(mCurrentSegmentationType == lsCENTERLINES)
-	{
-		this->postProcessAirways();
-		this->checkIfSegmentationSucceeded();
-	}
-	else
-		this->checkIfSegmentationSucceeded();
 
+	this->checkIfSegmentationSucceeded();
 
-
-	if(mCurrentSegmentationType == lsAIRWAYS)
-		this->performPythonSegmentation(this->getImage(imCT, istTHORAX_CT));
-	else if(mCurrentSegmentationType == lsCENTERLINES && (mSegmentLungVessels || mSegmentTumors))
-		this->performPythonSegmentation(this->getImage(imCT, istTHORAX_CT));
-	else if(mCurrentSegmentationType == lsLUNG_VESSELS && mSegmentTumors)
+	if(mCurrentSegmentationType == lsLUNG_VESSELS && mSegmentTumors)
 		this->performPythonSegmentation(this->getImage(imCT, istTHORAX_CT));
 	else
 		this->performMLSegmentation(this->getImage(imCT, istTHORAX_CT));
-
 }
 
 void FraxinusSegmentations::MLFinishedSlot()
@@ -781,13 +747,18 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 		// Not stopping timer before centerlines are created
 		if(mSegmentAirways)
 		{
+			mAirwaysProcessed = true;
 			setMeshNameAndStopTimer(otAIRWAYS);
 			setMeshName(otLUNGS);
 		}
 		if(mSegmentLymphNodes)
-			setMeshNameAndStopTimer(otLYMPH_NODES);
-		if(mSegmentHeart)
 		{
+			mLymphNodesProcessed = true;
+			setMeshNameAndStopTimer(otLYMPH_NODES);
+		}
+			if(mSegmentHeart)
+		{
+				mHeartProcessed = true;
 			stopTimer(otHEART);
 			setMeshName(otHEART);
 			setMeshName(otPULMONARY_VEINS);
@@ -795,6 +766,7 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 		}
 		if(mSegmentMediumOrgans)
 		{
+			mMediumOrgansProcessed = true;
 			stopTimer(otSPINE);
 			setMeshName(otAORTIC_ARCH);
 			setMeshName(otDESCENDING_AORTA);
@@ -804,20 +776,23 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 		}
 		if(mSegmentSmallOrgans)
 		{
+			mSmallOrgansProcessed = true;
 			stopTimer(otESOPHAGUS);
 			setMeshName(otESOPHAGUS);
 			setMeshName(otSUBCLAVIAN_ARTERY);
 			setMeshName(otBRACHIO_CEPHALIC_VEINS);
 			setMeshName(otAZYGOS);
 		}
+		if(mSegmentTumors)
+		{
+			mTumorsProcessed = true;
+			setMeshNameAndStopTimer(otTUMOR);
+		}
 	}
 	else if(mCurrentSegmentationType == lsNODULES)
 	{
+		mNodulesProcessed = true;
 		setMeshNameAndStopTimer(otNODULES);
-	}
-	else if(mCurrentSegmentationType == lsTUMORS)
-	{
-		setMeshNameAndStopTimer(otTUMORS);
 	}
 	mServices->patient()->autoSave();
 }
@@ -883,7 +858,7 @@ DisplayTimerWidget* FraxinusSegmentations::getTimer(ORGAN_TYPE target)
 	case otAZYGOS:
 	case otESOPHAGUS:
 		timer = mSmallOrgansTimerWidget; break;
-	case otTUMORS:
+	case otTUMOR:
 		timer = mTumorsTimerWidget; break;
 	case otNODULES:
 		timer = mNodulesTimerWidget; break;
