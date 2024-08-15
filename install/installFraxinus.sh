@@ -50,6 +50,7 @@ cp -r ~/Fraxinus/models/raidionics_models/CT_LymphNodes ~/Fraxinus_settings/mode
 cp -r ~/Fraxinus/models/raidionics_models/CT_MediumOrgansMediastinum ~/Fraxinus_settings/models/raidionics_models/
 cp -r ~/Fraxinus/models/raidionics_models/CT_PulmSystHeart ~/Fraxinus_settings/models/raidionics_models/
 cp -r ~/Fraxinus/models/raidionics_models/CT_SmallOrgansMediastinum ~/Fraxinus_settings/models/raidionics_models/
+cp -r ~/Fraxinus/models/raidionics_models/CT_Tumors ~/Fraxinus_settings/models/raidionics_models/
 
 #install elastix
 if command -v elastix > /dev/null 2>&1; then
@@ -95,12 +96,6 @@ python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 python -m pip install -r requirements.txt
-deactivate
-
-python3 -m venv venvLungTumorMask
-source venvLungTumorMask/bin/activate
-pip install --upgrade pip
-pip install https://github.com/VemundFredriksen/LungTumorMask/releases/download/v1.3.0/lungtumormask-1.3.0-py2.py3-none-any.whl
 deactivate
 
 #Add more swap space for AI networks if it does not exist

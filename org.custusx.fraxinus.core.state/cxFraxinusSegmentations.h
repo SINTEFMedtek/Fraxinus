@@ -110,9 +110,14 @@ private:
 	QCheckBox* mCheckBoxLungVessels;
 	QCheckBox* mCheckBoxSelectAll;
 	bool mRaidionicsRun = false;
+	bool mAirwaysProcessed = false;
 	bool mLungVesselsProcessed = false;
 	bool mNodulesProcessed = false;
 	bool mTumorsProcessed = false;
+	bool mLymphNodesProcessed = false;
+	bool mHeartProcessed = false;
+	bool mMediumOrgansProcessed = false;
+	bool mSmallOrgansProcessed = false;
 	bool mSegmentLungVessels = false;
 	bool mSegmentNodules = false;
 	bool mSegmentTumors = false;
