@@ -15,6 +15,9 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include <QGridLayout>
 #include <QPushButton>
 #include <QMessageBox>
+#include <vtkImageBlend.h>
+#include <vtkImageData.h>
+#include <vtkImageShiftScale.h>
 #include "cxDisplayTimerWidget.h"
 #include "cxContourFilter.h"
 #include "cxVisServices.h"
@@ -36,7 +39,9 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxElastixExecuter.h"
 #include "cxFilePathProperty.h"
 #include "cxRegistrationService.h"
-
+#include "cxIslandsFilter.h"
+#include "cxMeshesFromLabelsFilter.h"
+#include "cxVolumeHelpers.h"
 
 namespace cx
 {
@@ -134,6 +139,18 @@ MeshPtr FraxinusSegmentations::getMesh(ORGAN_TYPE organType)
 			return iter->second;
 		}
 	return MeshPtr();
+}
+
+std::vector<MeshPtr> FraxinusSegmentations::getMeshes(ORGAN_TYPE organType)
+{
+	std::vector<MeshPtr> retval;
+	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
+	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+		if(iter->second->getOrganType() == organType)
+		{
+			retval.push_back(iter->second);
+		}
+	return retval;
 }
 
 void FraxinusSegmentations::createSelectSegmentationBox()
@@ -325,6 +342,7 @@ void FraxinusSegmentations::createProcessingInfo()
 	}
 	if (mSegmentNodules)
 	{
+		postProcessTumors(); //debug
 		QWidget* timerWidget = new QWidget;
 		mNodulesTimerWidget = new DisplayTimerWidget(timerWidget);
 		mNodulesTimerWidget->setFontSize(3);
@@ -706,6 +724,107 @@ void FraxinusSegmentations::postProcessAirways()
 //	if(airwaysVolume) // do not remove, needed for airway radius calculation at Fraxinus restart
 //		mServices->patient()->removeData(airwaysVolume->getUid());
 }
+
+
+void FraxinusSegmentations::postProcessTumors()
+{
+	ImagePtr tumorsVolume =this->getVolume(otTUMOR);
+	ImagePtr nodulesVolume =this->getVolume(otNODULES);
+
+	vtkImageDataPtr combinedVtkImage = vtkImageDataPtr::New();;
+	if(tumorsVolume && nodulesVolume)
+	{
+		vtkImageDataPtr tumorsVtkImage = tumorsVolume->getBaseVtkImageData();
+		vtkImageDataPtr nodulesVtkImage = nodulesVolume->getBaseVtkImageData();
+		int* dimTumors = tumorsVtkImage->GetDimensions();
+		int* dimNodules = nodulesVtkImage->GetDimensions();
+		if(dimTumors[0]!=dimNodules[0] || dimTumors[2]!=dimNodules[2] || dimTumors[2]!=dimNodules[2])
+			return;
+
+	tumorsVtkImage = shiftVtkScalarToUnsignedShort(tumorsVtkImage);
+	nodulesVtkImage = shiftVtkScalarToUnsignedShort(nodulesVtkImage);
+
+	combinedVtkImage->DeepCopy(tumorsVtkImage);
+
+		unsigned short* dataPtrNodulesImage = static_cast<unsigned short*>(nodulesVtkImage->GetScalarPointer());
+		unsigned short* dataPtrCombinedImage = static_cast<unsigned short*>(combinedVtkImage->GetScalarPointer());
+
+		int numberOfVoxels = dimNodules[0]*dimNodules[1]*dimNodules[2];
+		for (int index = 0; index<numberOfVoxels; index++)
+			if(dataPtrNodulesImage[index] > 0)
+				dataPtrCombinedImage[index] = 1;
+	}
+	else if(tumorsVolume)
+		combinedVtkImage->DeepCopy(tumorsVolume->getBaseVtkImageData());
+	else if(nodulesVolume)
+		combinedVtkImage->DeepCopy(nodulesVolume->getBaseVtkImageData());
+	else
+		return;
+
+	if(!combinedVtkImage)
+		return;
+
+	setDeepModified(combinedVtkImage);
+
+
+	ImagePtr baseImage = this->getImage(imCT, istTHORAX_CT);
+	if(!baseImage)
+		return;
+
+	VisServicesPtr visServices = boost::static_pointer_cast<VisServices>(mServices);
+	IslandsFilterPtr islandsFilter = IslandsFilterPtr(new IslandsFilter(visServices));
+	QString uid = baseImage->getUid() + "_Tumors_Islands%1";
+	QString name = baseImage->getName()+" Tumors Islands%1";
+	ImagePtr labeledImage = islandsFilter->execute(baseImage, combinedVtkImage, uid, name, 10);
+	if(!labeledImage)
+		return;
+
+	std::vector<double> tumorSizes =  islandsFilter->getIslandSizes();
+
+	MeshesFromLabelsFilterPtr meshesFromLabelsFilter = MeshesFromLabelsFilterPtr(new MeshesFromLabelsFilter(visServices));
+	std::vector<vtkPolyDataPtr> rawResult = meshesFromLabelsFilter->execute(
+													 labeledImage->getBaseVtkImageData(),  //input
+													 labeledImage->getMin()+1,  //startLabel
+													 labeledImage->getMax(),  //endLabel
+													 false,  //reduceResolution
+													 true,  //smoothing
+													 true,  //preserveTopology
+													 0.99,  //preservedecimationTopology
+													 15,  //numberOfIterations
+													 0.03);  //passBand
+
+	std::vector<MeshPtr> tumorMeshes = meshesFromLabelsFilter->postProcess(visServices, rawResult, labeledImage, QColor(255,255,0,255), false);
+
+	for(int i=0; i<tumorMeshes.size(); i++)
+	{
+		this->setMeshNameAndType(tumorMeshes[i], otTUMOR);
+		QString nameWithNumber = tumorMeshes[i]->getName() + QString("_") + QString::number(i+1);
+		tumorMeshes[i]->setName(nameWithNumber);
+		if(tumorSizes.size()>i)
+			tumorMeshes[i]->setVolumeSize(tumorSizes[i]);
+	}
+
+	//TO DO: Delete tumor and nodules volume. Delete labeled volume
+}
+
+vtkImageDataPtr FraxinusSegmentations::shiftVtkScalarToUnsignedShort(vtkImageDataPtr input)
+{
+	//make function
+	vtkImageShiftScalePtr cast = vtkImageShiftScalePtr::New();
+	cast->SetInputData(input);
+	cast->ClampOverflowOn();
+
+	int shift = 0;
+	if (input->GetScalarTypeMin() < 0)
+		shift = -input->GetScalarRange()[0];
+
+	cast->SetShift(shift);
+	cast->SetOutputScalarType(VTK_UNSIGNED_SHORT);
+	cast->Update();
+
+	return cast->GetOutput();
+}
+
 
 void FraxinusSegmentations::generateCenterline()
 {//using BinaryThinningImageFilter3DFilter

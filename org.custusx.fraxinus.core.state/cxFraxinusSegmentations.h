@@ -42,6 +42,7 @@ public:
 	BranchListPtr getBranchList();
 
 	MeshPtr getMesh(ORGAN_TYPE organType);
+	std::vector<MeshPtr> getMeshes(ORGAN_TYPE organType);
 	
 	void createSelectSegmentationBox();
 	void createProcessingInfo();
@@ -50,6 +51,7 @@ public:
 	void performMLSegmentation(ImagePtr image);
 	QString getFilterScriptsPath();
 	void postProcessAirways();
+	void postProcessTumors();
 	void checkIfSegmentationSucceeded();
 	void close();
 
@@ -79,6 +81,8 @@ private slots:
 	void checkForPETData();
 	
 private:
+	vtkImageDataPtr shiftVtkScalarToUnsignedShort(vtkImageDataPtr input);
+
 	RegServicesPtr mServices;
 	
 	FilterPtr mCurrentFilter;

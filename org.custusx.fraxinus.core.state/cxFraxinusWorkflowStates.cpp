@@ -441,10 +441,8 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	if(lungs)
 		lungObjects.push_back(lungs);
 	
-	std::vector<DataPtr> tumorObjects;
-	MeshPtr tumors = mFraxinusSegmentations->getMesh(otTUMOR);
-	if(tumors)
-		tumorObjects.push_back(tumors);
+	std::vector<MeshPtr> tumors = mFraxinusSegmentations->getMeshes(otTUMOR);
+	std::vector<DataPtr> tumorObjects(tumors.begin(),tumors.end());
 
 	std::vector<DataPtr> noduleObjects;
 	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
