@@ -59,6 +59,7 @@ typedef boost::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
 class FraxinusVBWidget;
 class PinpointWidget;
 class StructuresSelectionWidget;
+class TumorInformationWidget;
 class ProcedurePlanningWidget;
 
 #define MAX_GENERATION_FOR_AUTOMATIC_CAMERA_ROTATION 3
@@ -107,6 +108,7 @@ protected:
 	void setRTTInVBWidget();
 	void setupViewOptionsInVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
 	void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
+	void setupTumorInformationWidget(TumorInformationWidget *widget, std::vector<unsigned int> viewGroupNumbers);
 	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
 	void cleanupVBWidget();
 	void setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers);

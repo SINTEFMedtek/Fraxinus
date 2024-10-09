@@ -36,6 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "org_custusx_fraxinus_widgets_Export.h"
 #include "cxBaseWidget.h"
 #include "cxStructuresSelectionWidget.h"
+#include "cxTumorInformationWidget.h"
 
 class QLineEdit;
 class QRadioButton;
@@ -59,6 +60,7 @@ public:
 	static QString getEndoscopeMetricUid();
 	static QString getDistanceMetricUid();
 	StructuresSelectionWidget* getStructuresSelectionWidget();
+	TumorInformationWidget* getTumorInformationWidget();
 	void createPointMetric();
 	void addAirwayMetric();
 	void deleteLastAirwayMetric();
@@ -101,6 +103,7 @@ private:
 	QString mTargetMetricName;
 	QString mAirwayPointMetricUid;
 	StructuresSelectionWidget* mStructuresSelectionWidget;
+	TumorInformationWidget* mTumorInfoWidget;
 	QCheckBox* mAddAirwayCheckBox;
 	QPushButton* mAddAirwayPointButton;
 	QPushButton* mDeletePointButton;

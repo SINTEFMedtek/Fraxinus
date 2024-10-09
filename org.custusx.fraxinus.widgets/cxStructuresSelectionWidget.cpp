@@ -264,4 +264,12 @@ void StructuresSelectionWidget::onEntry()
 	}
 }
 
+void StructuresSelectionWidget::turnOnStructure(LUNG_STRUCTURES name)
+{
+	mSelectableStructuresMap[name].mViewEnabled = true;
+	this->displayDataObjects(mSelectableStructuresMap[name].mObjects);
+	mSelectableStructuresMap[name].mButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
+	mSelectableStructuresMap[name].mButton->setPalette(mSelectableStructuresMap[name].mButtonBackgroundColor);
+}
+
 } //namespace cx

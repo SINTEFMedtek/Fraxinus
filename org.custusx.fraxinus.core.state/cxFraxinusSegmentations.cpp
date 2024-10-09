@@ -168,8 +168,8 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mCheckBoxHeart = new QCheckBox(tr("Heart, Pulmonary Veins, Pulmonary Trunk  (~4 min)"));
 	mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine (~3 min)"));
 	mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)"));
-	mCheckBoxNodules = new QCheckBox(tr("Nodules (~2 min)"));
-	mCheckBoxTumors = new QCheckBox(tr("Tumors (~3 min)"));
+	//mCheckBoxNodules = new QCheckBox(tr("Nodules (~2 min)"));
+	mCheckBoxTumors = new QCheckBox(tr("Tumors (~5 min)"));
 	mCheckBoxPET = new QCheckBox(tr("PET to CT (~2 min)"));
 	this->checkForPETData();
 	//mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (<1 min)"));
@@ -190,7 +190,7 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	checkBoxLayout->addWidget(mCheckBoxHeart);
 	checkBoxLayout->addWidget(mCheckBoxMediumOrgans);
 	checkBoxLayout->addWidget(mCheckBoxSmallOrgans);
-	checkBoxLayout->addWidget(mCheckBoxNodules);
+	//checkBoxLayout->addWidget(mCheckBoxNodules);
 	checkBoxLayout->addWidget(mCheckBoxTumors);
 	checkBoxLayout->addWidget(mCheckBoxPET);
 	//checkBoxLayout->addWidget(mCheckBoxLungVessels);
@@ -221,7 +221,7 @@ void FraxinusSegmentations::selectAll(bool checked)
 	mCheckBoxHeart->setChecked(checked);
 	mCheckBoxMediumOrgans->setChecked(checked);
 	mCheckBoxSmallOrgans->setChecked(checked);
-	mCheckBoxNodules->setChecked(checked);
+//	mCheckBoxNodules->setChecked(checked);
 	mCheckBoxTumors->setChecked(checked);
 	if(mCheckBoxPET->isEnabled())
 		mCheckBoxPET->setChecked(checked);
@@ -237,7 +237,7 @@ void FraxinusSegmentations::imageSelected()
 	mSegmentHeart = mCheckBoxHeart->isChecked();
 	mSegmentMediumOrgans = mCheckBoxMediumOrgans->isChecked();
 	mSegmentSmallOrgans = mCheckBoxSmallOrgans->isChecked();
-	mSegmentNodules = mCheckBoxNodules->isChecked();
+//	mSegmentNodules = mCheckBoxNodules->isChecked();
 	mSegmentTumors = mCheckBoxTumors->isChecked();
 	mRegisterPET = mCheckBoxPET->isChecked();
 	this->close();
@@ -340,17 +340,16 @@ void FraxinusSegmentations::createProcessingInfo()
 		if(this->getMesh(otESOPHAGUS))
 			mSmallOrgansTimerWidget->stop();
 	}
-	if (mSegmentNodules)
+	if (mSegmentTumors)
 	{
-		postProcessTumors(); //debug
 		QWidget* timerWidget = new QWidget;
 		mNodulesTimerWidget = new DisplayTimerWidget(timerWidget);
 		mNodulesTimerWidget->setFontSize(3);
 		mNodulesTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("Nodules:");
+		QLabel* label = new QLabel("Small Tumors:");
 		gridLayout->addWidget(label,7,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,7,1);
-		if(this->getMesh(otNODULES))
+		if(this->getMesh(otTUMOR))
 			mNodulesTimerWidget->stop();
 	}
 	if (mSegmentTumors)
@@ -359,7 +358,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		mTumorsTimerWidget = new DisplayTimerWidget(timerWidget);
 		mTumorsTimerWidget->setFontSize(3);
 		mTumorsTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("Tumors:");
+		QLabel* label = new QLabel("Large Tumors:");
 		gridLayout->addWidget(label,8,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,8,1);
 		if(this->getMesh(otTUMOR))
@@ -506,7 +505,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 
 	if(runRaidionics(scriptFilter))
 	{}
-	else if(mSegmentNodules && !mNodulesProcessed && !this->getMesh(otNODULES))
+	else if(mSegmentTumors && !mNodulesProcessed && !this->getMesh(otTUMOR))
 	{
 		mActiveTimerWidget = mNodulesTimerWidget;
 		if(mActiveTimerWidget)
@@ -644,6 +643,9 @@ void FraxinusSegmentations::MLFinishedSlot()
 	if(mCurrentSegmentationType == lsAIRWAYS && !this->getMesh(otAIRWAYS_CENTERLINES))
 		this->postProcessAirways();
 
+	if(mSegmentTumors && mTumorsProcessed && mNodulesProcessed)
+		this->postProcessTumors();
+
 	mTimedAlgorithmProgressBar->detach(mThread);
 	disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(MLFinishedSlot()));
 	mThread.reset();
@@ -731,29 +733,9 @@ void FraxinusSegmentations::postProcessTumors()
 	ImagePtr tumorsVolume =this->getVolume(otTUMOR);
 	ImagePtr nodulesVolume =this->getVolume(otNODULES);
 
-	vtkImageDataPtr combinedVtkImage = vtkImageDataPtr::New();;
+	vtkImageDataPtr combinedVtkImage = vtkImageDataPtr::New();
 	if(tumorsVolume && nodulesVolume)
-	{
-		vtkImageDataPtr tumorsVtkImage = tumorsVolume->getBaseVtkImageData();
-		vtkImageDataPtr nodulesVtkImage = nodulesVolume->getBaseVtkImageData();
-		int* dimTumors = tumorsVtkImage->GetDimensions();
-		int* dimNodules = nodulesVtkImage->GetDimensions();
-		if(dimTumors[0]!=dimNodules[0] || dimTumors[2]!=dimNodules[2] || dimTumors[2]!=dimNodules[2])
-			return;
-
-	tumorsVtkImage = shiftVtkScalarToUnsignedShort(tumorsVtkImage);
-	nodulesVtkImage = shiftVtkScalarToUnsignedShort(nodulesVtkImage);
-
-	combinedVtkImage->DeepCopy(tumorsVtkImage);
-
-		unsigned short* dataPtrNodulesImage = static_cast<unsigned short*>(nodulesVtkImage->GetScalarPointer());
-		unsigned short* dataPtrCombinedImage = static_cast<unsigned short*>(combinedVtkImage->GetScalarPointer());
-
-		int numberOfVoxels = dimNodules[0]*dimNodules[1]*dimNodules[2];
-		for (int index = 0; index<numberOfVoxels; index++)
-			if(dataPtrNodulesImage[index] > 0)
-				dataPtrCombinedImage[index] = 1;
-	}
+		combinedVtkImage = this->mergeBinaryVolumes(tumorsVolume->getBaseVtkImageData(), nodulesVolume->getBaseVtkImageData());
 	else if(tumorsVolume)
 		combinedVtkImage->DeepCopy(tumorsVolume->getBaseVtkImageData());
 	else if(nodulesVolume)
@@ -765,7 +747,6 @@ void FraxinusSegmentations::postProcessTumors()
 		return;
 
 	setDeepModified(combinedVtkImage);
-
 
 	ImagePtr baseImage = this->getImage(imCT, istTHORAX_CT);
 	if(!baseImage)
@@ -804,7 +785,34 @@ void FraxinusSegmentations::postProcessTumors()
 			tumorMeshes[i]->setVolumeSize(tumorSizes[i]);
 	}
 
-	//TO DO: Delete tumor and nodules volume. Delete labeled volume
+	mServices->patient()->removeData(tumorsVolume->getUid());
+	mServices->patient()->removeData(nodulesVolume->getUid());
+	mServices->patient()->removeData(labeledImage->getUid());
+}
+
+vtkImageDataPtr FraxinusSegmentations::mergeBinaryVolumes(vtkImageDataPtr imageA, vtkImageDataPtr imageB)
+{
+	vtkImageDataPtr imageAB = vtkImageDataPtr::New();
+
+	int* dimImageA = imageA->GetDimensions();
+	int* dimImageB = imageB->GetDimensions();
+	if(dimImageA[0]!=dimImageB[0] || dimImageA[2]!=dimImageB[2] || dimImageA[2]!=dimImageB[2])
+		return imageAB;
+
+	imageA = shiftVtkScalarToUnsignedShort(imageA);
+	imageB = shiftVtkScalarToUnsignedShort(imageB);
+
+	imageAB->DeepCopy(imageA);
+
+	unsigned short* dataPtrImageB = static_cast<unsigned short*>(imageB->GetScalarPointer());
+	unsigned short* dataPtrImageAB = static_cast<unsigned short*>(imageAB->GetScalarPointer());
+
+	int numberOfVoxels = dimImageB[0]*dimImageB[1]*dimImageB[2];
+	for (int index = 0; index<numberOfVoxels; index++)
+		if(dataPtrImageB[index] > 0)
+			dataPtrImageAB[index] = 1;
+
+	return imageAB;
 }
 
 vtkImageDataPtr FraxinusSegmentations::shiftVtkScalarToUnsignedShort(vtkImageDataPtr input)
@@ -905,13 +913,14 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 		if(mSegmentTumors)
 		{
 			mTumorsProcessed = true;
-			setMeshNameAndStopTimer(otTUMOR);
+			stopTimer(otTUMOR, true);
+
 		}
 	}
 	else if(mCurrentSegmentationType == lsNODULES)
 	{
 		mNodulesProcessed = true;
-		setMeshNameAndStopTimer(otNODULES);
+		stopTimer(otNODULES, true);
 	}
 	mServices->patient()->autoSave();
 }
@@ -939,13 +948,21 @@ void FraxinusSegmentations::setMeshName(ORGAN_TYPE target)
 		CX_LOG_WARNING() << "FraxinusSegmentations::setMeshName: Found no segmentation for: " << enum2string(target);
 }
 
-void FraxinusSegmentations::stopTimer(ORGAN_TYPE target)
+void FraxinusSegmentations::stopTimer(ORGAN_TYPE target, bool checkVolume)
 {
-	MeshPtr mesh = this->getMesh(target);
+	bool succeeded = false;
+	if(checkVolume)
+	{
+		if(this->getVolume(target))
+			succeeded = true;
+	}
+	else if(this->getMesh(target))
+			succeeded = true;
+
 	DisplayTimerWidget* timer = this->getTimer(target);
 	if(timer)
 	{
-		if(mesh)
+		if(succeeded)
 			timer->stop();
 		else
 			timer->failed();

@@ -550,6 +550,12 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	
 }
 
+void FraxinusWorkflowState::setupTumorInformationWidget(TumorInformationWidget* widget, std::vector<unsigned int> viewGroupNumbers)
+{
+	std::vector<MeshPtr> tumors = mFraxinusSegmentations->getMeshes(otTUMOR);
+	widget->setTumorMeshes(tumors);
+}
+
 
 void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
@@ -580,7 +586,10 @@ void FraxinusWorkflowState::setupPinPointWidget(std::vector<unsigned int> viewGr
 {
 	PinpointWidget* pinPointWidget = this->getPinpointWidget();
 	if (pinPointWidget)
+	{
 		this->setupViewOptionsForStructuresSelection(pinPointWidget->getStructuresSelectionWidget(), viewGroupNumbers);
+		this->setupTumorInformationWidget(pinPointWidget->getTumorInformationWidget(), viewGroupNumbers);
+	}
 }
 
 void FraxinusWorkflowState::setupProcedurePlanningWidget(std::vector<unsigned int> viewGroupNumbers)
@@ -937,7 +946,15 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 
 		StructuresSelectionWidget* structureSelectionWidget = pinPointWidget->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
+		{
 			structureSelectionWidget->onEntry();
+			if(mFraxinusSegmentations->getMesh(otTUMOR))
+				structureSelectionWidget->turnOnStructure(lsTUMOR);
+		}
+
+		TumorInformationWidget* tumorInformationWidget = pinPointWidget->getTumorInformationWidget();
+		if(tumorInformationWidget)
+			tumorInformationWidget->onEntery();
 	}
 
 	this->setPointPickerIn3Dview(true);
@@ -1156,6 +1173,10 @@ void PinpointWorkflowState::onExit(QEvent * event)
 	PinpointWidget* pinPointWidget = this->getPinpointWidget();
 	if(pinPointWidget)
 		pinPointWidget->setLungWindowButtonOn();
+	TumorInformationWidget* tumorInformationWidget = pinPointWidget->getTumorInformationWidget();
+	if(tumorInformationWidget)
+		tumorInformationWidget->onExit();
+
 	this->setLungWindow();
 	this->setPointPickerIn3Dview(false);
 	WorkflowState::onExit(event);

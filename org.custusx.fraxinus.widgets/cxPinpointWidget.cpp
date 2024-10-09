@@ -85,6 +85,14 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	v_layout->addWidget(windowBox);
 	v_layout->addSpacing(30);
 
+	mTumorInfoWidget = new TumorInformationWidget(mServices, this);
+	QGroupBox* tumorInfoBox = new QGroupBox(tr("Tumors"));
+	QVBoxLayout* tumorInfoLayout = new QVBoxLayout();
+	tumorInfoLayout->addWidget(mTumorInfoWidget);
+	tumorInfoBox->setLayout(tumorInfoLayout);
+	v_layout->addWidget(tumorInfoBox); //There is stretch at the end in the parent widget. Add the viewbox before that stretch.
+	v_layout->addStretch(); //And add some more stretch
+
 
 	mStructuresSelectionWidget = new StructuresSelectionWidget(mServices,this);
 	QGroupBox* structuresBox = new QGroupBox(tr("Select structures"));
@@ -263,6 +271,11 @@ QString PinpointWidget::getNameOfPointMetric() const
 StructuresSelectionWidget* PinpointWidget::getStructuresSelectionWidget()
 {
 	return mStructuresSelectionWidget;
+}
+
+TumorInformationWidget* PinpointWidget::getTumorInformationWidget()
+{
+	return mTumorInfoWidget;
 }
 
 void PinpointWidget::addAirwayPointOn(bool checked)

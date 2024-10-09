@@ -81,6 +81,7 @@ private slots:
 	void checkForPETData();
 	
 private:
+	vtkImageDataPtr mergeBinaryVolumes(vtkImageDataPtr imageA, vtkImageDataPtr imageB);
 	vtkImageDataPtr shiftVtkScalarToUnsignedShort(vtkImageDataPtr input);
 
 	RegServicesPtr mServices;
@@ -135,7 +136,7 @@ private:
 	void setMeshNameAndStopTimer(ORGAN_TYPE target);
 	void setMeshName(ORGAN_TYPE target);///< Needs to be called after patient()->insertData to work. Better to use: setMeshNameAndType(MeshPtr mesh, ORGAN_TYPE target)
 	void setMeshNameAndType(MeshPtr mesh, ORGAN_TYPE target);
-	void stopTimer(ORGAN_TYPE target);
+	void stopTimer(ORGAN_TYPE target, bool checkVolume = false);
 	void generateCenterline();
 	bool runRaidionics(GenericScriptFilterPtr scriptFilter);
 	DisplayTimerWidget *getTimer(ORGAN_TYPE target);
