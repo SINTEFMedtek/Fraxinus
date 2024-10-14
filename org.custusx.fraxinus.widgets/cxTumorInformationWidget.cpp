@@ -51,7 +51,6 @@ TumorInformationWidget::TumorInformationWidget(VisServicesPtr services, QWidget*
 {
 
 	mDeleteTumorButton = new QPushButton("&Delete this tumor", this);
-//	connect(deleteTumorButton, &QPushButton::clicked, this, &TumorInformationWidget::deleteTumorSlot);
 
 	QVBoxLayout *mainLayout = new QVBoxLayout();
 	QHBoxLayout *horizontalLayout = new QHBoxLayout();
@@ -65,9 +64,6 @@ TumorInformationWidget::TumorInformationWidget(VisServicesPtr services, QWidget*
 	mainLayout->addLayout(horizontalLayout);
 
 	this->setLayout(mainLayout);
-
-//	connect(mTumorComboBox, QOverload<int>::of(&QComboBox::highlighted), this, &TumorInformationWidget::tumorChangedSlot);
-//	connect(mTumorComboBox, QOverload<int>::of(&QComboBox::activated), this, &TumorInformationWidget::tumorChangedSlot);
 }
 
 
@@ -196,7 +192,7 @@ void TumorInformationWidget::tumorChangedSlot(int currentIndex)
 	}
 
 	mTumorVolumeLabel->setText(QString("Tumor volume: %1 ml").
-															arg(mTumors[currentIndex]->getVolumeSize(), 0, 'f', 2));
+															arg(mTumors[currentIndex]->getVolumeSizeMl(), 0, 'f', 2));
 
 }
 

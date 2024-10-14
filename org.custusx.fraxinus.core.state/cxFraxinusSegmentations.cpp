@@ -764,15 +764,15 @@ void FraxinusSegmentations::postProcessTumors()
 
 	MeshesFromLabelsFilterPtr meshesFromLabelsFilter = MeshesFromLabelsFilterPtr(new MeshesFromLabelsFilter(visServices));
 	std::vector<vtkPolyDataPtr> rawResult = meshesFromLabelsFilter->execute(
-													 labeledImage->getBaseVtkImageData(),  //input
-													 labeledImage->getMin()+1,  //startLabel
-													 labeledImage->getMax(),  //endLabel
-													 false,  //reduceResolution
-													 true,  //smoothing
-													 true,  //preserveTopology
-													 0.99,  //preservedecimationTopology
-													 15,  //numberOfIterations
-													 0.03);  //passBand
+				labeledImage->getBaseVtkImageData(),  //input
+				labeledImage->getMin()+1,  //startLabel
+				labeledImage->getMax(),  //endLabel
+				false,  //reduceResolution
+				true,  //smoothing
+				true,  //preserveTopology
+				0.99,  //preservedecimationTopology
+				15,  //numberOfIterations
+				0.03);  //passBand
 
 	std::vector<MeshPtr> tumorMeshes = meshesFromLabelsFilter->postProcess(visServices, rawResult, labeledImage, QColor(255,255,0,255), false);
 
@@ -782,7 +782,7 @@ void FraxinusSegmentations::postProcessTumors()
 		QString nameWithNumber = tumorMeshes[i]->getName() + QString("_") + QString::number(i+1);
 		tumorMeshes[i]->setName(nameWithNumber);
 		if(tumorSizes.size()>i)
-			tumorMeshes[i]->setVolumeSize(tumorSizes[i]);
+			tumorMeshes[i]->setVolumeSizeMl(tumorSizes[i]);
 	}
 
 	mServices->patient()->removeData(tumorsVolume->getUid());
