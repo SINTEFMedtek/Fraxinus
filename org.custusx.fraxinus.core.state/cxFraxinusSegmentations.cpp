@@ -779,10 +779,15 @@ void FraxinusSegmentations::postProcessTumors()
 	for(int i=0; i<tumorMeshes.size(); i++)
 	{
 		this->setMeshNameAndType(tumorMeshes[i], otTUMOR);
-		QString nameWithNumber = tumorMeshes[i]->getName() + QString("_") + QString::number(i+1);
-		tumorMeshes[i]->setName(nameWithNumber);
+		QString nameWithNumber = tumorMeshes[i]->getName() + QString(" ") + QString::number(i+1);
 		if(tumorSizes.size()>i)
+		{
 			tumorMeshes[i]->setVolumeSizeMl(tumorSizes[i]);
+			QString nameWithNumberAndVolumeSize = nameWithNumber + QString(":  %1 ml").arg(tumorSizes[i], 0, 'f', 2);
+			tumorMeshes[i]->setName(nameWithNumberAndVolumeSize);
+		}
+		else
+			tumorMeshes[i]->setName(nameWithNumber);
 	}
 
 	mServices->patient()->removeData(tumorsVolume->getUid());

@@ -64,11 +64,18 @@ TumorInformationWidget::TumorInformationWidget(VisServicesPtr services, QWidget*
 	mainLayout->addLayout(horizontalLayout);
 
 	this->setLayout(mainLayout);
+
+	connect(mDeleteTumorButton, &QPushButton::clicked, this, &TumorInformationWidget::deleteTumorSlot);
+	connect(mTumorComboBox, QOverload<int>::of(&QComboBox::highlighted), this, &TumorInformationWidget::tumorChangedSlot);
+	connect(mTumorComboBox, QOverload<int>::of(&QComboBox::activated), this, &TumorInformationWidget::tumorChangedSlot);
 }
 
 
 TumorInformationWidget::~TumorInformationWidget()
 {
+	disconnect(mDeleteTumorButton, &QPushButton::clicked, this, &TumorInformationWidget::deleteTumorSlot);
+	disconnect(mTumorComboBox, QOverload<int>::of(&QComboBox::highlighted), this, &TumorInformationWidget::tumorChangedSlot);
+	disconnect(mTumorComboBox, QOverload<int>::of(&QComboBox::activated), this, &TumorInformationWidget::tumorChangedSlot);
 }
 
 QString TumorInformationWidget::getWidgetName()
@@ -79,10 +86,6 @@ QString TumorInformationWidget::getWidgetName()
 void TumorInformationWidget::onEntery()
 {
 	this->updateTumorList();
-
-	connect(mDeleteTumorButton, &QPushButton::clicked, this, &TumorInformationWidget::deleteTumorSlot);
-	connect(mTumorComboBox, QOverload<int>::of(&QComboBox::highlighted), this, &TumorInformationWidget::tumorChangedSlot);
-	connect(mTumorComboBox, QOverload<int>::of(&QComboBox::activated), this, &TumorInformationWidget::tumorChangedSlot);
 }
 
 void TumorInformationWidget::onExit()
@@ -93,10 +96,6 @@ void TumorInformationWidget::onExit()
 		color.setAlpha(255);
 		mTumors[i]->setColor(color);
 	}
-
-	disconnect(mDeleteTumorButton, &QPushButton::clicked, this, &TumorInformationWidget::deleteTumorSlot);
-	disconnect(mTumorComboBox, QOverload<int>::of(&QComboBox::highlighted), this, &TumorInformationWidget::tumorChangedSlot);
-	disconnect(mTumorComboBox, QOverload<int>::of(&QComboBox::activated), this, &TumorInformationWidget::tumorChangedSlot);
 }
 
 void TumorInformationWidget::setTumorMeshes(std::vector<MeshPtr> tumors)
@@ -187,7 +186,7 @@ void TumorInformationWidget::tumorChangedSlot(int currentIndex)
 		if(i==currentIndex)
 			color.setAlpha(255);
 		else
-			color.setAlpha(20);
+			color.setAlpha(70);
 		mTumors[i]->setColor(color);
 	}
 
