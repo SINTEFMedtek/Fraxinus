@@ -172,7 +172,8 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mCheckBoxTumors = new QCheckBox(tr("Tumors (~5 min)"));
 	mCheckBoxPET = new QCheckBox(tr("PET to CT (~2 min)"));
 	this->checkForPETData();
-	//mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (<1 min)"));
+	mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (5 min)"));
+	mCheckBoxLungLobes = new QCheckBox(tr("Lung Lobes  (5 min)"));
 	mCheckBoxSelectAll = new QCheckBox(tr("Select all"));
 
 	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusSegmentations::checkForPETData);
@@ -193,7 +194,8 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	//checkBoxLayout->addWidget(mCheckBoxNodules);
 	checkBoxLayout->addWidget(mCheckBoxTumors);
 	checkBoxLayout->addWidget(mCheckBoxPET);
-	//checkBoxLayout->addWidget(mCheckBoxLungVessels);
+	checkBoxLayout->addWidget(mCheckBoxLungLobes);
+	checkBoxLayout->addWidget(mCheckBoxLungVessels);
 	checkBoxLayout->addWidget(mCheckBoxSelectAll);
 	
 	QGridLayout* mainLayout = new QGridLayout;
@@ -225,14 +227,15 @@ void FraxinusSegmentations::selectAll(bool checked)
 	mCheckBoxTumors->setChecked(checked);
 	if(mCheckBoxPET->isEnabled())
 		mCheckBoxPET->setChecked(checked);
-	//mCheckBoxLungVessels->setChecked(checked);
+	mCheckBoxLungVessels->setChecked(checked);
+	mCheckBoxLungLobes->setChecked(checked);
 }
 
 void FraxinusSegmentations::imageSelected()
 {
 	mSegmentAirways = mCheckBoxAirways->isChecked();
-	//mSegmentLungVessels = mCheckBoxLungVessels->isChecked();
-	mSegmentLungVessels = false;
+	mSegmentLungVessels = mCheckBoxLungVessels->isChecked();
+	mSegmentLungLobes = mCheckBoxLungLobes->isChecked();
 	mSegmentLymphNodes = mCheckBoxLymphNodes->isChecked();
 	mSegmentHeart = mCheckBoxHeart->isChecked();
 	mSegmentMediumOrgans = mCheckBoxMediumOrgans->isChecked();
@@ -286,7 +289,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		mLungVesselsTimerWidget = new DisplayTimerWidget(timerWidget);
 		mLungVesselsTimerWidget->setFontSize(3);
 		mLungVesselsTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("Small Vessels:");
+		QLabel* label = new QLabel("Small vessels:");
 		gridLayout->addWidget(label,1,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,1,1);
 		if(this->getMesh(otLUNG_VESSELS))
@@ -364,6 +367,18 @@ void FraxinusSegmentations::createProcessingInfo()
 		if(this->getMesh(otTUMOR))
 			mTumorsTimerWidget->stop();
 	}
+	if (mSegmentLungLobes)
+	{
+		QWidget* timerWidget = new QWidget;
+		mLungLobesTimerWidget = new DisplayTimerWidget(timerWidget);
+		mLungLobesTimerWidget->setFontSize(3);
+		mLungLobesTimerWidget->setFixedWidth(50);
+		QLabel* label = new QLabel("Lung Lobes:");
+		gridLayout->addWidget(label,9,0,Qt::AlignRight);
+		gridLayout->addWidget(timerWidget,9,1);
+		if(this->getMesh(otLOBE_LUL))
+			mLungLobesTimerWidget->stop();
+	}
 	if (mRegisterPET)
 	{
 		QWidget* timerWidget = new QWidget;
@@ -371,8 +386,8 @@ void FraxinusSegmentations::createProcessingInfo()
 		mPETTimerWidget->setFontSize(3);
 		mPETTimerWidget->setFixedWidth(50);
 		QLabel* label = new QLabel("PET:");
-		gridLayout->addWidget(label,9,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,9,1,10,3);
+		gridLayout->addWidget(label,10,0,Qt::AlignRight);
+		gridLayout->addWidget(timerWidget,10,1,11,3);
 		if(this->getImage(imPET, istPET_REGISTERED))
 			mPETTimerWidget->stop();
 	}
@@ -396,13 +411,18 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	if(!image)
 		return;
 
-	DataPtr vessels = this->getMesh(otLUNG_VESSELS);
-	if(vessels || mLungVesselsProcessed || !mSegmentLungVessels)
-	{
+	if(this->getMesh(otLUNG_VESSELS))
 		mLungVesselsProcessed = true;
+	if(this->getMesh(otLOBE_LUL))
+		mLungLobesProcessed = true;
 
-		this->performMLSegmentation(image);
-		return;
+	if(mLungLobesProcessed || !mSegmentLungLobes)
+	{
+		if(mLungVesselsProcessed || !mSegmentLungVessels)
+		{
+			this->performMLSegmentation(image);
+			return;
+		}
 	}
 
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
@@ -412,12 +432,22 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	scriptFilter->getOutputTypes();
 	scriptFilter->getOptions();
 
-	if(!mLungVesselsProcessed && mSegmentLungVessels)
+	if(!mLungLobesProcessed && mSegmentLungLobes)
+	{
+		mActiveTimerWidget = mLungLobesTimerWidget;
+		if(mActiveTimerWidget)
+				mActiveTimerWidget->start();
+		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_LungLobes.ini");
+		mCurrentSegmentationType = lsLOBE;
+		mLungLobesProcessed = true;
+		input[0]->setValue(image->getUid());
+	}
+	else if(!mLungVesselsProcessed && mSegmentLungVessels)
 	{
 		mActiveTimerWidget = mLungVesselsTimerWidget;
 		if(mActiveTimerWidget)
 				mActiveTimerWidget->start();
-		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_VesselsInLungs.ini");
+		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_LungVessels.ini");
 		mCurrentSegmentationType = lsLUNG_VESSELS;
 		mLungVesselsProcessed = true;
 		input[0]->setValue(image->getUid());
@@ -632,7 +662,9 @@ void FraxinusSegmentations::pythonFinishedSlot()
 
 	this->checkIfSegmentationSucceeded();
 
-	if(mCurrentSegmentationType == lsLUNG_VESSELS && mSegmentTumors)
+	if(mCurrentSegmentationType == lsLOBE && (mSegmentLungVessels || mSegmentTumors))
+		this->performPythonSegmentation(this->getImage(imCT, istTHORAX_CT));
+	else if(mCurrentSegmentationType == lsLUNG_VESSELS && mSegmentTumors)
 		this->performPythonSegmentation(this->getImage(imCT, istTHORAX_CT));
 	else
 		this->performMLSegmentation(this->getImage(imCT, istTHORAX_CT));
@@ -927,6 +959,23 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 		mNodulesProcessed = true;
 		stopTimer(otNODULES, true);
 	}
+	else if(mCurrentSegmentationType == lsLUNG_VESSELS)
+	{
+		mLungVesselsProcessed = true;
+		setMeshNameAndStopTimer(otLUNG_VESSELS);
+	}
+	else if(mCurrentSegmentationType == lsLOBE)
+	{
+		mLungLobesProcessed = true;
+		stopTimer(otLOBE_LUL);
+		setMeshName(otLOBE_LUL);
+		setMeshName(otLOBE_LLL);
+		setMeshName(otLOBE_RUL);
+		setMeshName(otLOBE_RML);
+		setMeshName(otLOBE_RLL);
+	}
+
+
 	mServices->patient()->autoSave();
 }
 
@@ -1003,6 +1052,14 @@ DisplayTimerWidget* FraxinusSegmentations::getTimer(ORGAN_TYPE target)
 		timer = mTumorsTimerWidget; break;
 	case otNODULES:
 		timer = mNodulesTimerWidget; break;
+	case otLUNG_VESSELS:
+		timer = mLungVesselsTimerWidget; break;
+	case otLOBE_LUL:
+	case otLOBE_LLL:
+	case otLOBE_RUL:
+	case otLOBE_RML:
+	case otLOBE_RLL:
+		timer = mLungLobesTimerWidget; break;
 	default:
 		timer = nullptr; break;
 	}

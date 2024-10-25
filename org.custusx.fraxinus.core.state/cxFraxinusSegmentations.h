@@ -102,6 +102,7 @@ private:
 	DisplayTimerWidget* mTumorsTimerWidget;
 	DisplayTimerWidget* mPETTimerWidget;
 	DisplayTimerWidget* mLungVesselsTimerWidget;
+	DisplayTimerWidget* mLungLobesTimerWidget;
 	DisplayTimerWidget* mActiveTimerWidget = NULL;
 	QCheckBox* mCheckBoxAirways;
 	QCheckBox* mCheckBoxLungs;
@@ -113,10 +114,12 @@ private:
 	QCheckBox* mCheckBoxTumors;
 	QCheckBox* mCheckBoxPET;
 	QCheckBox* mCheckBoxLungVessels;
+	QCheckBox* mCheckBoxLungLobes;
 	QCheckBox* mCheckBoxSelectAll;
 	bool mRaidionicsRun = false;
 	bool mAirwaysProcessed = false;
 	bool mLungVesselsProcessed = false;
+	bool mLungLobesProcessed = false;
 	bool mNodulesProcessed = false;
 	bool mTumorsProcessed = false;
 	bool mLymphNodesProcessed = false;
@@ -124,6 +127,7 @@ private:
 	bool mMediumOrgansProcessed = false;
 	bool mSmallOrgansProcessed = false;
 	bool mSegmentLungVessels = false;
+	bool mSegmentLungLobes = false;
 	bool mSegmentNodules = false;
 	bool mSegmentTumors = false;
 	bool mRegisterPET = false;
