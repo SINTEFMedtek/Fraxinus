@@ -172,8 +172,8 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mCheckBoxTumors = new QCheckBox(tr("Tumors (~5 min)"));
 	mCheckBoxPET = new QCheckBox(tr("PET to CT (~2 min)"));
 	this->checkForPETData();
-	mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (5 min)"));
-	mCheckBoxLungLobes = new QCheckBox(tr("Lung Lobes  (5 min)"));
+	mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (~5 min)"));
+	mCheckBoxLungLobes = new QCheckBox(tr("Lung Lobes  (~5 min)"));
 	mCheckBoxSelectAll = new QCheckBox(tr("Select all"));
 
 	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusSegmentations::checkForPETData);
