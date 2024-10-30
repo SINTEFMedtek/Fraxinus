@@ -730,8 +730,8 @@ void FraxinusSegmentations::postProcessAirways()
 
 void FraxinusSegmentations::postProcessTumors()
 {
-	ImagePtr tumorsVolume =this->getVolume(otTUMOR);
-	ImagePtr nodulesVolume =this->getVolume(otNODULES);
+	ImagePtr tumorsVolume = this->getVolume(otTUMOR);
+	ImagePtr nodulesVolume = this->getVolume(otNODULES);
 
 	vtkImageDataPtr combinedVtkImage = vtkImageDataPtr::New();
 	if(tumorsVolume && nodulesVolume)
@@ -790,9 +790,12 @@ void FraxinusSegmentations::postProcessTumors()
 			tumorMeshes[i]->setName(nameWithNumber);
 	}
 
-	mServices->patient()->removeData(tumorsVolume->getUid());
-	mServices->patient()->removeData(nodulesVolume->getUid());
-	mServices->patient()->removeData(labeledImage->getUid());
+	if(tumorsVolume)
+		mServices->patient()->removeData(tumorsVolume->getUid());
+	if(nodulesVolume)
+		mServices->patient()->removeData(nodulesVolume->getUid());
+	if(labeledImage)
+		mServices->patient()->removeData(labeledImage->getUid());
 }
 
 vtkImageDataPtr FraxinusSegmentations::mergeBinaryVolumes(vtkImageDataPtr imageA, vtkImageDataPtr imageB)
