@@ -98,6 +98,7 @@ ImagePtr FraxinusSegmentations::findAndLabelThoraxCT() const
 				&& !(it->second->getOrganType() == otLUNGS)
 				&& !(it->second->getOrganType() == otAIRWAYS)
 				&& ((it->second->getModality() == imCT) || (it->second->getModality() == imUNKNOWN) || (it->second->getModality() == imCOUNT))
+				&& !((it->second->getImageType() == istPET) || (it->second->getImageType() == istPET_CT))
 			 )
 		{
 			image = it->second;
