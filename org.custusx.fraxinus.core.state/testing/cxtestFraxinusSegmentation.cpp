@@ -33,7 +33,8 @@ public:
 	{
 		mSegmentAirways = true;
 		mSegmentLymphNodes = true;
-		return 3;
+		mSegmentTumors = true;
+		return 4;
 	}
 	int setMultipleTargetsSegmentations()
 	{

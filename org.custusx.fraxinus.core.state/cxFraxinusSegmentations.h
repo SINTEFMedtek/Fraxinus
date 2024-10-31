@@ -64,6 +64,7 @@ protected:
 	bool mSegmentHeart = false;
 	bool mSegmentMediumOrgans = false;
 	bool mSegmentSmallOrgans = false;
+	bool mSegmentTumors = false;
 
 	QStringList getRaidionicsOutputClasses(bool startTimers = true);
 	void setElastixParameters();
@@ -125,7 +126,6 @@ private:
 	bool mSmallOrgansProcessed = false;
 	bool mSegmentLungVessels = false;
 	bool mSegmentNodules = false;
-	bool mSegmentTumors = false;
 	bool mRegisterPET = false;
 	LUNG_STRUCTURES mCurrentSegmentationType;
 	BranchListPtr mBranchList;
