@@ -674,7 +674,10 @@ void FraxinusWorkflowState::setMeshOpacity(MeshPtr mesh, double opacity)
 		mesh->setColor(color);
 	}
 }
-
+void FraxinusWorkflowState::deleteBranchList()
+{
+	mBranchList.reset();
+}
 void FraxinusWorkflowState::cleanupVBWidget()
 {
 	this->mUpdateFocus = false;
@@ -882,7 +885,7 @@ PinpointWorkflowState::PinpointWorkflowState(QState* parent, RegServicesPtr serv
 	m3DViewGroupNumber(0),
 	m2DViewGroupNumber(1)
 {
-	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWorkflowState::dataAddedOrRemovedSlot, Qt::UniqueConnection);
+	connect(mServices->session().get(), &SessionStorageService::sessionChanged, this, &PinpointWorkflowState::onPatientChanged, Qt::UniqueConnection);
 }
 
 PinpointWorkflowState::~PinpointWorkflowState()
@@ -970,6 +973,17 @@ bool PinpointWorkflowState::canEnter() const
 		return true;
 	else
 		return false;
+}
+
+void PinpointWorkflowState::onPatientChanged()
+{
+	if(!mServices->session()->isValid())
+		return;
+
+	mBranchList.reset();
+
+	this->pointChanged();
+	this->setRTTInVBWidget();
 }
 
 void PinpointWorkflowState::dataAddedOrRemovedSlot()
@@ -1192,7 +1206,7 @@ VirtualBronchoscopyFlyThroughWorkflowState::VirtualBronchoscopyFlyThroughWorkflo
 	, mSurfaceModel3DViewGroupNumber(0)
 	, m2DViewGroupNumber(1)
 {
-	
+	connect(mServices->session().get(), &SessionStorageService::sessionChanged, this, &VirtualBronchoscopyFlyThroughWorkflowState::deleteBranchList, Qt::UniqueConnection);
 }
 
 VirtualBronchoscopyFlyThroughWorkflowState::~VirtualBronchoscopyFlyThroughWorkflowState()
@@ -1309,7 +1323,7 @@ VirtualBronchoscopyCutPlanesWorkflowState::VirtualBronchoscopyCutPlanesWorkflowS
 , mSurfaceModel3DViewGroupNumber(0)
 , m2DViewGroupNumber(1)
 {
-	
+	connect(mServices->session().get(), &SessionStorageService::sessionChanged, this, &VirtualBronchoscopyCutPlanesWorkflowState::deleteBranchList, Qt::UniqueConnection);
 }
 
 VirtualBronchoscopyCutPlanesWorkflowState::~VirtualBronchoscopyCutPlanesWorkflowState()
@@ -1426,7 +1440,7 @@ VirtualBronchoscopyAnyplaneWorkflowState::VirtualBronchoscopyAnyplaneWorkflowSta
   , mSurfaceModel3DViewGroupNumber(0)
 	, m2DViewGroupNumber(1)
 {
-
+	connect(mServices->session().get(), &SessionStorageService::sessionChanged, this, &VirtualBronchoscopyAnyplaneWorkflowState::deleteBranchList, Qt::UniqueConnection);
 }
 
 VirtualBronchoscopyAnyplaneWorkflowState::~VirtualBronchoscopyAnyplaneWorkflowState()

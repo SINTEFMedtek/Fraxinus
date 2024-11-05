@@ -34,6 +34,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxEnumConversion.h"
 #include "cxBinaryThinningImageFilter3DFilter.h"
 #include "cxBranchList.h"
+#include "cxSessionStorageService.h"
 
 #include "cxElastixParameters.h"
 #include "cxElastixExecuter.h"
@@ -50,11 +51,11 @@ FraxinusSegmentations::FraxinusSegmentations(RegServicesPtr services) :
 	mServices(services)
 {
 	mTimedAlgorithmProgressBar = new cx::TimedAlgorithmProgressBar;
+	connect(mServices->session().get(), &SessionStorageService::sessionChanged, this, &FraxinusSegmentations::patientChanged, Qt::UniqueConnection);
 }
 
 FraxinusSegmentations::~FraxinusSegmentations()
 {
-	
 }
 
 void FraxinusSegmentations::close()
@@ -67,6 +68,23 @@ void FraxinusSegmentations::close()
 	disconnect(mCancelbutton, &QPushButton::clicked, this, &FraxinusSegmentations::cancel);
 	mSegmentationSelectionInput->close();
 	mSegmentationSelectionInput = nullptr;
+}
+
+void FraxinusSegmentations::patientChanged()
+{
+	if(!mServices->session()->isValid())
+		return;
+
+	mBranchList.reset();
+
+	mAirwaysProcessed = false;
+	mLungVesselsProcessed = false;
+	mNodulesProcessed = false;
+	mTumorsProcessed = false;
+	mLymphNodesProcessed = false;
+	mHeartProcessed = false;
+	mMediumOrgansProcessed = false;
+	mSmallOrgansProcessed = false;
 }
 
 ImagePtr FraxinusSegmentations::getImage(IMAGE_MODALITY modality, IMAGE_SUBTYPE subtype) const

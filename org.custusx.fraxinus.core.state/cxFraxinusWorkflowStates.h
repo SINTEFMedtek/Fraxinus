@@ -110,6 +110,7 @@ protected:
 	void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
 	void setupTumorInformationWidget(TumorInformationWidget *widget, std::vector<unsigned int> viewGroupNumbers);
 	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
+	void deleteBranchList();
 	void cleanupVBWidget();
 	void setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers);
 	void setupProcedurePlanningWidget(std::vector<unsigned int> viewGroupNumbers);
@@ -200,6 +201,7 @@ public:
 signals:
 	void targetMetricSet();
 private slots:
+	void onPatientChanged();
 	void dataAddedOrRemovedSlot();
 	void createRoute();
 	void pointChanged();

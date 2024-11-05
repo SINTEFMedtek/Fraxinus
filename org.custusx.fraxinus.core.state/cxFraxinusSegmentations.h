@@ -70,6 +70,7 @@ protected:
 	void setElastixParameters();
 
 private slots:
+	void patientChanged();
 	void selectAll(bool checked);
 	void imageSelected();
 	void cancel();
@@ -115,7 +116,6 @@ private:
 	QCheckBox* mCheckBoxPET;
 	QCheckBox* mCheckBoxLungVessels;
 	QCheckBox* mCheckBoxSelectAll;
-	bool mRaidionicsRun = false;
 	bool mAirwaysProcessed = false;
 	bool mLungVesselsProcessed = false;
 	bool mNodulesProcessed = false;
@@ -125,7 +125,6 @@ private:
 	bool mMediumOrgansProcessed = false;
 	bool mSmallOrgansProcessed = false;
 	bool mSegmentLungVessels = false;
-	bool mSegmentNodules = false;
 	bool mRegisterPET = false;
 	LUNG_STRUCTURES mCurrentSegmentationType;
 	BranchListPtr mBranchList;
