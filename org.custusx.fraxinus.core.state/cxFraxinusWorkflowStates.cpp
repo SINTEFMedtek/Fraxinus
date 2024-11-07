@@ -74,8 +74,6 @@ namespace cx
 FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QString name, RegServicesPtr services, bool enableAction) :
 	WorkflowState(parent, uid, name, services, enableAction)
 {
-	mFraxinusSegmentations = FraxinusSegmentationsPtr(new FraxinusSegmentations(services));
-	
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &FraxinusWorkflowState::canEnterSlot);
 }
 
@@ -254,18 +252,18 @@ MeshPtr FraxinusWorkflowState::getExtendedRouteToTarget() const
 
 ImagePtr FraxinusWorkflowState::getCTImage() const
 {
-	return mFraxinusSegmentations->getImage(imCT, istTHORAX_CT);
+	return mServices->patient()->getImage(imCT, istTHORAX_CT);
 }
 
 ImagePtr FraxinusWorkflowState::getCTImageCopied() const
 {
-	ImagePtr imageCopied = mFraxinusSegmentations->getImage(imCT, istCOPY);
+	ImagePtr imageCopied = mServices->patient()->getImage(imCT, istCOPY);
 
 	if(imageCopied)
 		return imageCopied;
 	else
 	{
-		ImagePtr imageOriginal = mFraxinusSegmentations->getImage(imCT, istTHORAX_CT);
+		ImagePtr imageOriginal = mServices->patient()->getImage(imCT, istTHORAX_CT);
 		if(imageOriginal)
 			return createCopiedImage(imageOriginal);
 	}
@@ -409,7 +407,7 @@ void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroup
 	volumeViewObjects.push_back(ctImage_copied);
 	
 	std::vector<DataPtr> tubeViewObjects;
-	MeshPtr tubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
+	MeshPtr tubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
 	tubeViewObjects.push_back(tubes);
 	
 	FraxinusVBWidget* VBWidget = this->getVBWidget();
@@ -437,83 +435,85 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	widget->resetButtons();
 
 	std::vector<DataPtr> lungObjects;
-	MeshPtr lungs = mFraxinusSegmentations->getMesh(otLUNGS);
+	MeshPtr lungs = mServices->patient()->getData<Mesh>(otLUNGS);
 	if(lungs)
 		lungObjects.push_back(lungs);
 	
-	std::vector<MeshPtr> tumors = mFraxinusSegmentations->getMeshes(otTUMOR);
-	std::vector<DataPtr> tumorObjects(tumors.begin(),tumors.end());
+	std::map<QString, MeshPtr> tumors = mServices->patient()->getDataOfType<Mesh>(otTUMOR);
+	std::vector<DataPtr> tumorObjects;
+	for (std::map<QString, MeshPtr>::const_iterator iter = tumors.begin(); iter != tumors.end(); ++iter)
+		tumorObjects.push_back(iter->second);
 
 	std::vector<DataPtr> noduleObjects;
-	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
+	MeshPtr nodules = mServices->patient()->getData<Mesh>(otNODULES);
 	if(nodules)
 		noduleObjects.push_back(nodules);
 	
 	std::vector<DataPtr> lymphNodeObjects;
-	MeshPtr lymphNodes = mFraxinusSegmentations->getMesh(otLYMPH_NODES);
+	MeshPtr lymphNodes = mServices->patient()->getData<Mesh>(otLYMPH_NODES);
 	if(lymphNodes)
 		lymphNodeObjects.push_back(lymphNodes);
 	
 	std::vector<DataPtr> spineObjects;
-	MeshPtr spine = mFraxinusSegmentations->getMesh(otSPINE);
+	MeshPtr spine = mServices->patient()->getData<Mesh>(otSPINE);
 	if(spine)
 		spineObjects.push_back(spine);
 	
 	std::vector<DataPtr> VenaCavaObjects;
-	MeshPtr venaCava = mFraxinusSegmentations->getMesh(otVENA_CAVA);
+	MeshPtr venaCava = mServices->patient()->getData<Mesh>(otVENA_CAVA);
 	if(venaCava)
 		VenaCavaObjects.push_back(venaCava);
-	MeshPtr brachiocephalicVeins = mFraxinusSegmentations->getMesh(otBRACHIO_CEPHALIC_VEINS);
+	MeshPtr brachiocephalicVeins = mServices->patient()->getData<Mesh>(otBRACHIO_CEPHALIC_VEINS);
 	if(brachiocephalicVeins)
 		VenaCavaObjects.push_back(brachiocephalicVeins);
 	
 	std::vector<DataPtr> AortaObjects;
-	MeshPtr aorticArch = mFraxinusSegmentations->getMesh(otAORTIC_ARCH);
+	MeshPtr aorticArch = mServices->patient()->getData<Mesh>(otAORTIC_ARCH);
 	if(aorticArch)
 		AortaObjects.push_back(aorticArch);
-	MeshPtr ascendingAorta = mFraxinusSegmentations->getMesh(otASCENDING_AORTA);
+	MeshPtr ascendingAorta = mServices->patient()->getData<Mesh>(otASCENDING_AORTA);
 	if(ascendingAorta)
 		AortaObjects.push_back(ascendingAorta);
-	MeshPtr descendingAorta = mFraxinusSegmentations->getMesh(otDESCENDING_AORTA);
+	MeshPtr descendingAorta = mServices->patient()->getData<Mesh>(otDESCENDING_AORTA);
 	if(descendingAorta)
 		AortaObjects.push_back(descendingAorta);
 	
 	std::vector<DataPtr> AzygosObjects;
-	MeshPtr azygos = mFraxinusSegmentations->getMesh(otAZYGOS);
+	MeshPtr azygos = mServices->patient()->getData<Mesh>(otAZYGOS);
 	if(azygos)
 		AzygosObjects.push_back(azygos);
 	
 	std::vector<DataPtr> SubclavianObjects;
-	MeshPtr subClavianArt = mFraxinusSegmentations->getMesh(otSUBCLAVIAN_ARTERY);
+	MeshPtr subClavianArt = mServices->patient()->getData<Mesh>(otSUBCLAVIAN_ARTERY);
 	if(subClavianArt)
 		SubclavianObjects.push_back(subClavianArt);
 	
 	std::vector<DataPtr> smallVesselsObjects;
-	MeshPtr smallVessels = mFraxinusSegmentations->getMesh(otLUNG_VESSELS);
+	MeshPtr smallVessels = mServices->patient()->getData<Mesh>(otLUNG_VESSELS);
 	if(smallVessels)
 		smallVesselsObjects.push_back(smallVessels);
 	
 	std::vector<DataPtr> heartObjects;
-	MeshPtr heart = mFraxinusSegmentations->getMesh(otHEART);
+	MeshPtr heart = mServices->patient()->getData<Mesh>(otHEART);
 	if(heart)
 		heartObjects.push_back(heart);
 
 	std::vector<DataPtr> pulmonaryVeinObjects;
-	MeshPtr pulmonaryVeins = mFraxinusSegmentations->getMesh(otPULMONARY_VEINS);
+	MeshPtr pulmonaryVeins = mServices->patient()->getData<Mesh>(otPULMONARY_VEINS);
 	if(pulmonaryVeins)
 		pulmonaryVeinObjects.push_back(pulmonaryVeins);
 	
 	std::vector<DataPtr> pulmonaryTrunkObjects;
-	MeshPtr pulmonaryTrunk = mFraxinusSegmentations->getMesh(otPULMONARY_TRUNK);
+	MeshPtr pulmonaryTrunk = mServices->patient()->getData<Mesh>(otPULMONARY_TRUNK);
 	if(pulmonaryTrunk)
 		pulmonaryTrunkObjects.push_back(pulmonaryTrunk);
 
 	std::vector<DataPtr> esophagusObjects;
-	MeshPtr esophagus = mFraxinusSegmentations->getMesh(otESOPHAGUS);
+	MeshPtr esophagus = mServices->patient()->getData<Mesh>(otESOPHAGUS);
 	if(esophagus)
 		esophagusObjects.push_back(esophagus);
 	
-	ImagePtr registeredPet = mFraxinusSegmentations->getImage(imPET, istPET_REGISTERED);
+	ImagePtr registeredPet = mServices->patient()->getImage(imPET, istPET_REGISTERED);
 
 	for(DataPtr object : lungObjects)
 		widget->addObject(lsLUNG, object);
@@ -552,8 +552,12 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 
 void FraxinusWorkflowState::setupTumorInformationWidget(TumorInformationWidget* widget, std::vector<unsigned int> viewGroupNumbers)
 {
-	std::vector<MeshPtr> tumors = mFraxinusSegmentations->getMeshes(otTUMOR);
-	widget->setTumorMeshes(tumors);
+	std::map<QString, MeshPtr> tumors = mServices->patient()->getDataOfType<Mesh>(otTUMOR);
+	std::vector<MeshPtr> tumorObjects;
+	for (std::map<QString, MeshPtr>::const_iterator iter = tumors.begin(); iter != tumors.end(); ++iter)
+		tumorObjects.push_back(iter->second);
+
+	widget->setTumorMeshes(tumorObjects);
 }
 
 
@@ -610,7 +614,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	routeToTargetFilter->setSmoothing(false);
 	
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr centerline = mFraxinusSegmentations->getMesh(otCENTERLINES);
+	MeshPtr centerline = mServices->patient()->getData<Mesh>(otCENTERLINES);
 	
 	if(!targetPoint)
 	{
@@ -623,10 +627,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 		return;
 	}
 
-	if(!mBranchList && mFraxinusSegmentations) //get BranchList from segmentation result
-		mBranchList = mFraxinusSegmentations->getBranchList();
-
-	if(!mBranchList) // In case of restart of Fraxinus, BranchList from segmentation result is deleted on shut down
+	if(!mBranchList) // In case of restart of Fraxinus, BranchList is deleted on shut down
 	{
 		AirwaysFromCenterlinePtr airwaysFromCLPtr = AirwaysFromCenterlinePtr(new AirwaysFromCenterline());
 		airwaysFromCLPtr->processCenterline(centerline->getVtkPolyData());
@@ -651,7 +652,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	routeToTargetFilter->setMaxGenerationForCameraRotation(MAX_GENERATION_FOR_AUTOMATIC_CAMERA_ROTATION);
 	
 	if(!mBranchList->isRadiusAvailable())
-		mBranchList->setRadius(mFraxinusSegmentations->getVolume(otAIRWAYS));
+		mBranchList->setRadius(mServices->patient()->getData<Image>(otAIRWAYS));
 
 	if(routeToTargetFilter->execute())
 	{
@@ -788,6 +789,7 @@ void ImportWorkflowState::addDataToView()
 ProcessWorkflowState::ProcessWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusProcessUid", "Process", services, false)
 {
+	mFraxinusSegmentations = FraxinusSegmentationsPtr(new FraxinusSegmentations(services));
 }
 
 ProcessWorkflowState::~ProcessWorkflowState()
@@ -838,9 +840,9 @@ bool ProcessWorkflowState::canEnter() const
 
 void ProcessWorkflowState::addDataToView()
 {
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	MeshPtr airways = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED_COPY);
 	if(!airways)
-		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
+		airways = mServices->patient()->getData<Mesh>(otAIRWAYS);
 	ImagePtr ctImage = this->getCTImage();
 	
 	
@@ -951,7 +953,7 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 		if(structureSelectionWidget)
 		{
 			structureSelectionWidget->onEntry();
-			if(mFraxinusSegmentations->getMesh(otTUMOR))
+			if(mServices->patient()->getData<Mesh>(otTUMOR))
 				structureSelectionWidget->turnOnStructure(lsTUMOR);
 		}
 
@@ -969,10 +971,10 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 }
 bool PinpointWorkflowState::canEnter() const
 {
-	if(mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES))
+	if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
 		return true;
-	else
-		return false;
+
+	return false;
 }
 
 void PinpointWorkflowState::onPatientChanged()
@@ -989,7 +991,7 @@ void PinpointWorkflowState::onPatientChanged()
 void PinpointWorkflowState::dataAddedOrRemovedSlot()
 {
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr centerline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
+	MeshPtr centerline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	
 	if(targetPoint && centerline && !routeToTarget)
@@ -1123,10 +1125,10 @@ void PinpointWorkflowState::addDataToView()
 {
 	ImagePtr ctImage = this->getCTImage();
 	
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	MeshPtr airways = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED_COPY);
 	if(!airways)
-		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
-	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
+		airways = mServices->patient()->getData<Mesh>(otAIRWAYS);
+	MeshPtr nodules = mServices->patient()->getData<Mesh>(otNODULES);
 	
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
 	clipper->addData(this->getCTImage());
@@ -1180,7 +1182,7 @@ void PinpointWorkflowState::onExit(QEvent * event)
 	if(manualTool)
 		disconnect(manualTool.get(), &Tool::toolTransformAndTimestamp, this, &PinpointWorkflowState::updateTargetPoint);
 
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
+	MeshPtr airways = mServices->patient()->getData<Mesh>(otAIRWAYS);
 	if(airways)
 		this->setMeshOpacity(airways, 1.0);
 
@@ -1254,12 +1256,12 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	MeshPtr airways = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED_COPY);
 	if(!airways)
-		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
+		airways = mServices->patient()->getData<Mesh>(otAIRWAYS);
+	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
-		MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
+		MeshPtr nodules = mServices->patient()->getData<Mesh>(otNODULES);
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 	
 	
@@ -1308,7 +1310,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
 {
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr centerline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
+	MeshPtr centerline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	return targetPoint && centerline && routeToTarget;
 }
@@ -1371,12 +1373,12 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	MeshPtr airways = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED_COPY);
 	if(!airways)
-		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
+		airways = mServices->patient()->getData<Mesh>(otAIRWAYS);
+	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
+	MeshPtr nodules = mServices->patient()->getData<Mesh>(otNODULES);
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 	
 	InteractiveClipperPtr clipper = this->enableInvertedClipper("Any", true);
@@ -1426,7 +1428,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 bool VirtualBronchoscopyCutPlanesWorkflowState::canEnter() const
 {
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr centerline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
+	MeshPtr centerline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	return targetPoint && centerline && routeToTarget;
 }
@@ -1488,12 +1490,12 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 	ImagePtr ctImage = this->getCTImage();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED_COPY);
+	MeshPtr airways = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED_COPY);
 	if(!airways)
-		airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
+		airways = mServices->patient()->getData<Mesh>(otAIRWAYS);
+	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
+	MeshPtr nodules = mServices->patient()->getData<Mesh>(otNODULES);
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 
 
@@ -1541,7 +1543,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 bool VirtualBronchoscopyAnyplaneWorkflowState::canEnter() const
 {
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr centerline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
+	MeshPtr centerline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	return targetPoint && centerline && routeToTarget;
 }
@@ -1597,7 +1599,7 @@ void ProcedurePlanningWorkflowState::onExit(QEvent * event)
 void ProcedurePlanningWorkflowState::addDataToView()
 {
 	ImagePtr ctImage = this->getCTImage();
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
+	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	
 	ViewGroupDataPtr viewGroup0_3D = viewService()->getGroup(m3DViewGroupNumber);

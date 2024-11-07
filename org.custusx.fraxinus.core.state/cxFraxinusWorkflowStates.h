@@ -97,7 +97,6 @@ protected:
 	std::vector< double > mRouteToTargetCameraRotations;
 	std::vector< int > mRouteToTargetGenerationNumbers;
 	std::vector< double > mRouteToTargetRadius;
-	FraxinusSegmentationsPtr mFraxinusSegmentations;
 
 	bool mUpdateFocus = false;
 
@@ -185,6 +184,8 @@ private slots:
 	void segmentationFinishedSlot();
 private:
 	virtual void addDataToView();
+
+	FraxinusSegmentationsPtr mFraxinusSegmentations;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public FraxinusWorkflowState

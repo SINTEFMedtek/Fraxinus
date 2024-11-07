@@ -35,14 +35,9 @@ public:
 	FraxinusSegmentations(RegServicesPtr services);
 	~FraxinusSegmentations();
 	
-	ImagePtr getImage(IMAGE_MODALITY modality, IMAGE_SUBTYPE subtype) const;
 	ImagePtr findAndLabelThoraxCT() const;
-	ImagePtr getVolume(ORGAN_TYPE organType) const;
 
 	BranchListPtr getBranchList();
-
-	MeshPtr getMesh(ORGAN_TYPE organType);
-	std::vector<MeshPtr> getMeshes(ORGAN_TYPE organType);
 	
 	void createSelectSegmentationBox();
 	void createProcessingInfo();
