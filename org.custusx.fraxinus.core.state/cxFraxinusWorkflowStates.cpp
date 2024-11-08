@@ -1081,15 +1081,19 @@ void PinpointWorkflowState::showPointMetric(PointMetricPtr point, bool show)
 	ViewGroupDataPtr viewGroup0_3D = viewService()->getGroup(m3DViewGroupNumber);
 	ViewGroupDataPtr viewGroup1_2D = viewService()->getGroup(m2DViewGroupNumber);
 	if(viewGroup0_3D)
+	{
 		if (show)
 			viewGroup0_3D->addData(point->getUid());
 		else
 			viewGroup0_3D->removeData(point->getUid());
+	}
 	if(viewGroup1_2D)
+	{
 		if (show)
 			viewGroup1_2D->addData(point->getUid());
 		else
 			viewGroup1_2D->removeData(point->getUid());
+	}
 }
 
 void PinpointWorkflowState::showRouteToTarget()
