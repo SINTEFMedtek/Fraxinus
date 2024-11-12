@@ -78,8 +78,8 @@ private slots:
 	void checkForPETData();
 	
 private:
-	vtkImageDataPtr mergeBinaryVolumes(vtkImageDataPtr imageA, vtkImageDataPtr imageB);
-	vtkImageDataPtr shiftVtkScalarToUnsignedShort(vtkImageDataPtr input);
+	vtkImageDataPtr mergeTumorVolumes(ImagePtr tumorsVolume, ImagePtr nodulesVolume);
+	void setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> tumorMeshes, std::vector<double> tumorSizes);
 
 	RegServicesPtr mServices;
 	

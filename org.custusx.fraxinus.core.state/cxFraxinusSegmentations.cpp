@@ -56,6 +56,7 @@ FraxinusSegmentations::FraxinusSegmentations(RegServicesPtr services) :
 
 FraxinusSegmentations::~FraxinusSegmentations()
 {
+	disconnect(mServices->session().get(), &SessionStorageService::sessionChanged, this, &FraxinusSegmentations::patientChanged);
 }
 
 void FraxinusSegmentations::close()
@@ -697,15 +698,7 @@ void FraxinusSegmentations::postProcessTumors()
 	ImagePtr tumorsVolume = mServices->patient()->getData<Image>(otTUMOR);
 	ImagePtr nodulesVolume = mServices->patient()->getData<Image>(otNODULES);
 
-	vtkImageDataPtr combinedVtkImage = vtkImageDataPtr::New();
-	if(tumorsVolume && nodulesVolume)
-		combinedVtkImage = this->mergeBinaryVolumes(tumorsVolume->getBaseVtkImageData(), nodulesVolume->getBaseVtkImageData());
-	else if(tumorsVolume)
-		combinedVtkImage->DeepCopy(tumorsVolume->getBaseVtkImageData());
-	else if(nodulesVolume)
-		combinedVtkImage->DeepCopy(nodulesVolume->getBaseVtkImageData());
-	else
-		return;
+	vtkImageDataPtr combinedVtkImage = mergeTumorVolumes(tumorsVolume, nodulesVolume);
 
 	if(!combinedVtkImage)
 		return;
@@ -739,7 +732,33 @@ void FraxinusSegmentations::postProcessTumors()
 				0.03);  //passBand
 
 	std::vector<MeshPtr> tumorMeshes = meshesFromLabelsFilter->postProcess(visServices, rawResult, labeledImage, QColor(255,255,0,255), false);
+	setNumberAndSizeToTumorVolumes(tumorMeshes, tumorSizes);
 
+	if(tumorsVolume)
+		mServices->patient()->removeData(tumorsVolume->getUid());
+	if(nodulesVolume)
+		mServices->patient()->removeData(nodulesVolume->getUid());
+	if(labeledImage)
+		mServices->patient()->removeData(labeledImage->getUid());
+}
+
+vtkImageDataPtr FraxinusSegmentations::mergeTumorVolumes(ImagePtr tumorsVolume, ImagePtr nodulesVolume)
+{
+	vtkImageDataPtr combinedVtkImage = vtkImageDataPtr::New();
+	if(tumorsVolume && nodulesVolume)
+		combinedVtkImage =  mergeBinaryImages(tumorsVolume->getBaseVtkImageData(), nodulesVolume->getBaseVtkImageData());
+	else if(tumorsVolume)
+		combinedVtkImage->DeepCopy(tumorsVolume->getBaseVtkImageData());
+	else if(nodulesVolume)
+		combinedVtkImage->DeepCopy(nodulesVolume->getBaseVtkImageData());
+	else
+		combinedVtkImage = vtkImageDataPtr();
+
+	return combinedVtkImage;
+}
+
+void FraxinusSegmentations::setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> tumorMeshes, std::vector<double> tumorSizes)
+{
 	for(int i=0; i<tumorMeshes.size(); i++)
 	{
 		this->setMeshNameAndType(tumorMeshes[i], otTUMOR);
@@ -753,58 +772,7 @@ void FraxinusSegmentations::postProcessTumors()
 		else
 			tumorMeshes[i]->setName(nameWithNumber);
 	}
-
-	if(tumorsVolume)
-		mServices->patient()->removeData(tumorsVolume->getUid());
-	if(nodulesVolume)
-		mServices->patient()->removeData(nodulesVolume->getUid());
-	if(labeledImage)
-		mServices->patient()->removeData(labeledImage->getUid());
 }
-
-vtkImageDataPtr FraxinusSegmentations::mergeBinaryVolumes(vtkImageDataPtr imageA, vtkImageDataPtr imageB)
-{
-	vtkImageDataPtr imageAB = vtkImageDataPtr::New();
-
-	int* dimImageA = imageA->GetDimensions();
-	int* dimImageB = imageB->GetDimensions();
-	if(dimImageA[0]!=dimImageB[0] || dimImageA[2]!=dimImageB[2] || dimImageA[2]!=dimImageB[2])
-		return imageAB;
-
-	imageA = shiftVtkScalarToUnsignedShort(imageA);
-	imageB = shiftVtkScalarToUnsignedShort(imageB);
-
-	imageAB->DeepCopy(imageA);
-
-	unsigned short* dataPtrImageB = static_cast<unsigned short*>(imageB->GetScalarPointer());
-	unsigned short* dataPtrImageAB = static_cast<unsigned short*>(imageAB->GetScalarPointer());
-
-	int numberOfVoxels = dimImageB[0]*dimImageB[1]*dimImageB[2];
-	for (int index = 0; index<numberOfVoxels; index++)
-		if(dataPtrImageB[index] > 0)
-			dataPtrImageAB[index] = 1;
-
-	return imageAB;
-}
-
-vtkImageDataPtr FraxinusSegmentations::shiftVtkScalarToUnsignedShort(vtkImageDataPtr input)
-{
-	//make function
-	vtkImageShiftScalePtr cast = vtkImageShiftScalePtr::New();
-	cast->SetInputData(input);
-	cast->ClampOverflowOn();
-
-	int shift = 0;
-	if (input->GetScalarTypeMin() < 0)
-		shift = -input->GetScalarRange()[0];
-
-	cast->SetShift(shift);
-	cast->SetOutputScalarType(VTK_UNSIGNED_SHORT);
-	cast->Update();
-
-	return cast->GetOutput();
-}
-
 
 void FraxinusSegmentations::generateCenterline()
 {//using BinaryThinningImageFilter3DFilter
