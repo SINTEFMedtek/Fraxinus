@@ -35,13 +35,9 @@ public:
 	FraxinusSegmentations(RegServicesPtr services);
 	~FraxinusSegmentations();
 	
-	ImagePtr getImage(IMAGE_MODALITY modality, IMAGE_SUBTYPE subtype) const;
 	ImagePtr findAndLabelThoraxCT() const;
-	ImagePtr getVolume(ORGAN_TYPE organType) const;
 
 	BranchListPtr getBranchList();
-
-	MeshPtr getMesh(ORGAN_TYPE organType);
 	
 	void createSelectSegmentationBox();
 	void createProcessingInfo();
@@ -50,6 +46,7 @@ public:
 	void performMLSegmentation(ImagePtr image);
 	QString getFilterScriptsPath();
 	void postProcessAirways();
+	void postProcessTumors();
 	void checkIfSegmentationSucceeded();
 	void close();
 
@@ -62,11 +59,13 @@ protected:
 	bool mSegmentHeart = false;
 	bool mSegmentMediumOrgans = false;
 	bool mSegmentSmallOrgans = false;
+	bool mSegmentTumors = false;
 
 	QStringList getRaidionicsOutputClasses(bool startTimers = true);
 	void setElastixParameters();
 
 private slots:
+	void patientChanged();
 	void selectAll(bool checked);
 	void imageSelected();
 	void cancel();
@@ -79,6 +78,9 @@ private slots:
 	void checkForPETData();
 	
 private:
+	vtkImageDataPtr mergeTumorVolumes(ImagePtr tumorsVolume, ImagePtr nodulesVolume);
+	void setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> tumorMeshes, std::vector<double> tumorSizes);
+
 	RegServicesPtr mServices;
 	
 	FilterPtr mCurrentFilter;
@@ -109,7 +111,6 @@ private:
 	QCheckBox* mCheckBoxPET;
 	QCheckBox* mCheckBoxLungVessels;
 	QCheckBox* mCheckBoxSelectAll;
-	bool mRaidionicsRun = false;
 	bool mAirwaysProcessed = false;
 	bool mLungVesselsProcessed = false;
 	bool mNodulesProcessed = false;
@@ -119,8 +120,6 @@ private:
 	bool mMediumOrgansProcessed = false;
 	bool mSmallOrgansProcessed = false;
 	bool mSegmentLungVessels = false;
-	bool mSegmentNodules = false;
-	bool mSegmentTumors = false;
 	bool mRegisterPET = false;
 	LUNG_STRUCTURES mCurrentSegmentationType;
 	BranchListPtr mBranchList;
@@ -131,7 +130,7 @@ private:
 	void setMeshNameAndStopTimer(ORGAN_TYPE target);
 	void setMeshName(ORGAN_TYPE target);///< Needs to be called after patient()->insertData to work. Better to use: setMeshNameAndType(MeshPtr mesh, ORGAN_TYPE target)
 	void setMeshNameAndType(MeshPtr mesh, ORGAN_TYPE target);
-	void stopTimer(ORGAN_TYPE target);
+	void stopTimer(ORGAN_TYPE target, bool checkVolume = false);
 	void generateCenterline();
 	bool runRaidionics(GenericScriptFilterPtr scriptFilter);
 	DisplayTimerWidget *getTimer(ORGAN_TYPE target);

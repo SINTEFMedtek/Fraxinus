@@ -70,6 +70,7 @@ public:
 	void addObject(LUNG_STRUCTURES name, DataPtr object);
 	void onEntry();
 	void resetButtons();
+	void turnOnStructure(LUNG_STRUCTURES name);
 
 private slots:
 	void viewStructureSlot(LUNG_STRUCTURES name);

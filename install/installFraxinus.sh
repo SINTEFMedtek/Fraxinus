@@ -50,7 +50,7 @@ cp -r ~/Fraxinus/models/raidionics_models/CT_LymphNodes ~/Fraxinus_settings/mode
 cp -r ~/Fraxinus/models/raidionics_models/CT_MediumOrgansMediastinum ~/Fraxinus_settings/models/raidionics_models/
 cp -r ~/Fraxinus/models/raidionics_models/CT_PulmSystHeart ~/Fraxinus_settings/models/raidionics_models/
 cp -r ~/Fraxinus/models/raidionics_models/CT_SmallOrgansMediastinum ~/Fraxinus_settings/models/raidionics_models/
-cp -r ~/Fraxinus/models/raidionics_models/CT_Tumors ~/Fraxinus_settings/models/raidionics_models/
+cp -r ~/Fraxinus/models/raidionics_models/CT_Tumor ~/Fraxinus_settings/models/raidionics_models/
 
 #install elastix
 if command -v elastix > /dev/null 2>&1; then

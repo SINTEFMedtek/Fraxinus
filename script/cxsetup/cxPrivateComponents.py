@@ -15,7 +15,8 @@ class Fraxinus(cx.build.cxComponents.CppComponent):
     def sourceFolder(self):
         return cxCustusXFinder.RepoLocations().getPrivateRepoFolder()
     def update(self):
-        self._getBuilder().gitCheckoutDefaultBranch()    
+        self._getBuilder().gitSetRemoteURL(self.repository())
+        self._getBuilder().gitCheckoutDefaultBranch()
     def configure(self):
         pass
     def build(self):

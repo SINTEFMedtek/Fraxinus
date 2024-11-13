@@ -27,6 +27,7 @@ set(PLUGIN_SRCS
     cxViewSelectionWidget.cpp
     cxFraxinusVideoGeneratorWidget.cpp
     cxFraxinusVideoRecorderWidget.cpp
+    cxTumorInformationWidget.cpp
 )
 
 #if(CX_LINUX)
@@ -67,6 +68,7 @@ set(PLUGIN_MOC_SRCS
     cxViewSelectionWidget.h
     cxFraxinusVideoGeneratorWidget.h
     cxFraxinusVideoRecorderWidget.h
+    cxTumorInformationWidget.h
 )
 
 # Qt Designer files which should be processed by Qts uic
