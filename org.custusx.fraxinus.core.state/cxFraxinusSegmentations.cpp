@@ -348,6 +348,31 @@ void FraxinusSegmentations::createProcessingInfo()
 	mSegmentationProcessingInfo->activateWindow();
 }
 
+void FraxinusSegmentations::showProcessingInfoFinished()
+{
+	mSegmentationFinishedInfo = new QDialog();
+	mSegmentationFinishedInfo->setWindowTitle(tr("Finished"));
+	mSegmentationFinishedInfo->setWindowFlags( (Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint) & ~Qt::WindowCloseButtonHint );
+	QVBoxLayout *layout = new QVBoxLayout();
+	QLabel* label = new QLabel("Segmentation completed");
+	layout->addWidget(label);
+	mOKbuttonProcessingFinished = new QPushButton(tr("OK"));
+	layout->addWidget(mOKbuttonProcessingFinished);
+	mSegmentationFinishedInfo->setLayout(layout);
+	mSegmentationFinishedInfo->show();
+	mSegmentationFinishedInfo->activateWindow();
+
+	connect(mOKbuttonProcessingFinished, &QPushButton::clicked, this, &FraxinusSegmentations::closeSegmentationInfo);
+}
+
+void FraxinusSegmentations::closeSegmentationInfo()
+{
+	disconnect(mOKbuttonProcessingFinished, &QPushButton::clicked, this, &FraxinusSegmentations::closeSegmentationInfo);
+	emit segmentationFinished();
+	mSegmentationProcessingInfo->close();
+	mSegmentationFinishedInfo->close();
+}
+
 
 QString FraxinusSegmentations::getFilterScriptsPath()
 {
@@ -484,8 +509,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 	{
 		mActiveTimerWidget = NULL;
 		mCurrentSegmentationType = lsUNKNOWN;
-		emit segmentationFinished();
-		mSegmentationProcessingInfo->close();
+		this->showProcessingInfoFinished();
 		return;
 	} 
 	
