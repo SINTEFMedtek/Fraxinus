@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef NEWLOADPATIENTWIDGET_H
 #define NEWLOADPATIENTWIDGET_H
 
+#include "org_custusx_fraxinus_widgets_Export.h"
 #include "cxBaseWidget.h"
 #include <QKeyEvent>
 #include "cxForwardDeclarations.h"
@@ -42,23 +43,42 @@ class QPushButton;
 namespace cx
 {
 
-class NewLoadPatientWidget : public BaseWidget
+class org_custusx_fraxinus_widgets_EXPORT NewLoadPatientWidget : public BaseWidget
 {
 	Q_OBJECT
 public:
 	NewLoadPatientWidget(QWidget *parent, VisServicesPtr services, AcquisitionServicePtr acquisitionService);
+	static QString getWidgetName();
 
 private slots:
 	void createNewPatient();
 	void loadPatient();
 	void restoreToFactorySettings();
 	void selectCTData();
+	void selectMoreCTData();
+	void patientCreatedInfo();
+	void closePatientCreatedInfo();
+	void dataAddedOrRemovedSlot();
+	void closeDataLoadedInfo();
+
+signals:
+	void dataImportCompleted();
 
 private:
 	void enableImportDataButton();
+	void loadCTData();
 
 	VisServicesPtr mServices;
 	QPushButton* mSelectCTDataButton;
+	QDialog* mPatientCreatedInfo;
+	QDialog* mDataLoadedInfo;
+	QPushButton* mYesButtonPatientCreated;
+	QPushButton* mNoButtonPatientCreated;
+	QPushButton* mYesButtonDataLoaded;
+	QPushButton* mNoButtonDataLoaded;
+
+	bool mThoraxCTLoaded = false;
+	bool mPETLoaded = false;
 };
 
 }

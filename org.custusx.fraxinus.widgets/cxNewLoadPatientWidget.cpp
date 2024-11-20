@@ -5,6 +5,8 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QAction>
+#include <QDialog>
+#include <QLabel>
 
 #include "cxApplication.h"
 #include "cxLogger.h"
@@ -22,6 +24,7 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	BaseWidget(parent, "new_load_patient_widget", "New/Load Patient"),
 	mServices(services)
 {
+	this->setObjectName(this->getWidgetName());
 	this->setWindowTitle("Create or select patient");
 
 	QPushButton* newButton = new QPushButton("&New Patient");
@@ -64,12 +67,62 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	this->setLayout(layout);
 }
 
+QString NewLoadPatientWidget::getWidgetName()
+{
+	return "new_load_patient_widget";
+}
+
 void NewLoadPatientWidget::createNewPatient()
 {
 	QString actionName = "NewPatient";
 	triggerMainWindowActionWithObjectName(actionName);
 	enableImportDataButton();
-	selectCTData();
+	patientCreatedInfo();
+}
+
+void NewLoadPatientWidget::patientCreatedInfo()
+{
+	if(!mServices->patient()->isPatientValid())
+		return;
+
+	mPatientCreatedInfo = new QDialog();
+	mPatientCreatedInfo->setWindowTitle(tr("Patient created"));
+	mPatientCreatedInfo->setWindowFlags(Qt::WindowStaysOnTopHint);
+	QGridLayout* layout = new QGridLayout();
+	QLabel* label = new QLabel("New patient created\n"
+														 "Do you want to import CT data?\n\n"
+														 "A file dialog will open: Select Madical Image file(s)\n"
+														 "Locate the folder containing the CT files of the patient.\n"
+														 "(A USB storage is located by clicking media on the left side of the dialog)\n\n"
+														 "Note: If a folder containing an extensive amount data (e.g from several patients)\n"
+														 " is selected, it may be slow to load.");
+	layout->addWidget(label,0,0,1,2);
+	mYesButtonPatientCreated = new QPushButton(tr("Yes"));
+	mNoButtonPatientCreated = new QPushButton(tr("No"));
+	layout->addWidget(mYesButtonPatientCreated,1,0);
+	layout->addWidget(mNoButtonPatientCreated,1,1);
+	mPatientCreatedInfo->setLayout(layout);
+	mPatientCreatedInfo->show();
+	mPatientCreatedInfo->activateWindow();
+
+	connect(mYesButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+	connect(mNoButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::closePatientCreatedInfo);
+}
+
+void NewLoadPatientWidget::closePatientCreatedInfo()
+{
+	mPatientCreatedInfo->close();
+	disconnect(mNoButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::closePatientCreatedInfo);
+}
+
+void NewLoadPatientWidget::closeDataLoadedInfo()
+{
+	mDataLoadedInfo->close();
+	disconnect(mYesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+	disconnect(mNoButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+
+	if(mServices->patient()->getImage(imCT, istTHORAX_CT))
+		emit dataImportCompleted();
 }
 
 void NewLoadPatientWidget::loadPatient()
@@ -77,6 +130,10 @@ void NewLoadPatientWidget::loadPatient()
 	QString actionName = "LoadFile";
 	triggerMainWindowActionWithObjectName(actionName);
 	enableImportDataButton();
+	if(mServices->patient()->getImage(imCT, istTHORAX_CT))
+		emit dataImportCompleted();
+	else
+		loadCTData();
 }
 
 void NewLoadPatientWidget::enableImportDataButton()
@@ -95,11 +152,127 @@ void NewLoadPatientWidget::restoreToFactorySettings()
 
 void NewLoadPatientWidget::selectCTData()
 {
+	closePatientCreatedInfo();
+	disconnect(mYesButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+
+	loadCTData();
+}
+
+void NewLoadPatientWidget::selectMoreCTData()
+{
+	mDataLoadedInfo->close();
+	disconnect(mYesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+	disconnect(mNoButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+	loadCTData();
+}
+
+void NewLoadPatientWidget::loadCTData()
+{
+	if(mServices->patient()->getImage(imCT, istTHORAX_CT))
+		mThoraxCTLoaded = true;
+	if(mServices->patient()->getImage(imPET, istPET) && mServices->patient()->getImage(imCT, istPET_CT))
+		mPETLoaded = true;
+
 	if(mServices->patient()->isPatientValid())
 	{
 		triggerMainWindowActionWithObjectName("AddFilesForImportWithDialogCT");
 		triggerMainWindowActionWithObjectName("ImportSelectedData");
 	}
+	dataAddedOrRemovedSlot();
 }
+
+void NewLoadPatientWidget::dataAddedOrRemovedSlot()
+{
+	QString text;
+	bool allDataLoaded = false;
+	bool ctAvailable = false;
+	bool petAvailable = false;
+	bool pet_ctAvailable = false;
+
+	if(mServices->patient()->getImage(imCT, istTHORAX_CT))
+		ctAvailable = true;
+	if(mServices->patient()->getImage(imPET, istPET))
+		petAvailable = true;
+	if(mServices->patient()->getImage(imCT, istPET_CT))
+		pet_ctAvailable = true;
+
+	if(petAvailable && !mPETLoaded && ctAvailable && pet_ctAvailable && !mThoraxCTLoaded)
+		text = "CT and PET data loaded. ";
+	else if(ctAvailable && !mThoraxCTLoaded)
+		text = "CT data loaded. ";
+	else if(petAvailable && pet_ctAvailable && !mPETLoaded)
+		text = "PET data loaded. ";
+	else
+		text = "No valid new data loaded. ";
+
+	if (ctAvailable && petAvailable && pet_ctAvailable)
+		allDataLoaded = true;
+	else
+		text.append("Do you want to load more data?");
+
+	mDataLoadedInfo = new QDialog();
+	mDataLoadedInfo->setWindowTitle(tr("Data Loaded"));
+	mDataLoadedInfo->setWindowFlags(Qt::WindowStaysOnTopHint);
+	QGridLayout* layout = new QGridLayout();
+	QLabel* textLabel = new QLabel(text);
+	layout->addWidget(textLabel,0,0,1,2);
+	QLabel* ctLabel;
+	QLabel* petLabel;
+	QLabel* pet_ctLabel;
+	if(ctAvailable)
+	{
+		ctLabel = new QLabel("\nThorax CT:  OK");
+		ctLabel->setStyleSheet("QLabel { color : green; Qt::RichText}");
+	}
+	else
+	{
+		ctLabel = new QLabel("\nThorax CT:  Not available");
+		ctLabel->setStyleSheet("QLabel { color : red; }");
+	}
+	if(petAvailable)
+	{
+		petLabel = new QLabel("PET:  OK");
+		petLabel->setStyleSheet("QLabel { color : green;  Qt::RichText}");
+	}
+	else
+	{
+		petLabel = new QLabel("PET:  Not available");
+		petLabel->setStyleSheet("QLabel { color : red; }");
+	}
+	if(pet_ctAvailable)
+	{
+		pet_ctLabel = new QLabel("PET CT:  OK");
+		pet_ctLabel->setStyleSheet("QLabel { color : green;  Qt::RichText}");
+	}
+	else
+	{
+		pet_ctLabel = new QLabel("PET CT:  Not available");
+		pet_ctLabel->setStyleSheet("QLabel { color : red; }");
+	}
+
+	layout->addWidget(ctLabel,1,0,1,2);
+	layout->addWidget(petLabel,2,0,1,2);
+	layout->addWidget(pet_ctLabel,3,0,1,2);
+
+
+	mYesButtonDataLoaded = new QPushButton(tr("Yes"));
+	if(!allDataLoaded)
+	{
+		layout->addWidget(mYesButtonDataLoaded,4,0);
+		mNoButtonDataLoaded = new QPushButton(tr("No"));
+	}
+	else
+		mNoButtonDataLoaded = new QPushButton(tr("Continue"));
+
+	layout->addWidget(mNoButtonDataLoaded,4,1);
+
+	connect(mYesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectMoreCTData);
+	connect(mNoButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::closeDataLoadedInfo);
+	mDataLoadedInfo->setLayout(layout);
+	mDataLoadedInfo->show();
+	mDataLoadedInfo->activateWindow();
+
+}
+
 
 }

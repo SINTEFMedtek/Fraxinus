@@ -67,6 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxRouteToTarget.h"
 #include "cxAirwaysFromCenterline.h"
 #include "cxMetricManager.h"
+#include "cxNewLoadPatientWidget.h"
 
 namespace cx
 {
@@ -332,6 +333,14 @@ QMainWindow* FraxinusWorkflowState::getMainWindow()
 		if ((*i)->objectName() == "main_window")
 			return (QMainWindow*) (*i);
 	return NULL;
+}
+
+NewLoadPatientWidget* FraxinusWorkflowState::getNewLoadPatientWidget()
+{
+	QMainWindow* mainWindow = this->getMainWindow();
+
+	QString widgetName(NewLoadPatientWidget::getWidgetName());
+	return mainWindow->findChild<NewLoadPatientWidget*>(widgetName);
 }
 
 FraxinusVBWidget* FraxinusWorkflowState::getVBWidget()
@@ -691,7 +700,8 @@ void FraxinusWorkflowState::cleanupVBWidget()
 
 PatientWorkflowState::PatientWorkflowState(QState* parent, RegServicesPtr services) :
 	FraxinusWorkflowState(parent, "FraxinusPatientUid", "New/Load Patient", services, true)
-{}
+{
+}
 
 PatientWorkflowState::~PatientWorkflowState()
 {}
@@ -705,6 +715,17 @@ void PatientWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
+	mNewLoadPatientWidget = this->getNewLoadPatientWidget();
+	if(mNewLoadPatientWidget)
+		connect(mNewLoadPatientWidget, &NewLoadPatientWidget::dataImportCompleted, this, &PatientWorkflowState::dataImportCompleted);
+}
+
+void PatientWorkflowState::onExit(QEvent * event)
+{
+	if(mNewLoadPatientWidget)
+		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::dataImportCompleted, this, &PatientWorkflowState::dataImportCompleted);
+
+	WorkflowState::onExit(event);
 }
 
 bool PatientWorkflowState::canEnter() const

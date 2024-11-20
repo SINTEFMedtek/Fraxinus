@@ -101,9 +101,10 @@ void FraxinusWorkflowStateMachine::CreateTransitions()
 	if(DataLocations::isTestMode())
 		return;
 	
-	mPatientWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
+	mPatientWorkflowState->addTransition(mPatientWorkflowState, SIGNAL(dataImportCompleted()), mProcessWorkflowState);
+	//mPatientWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
 	//mPatientWorkflowState->addTransition(mServices->patient().get(), SIGNAL(patientChanged()), mProcessWorkflowState);
-	mImportWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
+	//mImportWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
 	mProcessWorkflowState->addTransition(mProcessWorkflowState, SIGNAL(segmentationFinished()), mPinpointWorkflowState);
 	mPinpointWorkflowState->addTransition(mPinpointWorkflowState, SIGNAL(targetMetricSet()), mVirtualBronchoscopyAnyplaneWorkflowState);
 }
