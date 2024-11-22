@@ -7,6 +7,7 @@
 #include <QAction>
 #include <QDialog>
 #include <QLabel>
+#include <QTextEdit>
 
 #include "cxApplication.h"
 #include "cxLogger.h"
@@ -89,14 +90,16 @@ void NewLoadPatientWidget::patientCreatedInfo()
 	mPatientCreatedInfo->setWindowTitle(tr("Patient created"));
 	mPatientCreatedInfo->setWindowFlags(Qt::WindowStaysOnTopHint);
 	QGridLayout* layout = new QGridLayout();
-	QLabel* label = new QLabel("New patient created\n"
-														 "Do you want to import CT data?\n\n"
-														 "A file dialog will open: Select Madical Image file(s)\n"
-														 "Locate the folder containing the CT files of the patient.\n"
-														 "(A USB storage is located by clicking media on the left side of the dialog)\n\n"
-														 "Note: If a folder containing an extensive amount data (e.g from several patients)\n"
+	QTextEdit* textBox = new QTextEdit("<b><u>A new is patient created</u></b><br>"
+														 "Do you want to import CT data?<br><br>"
+														 "A file dialog will open: <i>Select Madical Image file(s)</i><br>"
+														 "Locate the folder containing the CT files of the patient.<br>"
+														 "(A USB storage is located by clicking <i><b>media</b></i> on the left side of the dialog)<br><br>"
+														 "<u>Note:</u> If a folder containing an extensive amount data (e.g from several patients)"
 														 " is selected, it may be slow to load.");
-	layout->addWidget(label,0,0,1,2);
+	textBox->setReadOnly(true);
+	textBox->setFixedWidth(600);
+	layout->addWidget(textBox,0,0,1,2);
 	mYesButtonPatientCreated = new QPushButton(tr("Yes"));
 	mNoButtonPatientCreated = new QPushButton(tr("No"));
 	layout->addWidget(mYesButtonPatientCreated,1,0);
@@ -183,6 +186,9 @@ void NewLoadPatientWidget::loadCTData()
 
 void NewLoadPatientWidget::dataAddedOrRemoved()
 {
+	if(!mServices->patient()->isPatientValid())
+		return;
+
 	QString text;
 	bool allDataLoaded = false;
 	bool ctAvailable = false;
