@@ -925,7 +925,7 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 			viewGroup0_3D->addData(targetPoint->getUid());
 		if(viewGroup1_2D)
 			viewGroup1_2D->addData(targetPoint->getUid());
-		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
+		connect(targetPoint.get(), &Data::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
 	}
 
 	this->showViaPoints(pinPointWidget->getAirwayPointsOption());
@@ -1019,11 +1019,13 @@ void PinpointWorkflowState::setManualToolToTargetPosition()
 
 void PinpointWorkflowState::createRoute()
 {
+	PointMetricPtr targetPoint = this->getTargetPoint();
+	if(!targetPoint)
+		return;
 	MeshPtr oldRouteToTarget = this->getRouteToTarget();
 	if(!oldRouteToTarget)
 	{
 		this->createRouteToTarget(true);
-		PointMetricPtr targetPoint = this->getTargetPoint();
 		mPointChanged = false;
 		this->showRouteToTarget();
 		connect(targetPoint.get(), &PointMetric::transformChanged, this, &PinpointWorkflowState::pointChanged, Qt::UniqueConnection);
