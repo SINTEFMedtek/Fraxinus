@@ -58,7 +58,6 @@ private slots:
 	void selectMoreCTData();
 	void patientCreatedInfo();
 	void closePatientCreatedInfo();
-	void dataAddedOrRemovedSlot();
 	void closeDataLoadedInfo();
 
 signals:
@@ -67,6 +66,7 @@ signals:
 private:
 	void enableImportDataButton();
 	void loadCTData();
+	void dataAddedOrRemoved();
 
 	VisServicesPtr mServices;
 	QPushButton* mSelectCTDataButton;

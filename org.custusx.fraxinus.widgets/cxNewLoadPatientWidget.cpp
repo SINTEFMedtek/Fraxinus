@@ -133,7 +133,7 @@ void NewLoadPatientWidget::loadPatient()
 	if(mServices->patient()->getImage(imCT, istTHORAX_CT))
 		emit dataImportCompleted();
 	else
-		loadCTData();
+		dataAddedOrRemoved();
 }
 
 void NewLoadPatientWidget::enableImportDataButton()
@@ -178,10 +178,10 @@ void NewLoadPatientWidget::loadCTData()
 		triggerMainWindowActionWithObjectName("AddFilesForImportWithDialogCT");
 		triggerMainWindowActionWithObjectName("ImportSelectedData");
 	}
-	dataAddedOrRemovedSlot();
+	dataAddedOrRemoved();
 }
 
-void NewLoadPatientWidget::dataAddedOrRemovedSlot()
+void NewLoadPatientWidget::dataAddedOrRemoved()
 {
 	QString text;
 	bool allDataLoaded = false;
@@ -231,22 +231,22 @@ void NewLoadPatientWidget::dataAddedOrRemovedSlot()
 	}
 	if(petAvailable)
 	{
-		petLabel = new QLabel("PET:  OK");
+		petLabel = new QLabel("PET (optional):  OK");
 		petLabel->setStyleSheet("QLabel { color : green;  Qt::RichText}");
 	}
 	else
 	{
-		petLabel = new QLabel("PET:  Not available");
+		petLabel = new QLabel("PET (optional):  Not available");
 		petLabel->setStyleSheet("QLabel { color : red; }");
 	}
 	if(pet_ctAvailable)
 	{
-		pet_ctLabel = new QLabel("PET CT:  OK");
+		pet_ctLabel = new QLabel("PET CT (optional):  OK");
 		pet_ctLabel->setStyleSheet("QLabel { color : green;  Qt::RichText}");
 	}
 	else
 	{
-		pet_ctLabel = new QLabel("PET CT:  Not available");
+		pet_ctLabel = new QLabel("PET CT (optional):  Not available");
 		pet_ctLabel->setStyleSheet("QLabel { color : red; }");
 	}
 
@@ -272,6 +272,8 @@ void NewLoadPatientWidget::dataAddedOrRemovedSlot()
 	mDataLoadedInfo->show();
 	mDataLoadedInfo->activateWindow();
 
+	mThoraxCTLoaded = false;
+	mPETLoaded = false;
 }
 
 
