@@ -154,6 +154,9 @@ void StateServiceImpl::changeDefaultSettings()
 	this->fillDefault("Navigation/followTooltipBoundary", 0.5);
 	this->fillDefault("Profile", "Bronchoscopy");
 
+	settings()->setValue("View2D/useAxialSlider", true);
+	settings()->setValue("View2D/useCoronalSlider", true);
+	settings()->setValue("View2D/useSagittalSlider", true);
 	settings()->setValue("Navigation/anyplaneViewOffset", 0.25);
 
 
