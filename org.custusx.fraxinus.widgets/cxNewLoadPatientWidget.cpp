@@ -115,8 +115,10 @@ void NewLoadPatientWidget::patientCreatedInfo()
 
 void NewLoadPatientWidget::closePatientCreatedInfo()
 {
-	mPatientCreatedInfo->close();
-	disconnect(mNoButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::closePatientCreatedInfo);
+	if(mPatientCreatedInfo)
+		mPatientCreatedInfo->close();
+	if(mNoButtonPatientCreated)
+		disconnect(mNoButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::closePatientCreatedInfo);
 }
 
 void NewLoadPatientWidget::closeDataLoadedInfo()
@@ -156,9 +158,10 @@ void NewLoadPatientWidget::restoreToFactorySettings()
 
 void NewLoadPatientWidget::selectCTData()
 {
-	closePatientCreatedInfo();
-	disconnect(mYesButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
-
+	if(mPatientCreatedInfo)
+		closePatientCreatedInfo();
+	if(mYesButtonPatientCreated)
+		disconnect(mYesButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
 	loadCTData();
 }
 
@@ -203,19 +206,23 @@ void NewLoadPatientWidget::dataAddedOrRemoved()
 	if(mServices->patient()->getImage(imCT, istPET_CT))
 		pet_ctAvailable = true;
 
+	QTextEdit* textBox = new QTextEdit();
+	textBox->setReadOnly(true);
+	textBox->setFixedWidth(400);
+
 	if(petAvailable && !mPETLoaded && ctAvailable && pet_ctAvailable && !mThoraxCTLoaded)
-		text = "CT and PET data loaded. ";
+		textBox->append("<b>CT and PET data loaded</b><br>");
 	else if(ctAvailable && !mThoraxCTLoaded)
-		text = "CT data loaded. ";
+		textBox->append("<b>CT data loaded</b><br>");
 	else if(petAvailable && pet_ctAvailable && !mPETLoaded)
-		text = "PET data loaded. ";
+		textBox->append("<b>PET data loaded</b><br>");
 	else
-		text = "No valid new data loaded. ";
+		textBox->append("<b>No valid new data loaded</b><br>");
 
 	if (ctAvailable && petAvailable && pet_ctAvailable)
 		allDataLoaded = true;
 	else
-		text.append("Do you want to load more data?");
+		textBox->append("Do you want to load more data?");
 
 	mDataLoadedInfo = new QDialog();
 	mDataLoadedInfo->setWindowTitle(tr("Data Loaded"));
@@ -223,55 +230,32 @@ void NewLoadPatientWidget::dataAddedOrRemoved()
 	QGridLayout* layout = new QGridLayout();
 	QLabel* textLabel = new QLabel(text);
 	layout->addWidget(textLabel,0,0,1,2);
-	QLabel* ctLabel;
-	QLabel* petLabel;
-	QLabel* pet_ctLabel;
 	if(ctAvailable)
-	{
-		ctLabel = new QLabel("\nThorax CT:  OK");
-		ctLabel->setStyleSheet("QLabel { color : green; Qt::RichText}");
-	}
+		textBox->append("<ul><li><font color=green><b> Thorax CT:  OK </b></font></li>");
 	else
-	{
-		ctLabel = new QLabel("\nThorax CT:  Not available");
-		ctLabel->setStyleSheet("QLabel { color : red; }");
-	}
+		textBox->append("<ul><li><font color=red><b> Thorax CT:  Not available </b></font></li>");
 	if(petAvailable)
-	{
-		petLabel = new QLabel("PET (optional):  OK");
-		petLabel->setStyleSheet("QLabel { color : green;  Qt::RichText}");
-	}
+		textBox->append("<li><font color=green><b> PET (optional):  OK </b></font></li>");
 	else
-	{
-		petLabel = new QLabel("PET (optional):  Not available");
-		petLabel->setStyleSheet("QLabel { color : red; }");
-	}
+		textBox->append("<li><font color=red><b> PET (optional):  Not available </b></font></li>");
 	if(pet_ctAvailable)
-	{
-		pet_ctLabel = new QLabel("PET CT (optional):  OK");
-		pet_ctLabel->setStyleSheet("QLabel { color : green;  Qt::RichText}");
-	}
+		textBox->append("<li><font color=green><b> PET CT (optional):  OK </b></font></li></ul>");
 	else
-	{
-		pet_ctLabel = new QLabel("PET CT (optional):  Not available");
-		pet_ctLabel->setStyleSheet("QLabel { color : red; }");
-	}
+		textBox->append("<li><font color=red><b> PET CT (optional):  Not available </b></font></li></ul>");
 
-	layout->addWidget(ctLabel,1,0,1,2);
-	layout->addWidget(petLabel,2,0,1,2);
-	layout->addWidget(pet_ctLabel,3,0,1,2);
+	layout->addWidget(textBox,1,0,1,2);
 
 
 	mYesButtonDataLoaded = new QPushButton(tr("Yes"));
 	if(!allDataLoaded)
 	{
-		layout->addWidget(mYesButtonDataLoaded,4,0);
+		layout->addWidget(mYesButtonDataLoaded,2,0);
 		mNoButtonDataLoaded = new QPushButton(tr("No"));
 	}
 	else
 		mNoButtonDataLoaded = new QPushButton(tr("Continue"));
 
-	layout->addWidget(mNoButtonDataLoaded,4,1);
+	layout->addWidget(mNoButtonDataLoaded,2,1);
 
 	connect(mYesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectMoreCTData);
 	connect(mNoButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::closeDataLoadedInfo);
