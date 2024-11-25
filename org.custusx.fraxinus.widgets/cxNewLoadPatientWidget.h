@@ -69,13 +69,13 @@ private:
 	void dataAddedOrRemoved();
 
 	VisServicesPtr mServices;
-	QPushButton* mSelectCTDataButton;
-	QDialog* mPatientCreatedInfo;
-	QDialog* mDataLoadedInfo;
-	QPushButton* mYesButtonPatientCreated;
-	QPushButton* mNoButtonPatientCreated;
-	QPushButton* mYesButtonDataLoaded;
-	QPushButton* mNoButtonDataLoaded;
+	QPushButton* mSelectCTDataButton = nullptr;
+	QDialog* mPatientCreatedInfo = nullptr;
+	QDialog* mDataLoadedInfo = nullptr;
+	QPushButton* mYesButtonPatientCreated = nullptr;
+	QPushButton* mNoButtonPatientCreated = nullptr;
+	QPushButton* mYesButtonDataLoaded = nullptr;
+	QPushButton* mNoButtonDataLoaded = nullptr;
 
 	bool mThoraxCTLoaded = false;
 	bool mPETLoaded = false;
