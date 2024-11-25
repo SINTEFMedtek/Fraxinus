@@ -233,13 +233,13 @@ void FraxinusSegmentations::selectAll(bool checked)
 	if(!mServices->patient()->getData<Mesh>(otLYMPH_NODES))
 		mCheckBoxLymphNodes->setChecked(checked);
 	if(!mServices->patient()->getData<Mesh>(otHEART))
-	mCheckBoxHeart->setChecked(checked);
+		mCheckBoxHeart->setChecked(checked);
 	if(!mServices->patient()->getData<Mesh>(otSPINE))
-	mCheckBoxMediumOrgans->setChecked(checked);
+		mCheckBoxMediumOrgans->setChecked(checked);
 	if(!mServices->patient()->getData<Mesh>(otESOPHAGUS))
-	mCheckBoxSmallOrgans->setChecked(checked);
+		mCheckBoxSmallOrgans->setChecked(checked);
 	if(!mServices->patient()->getData<Mesh>(otTUMOR))
-	mCheckBoxTumors->setChecked(checked);
+		mCheckBoxTumors->setChecked(checked);
 	if(mCheckBoxPET->isEnabled() && !mServices->patient()->getImage(imPET, istPET_REGISTERED))
 		mCheckBoxPET->setChecked(checked);
 }
