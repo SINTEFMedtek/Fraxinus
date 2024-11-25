@@ -115,19 +115,44 @@ void NewLoadPatientWidget::patientCreatedInfo()
 
 void NewLoadPatientWidget::closePatientCreatedInfo()
 {
-	if(mPatientCreatedInfo)
-		mPatientCreatedInfo->close();
+	if(mYesButtonPatientCreated)
+		disconnect(mYesButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
 	if(mNoButtonPatientCreated)
 		disconnect(mNoButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::closePatientCreatedInfo);
+	if(mPatientCreatedInfo)
+	{
+		mPatientCreatedInfo->deleteLater();
+		mPatientCreatedInfo->close();
+	}
+
+	mYesButtonPatientCreated = nullptr;
+	mNoButtonPatientCreated = nullptr;
+	mPatientCreatedInfo = nullptr;
 }
 
-void NewLoadPatientWidget::closeDataLoadedInfo()
+void NewLoadPatientWidget::closeDataLoadedInfo(bool dataLoadingCompleted)
 {
-	mDataLoadedInfo->close();
-	disconnect(mYesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
-	disconnect(mNoButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+	if(mYesButtonDataLoaded)
+	{
+		disconnect(mYesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+		disconnect(mYesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectMoreCTData);
+	}
+	if(mNoButtonDataLoaded)
+	{
+		disconnect(mNoButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+		disconnect(mConnectionToCloseDataLoadedInfo);
+	}
+	if(mDataLoadedInfo)
+	{
+		mDataLoadedInfo->deleteLater();
+		mDataLoadedInfo->close();
+	}
 
-	if(mServices->patient()->getImage(imCT, istTHORAX_CT))
+	mYesButtonDataLoaded = nullptr;
+	mNoButtonDataLoaded = nullptr;
+	mDataLoadedInfo = nullptr;
+
+	if(dataLoadingCompleted && mServices->patient()->getImage(imCT, istTHORAX_CT))
 		emit dataImportCompleted();
 }
 
@@ -158,18 +183,13 @@ void NewLoadPatientWidget::restoreToFactorySettings()
 
 void NewLoadPatientWidget::selectCTData()
 {
-	if(mPatientCreatedInfo)
-		closePatientCreatedInfo();
-	if(mYesButtonPatientCreated)
-		disconnect(mYesButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+	closePatientCreatedInfo();
 	loadCTData();
 }
 
 void NewLoadPatientWidget::selectMoreCTData()
 {
-	mDataLoadedInfo->close();
-	disconnect(mYesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
-	disconnect(mNoButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+	closeDataLoadedInfo(false);
 	loadCTData();
 }
 
@@ -258,7 +278,7 @@ void NewLoadPatientWidget::dataAddedOrRemoved()
 	layout->addWidget(mNoButtonDataLoaded,2,1);
 
 	connect(mYesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectMoreCTData);
-	connect(mNoButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::closeDataLoadedInfo);
+	mConnectionToCloseDataLoadedInfo = connect(mNoButtonDataLoaded, &QPushButton::clicked, this, [=]() {this->closeDataLoadedInfo(true);});
 	mDataLoadedInfo->setLayout(layout);
 	mDataLoadedInfo->show();
 	mDataLoadedInfo->activateWindow();

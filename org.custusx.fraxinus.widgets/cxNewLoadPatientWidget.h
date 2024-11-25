@@ -58,7 +58,7 @@ private slots:
 	void selectMoreCTData();
 	void patientCreatedInfo();
 	void closePatientCreatedInfo();
-	void closeDataLoadedInfo();
+	void closeDataLoadedInfo(bool dataLoadingCompleted);
 
 signals:
 	void dataImportCompleted();
@@ -76,6 +76,8 @@ private:
 	QPushButton* mNoButtonPatientCreated = nullptr;
 	QPushButton* mYesButtonDataLoaded = nullptr;
 	QPushButton* mNoButtonDataLoaded = nullptr;
+	QMetaObject::Connection mConnectionToCloseDataLoadedInfo;
+
 
 	bool mThoraxCTLoaded = false;
 	bool mPETLoaded = false;
