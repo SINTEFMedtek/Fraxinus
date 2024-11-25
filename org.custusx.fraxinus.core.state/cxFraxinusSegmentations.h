@@ -80,6 +80,7 @@ private slots:
 	void closeSegmentationInfo();
 	
 private:
+	void deleteTumorsAndNodulesVolumes();
 	vtkImageDataPtr mergeTumorVolumes(ImagePtr tumorsVolume, ImagePtr nodulesVolume);
 	void setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> tumorMeshes, std::vector<double> tumorSizes);
 

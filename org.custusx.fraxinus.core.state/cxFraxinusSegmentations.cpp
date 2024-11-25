@@ -694,8 +694,21 @@ void FraxinusSegmentations::MLFinishedSlot()
 		mActiveTimerWidget->stop();
 	
 	this->checkIfSegmentationSucceeded();
+
+	if(mSegmentTumors && mTumorsProcessed && mNodulesProcessed)
+		deleteTumorsAndNodulesVolumes();
 	
 	this->performMLSegmentation(mServices->patient()->getImage(imCT, istTHORAX_CT));
+}
+
+void FraxinusSegmentations::deleteTumorsAndNodulesVolumes()
+{
+	ImagePtr tumorsVolume = mServices->patient()->getData<Image>(otTUMOR);
+	ImagePtr nodulesVolume = mServices->patient()->getData<Image>(otNODULES);
+	if(tumorsVolume)
+		mServices->patient()->removeData(tumorsVolume->getUid());
+	if(nodulesVolume)
+		mServices->patient()->removeData(nodulesVolume->getUid());
 }
 
 void FraxinusSegmentations::postProcessAirways()
@@ -809,10 +822,6 @@ void FraxinusSegmentations::postProcessTumors()
 	std::vector<MeshPtr> tumorMeshes = meshesFromLabelsFilter->postProcess(visServices, rawResult, labeledImage, QColor(255,255,0,255), false);
 	setNumberAndSizeToTumorVolumes(tumorMeshes, tumorSizes);
 
-	if(tumorsVolume)
-		mServices->patient()->removeData(tumorsVolume->getUid());
-	if(nodulesVolume)
-		mServices->patient()->removeData(nodulesVolume->getUid());
 	if(labeledImage)
 		mServices->patient()->removeData(labeledImage->getUid());
 }
