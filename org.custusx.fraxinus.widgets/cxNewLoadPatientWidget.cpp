@@ -101,55 +101,39 @@ void NewLoadPatientWidget::patientCreatedInfo()
 	textBox->setReadOnly(true);
 	textBox->setFixedWidth(600);
 	layout->addWidget(textBox,0,0,1,2);
-	mYesButtonPatientCreated = new QPushButton(tr("Yes"));
-	mNoButtonPatientCreated = new QPushButton(tr("No"));
-	layout->addWidget(mYesButtonPatientCreated,1,0);
-	layout->addWidget(mNoButtonPatientCreated,1,1);
+	QPushButton* yesButtonPatientCreated = new QPushButton(tr("Yes"));
+	QPushButton* noButtonPatientCreated = new QPushButton(tr("No"));
+	layout->addWidget(yesButtonPatientCreated,1,0);
+	layout->addWidget(noButtonPatientCreated,1,1);
 	mPatientCreatedInfo->setLayout(layout);
 	mPatientCreatedInfo->show();
 	mPatientCreatedInfo->activateWindow();
 
-	connect(mYesButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
-	connect(mNoButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::closePatientCreatedInfo);
+	mConnectionToYesButtonPatientCreated = connect(yesButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+	mConnectionToNoButtonPatientCreated = connect(noButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::closePatientCreatedInfo);
 }
 
 void NewLoadPatientWidget::closePatientCreatedInfo()
 {
-	if(mYesButtonPatientCreated)
-		disconnect(mYesButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
-	if(mNoButtonPatientCreated)
-		disconnect(mNoButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::closePatientCreatedInfo);
+	disconnect(mConnectionToYesButtonPatientCreated);
+	disconnect(mConnectionToNoButtonPatientCreated);
 	if(mPatientCreatedInfo)
 	{
-		mPatientCreatedInfo->deleteLater();
 		mPatientCreatedInfo->close();
+		mPatientCreatedInfo->deleteLater();
 	}
-
-	mYesButtonPatientCreated = nullptr;
-	mNoButtonPatientCreated = nullptr;
 	mPatientCreatedInfo = nullptr;
 }
 
 void NewLoadPatientWidget::closeDataLoadedInfo(bool dataLoadingCompleted)
 {
-	if(mYesButtonDataLoaded)
-	{
-		disconnect(mYesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
-		disconnect(mYesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectMoreCTData);
-	}
-	if(mNoButtonDataLoaded)
-	{
-		disconnect(mNoButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
-		disconnect(mConnectionToCloseDataLoadedInfo);
-	}
+	disconnect(mConnectionToYesButtonDataLoaded);
+	disconnect(mConnectionToNoButtonDataLoaded);
 	if(mDataLoadedInfo)
 	{
-		mDataLoadedInfo->deleteLater();
 		mDataLoadedInfo->close();
+		mDataLoadedInfo->deleteLater();
 	}
-
-	mYesButtonDataLoaded = nullptr;
-	mNoButtonDataLoaded = nullptr;
 	mDataLoadedInfo = nullptr;
 
 	if(dataLoadingCompleted && mServices->patient()->getImage(imCT, istTHORAX_CT))
@@ -266,19 +250,20 @@ void NewLoadPatientWidget::dataAddedOrRemoved()
 	layout->addWidget(textBox,1,0,1,2);
 
 
-	mYesButtonDataLoaded = new QPushButton(tr("Yes"));
+	QPushButton* yesButtonDataLoaded = new QPushButton(tr("Yes"));
+	QPushButton* noButtonDataLoaded = nullptr;
 	if(!allDataLoaded)
 	{
-		layout->addWidget(mYesButtonDataLoaded,2,0);
-		mNoButtonDataLoaded = new QPushButton(tr("No"));
+		layout->addWidget(yesButtonDataLoaded,2,0);
+		noButtonDataLoaded = new QPushButton(tr("No"));
 	}
 	else
-		mNoButtonDataLoaded = new QPushButton(tr("Continue"));
+		noButtonDataLoaded = new QPushButton(tr("Continue"));
 
-	layout->addWidget(mNoButtonDataLoaded,2,1);
+	layout->addWidget(noButtonDataLoaded,2,1);
 
-	connect(mYesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectMoreCTData);
-	mConnectionToCloseDataLoadedInfo = connect(mNoButtonDataLoaded, &QPushButton::clicked, this, [=]() {this->closeDataLoadedInfo(true);});
+	mConnectionToYesButtonDataLoaded = connect(yesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectMoreCTData);
+	mConnectionToNoButtonDataLoaded = connect(noButtonDataLoaded, &QPushButton::clicked, this, [=]() {this->closeDataLoadedInfo(true);});
 	mDataLoadedInfo->setLayout(layout);
 	mDataLoadedInfo->show();
 	mDataLoadedInfo->activateWindow();

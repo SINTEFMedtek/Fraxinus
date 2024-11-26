@@ -72,11 +72,8 @@ private:
 	QPushButton* mSelectCTDataButton = nullptr;
 	QDialog* mPatientCreatedInfo = nullptr;
 	QDialog* mDataLoadedInfo = nullptr;
-	QPushButton* mYesButtonPatientCreated = nullptr;
-	QPushButton* mNoButtonPatientCreated = nullptr;
-	QPushButton* mYesButtonDataLoaded = nullptr;
-	QPushButton* mNoButtonDataLoaded = nullptr;
-	QMetaObject::Connection mConnectionToCloseDataLoadedInfo;
+	QMetaObject::Connection mConnectionToYesButtonPatientCreated, mConnectionToNoButtonPatientCreated;
+	QMetaObject::Connection mConnectionToYesButtonDataLoaded, mConnectionToNoButtonDataLoaded;
 
 
 	bool mThoraxCTLoaded = false;
