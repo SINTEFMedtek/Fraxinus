@@ -56,6 +56,7 @@ namespace cx
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 typedef boost::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
 typedef boost::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
+class NewLoadPatientWidget;
 class FraxinusVBWidget;
 class PinpointWidget;
 class StructuresSelectionWidget;
@@ -80,6 +81,7 @@ protected:
 	MeshPtr getRouteToTarget() const;
 	MeshPtr getExtendedRouteToTarget() const;
 	QMainWindow *getMainWindow();
+	NewLoadPatientWidget *getNewLoadPatientWidget();
 	FraxinusVBWidget *getVBWidget();
 	ProcedurePlanningWidget *getProcedurePlanningWidget();
 	PinpointWidget *getPinpointWidget();
@@ -146,9 +148,14 @@ public:
 	virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
 	virtual void onEntry(QEvent* event);
+	virtual void onExit(QEvent * event);
+
+signals:
+	void dataImportCompleted();
 
 private:
 	virtual void addDataToView();
+	NewLoadPatientWidget* mNewLoadPatientWidget;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public FraxinusWorkflowState
