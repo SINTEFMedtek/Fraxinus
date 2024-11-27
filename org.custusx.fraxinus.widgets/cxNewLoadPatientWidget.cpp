@@ -29,6 +29,8 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	this->setWindowTitle("Create or select patient");
 
 	QPushButton* newButton = new QPushButton("&New Patient");
+	const QSize BUTTON_SIZE = QSize(1, 80); //New patient button is larger as it is most important
+	newButton->setMinimumSize(BUTTON_SIZE);
 	newButton->setIcon(QIcon(":/icons/icons/add.svg"));
 	connect(newButton, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatient);
 
@@ -50,6 +52,7 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->addSpacing(50);
 	layout->addWidget(newButton);
+	layout->addSpacing(25);
 	layout->addWidget(loadButton);
 	layout->addSpacing(50);
 
