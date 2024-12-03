@@ -64,6 +64,9 @@ protected:
 	QStringList getRaidionicsOutputClasses(bool startTimers = true);
 	void setElastixParameters();
 
+public slots:
+	void updateSelectSegmentationBox();
+
 private slots:
 	void patientChanged();
 	void selectAll(bool checked);
@@ -100,17 +103,17 @@ private:
 	DisplayTimerWidget* mPETTimerWidget;
 	DisplayTimerWidget* mLungVesselsTimerWidget;
 	DisplayTimerWidget* mActiveTimerWidget = NULL;
-	QCheckBox* mCheckBoxAirways;
-	QCheckBox* mCheckBoxLungs;
-	QCheckBox* mCheckBoxLymphNodes;
-	QCheckBox* mCheckBoxHeart;
-	QCheckBox* mCheckBoxMediumOrgans;
-	QCheckBox* mCheckBoxSmallOrgans;
-	QCheckBox* mCheckBoxNodules;
-	QCheckBox* mCheckBoxTumors;
-	QCheckBox* mCheckBoxPET;
-	QCheckBox* mCheckBoxLungVessels;
-	QCheckBox* mCheckBoxSelectAll;
+	QCheckBox* mCheckBoxAirways = nullptr;
+	QCheckBox* mCheckBoxLungs = nullptr;
+	QCheckBox* mCheckBoxLymphNodes = nullptr;
+	QCheckBox* mCheckBoxHeart = nullptr;
+	QCheckBox* mCheckBoxMediumOrgans = nullptr;
+	QCheckBox* mCheckBoxSmallOrgans = nullptr;
+	QCheckBox* mCheckBoxNodules = nullptr;
+	QCheckBox* mCheckBoxTumors = nullptr;
+	QCheckBox* mCheckBoxPET = nullptr;
+	QCheckBox* mCheckBoxLungVessels = nullptr;
+	QCheckBox* mCheckBoxSelectAll = nullptr;
 	bool mAirwaysProcessed = false;
 	bool mLungVesselsProcessed = false;
 	bool mNodulesProcessed = false;
