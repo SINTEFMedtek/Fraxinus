@@ -79,8 +79,11 @@ private slots:
 	void runElastixSlot();
 	void elastixFinishedSlot();
 	void checkForPETData();
+	void showProcessingInfoFinished();
+	void closeSegmentationInfo();
 	
 private:
+	void deleteTumorsAndNodulesVolumes();
 	vtkImageDataPtr mergeTumorVolumes(ImagePtr tumorsVolume, ImagePtr nodulesVolume);
 	void setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> tumorMeshes, std::vector<double> tumorSizes);
 
@@ -92,6 +95,7 @@ private:
 	
 	QDialog* mSegmentationSelectionInput = nullptr;
 	QDialog* mSegmentationProcessingInfo;
+	QDialog* mSegmentationFinishedInfo;
 	DisplayTimerWidget* mAirwaysTimerWidget;
 	DisplayTimerWidget* mLungsTimerWidget;
 	DisplayTimerWidget* mLymphNodesTimerWidget;
@@ -129,6 +133,7 @@ private:
 	ElastixManagerPtr mElastixManager;
 	QPushButton* mOKbutton;
 	QPushButton* mCancelbutton;
+	QPushButton *mOKbuttonProcessingFinished;
 
 	void setMeshNameAndStopTimer(ORGAN_TYPE target);
 	void setMeshName(ORGAN_TYPE target);///< Needs to be called after patient()->insertData to work. Better to use: setMeshNameAndType(MeshPtr mesh, ORGAN_TYPE target)
