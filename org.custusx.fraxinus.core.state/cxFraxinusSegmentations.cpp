@@ -122,6 +122,7 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 {
 	if(mActiveTimerWidget) // check that segmentation is not already running
 		return;
+	if(!mSegmentationSelectionInput)
 	mSegmentationSelectionInput = new QDialog();
 	mSegmentationSelectionInput->setWindowTitle(tr("Select structures for segmentation"));
 	mSegmentationSelectionInput->setWindowFlags(Qt::WindowStaysOnTopHint);
@@ -131,8 +132,10 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusSegmentations::checkForPETData);
 	connect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &FraxinusSegmentations::selectAll);
 	
-	mOKbutton = new QPushButton(tr("&OK"));
-	mCancelbutton = new QPushButton(tr("&Cancel"));
+	if(!mOKbutton)
+		mOKbutton = new QPushButton(tr("&OK"));
+	if(!mCancelbutton)
+		mCancelbutton = new QPushButton(tr("&Cancel"));
 	
 	connect(mOKbutton, &QPushButton::clicked, this, &FraxinusSegmentations::imageSelected);
 	connect(mCancelbutton, &QPushButton::clicked, this, &FraxinusSegmentations::cancel);
@@ -449,7 +452,8 @@ void FraxinusSegmentations::showProcessingInfoFinished()
 	QVBoxLayout *layout = new QVBoxLayout();
 	QLabel* label = new QLabel("Segmentation completed");
 	layout->addWidget(label);
-	mOKbuttonProcessingFinished = new QPushButton(tr("OK"));
+	if(!mOKbuttonProcessingFinished)
+		mOKbuttonProcessingFinished = new QPushButton(tr("OK"));
 	layout->addWidget(mOKbuttonProcessingFinished);
 	mSegmentationFinishedInfo->setLayout(layout);
 	mSegmentationFinishedInfo->show();
@@ -463,7 +467,9 @@ void FraxinusSegmentations::closeSegmentationInfo()
 	disconnect(mOKbuttonProcessingFinished, &QPushButton::clicked, this, &FraxinusSegmentations::closeSegmentationInfo);
 	emit segmentationFinished();
 	mSegmentationProcessingInfo->close();
+	mSegmentationProcessingInfo = nullptr;
 	mSegmentationFinishedInfo->close();
+	mSegmentationFinishedInfo = nullptr;
 }
 
 

@@ -94,8 +94,8 @@ private:
 	TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
 	
 	QDialog* mSegmentationSelectionInput = nullptr;
-	QDialog* mSegmentationProcessingInfo;
-	QDialog* mSegmentationFinishedInfo;
+	QDialog* mSegmentationProcessingInfo = nullptr;
+	QDialog* mSegmentationFinishedInfo = nullptr;
 	DisplayTimerWidget* mAirwaysTimerWidget;
 	DisplayTimerWidget* mLungsTimerWidget;
 	DisplayTimerWidget* mLymphNodesTimerWidget;
@@ -131,9 +131,9 @@ private:
 	LUNG_STRUCTURES mCurrentSegmentationType;
 	BranchListPtr mBranchList;
 	ElastixManagerPtr mElastixManager;
-	QPushButton* mOKbutton;
-	QPushButton* mCancelbutton;
-	QPushButton *mOKbuttonProcessingFinished;
+	QPushButton* mOKbutton = nullptr;
+	QPushButton* mCancelbutton = nullptr;
+	QPushButton *mOKbuttonProcessingFinished = nullptr;
 
 	void setMeshNameAndStopTimer(ORGAN_TYPE target);
 	void setMeshName(ORGAN_TYPE target);///< Needs to be called after patient()->insertData to work. Better to use: setMeshNameAndType(MeshPtr mesh, ORGAN_TYPE target)
