@@ -122,83 +122,169 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 {
 	if(mActiveTimerWidget) // check that segmentation is not already running
 		return;
+	if(!mSegmentationSelectionInput)
 	mSegmentationSelectionInput = new QDialog();
 	mSegmentationSelectionInput->setWindowTitle(tr("Select structures for segmentation"));
 	mSegmentationSelectionInput->setWindowFlags(Qt::WindowStaysOnTopHint);
 	
-	if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
+	updateSelectSegmentationBox();
+
+	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusSegmentations::checkForPETData);
+	connect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &FraxinusSegmentations::selectAll);
+	
+	if(!mOKbutton)
+		mOKbutton = new QPushButton(tr("&OK"));
+	if(!mCancelbutton)
+		mCancelbutton = new QPushButton(tr("&Cancel"));
+	
+	connect(mOKbutton, &QPushButton::clicked, this, &FraxinusSegmentations::imageSelected);
+	connect(mCancelbutton, &QPushButton::clicked, this, &FraxinusSegmentations::cancel);
+	
+	QVBoxLayout* checkBoxLayout = new QVBoxLayout;
+	checkBoxLayout->addWidget(mCheckBoxAirways);
+	checkBoxLayout->addWidget(mCheckBoxLymphNodes);
+	checkBoxLayout->addWidget(mCheckBoxHeart);
+	checkBoxLayout->addWidget(mCheckBoxMediumOrgans);
+	checkBoxLayout->addWidget(mCheckBoxSmallOrgans);
+	//checkBoxLayout->addWidget(mCheckBoxNodules);
+	checkBoxLayout->addWidget(mCheckBoxTumors);
+	checkBoxLayout->addWidget(mCheckBoxPET);
+	//checkBoxLayout->addWidget(mCheckBoxLungVessels);
+	checkBoxLayout->addWidget(mCheckBoxSelectAll);
+	
+	QGridLayout* mainLayout = new QGridLayout;
+	mainLayout->setSizeConstraint(QLayout::SetFixedSize);
+	mainLayout->addLayout(checkBoxLayout, 0, 0);
+	mainLayout->addWidget(mCancelbutton, 1, 1);
+	mainLayout->addWidget(mOKbutton, 1, 2);
+	
+	mSegmentationSelectionInput->setLayout(mainLayout);
+	mSegmentationSelectionInput->show();
+	mSegmentationSelectionInput->activateWindow();
+}
+
+void FraxinusSegmentations::updateSelectSegmentationBox()
+{
+	if(!mCheckBoxAirways)
+		mCheckBoxAirways = new QCheckBox();
+	if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES) || mAirwaysProcessed)
 	{
-		mCheckBoxAirways = new QCheckBox(tr("Airways, Lungs: Completed"));
+		mCheckBoxAirways->setText("Airways, Lungs: Completed");
 		mCheckBoxAirways->setChecked(false);
 	}
 	else
 	{
-		mCheckBoxAirways = new QCheckBox(tr("Airways, Lungs (~7 min)"));
+		mCheckBoxAirways->setText("Airways, Lungs (~7 min)");
 		mCheckBoxAirways->setChecked(true);
 	}
-		mCheckBoxAirways->setDisabled(true);
-	if(mServices->patient()->getData<Mesh>(otLYMPH_NODES))
+	mCheckBoxAirways->setDisabled(true);
+
+	if(!mCheckBoxLymphNodes)
+		mCheckBoxLymphNodes = new QCheckBox();
+	if(mServices->patient()->getData<Mesh>(otLYMPH_NODES) || mLymphNodesProcessed)
 	{
-		mCheckBoxLymphNodes = new QCheckBox(tr("Lymph Nodes: Completed"));
+		mCheckBoxLymphNodes->setText("Lymph Nodes: Completed");
 		mCheckBoxLymphNodes->setDisabled(true);
 	}
 	else
-		mCheckBoxLymphNodes = new QCheckBox(tr("Lymph Nodes (~2 min)"));
-	if(mServices->patient()->getData<Mesh>(otHEART))
 	{
-		mCheckBoxHeart = new QCheckBox(tr("Heart, Pulmonary Veins, Pulmonary Trunk: Completed"));
+		mCheckBoxLymphNodes->setText("Lymph Nodes (~2 min)");
+		mCheckBoxLymphNodes->setDisabled(false);
+	}
+
+	if(!mCheckBoxHeart)
+		mCheckBoxHeart = new QCheckBox();
+	if(mServices->patient()->getData<Mesh>(otHEART) || mHeartProcessed)
+	{
+		mCheckBoxHeart->setText("Heart, Pulmonary Veins, Pulmonary Trunk: Completed");
 		mCheckBoxHeart->setDisabled(true);
 	}
 	else
-		mCheckBoxHeart = new QCheckBox(tr("Heart, Pulmonary Veins, Pulmonary Trunk  (~4 min)"));
-	if(mServices->patient()->getData<Mesh>(otSPINE))
 	{
-		mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine: Completed"));
+		mCheckBoxHeart->setText("Heart, Pulmonary Veins, Pulmonary Trunk  (~4 min)");
+		mCheckBoxHeart->setDisabled(false);
+	}
+
+	if(!mCheckBoxMediumOrgans)
+		mCheckBoxMediumOrgans = new QCheckBox();
+	if(mServices->patient()->getData<Mesh>(otSPINE) || mMediumOrgansProcessed)
+	{
+		mCheckBoxMediumOrgans->setText("Vena Cava, Aorta, Spine: Completed");
 		mCheckBoxMediumOrgans->setDisabled(true);
 	}
 	else
-		mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine (~3 min)"));
-	if(mServices->patient()->getData<Mesh>(otESOPHAGUS))
 	{
-		mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos: Completed"));
+		mCheckBoxMediumOrgans->setText("Vena Cava, Aorta, Spine (~3 min)");
+		mCheckBoxMediumOrgans->setDisabled(false);
+	}
+
+	if(!mCheckBoxSmallOrgans)
+		mCheckBoxSmallOrgans = new QCheckBox();
+	if(mServices->patient()->getData<Mesh>(otESOPHAGUS) || mSmallOrgansProcessed)
+	{
+		mCheckBoxSmallOrgans->setText("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos: Completed");
 		mCheckBoxSmallOrgans->setDisabled(true);
 	}
 	else
-		mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)"));
-	if(mServices->patient()->getData<Mesh>(otTUMOR))
 	{
-		mCheckBoxTumors = new QCheckBox(tr("Tumors: Completed"));
-		mCheckBoxTumors->setDisabled(true);
+		mCheckBoxSmallOrgans->setText("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)");
+		mCheckBoxSmallOrgans->setDisabled(false);
+	}
 
+	if(!mCheckBoxTumors)
+		mCheckBoxTumors = new QCheckBox();
+	if(mServices->patient()->getData<Mesh>(otTUMOR) || mTumorsProcessed)
+	{
+		mCheckBoxTumors->setText("Tumors: Completed");
+		mCheckBoxTumors->setDisabled(true);
 	}
 	else
-		mCheckBoxTumors = new QCheckBox(tr("Tumors (~5 min)"));
-	if(mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
+	{
+		mCheckBoxTumors->setText("Tumors (~5 min)");
+		mCheckBoxTumors->setDisabled(false);
+	}
+
+	if(!mCheckBoxLungVessels)
+		mCheckBoxLungVessels = new QCheckBox();
+	if(mServices->patient()->getData<Mesh>(otLUNG_VESSELS) || mLungVesselsProcessed)
 	{
 		mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels: Completed"));
 		mCheckBoxLungVessels->setDisabled(true);
-
 	}
 	else
+	{
 		mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels (~5 min)"));
-	if(mServices->patient()->getData<Mesh>(otLOBE_LUL))
+		mCheckBoxLungVessels->setDisabled(false);
+	}
+
+	if(!mCheckBoxLungLobes)
+		mCheckBoxLungLobes = new QCheckBox();
+	if(mServices->patient()->getData<Mesh>(otLOBE_LUL) || mLungLobesProcessed)
 	{
 		mCheckBoxLungLobes = new QCheckBox(tr("Lung Lobes: Completed"));
 		mCheckBoxLungLobes->setDisabled(true);
-
 	}
 	else
+	{
 		mCheckBoxLungLobes = new QCheckBox(tr("Lung Lobes (~5 min)"));
+		mCheckBoxLungLobes->setDisabled(false);
+	}
+
+	if(!mCheckBoxPET)
+		mCheckBoxPET = new QCheckBox();
 	if(mServices->patient()->getImage(imPET, istPET_REGISTERED))
 	{
-		mCheckBoxPET = new QCheckBox(tr("PET to CT: Completed"));
+		mCheckBoxPET->setText("PET to CT: Completed");
 		mCheckBoxPET->setDisabled(true);
 	}
 	else
 	{
-		mCheckBoxPET = new QCheckBox(tr("PET to CT (~2 min)"));
+		mCheckBoxPET->setText("PET to CT (~2 min)");
 		this->checkForPETData();
 	}
+
+	if(!mCheckBoxSelectAll)
+		mCheckBoxSelectAll = new QCheckBox();
 	mCheckBoxSelectAll = new QCheckBox(tr("Select all"));
 
 	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusSegmentations::checkForPETData);
@@ -439,7 +525,8 @@ void FraxinusSegmentations::showProcessingInfoFinished()
 	QVBoxLayout *layout = new QVBoxLayout();
 	QLabel* label = new QLabel("Segmentation completed");
 	layout->addWidget(label);
-	mOKbuttonProcessingFinished = new QPushButton(tr("OK"));
+	if(!mOKbuttonProcessingFinished)
+		mOKbuttonProcessingFinished = new QPushButton(tr("OK"));
 	layout->addWidget(mOKbuttonProcessingFinished);
 	mSegmentationFinishedInfo->setLayout(layout);
 	mSegmentationFinishedInfo->show();
@@ -453,7 +540,9 @@ void FraxinusSegmentations::closeSegmentationInfo()
 	disconnect(mOKbuttonProcessingFinished, &QPushButton::clicked, this, &FraxinusSegmentations::closeSegmentationInfo);
 	emit segmentationFinished();
 	mSegmentationProcessingInfo->close();
+	mSegmentationProcessingInfo = nullptr;
 	mSegmentationFinishedInfo->close();
+	mSegmentationFinishedInfo = nullptr;
 }
 
 

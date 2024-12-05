@@ -68,6 +68,9 @@ protected:
 	QStringList getRaidionicsOutputClasses(bool startTimers = true);
 	void setElastixParameters();
 
+public slots:
+	void updateSelectSegmentationBox();
+
 private slots:
 	void patientChanged();
 	void selectAll(bool checked);
@@ -95,8 +98,8 @@ private:
 	TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
 	
 	QDialog* mSegmentationSelectionInput = nullptr;
-	QDialog* mSegmentationProcessingInfo;
-	QDialog* mSegmentationFinishedInfo;
+	QDialog* mSegmentationProcessingInfo = nullptr;
+	QDialog* mSegmentationFinishedInfo = nullptr;
 	DisplayTimerWidget* mAirwaysTimerWidget;
 	DisplayTimerWidget* mLungsTimerWidget;
 	DisplayTimerWidget* mLymphNodesTimerWidget;
@@ -109,18 +112,18 @@ private:
 	DisplayTimerWidget* mLungVesselsTimerWidget;
 	DisplayTimerWidget* mLungLobesTimerWidget;
 	DisplayTimerWidget* mActiveTimerWidget = NULL;
-	QCheckBox* mCheckBoxAirways;
-	QCheckBox* mCheckBoxLungs;
-	QCheckBox* mCheckBoxLymphNodes;
-	QCheckBox* mCheckBoxHeart;
-	QCheckBox* mCheckBoxMediumOrgans;
-	QCheckBox* mCheckBoxSmallOrgans;
-	QCheckBox* mCheckBoxNodules;
-	QCheckBox* mCheckBoxTumors;
-	QCheckBox* mCheckBoxPET;
-	QCheckBox* mCheckBoxLungVessels;
-	QCheckBox* mCheckBoxLungLobes;
-	QCheckBox* mCheckBoxSelectAll;
+	QCheckBox* mCheckBoxAirways = nullptr;
+	QCheckBox* mCheckBoxLungs = nullptr;
+	QCheckBox* mCheckBoxLymphNodes = nullptr;
+	QCheckBox* mCheckBoxHeart = nullptr;
+	QCheckBox* mCheckBoxMediumOrgans = nullptr;
+	QCheckBox* mCheckBoxSmallOrgans = nullptr;
+	QCheckBox* mCheckBoxNodules = nullptr;
+	QCheckBox* mCheckBoxTumors = nullptr;
+	QCheckBox* mCheckBoxPET = nullptr;
+	QCheckBox* mCheckBoxLungVessels = nullptr;
+	QCheckBox* mCheckBoxLungLobes = nullptr;
+	QCheckBox* mCheckBoxSelectAll = nullptr;
 	bool mAirwaysProcessed = false;
 	bool mLungVesselsProcessed = false;
 	bool mLungLobesProcessed = false;
@@ -133,9 +136,9 @@ private:
 	LUNG_STRUCTURES mCurrentSegmentationType;
 	BranchListPtr mBranchList;
 	ElastixManagerPtr mElastixManager;
-	QPushButton* mOKbutton;
-	QPushButton* mCancelbutton;
-	QPushButton *mOKbuttonProcessingFinished;
+	QPushButton* mOKbutton = nullptr;
+	QPushButton* mCancelbutton = nullptr;
+	QPushButton *mOKbuttonProcessingFinished = nullptr;
 
 	void setMeshNameAndStopTimer(ORGAN_TYPE target);
 	void setMeshName(ORGAN_TYPE target);///< Needs to be called after patient()->insertData to work. Better to use: setMeshNameAndType(MeshPtr mesh, ORGAN_TYPE target)

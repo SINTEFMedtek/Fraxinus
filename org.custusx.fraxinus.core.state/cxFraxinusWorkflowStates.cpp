@@ -848,6 +848,8 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 	//TODO: connect to mFraxinusSegmentations, to run addDataToView() if airways segmentation fails? - Is this needed?
 	mFraxinusSegmentations->createSelectSegmentationBox();
 	connect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished, this, &ProcessWorkflowState::segmentationFinishedSlot);
+
+	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, mFraxinusSegmentations.get(), &FraxinusSegmentations::updateSelectSegmentationBox, Qt::UniqueConnection);
 	
 	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
 	//QTimer::singleShot(0, this, SLOT(imageSelected()));
@@ -913,6 +915,8 @@ void ProcessWorkflowState::onExit(QEvent * event)
 	ToolPtr tool = mServices->tracking()->getManualTool();
 	tool->setTooltipOffset(0);
 
+	disconnect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished, this, &ProcessWorkflowState::segmentationFinishedSlot);
+	disconnect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, mFraxinusSegmentations.get(), &FraxinusSegmentations::updateSelectSegmentationBox);
 	mFraxinusSegmentations->close();
 	
 	WorkflowState::onExit(event);
