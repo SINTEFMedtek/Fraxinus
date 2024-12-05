@@ -56,6 +56,7 @@ namespace cx
 typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 typedef boost::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
 typedef boost::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
+class NewLoadPatientWidget;
 class FraxinusVBWidget;
 class PinpointWidget;
 class StructuresSelectionWidget;
@@ -80,6 +81,7 @@ protected:
 	MeshPtr getRouteToTarget() const;
 	MeshPtr getExtendedRouteToTarget() const;
 	QMainWindow *getMainWindow();
+	NewLoadPatientWidget *getNewLoadPatientWidget();
 	FraxinusVBWidget *getVBWidget();
 	ProcedurePlanningWidget *getProcedurePlanningWidget();
 	PinpointWidget *getPinpointWidget();
@@ -97,7 +99,6 @@ protected:
 	std::vector< double > mRouteToTargetCameraRotations;
 	std::vector< int > mRouteToTargetGenerationNumbers;
 	std::vector< double > mRouteToTargetRadius;
-	FraxinusSegmentationsPtr mFraxinusSegmentations;
 
 	bool mUpdateFocus = false;
 
@@ -110,6 +111,7 @@ protected:
 	void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
 	void setupTumorInformationWidget(TumorInformationWidget *widget, std::vector<unsigned int> viewGroupNumbers);
 	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
+	void deleteBranchList();
 	void cleanupVBWidget();
 	void setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers);
 	void setupProcedurePlanningWidget(std::vector<unsigned int> viewGroupNumbers);
@@ -146,9 +148,14 @@ public:
 	virtual QIcon getIcon() const;
 	virtual bool canEnter() const;
 	virtual void onEntry(QEvent* event);
+	virtual void onExit(QEvent * event);
+
+signals:
+	void dataImportCompleted();
 
 private:
 	virtual void addDataToView();
+	NewLoadPatientWidget* mNewLoadPatientWidget;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public FraxinusWorkflowState
@@ -184,6 +191,8 @@ private slots:
 	void segmentationFinishedSlot();
 private:
 	virtual void addDataToView();
+
+	FraxinusSegmentationsPtr mFraxinusSegmentations;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT PinpointWorkflowState: public FraxinusWorkflowState
@@ -200,6 +209,7 @@ public:
 signals:
 	void targetMetricSet();
 private slots:
+	void onPatientChanged();
 	void dataAddedOrRemovedSlot();
 	void createRoute();
 	void pointChanged();

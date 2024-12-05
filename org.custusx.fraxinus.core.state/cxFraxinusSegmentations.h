@@ -35,14 +35,9 @@ public:
 	FraxinusSegmentations(RegServicesPtr services);
 	~FraxinusSegmentations();
 	
-	ImagePtr getImage(IMAGE_MODALITY modality, IMAGE_SUBTYPE subtype) const;
 	ImagePtr findAndLabelThoraxCT() const;
-	ImagePtr getVolume(ORGAN_TYPE organType) const;
 
 	BranchListPtr getBranchList();
-
-	MeshPtr getMesh(ORGAN_TYPE organType);
-	std::vector<MeshPtr> getMeshes(ORGAN_TYPE organType);
 	
 	void createSelectSegmentationBox();
 	void createProcessingInfo();
@@ -64,11 +59,17 @@ protected:
 	bool mSegmentHeart = false;
 	bool mSegmentMediumOrgans = false;
 	bool mSegmentSmallOrgans = false;
+	bool mSegmentTumors = false;
+	bool mSegmentLungVessels = false;
+	bool mSegmentLungLobes = false;
+	bool mSegmentNodules = false;
+	bool mRegisterPET = false;
 
 	QStringList getRaidionicsOutputClasses(bool startTimers = true);
 	void setElastixParameters();
 
 private slots:
+	void patientChanged();
 	void selectAll(bool checked);
 	void imageSelected();
 	void cancel();
@@ -79,10 +80,13 @@ private slots:
 	void runElastixSlot();
 	void elastixFinishedSlot();
 	void checkForPETData();
+	void showProcessingInfoFinished();
+	void closeSegmentationInfo();
 	
 private:
-	vtkImageDataPtr mergeBinaryVolumes(vtkImageDataPtr imageA, vtkImageDataPtr imageB);
-	vtkImageDataPtr shiftVtkScalarToUnsignedShort(vtkImageDataPtr input);
+	void deleteTumorsAndNodulesVolumes();
+	vtkImageDataPtr mergeTumorVolumes(ImagePtr tumorsVolume, ImagePtr nodulesVolume);
+	void setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> tumorMeshes, std::vector<double> tumorSizes);
 
 	RegServicesPtr mServices;
 	
@@ -92,6 +96,7 @@ private:
 	
 	QDialog* mSegmentationSelectionInput = nullptr;
 	QDialog* mSegmentationProcessingInfo;
+	QDialog* mSegmentationFinishedInfo;
 	DisplayTimerWidget* mAirwaysTimerWidget;
 	DisplayTimerWidget* mLungsTimerWidget;
 	DisplayTimerWidget* mLymphNodesTimerWidget;
@@ -116,7 +121,6 @@ private:
 	QCheckBox* mCheckBoxLungVessels;
 	QCheckBox* mCheckBoxLungLobes;
 	QCheckBox* mCheckBoxSelectAll;
-	bool mRaidionicsRun = false;
 	bool mAirwaysProcessed = false;
 	bool mLungVesselsProcessed = false;
 	bool mLungLobesProcessed = false;
@@ -126,16 +130,12 @@ private:
 	bool mHeartProcessed = false;
 	bool mMediumOrgansProcessed = false;
 	bool mSmallOrgansProcessed = false;
-	bool mSegmentLungVessels = false;
-	bool mSegmentLungLobes = false;
-	bool mSegmentNodules = false;
-	bool mSegmentTumors = false;
-	bool mRegisterPET = false;
 	LUNG_STRUCTURES mCurrentSegmentationType;
 	BranchListPtr mBranchList;
 	ElastixManagerPtr mElastixManager;
 	QPushButton* mOKbutton;
 	QPushButton* mCancelbutton;
+	QPushButton *mOKbuttonProcessingFinished;
 
 	void setMeshNameAndStopTimer(ORGAN_TYPE target);
 	void setMeshName(ORGAN_TYPE target);///< Needs to be called after patient()->insertData to work. Better to use: setMeshNameAndType(MeshPtr mesh, ORGAN_TYPE target)

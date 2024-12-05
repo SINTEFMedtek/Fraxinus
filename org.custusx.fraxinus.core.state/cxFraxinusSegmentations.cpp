@@ -34,6 +34,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxEnumConversion.h"
 #include "cxBinaryThinningImageFilter3DFilter.h"
 #include "cxBranchList.h"
+#include "cxSessionStorageService.h"
 
 #include "cxElastixParameters.h"
 #include "cxElastixExecuter.h"
@@ -50,11 +51,12 @@ FraxinusSegmentations::FraxinusSegmentations(RegServicesPtr services) :
 	mServices(services)
 {
 	mTimedAlgorithmProgressBar = new cx::TimedAlgorithmProgressBar;
+	connect(mServices->session().get(), &SessionStorageService::sessionChanged, this, &FraxinusSegmentations::patientChanged, Qt::UniqueConnection);
 }
 
 FraxinusSegmentations::~FraxinusSegmentations()
 {
-	
+	disconnect(mServices->session().get(), &SessionStorageService::sessionChanged, this, &FraxinusSegmentations::patientChanged);
 }
 
 void FraxinusSegmentations::close()
@@ -69,20 +71,21 @@ void FraxinusSegmentations::close()
 	mSegmentationSelectionInput = nullptr;
 }
 
-ImagePtr FraxinusSegmentations::getImage(IMAGE_MODALITY modality, IMAGE_SUBTYPE subtype) const
+void FraxinusSegmentations::patientChanged()
 {
-	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
-	std::map<QString, ImagePtr>::iterator it = images.begin();
-	ImagePtr image;
-	for( ; it != images.end(); ++it)
-	{
-		if((it->second->getModality() == modality) && (it->second->getImageType() == subtype))
-		{
-			image = it->second;
-			return image;
-		}
-	}
-	return image;
+	if(!mServices->session()->isValid())
+		return;
+
+	mBranchList.reset();
+
+	mAirwaysProcessed = false;
+	mLungVesselsProcessed = false;
+	mNodulesProcessed = false;
+	mTumorsProcessed = false;
+	mLymphNodesProcessed = false;
+	mHeartProcessed = false;
+	mMediumOrgansProcessed = false;
+	mSmallOrgansProcessed = false;
 }
 
 ImagePtr FraxinusSegmentations::findAndLabelThoraxCT() const
@@ -98,6 +101,7 @@ ImagePtr FraxinusSegmentations::findAndLabelThoraxCT() const
 				&& !(it->second->getOrganType() == otLUNGS)
 				&& !(it->second->getOrganType() == otAIRWAYS)
 				&& ((it->second->getModality() == imCT) || (it->second->getModality() == imUNKNOWN) || (it->second->getModality() == imCOUNT))
+				&& !((it->second->getImageType() == istPET) || (it->second->getImageType() == istPET_CT))
 			 )
 		{
 			image = it->second;
@@ -114,45 +118,6 @@ BranchListPtr FraxinusSegmentations::getBranchList()
 	return mBranchList;
 }
 
-ImagePtr FraxinusSegmentations::getVolume(ORGAN_TYPE organType) const
-{
-	std::map<QString, ImagePtr> images = mServices->patient()->getDataOfType<Image>();
-	std::map<QString, ImagePtr>::iterator it = images.begin();
-	ImagePtr image;
-	for( ; it != images.end(); ++it)
-	{
-		if(it->second->getOrganType() == organType)
-		{
-			image = it->second;
-			break;
-		}
-	}
-	return image;
-}
-
-MeshPtr FraxinusSegmentations::getMesh(ORGAN_TYPE organType)
-{
-	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
-	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
-		if(iter->second->getOrganType() == organType)
-		{
-			return iter->second;
-		}
-	return MeshPtr();
-}
-
-std::vector<MeshPtr> FraxinusSegmentations::getMeshes(ORGAN_TYPE organType)
-{
-	std::vector<MeshPtr> retval;
-	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
-	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
-		if(iter->second->getOrganType() == organType)
-		{
-			retval.push_back(iter->second);
-		}
-	return retval;
-}
-
 void FraxinusSegmentations::createSelectSegmentationBox()
 {
 	if(mActiveTimerWidget) // check that segmentation is not already running
@@ -161,19 +126,79 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	mSegmentationSelectionInput->setWindowTitle(tr("Select structures for segmentation"));
 	mSegmentationSelectionInput->setWindowFlags(Qt::WindowStaysOnTopHint);
 	
-	mCheckBoxAirways = new QCheckBox(tr("Airways, Lungs (~7 min)"));
-	mCheckBoxAirways->setChecked(true);
-	mCheckBoxAirways->setDisabled(true);
-	mCheckBoxLymphNodes = new QCheckBox(tr("Lymph Nodes (~2 min)"));
-	mCheckBoxHeart = new QCheckBox(tr("Heart, Pulmonary Veins, Pulmonary Trunk  (~4 min)"));
-	mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine (~3 min)"));
-	mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)"));
-	//mCheckBoxNodules = new QCheckBox(tr("Nodules (~2 min)"));
-	mCheckBoxTumors = new QCheckBox(tr("Tumors (~5 min)"));
-	mCheckBoxPET = new QCheckBox(tr("PET to CT (~2 min)"));
-	this->checkForPETData();
-	mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels  (~5 min)"));
-	mCheckBoxLungLobes = new QCheckBox(tr("Lung Lobes  (~5 min)"));
+	if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
+	{
+		mCheckBoxAirways = new QCheckBox(tr("Airways, Lungs: Completed"));
+		mCheckBoxAirways->setChecked(false);
+	}
+	else
+	{
+		mCheckBoxAirways = new QCheckBox(tr("Airways, Lungs (~7 min)"));
+		mCheckBoxAirways->setChecked(true);
+	}
+		mCheckBoxAirways->setDisabled(true);
+	if(mServices->patient()->getData<Mesh>(otLYMPH_NODES))
+	{
+		mCheckBoxLymphNodes = new QCheckBox(tr("Lymph Nodes: Completed"));
+		mCheckBoxLymphNodes->setDisabled(true);
+	}
+	else
+		mCheckBoxLymphNodes = new QCheckBox(tr("Lymph Nodes (~2 min)"));
+	if(mServices->patient()->getData<Mesh>(otHEART))
+	{
+		mCheckBoxHeart = new QCheckBox(tr("Heart, Pulmonary Veins, Pulmonary Trunk: Completed"));
+		mCheckBoxHeart->setDisabled(true);
+	}
+	else
+		mCheckBoxHeart = new QCheckBox(tr("Heart, Pulmonary Veins, Pulmonary Trunk  (~4 min)"));
+	if(mServices->patient()->getData<Mesh>(otSPINE))
+	{
+		mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine: Completed"));
+		mCheckBoxMediumOrgans->setDisabled(true);
+	}
+	else
+		mCheckBoxMediumOrgans = new QCheckBox(tr("Vena Cava, Aorta, Spine (~3 min)"));
+	if(mServices->patient()->getData<Mesh>(otESOPHAGUS))
+	{
+		mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos: Completed"));
+		mCheckBoxSmallOrgans->setDisabled(true);
+	}
+	else
+		mCheckBoxSmallOrgans = new QCheckBox(tr("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)"));
+	if(mServices->patient()->getData<Mesh>(otTUMOR))
+	{
+		mCheckBoxTumors = new QCheckBox(tr("Tumors: Completed"));
+		mCheckBoxTumors->setDisabled(true);
+
+	}
+	else
+		mCheckBoxTumors = new QCheckBox(tr("Tumors (~5 min)"));
+	if(mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
+	{
+		mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels: Completed"));
+		mCheckBoxLungVessels->setDisabled(true);
+
+	}
+	else
+		mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels (~5 min)"));
+	if(mServices->patient()->getData<Mesh>(otLOBE_LUL))
+	{
+		mCheckBoxLungLobes = new QCheckBox(tr("Lung Lobes: Completed"));
+		mCheckBoxLungLobes->setDisabled(true);
+
+	}
+	else
+		mCheckBoxLungLobes = new QCheckBox(tr("Lung Lobes (~5 min)"));
+	if(mServices->patient()->getImage(imPET, istPET_REGISTERED))
+	{
+		mCheckBoxPET = new QCheckBox(tr("PET to CT: Completed"));
+		mCheckBoxPET->setDisabled(true);
+	}
+	else
+	{
+		mCheckBoxPET = new QCheckBox(tr("PET to CT (~2 min)"));
+		this->checkForPETData();
+	}
 	mCheckBoxSelectAll = new QCheckBox(tr("Select all"));
 
 	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusSegmentations::checkForPETData);
@@ -211,7 +236,7 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 
 void FraxinusSegmentations::checkForPETData()
 {
-	if(!( getImage(imCT, istTHORAX_CT) && getImage(imCT, istPET_CT) && getImage(imPET, istPET) ))
+	if(!( mServices->patient()->getImage(imCT, istTHORAX_CT) && mServices->patient()->getImage(imCT, istPET_CT) && mServices->patient()->getImage(imPET, istPET) ))
 		mCheckBoxPET->setDisabled(true);
 	else
 		mCheckBoxPET->setDisabled(false);
@@ -219,16 +244,24 @@ void FraxinusSegmentations::checkForPETData()
 
 void FraxinusSegmentations::selectAll(bool checked)
 {
-	mCheckBoxLymphNodes->setChecked(checked);
-	mCheckBoxHeart->setChecked(checked);
-	mCheckBoxMediumOrgans->setChecked(checked);
-	mCheckBoxSmallOrgans->setChecked(checked);
-//	mCheckBoxNodules->setChecked(checked);
-	mCheckBoxTumors->setChecked(checked);
-	if(mCheckBoxPET->isEnabled())
+	if(!mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
+		mCheckBoxAirways->setChecked(checked);
+	if(!mServices->patient()->getData<Mesh>(otLYMPH_NODES))
+		mCheckBoxLymphNodes->setChecked(checked);
+	if(!mServices->patient()->getData<Mesh>(otHEART))
+		mCheckBoxHeart->setChecked(checked);
+	if(!mServices->patient()->getData<Mesh>(otSPINE))
+		mCheckBoxMediumOrgans->setChecked(checked);
+	if(!mServices->patient()->getData<Mesh>(otESOPHAGUS))
+		mCheckBoxSmallOrgans->setChecked(checked);
+	if(!mServices->patient()->getData<Mesh>(otTUMOR))
+		mCheckBoxTumors->setChecked(checked);
+	if(!mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
+		mCheckBoxLungVessels->setChecked(checked);
+	if(!mServices->patient()->getData<Mesh>(otLOBE_LUL))
+		mCheckBoxLungLobes->setChecked(checked);
+	if(mCheckBoxPET->isEnabled() && !mServices->patient()->getImage(imPET, istPET_REGISTERED))
 		mCheckBoxPET->setChecked(checked);
-	mCheckBoxLungVessels->setChecked(checked);
-	mCheckBoxLungLobes->setChecked(checked);
 }
 
 void FraxinusSegmentations::imageSelected()
@@ -247,7 +280,7 @@ void FraxinusSegmentations::imageSelected()
 
 	this->createProcessingInfo();
 
-	ImagePtr image = this->getImage(imCT, istTHORAX_CT);
+	ImagePtr image = mServices->patient()->getImage(imCT, istTHORAX_CT);
 
 	if(mRegisterPET)
 		this->performPETCTregistration();
@@ -280,7 +313,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		QLabel* label = new QLabel("Airways, Lungs:");
 		gridLayout->addWidget(label,0,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,0,1);
-		if(this->getMesh(otAIRWAYS_CENTERLINES))
+		if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
 			mAirwaysTimerWidget->stop();
 	}
 	if (mSegmentLungVessels)
@@ -292,7 +325,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		QLabel* label = new QLabel("Small vessels:");
 		gridLayout->addWidget(label,1,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,1,1);
-		if(this->getMesh(otLUNG_VESSELS))
+		if(mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
 			mLungVesselsTimerWidget->stop();
 	}
 	if (mSegmentLymphNodes)
@@ -304,7 +337,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		QLabel* label = new QLabel("Lymph Nodes:");
 		gridLayout->addWidget(label,3,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,3,1);
-		if(this->getMesh(otLYMPH_NODES))
+		if(mServices->patient()->getData<Mesh>(otLYMPH_NODES))
 			mLymphNodesTimerWidget->stop();
 	}
 	if (mSegmentHeart)
@@ -316,7 +349,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		QLabel* label = new QLabel("Pulmonary System:");
 		gridLayout->addWidget(label,4,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,4,1);
-		if(this->getMesh(otHEART))
+		if(mServices->patient()->getData<Mesh>(otHEART))
 			mHeartTimerWidget->stop();
 	}
 	if (mSegmentMediumOrgans)
@@ -328,7 +361,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		QLabel* label = new QLabel("Vena Cava, Aorta, Spine:");
 		gridLayout->addWidget(label,5,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,5,1);
-		if(this->getMesh(otSPINE))
+		if(mServices->patient()->getData<Mesh>(otSPINE))
 			mMediumOrgansTimerWidget->stop();
 	}
 	if (mSegmentSmallOrgans)
@@ -340,7 +373,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		QLabel* label = new QLabel("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos:");
 		gridLayout->addWidget(label,6,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,6,1);
-		if(this->getMesh(otESOPHAGUS))
+		if(mServices->patient()->getData<Mesh>(otESOPHAGUS))
 			mSmallOrgansTimerWidget->stop();
 	}
 	if (mSegmentTumors)
@@ -352,7 +385,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		QLabel* label = new QLabel("Small Tumors:");
 		gridLayout->addWidget(label,7,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,7,1);
-		if(this->getMesh(otTUMOR))
+		if(mServices->patient()->getData<Mesh>(otTUMOR))
 			mNodulesTimerWidget->stop();
 	}
 	if (mSegmentTumors)
@@ -364,7 +397,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		QLabel* label = new QLabel("Large Tumors:");
 		gridLayout->addWidget(label,8,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,8,1);
-		if(this->getMesh(otTUMOR))
+		if(mServices->patient()->getData<Mesh>(otTUMOR))
 			mTumorsTimerWidget->stop();
 	}
 	if (mSegmentLungLobes)
@@ -376,7 +409,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		QLabel* label = new QLabel("Lung Lobes:");
 		gridLayout->addWidget(label,9,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,9,1);
-		if(this->getMesh(otLOBE_LUL))
+		if(mServices->patient()->getData<Mesh>(otLOBE_LUL))
 			mLungLobesTimerWidget->stop();
 	}
 	if (mRegisterPET)
@@ -388,7 +421,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		QLabel* label = new QLabel("PET:");
 		gridLayout->addWidget(label,10,0,Qt::AlignRight);
 		gridLayout->addWidget(timerWidget,10,1,11,3);
-		if(this->getImage(imPET, istPET_REGISTERED))
+		if(mServices->patient()->getImage(imPET, istPET_REGISTERED))
 			mPETTimerWidget->stop();
 	}
 	
@@ -396,6 +429,31 @@ void FraxinusSegmentations::createProcessingInfo()
 	mSegmentationProcessingInfo->setLayout(gridLayout);
 	mSegmentationProcessingInfo->show();
 	mSegmentationProcessingInfo->activateWindow();
+}
+
+void FraxinusSegmentations::showProcessingInfoFinished()
+{
+	mSegmentationFinishedInfo = new QDialog();
+	mSegmentationFinishedInfo->setWindowTitle(tr("Finished"));
+	mSegmentationFinishedInfo->setWindowFlags( (Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint) & ~Qt::WindowCloseButtonHint );
+	QVBoxLayout *layout = new QVBoxLayout();
+	QLabel* label = new QLabel("Segmentation completed");
+	layout->addWidget(label);
+	mOKbuttonProcessingFinished = new QPushButton(tr("OK"));
+	layout->addWidget(mOKbuttonProcessingFinished);
+	mSegmentationFinishedInfo->setLayout(layout);
+	mSegmentationFinishedInfo->show();
+	mSegmentationFinishedInfo->activateWindow();
+
+	connect(mOKbuttonProcessingFinished, &QPushButton::clicked, this, &FraxinusSegmentations::closeSegmentationInfo);
+}
+
+void FraxinusSegmentations::closeSegmentationInfo()
+{
+	disconnect(mOKbuttonProcessingFinished, &QPushButton::clicked, this, &FraxinusSegmentations::closeSegmentationInfo);
+	emit segmentationFinished();
+	mSegmentationProcessingInfo->close();
+	mSegmentationFinishedInfo->close();
 }
 
 
@@ -411,9 +469,9 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	if(!image)
 		return;
 
-	if(this->getMesh(otLUNG_VESSELS))
+	if(mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
 		mLungVesselsProcessed = true;
-	if(this->getMesh(otLOBE_LUL))
+	if(mServices->patient()->getData<Mesh>(otLOBE_LUL))
 		mLungLobesProcessed = true;
 
 	if(mLungLobesProcessed || !mSegmentLungLobes)
@@ -463,22 +521,22 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 {
 	QStringList retval;
 
-	if(mSegmentAirways && !this->getMesh(otAIRWAYS_CENTERLINES) && !mAirwaysProcessed)
+	if(mSegmentAirways && !mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES) && !mAirwaysProcessed)
 	{
 		mActiveTimerWidget = mAirwaysTimerWidget;
 		retval << enum2string(otAIRWAYS);
-		if(!this->getMesh(otLUNGS))
+		if(!mServices->patient()->getData<Mesh>(otLUNGS))
 			retval << enum2string(otLUNGS);
 		if(startTimers)
 			mAirwaysTimerWidget->start();
 	}
-	if(mSegmentLymphNodes && !this->getMesh(otLYMPH_NODES) && !mLymphNodesProcessed)
+	if(mSegmentLymphNodes && !mServices->patient()->getData<Mesh>(otLYMPH_NODES) && !mLymphNodesProcessed)
 	{
 		retval << enum2string(otLYMPH_NODES);
 		if(startTimers)
 			mLymphNodesTimerWidget->start();
 	}
-	if(mSegmentTumors && !this->getMesh(otTUMOR) && !mTumorsProcessed)
+	if(mSegmentTumors && !mServices->patient()->getData<Mesh>(otTUMOR) && !mTumorsProcessed)
 	{
 		retval << enum2string(otTUMOR);
 		if(startTimers)
@@ -486,19 +544,19 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 	}
 
 	//Multiple targets, will be expanded in Raidionics::createTargetList()
-	if(mSegmentHeart && !this->getMesh(otHEART)&& !mHeartProcessed)
+	if(mSegmentHeart && !mServices->patient()->getData<Mesh>(otHEART)&& !mHeartProcessed)
 	{
 		retval << enum2string(lmPULMSYST_HEART);
 		if(startTimers)
 			mHeartTimerWidget->start();
 	}
-	if(mSegmentMediumOrgans && !this->getMesh(otVENA_CAVA) && !mMediumOrgansProcessed)
+	if(mSegmentMediumOrgans && !mServices->patient()->getData<Mesh>(otVENA_CAVA) && !mMediumOrgansProcessed)
 	{
 		retval << enum2string(lmMEDIUM_ORGANS_MEDIASTINUM);
 		if(startTimers)
 			mMediumOrgansTimerWidget->start();
 	}
-	if(mSegmentSmallOrgans && !this->getMesh(otAZYGOS)&& !mSmallOrgansProcessed)
+	if(mSegmentSmallOrgans && !mServices->patient()->getData<Mesh>(otAZYGOS)&& !mSmallOrgansProcessed)
 	{
 		retval << enum2string(lmSMALL_ORGANS_MEDIASTINUM);
 		if(startTimers)
@@ -535,7 +593,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 
 	if(runRaidionics(scriptFilter))
 	{}
-	else if(mSegmentTumors && !mNodulesProcessed && !this->getMesh(otTUMOR))
+	else if(mSegmentTumors && !mNodulesProcessed && !mServices->patient()->getData<Mesh>(otTUMOR))
 	{
 		mActiveTimerWidget = mNodulesTimerWidget;
 		if(mActiveTimerWidget)
@@ -549,8 +607,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 	{
 		mActiveTimerWidget = NULL;
 		mCurrentSegmentationType = lsUNKNOWN;
-		emit segmentationFinished();
-		mSegmentationProcessingInfo->close();
+		this->showProcessingInfoFinished();
 		return;
 	} 
 	
@@ -561,15 +618,15 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 
 void FraxinusSegmentations::performPETCTregistration()
 {
-	if(this->getImage(imPET, istPET_REGISTERED))
+	if(mServices->patient()->getImage(imPET, istPET_REGISTERED))
 	{
-		ImagePtr CTimage = this->getImage(imCT, istTHORAX_CT);
+		ImagePtr CTimage = mServices->patient()->getImage(imCT, istTHORAX_CT);
 		this->performPythonSegmentation(CTimage);
 		return;
 	}
 
-	ImagePtr CTimage = this->getImage(imCT, istTHORAX_CT);
-	ImagePtr PET_CTimage = this->getImage(imCT, istPET_CT);
+	ImagePtr CTimage = mServices->patient()->getImage(imCT, istTHORAX_CT);
+	ImagePtr PET_CTimage = mServices->patient()->getImage(imCT, istPET_CT);
 
 	mActiveTimerWidget = mPETTimerWidget;
 	if(mActiveTimerWidget)
@@ -589,7 +646,7 @@ void FraxinusSegmentations::performPETCTregistration()
 
 void FraxinusSegmentations::setElastixParameters()
 {
-	ImagePtr PETimage = this->getImage(imPET, istPET);
+	ImagePtr PETimage = mServices->patient()->getImage(imPET, istPET);
 	PETimage->get_rMd_History()->setParentSpace("");
 
 	mElastixManager = ElastixManagerPtr(new ElastixManager(mServices));
@@ -616,7 +673,7 @@ void FraxinusSegmentations::elastixFinishedSlot()
 
 	mPETTimerWidget->stop();
 
-	ImagePtr CTimage = this->getImage(imCT, istTHORAX_CT);
+	ImagePtr CTimage = mServices->patient()->getImage(imCT, istTHORAX_CT);
 	this->performPythonSegmentation(CTimage);
 }
 
@@ -663,16 +720,16 @@ void FraxinusSegmentations::pythonFinishedSlot()
 	this->checkIfSegmentationSucceeded();
 
 	if(mCurrentSegmentationType == lsLOBE && (mSegmentLungVessels || mSegmentTumors))
-		this->performPythonSegmentation(this->getImage(imCT, istTHORAX_CT));
+		this->performPythonSegmentation(mServices->patient()->getImage(imCT, istTHORAX_CT));
 	else if(mCurrentSegmentationType == lsLUNG_VESSELS && mSegmentTumors)
-		this->performPythonSegmentation(this->getImage(imCT, istTHORAX_CT));
+		this->performPythonSegmentation(this->mServices->patient()->getImage(imCT, istTHORAX_CT));
 	else
-		this->performMLSegmentation(this->getImage(imCT, istTHORAX_CT));
+		this->performMLSegmentation(mServices->patient()->getImage(imCT, istTHORAX_CT));
 }
 
 void FraxinusSegmentations::MLFinishedSlot()
 {
-	if(mCurrentSegmentationType == lsAIRWAYS && !this->getMesh(otAIRWAYS_CENTERLINES))
+	if(mCurrentSegmentationType == lsAIRWAYS && !mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
 		this->postProcessAirways();
 
 	if(mSegmentTumors && mTumorsProcessed && mNodulesProcessed)
@@ -686,21 +743,34 @@ void FraxinusSegmentations::MLFinishedSlot()
 		mActiveTimerWidget->stop();
 	
 	this->checkIfSegmentationSucceeded();
+
+	if(mSegmentTumors && mTumorsProcessed && mNodulesProcessed)
+		deleteTumorsAndNodulesVolumes();
 	
-	this->performMLSegmentation(getImage(imCT, istTHORAX_CT));
+	this->performMLSegmentation(mServices->patient()->getImage(imCT, istTHORAX_CT));
+}
+
+void FraxinusSegmentations::deleteTumorsAndNodulesVolumes()
+{
+	ImagePtr tumorsVolume = mServices->patient()->getData<Image>(otTUMOR);
+	ImagePtr nodulesVolume = mServices->patient()->getData<Image>(otNODULES);
+	if(tumorsVolume)
+		mServices->patient()->removeData(tumorsVolume->getUid());
+	if(nodulesVolume)
+		mServices->patient()->removeData(nodulesVolume->getUid());
 }
 
 void FraxinusSegmentations::postProcessAirways()
 {
 	this->generateCenterline();
 	AirwaysFromCenterlinePtr airwaysFromCLPtr = AirwaysFromCenterlinePtr(new AirwaysFromCenterline());
-	ImagePtr CTimage = this->getImage(imCT, istTHORAX_CT);
+	ImagePtr CTimage = mServices->patient()->getImage(imCT, istTHORAX_CT);
 	if(!CTimage)
 		return;
-	MeshPtr rawCenterline = this->getMesh(otCENTERLINES);
+	MeshPtr rawCenterline = mServices->patient()->getData<Mesh>(otCENTERLINES);
 	if(!rawCenterline)
 		return;
-	ImagePtr airwaysVolume =this->getVolume(otAIRWAYS);
+	ImagePtr airwaysVolume = mServices->patient()->getData<Image>(otAIRWAYS);
 	if(!airwaysVolume)
 		return;
 
@@ -752,7 +822,7 @@ void FraxinusSegmentations::postProcessAirways()
 	setMeshNameAndType(centerline, otAIRWAYS_CENTERLINES);
 	mServices->patient()->insertData(centerline);
 
-	ImagePtr lungsVolume = getVolume(otLUNGS);
+	ImagePtr lungsVolume = mServices->patient()->getData<Image>(otLUNGS);
 	if(lungsVolume)
 		mServices->patient()->removeData(lungsVolume->getUid());
 //	if(airwaysVolume) // do not remove, needed for airway radius calculation at Fraxinus restart
@@ -762,25 +832,17 @@ void FraxinusSegmentations::postProcessAirways()
 
 void FraxinusSegmentations::postProcessTumors()
 {
-	ImagePtr tumorsVolume =this->getVolume(otTUMOR);
-	ImagePtr nodulesVolume =this->getVolume(otNODULES);
+	ImagePtr tumorsVolume = mServices->patient()->getData<Image>(otTUMOR);
+	ImagePtr nodulesVolume = mServices->patient()->getData<Image>(otNODULES);
 
-	vtkImageDataPtr combinedVtkImage = vtkImageDataPtr::New();
-	if(tumorsVolume && nodulesVolume)
-		combinedVtkImage = this->mergeBinaryVolumes(tumorsVolume->getBaseVtkImageData(), nodulesVolume->getBaseVtkImageData());
-	else if(tumorsVolume)
-		combinedVtkImage->DeepCopy(tumorsVolume->getBaseVtkImageData());
-	else if(nodulesVolume)
-		combinedVtkImage->DeepCopy(nodulesVolume->getBaseVtkImageData());
-	else
-		return;
+	vtkImageDataPtr combinedVtkImage = mergeTumorVolumes(tumorsVolume, nodulesVolume);
 
 	if(!combinedVtkImage)
 		return;
 
 	setDeepModified(combinedVtkImage);
 
-	ImagePtr baseImage = this->getImage(imCT, istTHORAX_CT);
+	ImagePtr baseImage = mServices->patient()->getImage(imCT, istTHORAX_CT);
 	if(!baseImage)
 		return;
 
@@ -807,7 +869,29 @@ void FraxinusSegmentations::postProcessTumors()
 				0.03);  //passBand
 
 	std::vector<MeshPtr> tumorMeshes = meshesFromLabelsFilter->postProcess(visServices, rawResult, labeledImage, QColor(255,255,0,255), false);
+	setNumberAndSizeToTumorVolumes(tumorMeshes, tumorSizes);
 
+	if(labeledImage)
+		mServices->patient()->removeData(labeledImage->getUid());
+}
+
+vtkImageDataPtr FraxinusSegmentations::mergeTumorVolumes(ImagePtr tumorsVolume, ImagePtr nodulesVolume)
+{
+	vtkImageDataPtr combinedVtkImage = vtkImageDataPtr::New();
+	if(tumorsVolume && nodulesVolume)
+		combinedVtkImage =  mergeBinaryImages(tumorsVolume->getBaseVtkImageData(), nodulesVolume->getBaseVtkImageData());
+	else if(tumorsVolume)
+		combinedVtkImage->DeepCopy(tumorsVolume->getBaseVtkImageData());
+	else if(nodulesVolume)
+		combinedVtkImage->DeepCopy(nodulesVolume->getBaseVtkImageData());
+	else
+		combinedVtkImage = vtkImageDataPtr();
+
+	return combinedVtkImage;
+}
+
+void FraxinusSegmentations::setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> tumorMeshes, std::vector<double> tumorSizes)
+{
 	for(int i=0; i<tumorMeshes.size(); i++)
 	{
 		this->setMeshNameAndType(tumorMeshes[i], otTUMOR);
@@ -821,55 +905,7 @@ void FraxinusSegmentations::postProcessTumors()
 		else
 			tumorMeshes[i]->setName(nameWithNumber);
 	}
-
-	mServices->patient()->removeData(tumorsVolume->getUid());
-	mServices->patient()->removeData(nodulesVolume->getUid());
-	mServices->patient()->removeData(labeledImage->getUid());
 }
-
-vtkImageDataPtr FraxinusSegmentations::mergeBinaryVolumes(vtkImageDataPtr imageA, vtkImageDataPtr imageB)
-{
-	vtkImageDataPtr imageAB = vtkImageDataPtr::New();
-
-	int* dimImageA = imageA->GetDimensions();
-	int* dimImageB = imageB->GetDimensions();
-	if(dimImageA[0]!=dimImageB[0] || dimImageA[2]!=dimImageB[2] || dimImageA[2]!=dimImageB[2])
-		return imageAB;
-
-	imageA = shiftVtkScalarToUnsignedShort(imageA);
-	imageB = shiftVtkScalarToUnsignedShort(imageB);
-
-	imageAB->DeepCopy(imageA);
-
-	unsigned short* dataPtrImageB = static_cast<unsigned short*>(imageB->GetScalarPointer());
-	unsigned short* dataPtrImageAB = static_cast<unsigned short*>(imageAB->GetScalarPointer());
-
-	int numberOfVoxels = dimImageB[0]*dimImageB[1]*dimImageB[2];
-	for (int index = 0; index<numberOfVoxels; index++)
-		if(dataPtrImageB[index] > 0)
-			dataPtrImageAB[index] = 1;
-
-	return imageAB;
-}
-
-vtkImageDataPtr FraxinusSegmentations::shiftVtkScalarToUnsignedShort(vtkImageDataPtr input)
-{
-	//make function
-	vtkImageShiftScalePtr cast = vtkImageShiftScalePtr::New();
-	cast->SetInputData(input);
-	cast->ClampOverflowOn();
-
-	int shift = 0;
-	if (input->GetScalarTypeMin() < 0)
-		shift = -input->GetScalarRange()[0];
-
-	cast->SetShift(shift);
-	cast->SetOutputScalarType(VTK_UNSIGNED_SHORT);
-	cast->Update();
-
-	return cast->GetOutput();
-}
-
 
 void FraxinusSegmentations::generateCenterline()
 {//using BinaryThinningImageFilter3DFilter
@@ -878,7 +914,7 @@ void FraxinusSegmentations::generateCenterline()
 	std::vector<SelectDataStringPropertyBasePtr> input = binaryThinningImageFilter3DFilter->getInputTypes();
 	std::vector<SelectDataStringPropertyBasePtr> output = binaryThinningImageFilter3DFilter->getOutputTypes();
 	binaryThinningImageFilter3DFilter->getOptions();
-	ImagePtr airwaysVolume = getVolume(otAIRWAYS);
+	ImagePtr airwaysVolume = mServices->patient()->getData<Image>(otAIRWAYS);
 	if(!airwaysVolume)
 	{
 		CX_LOG_WARNING() << "In FraxinusSegmentations::generateCenterline airways volume not found.";
@@ -995,7 +1031,7 @@ void FraxinusSegmentations::setMeshNameAndType(MeshPtr mesh, ORGAN_TYPE target)
 //Needs to be called after patient()->insertData to work
 void FraxinusSegmentations::setMeshName(ORGAN_TYPE target)
 {
-	MeshPtr mesh = this->getMesh(target);
+	MeshPtr mesh = mServices->patient()->getData<Mesh>(target);
 	if(mesh)
 		this->setMeshNameAndType(mesh, target);
 	else
@@ -1007,10 +1043,10 @@ void FraxinusSegmentations::stopTimer(ORGAN_TYPE target, bool checkVolume)
 	bool succeeded = false;
 	if(checkVolume)
 	{
-		if(this->getVolume(target))
+		if(mServices->patient()->getData<Image>(target))
 			succeeded = true;
 	}
-	else if(this->getMesh(target))
+	else if(mServices->patient()->getData<Mesh>(target))
 			succeeded = true;
 
 	DisplayTimerWidget* timer = this->getTimer(target);
@@ -1066,5 +1102,4 @@ DisplayTimerWidget* FraxinusSegmentations::getTimer(ORGAN_TYPE target)
 
 	return timer;
 }
-
 }//cx

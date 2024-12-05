@@ -190,8 +190,7 @@ void TumorInformationWidget::tumorChangedSlot(int currentIndex)
 		mTumors[i]->setColor(color);
 	}
 
-	mTumorVolumeLabel->setText(QString("Tumor volume: %1 ml").
-															arg(mTumors[currentIndex]->getVolumeSizeMl(), 0, 'f', 2));
+	mTumorVolumeLabel->setText(QString("Tumor volume: %1 ml").arg(mTumors[currentIndex]->getVolumeSizeMl(), 0, 'f', 2));
 
 }
 

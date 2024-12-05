@@ -98,7 +98,7 @@ void TrackingWorkflowState::addDataToView()
 	//Assuming 3D
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);
 
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
+	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
 	if(airwaysTubes)
 		viewGroup0_3D->addData(airwaysTubes->getUid());
 
@@ -136,7 +136,7 @@ void RegistrationWorkflowState::onEntry(QEvent * event)
 	FraxinusRegistrationWidget* fraxinusRegistrationWidget = this->getFraxinusRegistrationWidget();
 	if(fraxinusRegistrationWidget)
 	{
-		MeshPtr tubeCenterline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
+		MeshPtr tubeCenterline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
 		if (tubeCenterline)
 			fraxinusRegistrationWidget->setDefaultCenterlineMesh(tubeCenterline);
 	}
@@ -175,8 +175,8 @@ void RegistrationWorkflowState::addDataToView()
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 	
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
-	MeshPtr airwaysTubesCenterline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
+	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
+	MeshPtr airwaysTubesCenterline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
 
 	//Assuming 3D ACS
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);
@@ -247,7 +247,7 @@ void NavigationWorkflowState::onEntry(QEvent * event)
 	FraxinusNavigationWidget* fraxinusNavigationWidget = this->getFraxinusNavigationWidget();
 	if(fraxinusNavigationWidget)
 	{
-		fraxinusNavigationWidget->setCenterline(mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES));
+		fraxinusNavigationWidget->setCenterline(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES));
 		fraxinusNavigationWidget->updateDataOnEntry();
 		StructuresSelectionWidget* structureSelectionWidget = fraxinusNavigationWidget->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
@@ -282,7 +282,7 @@ void NavigationWorkflowState::setupFraxinusNavigationWidget(int flyThrough3DView
 		volumeViewObjects.push_back(ctImage_copied);
 
 		std::vector<DataPtr> tubeViewObjects;
-		MeshPtr tubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
+		MeshPtr tubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
 		tubeViewObjects.push_back(tubes);
 
 		for(DataPtr object : tubeViewObjects)
@@ -312,10 +312,10 @@ void NavigationWorkflowState::addDataToView()
 	ImagePtr ctImage = this->getCTImage();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
-	MeshPtr airways = mFraxinusSegmentations->getMesh(otAIRWAYS);
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
+	MeshPtr airways = mServices->patient()->getData<Mesh>(otAIRWAYS);
+	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
 	PointMetricPtr targetPoint = this->getTargetPoint();
-	MeshPtr nodules = mFraxinusSegmentations->getMesh(otNODULES);
+	MeshPtr nodules = mServices->patient()->getData<Mesh>(otNODULES);
 	//DistanceMetricPtr distanceToTargetMetric = this->getDistanceToTargetMetric();
 
 
@@ -392,7 +392,7 @@ void SimulatorWorkflowState::onEntry(QEvent * event)
 	if(fraxinusSimulatorWidget)
 	{
 		fraxinusSimulatorWidget->updateLockToCenterlineButton();
-		MeshPtr tubeCenterline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
+		MeshPtr tubeCenterline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
 		if (tubeCenterline)
 			fraxinusSimulatorWidget->setDefaultCenterlineMesh(tubeCenterline);
 	}
@@ -436,8 +436,8 @@ void SimulatorWorkflowState::addDataToView()
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
-	MeshPtr airwaysTubesCenterline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
+	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
+	MeshPtr airwaysTubesCenterline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
 
 	//Assuming 3D ACS
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);
@@ -494,7 +494,7 @@ void RobotWorkflowState::onEntry(QEvent * event)
 	FraxinusRobotWidget* fraxinusRobotWidget = this->getFraxinusRobotWidget();
 	if(fraxinusRobotWidget)
 	{
-		MeshPtr tubeCenterline = mFraxinusSegmentations->getMesh(otAIRWAYS_CENTERLINES);
+		MeshPtr tubeCenterline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
 		if (tubeCenterline)
 			fraxinusRobotWidget->setDefaultCenterlineMesh(tubeCenterline);
 
@@ -542,7 +542,7 @@ void RobotWorkflowState::addDataToView()
 {
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
+	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	PointMetricPtr targetPoint = this->getTargetPoint();
