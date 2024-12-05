@@ -248,12 +248,12 @@ void FraxinusSegmentations::updateSelectSegmentationBox()
 		mCheckBoxLungVessels = new QCheckBox();
 	if(mServices->patient()->getData<Mesh>(otLUNG_VESSELS) || mLungVesselsProcessed)
 	{
-		mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels: Completed"));
+		mCheckBoxLungVessels->setText("Small Vessels: Completed");
 		mCheckBoxLungVessels->setDisabled(true);
 	}
 	else
 	{
-		mCheckBoxLungVessels = new QCheckBox(tr("Small Vessels (~5 min)"));
+		mCheckBoxLungVessels->setText("Small Vessels (~5 min)");
 		mCheckBoxLungVessels->setDisabled(false);
 	}
 
@@ -261,12 +261,12 @@ void FraxinusSegmentations::updateSelectSegmentationBox()
 		mCheckBoxLungLobes = new QCheckBox();
 	if(mServices->patient()->getData<Mesh>(otLOBE_LUL) || mLungLobesProcessed)
 	{
-		mCheckBoxLungLobes = new QCheckBox(tr("Lung Lobes: Completed"));
+		mCheckBoxLungLobes->setText("Lung Lobes: Completed");
 		mCheckBoxLungLobes->setDisabled(true);
 	}
 	else
 	{
-		mCheckBoxLungLobes = new QCheckBox(tr("Lung Lobes (~5 min)"));
+		mCheckBoxLungLobes->setText("Lung Lobes (~5 min)");
 		mCheckBoxLungLobes->setDisabled(false);
 	}
 
@@ -285,39 +285,7 @@ void FraxinusSegmentations::updateSelectSegmentationBox()
 
 	if(!mCheckBoxSelectAll)
 		mCheckBoxSelectAll = new QCheckBox();
-	mCheckBoxSelectAll = new QCheckBox(tr("Select all"));
-
-	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusSegmentations::checkForPETData);
-	connect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &FraxinusSegmentations::selectAll);
-	
-	mOKbutton = new QPushButton(tr("&OK"));
-	mCancelbutton = new QPushButton(tr("&Cancel"));
-	
-	connect(mOKbutton, &QPushButton::clicked, this, &FraxinusSegmentations::imageSelected);
-	connect(mCancelbutton, &QPushButton::clicked, this, &FraxinusSegmentations::cancel);
-	
-	QVBoxLayout* checkBoxLayout = new QVBoxLayout;
-	checkBoxLayout->addWidget(mCheckBoxAirways);
-	checkBoxLayout->addWidget(mCheckBoxLymphNodes);
-	checkBoxLayout->addWidget(mCheckBoxHeart);
-	checkBoxLayout->addWidget(mCheckBoxMediumOrgans);
-	checkBoxLayout->addWidget(mCheckBoxSmallOrgans);
-	//checkBoxLayout->addWidget(mCheckBoxNodules);
-	checkBoxLayout->addWidget(mCheckBoxTumors);
-	checkBoxLayout->addWidget(mCheckBoxPET);
-	checkBoxLayout->addWidget(mCheckBoxLungLobes);
-	checkBoxLayout->addWidget(mCheckBoxLungVessels);
-	checkBoxLayout->addWidget(mCheckBoxSelectAll);
-	
-	QGridLayout* mainLayout = new QGridLayout;
-	mainLayout->setSizeConstraint(QLayout::SetFixedSize);
-	mainLayout->addLayout(checkBoxLayout, 0, 0);
-	mainLayout->addWidget(mCancelbutton, 1, 1);
-	mainLayout->addWidget(mOKbutton, 1, 2);
-	
-	mSegmentationSelectionInput->setLayout(mainLayout);
-	mSegmentationSelectionInput->show();
-	mSegmentationSelectionInput->activateWindow();
+	mCheckBoxSelectAll->setText("Select all");
 }
 
 void FraxinusSegmentations::checkForPETData()
@@ -359,7 +327,6 @@ void FraxinusSegmentations::imageSelected()
 	mSegmentHeart = mCheckBoxHeart->isChecked();
 	mSegmentMediumOrgans = mCheckBoxMediumOrgans->isChecked();
 	mSegmentSmallOrgans = mCheckBoxSmallOrgans->isChecked();
-//	mSegmentNodules = mCheckBoxNodules->isChecked();
 	mSegmentTumors = mCheckBoxTumors->isChecked();
 	mRegisterPET = mCheckBoxPET->isChecked();
 	this->close();
