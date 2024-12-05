@@ -123,7 +123,7 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	if(mActiveTimerWidget) // check that segmentation is not already running
 		return;
 	if(!mSegmentationSelectionInput)
-	mSegmentationSelectionInput = new QDialog();
+		mSegmentationSelectionInput = new QDialog();
 	mSegmentationSelectionInput->setWindowTitle(tr("Select structures for segmentation"));
 	mSegmentationSelectionInput->setWindowFlags(Qt::WindowStaysOnTopHint);
 	
@@ -146,10 +146,10 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	checkBoxLayout->addWidget(mCheckBoxHeart);
 	checkBoxLayout->addWidget(mCheckBoxMediumOrgans);
 	checkBoxLayout->addWidget(mCheckBoxSmallOrgans);
-	//checkBoxLayout->addWidget(mCheckBoxNodules);
 	checkBoxLayout->addWidget(mCheckBoxTumors);
+	checkBoxLayout->addWidget(mCheckBoxLungVessels);
+	checkBoxLayout->addWidget(mCheckBoxLungLobes);
 	checkBoxLayout->addWidget(mCheckBoxPET);
-	//checkBoxLayout->addWidget(mCheckBoxLungVessels);
 	checkBoxLayout->addWidget(mCheckBoxSelectAll);
 	
 	QGridLayout* mainLayout = new QGridLayout;
