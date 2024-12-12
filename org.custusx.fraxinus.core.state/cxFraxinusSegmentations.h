@@ -88,8 +88,9 @@ private slots:
 	
 private:
 	void deleteTumorsAndNodulesVolumes();
+	std::vector<QString> getLobeOfTumors(std::vector<MeshPtr> tumorMeshes);
 	vtkImageDataPtr mergeTumorVolumes(ImagePtr tumorsVolume, ImagePtr nodulesVolume);
-	void setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> tumorMeshes, std::vector<double> tumorSizes);
+	void setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> tumorMeshes, std::vector<double> tumorSizes, std::vector<QString> lobeNames);
 
 	RegServicesPtr mServices;
 	

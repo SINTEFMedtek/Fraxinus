@@ -17,7 +17,9 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include <QMessageBox>
 #include <vtkImageBlend.h>
 #include <vtkImageData.h>
+#include <vtkPolyData.h>
 #include <vtkImageShiftScale.h>
+#include <boost/math/special_functions/round.hpp>
 #include "cxDisplayTimerWidget.h"
 #include "cxContourFilter.h"
 #include "cxVisServices.h"
@@ -925,10 +927,77 @@ void FraxinusSegmentations::postProcessTumors()
 				0.03);  //passBand
 
 	std::vector<MeshPtr> tumorMeshes = meshesFromLabelsFilter->postProcess(visServices, rawResult, labeledImage, QColor(255,255,0,255), false);
-	setNumberAndSizeToTumorVolumes(tumorMeshes, tumorSizes);
+	std::vector<QString> lobeNames = getLobeOfTumors(tumorMeshes);
+	setNumberAndSizeToTumorVolumes(tumorMeshes, tumorSizes, lobeNames);
 
 	if(labeledImage)
 		mServices->patient()->removeData(labeledImage->getUid());
+
+	std::vector<ORGAN_TYPE> lobeTypes = {otLOBE_LUL, otLOBE_LLL, otLOBE_RUL, otLOBE_RML, otLOBE_RLL};
+	for(int i=0; i<lobeTypes.size(); i++)
+	{
+		ImagePtr lobeImage = mServices->patient()->getData<Image>(lobeTypes[i]);
+		if (lobeImage)
+			mServices->patient()->removeData(lobeImage->getUid());
+	}
+}
+
+std::vector<QString> FraxinusSegmentations::getLobeOfTumors(std::vector<MeshPtr> tumorMeshes)
+{
+
+	std::vector<QString> lobeNames;
+
+	std::vector<ORGAN_TYPE> lobeTypes = {otLOBE_LUL, otLOBE_LLL, otLOBE_RUL, otLOBE_RML, otLOBE_RLL};
+	std::vector<ImagePtr> lobesImage;
+	for(int i=0; i<lobeTypes.size(); i++)
+		lobesImage.push_back(mServices->patient()->getData<Image>(lobeTypes[i]));
+
+	if(tumorMeshes.empty() || lobesImage.empty())
+		return lobeNames;
+
+	std::vector<Vector3D> centerOfTumorsVector_r;
+	for(int i=0; i<tumorMeshes.size(); i++)
+	{
+		vtkPolyDataPtr vtkPolyDataTumor =  tumorMeshes[i]->getVtkPolyData();
+		Vector3D centerOfTumor_d(vtkPolyDataTumor->GetCenter());
+		Transform3D rMd = tumorMeshes[i]->get_rMd();
+		Vector3D centerOfTumor_r(centerOfTumor_d(0)+rMd(0,3), centerOfTumor_d(1)+rMd(1,3), centerOfTumor_d(2)+rMd(2,3));
+		centerOfTumorsVector_r.push_back(centerOfTumor_r);
+	}
+
+	std::vector<vtkImageDataPtr> lobesVtkImage;
+	for(int i=0; i<lobesImage.size(); i++)
+		if(lobesImage[i])
+			lobesVtkImage.push_back(shiftVtkScalarToUnsignedShort(lobesImage[i]->getBaseVtkImageData()));
+
+	for(int i=0; i<tumorMeshes.size(); i++)
+	{
+		for(int j=0; j<lobesVtkImage.size(); j++)
+		{
+			int* dim = lobesVtkImage[j]->GetDimensions();
+			double* spacing = lobesVtkImage[j]->GetSpacing();
+			Transform3D rMd  = lobesImage[j]->get_rMd();
+
+			int x = (int) boost::math::round((centerOfTumorsVector_r[i](0) - rMd(0,3)) / spacing[0]);
+			int y = (int) boost::math::round((centerOfTumorsVector_r[i](1) - rMd(1,3)) / spacing[1]);
+			int z = (int) boost::math::round((centerOfTumorsVector_r[i](2) - rMd(2,3)) / spacing[2]);
+
+			if(x<0 || y<0 || z<0 || x>=dim[0] || y>=dim[1] || z>=dim[2])
+				continue;
+
+			unsigned short* dataPtrImage = static_cast<unsigned short*>(lobesVtkImage[j]->GetScalarPointer(x,y,z));
+			if(dataPtrImage[0] > 0)
+			{
+				lobeNames.push_back(enum2string(lobeTypes[j]));
+				goto endOfLoop;
+			}
+		}
+
+		lobeNames.push_back("");
+		endOfLoop:;
+	}
+
+	return lobeNames;
 }
 
 vtkImageDataPtr FraxinusSegmentations::mergeTumorVolumes(ImagePtr tumorsVolume, ImagePtr nodulesVolume)
@@ -946,12 +1015,14 @@ vtkImageDataPtr FraxinusSegmentations::mergeTumorVolumes(ImagePtr tumorsVolume, 
 	return combinedVtkImage;
 }
 
-void FraxinusSegmentations::setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> tumorMeshes, std::vector<double> tumorSizes)
+void FraxinusSegmentations::setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> tumorMeshes, std::vector<double> tumorSizes, std::vector<QString> lobeNames)
 {
 	for(int i=0; i<tumorMeshes.size(); i++)
 	{
 		this->setMeshNameAndType(tumorMeshes[i], otTUMOR);
 		QString nameWithNumber = tumorMeshes[i]->getName() + QString(" ") + QString::number(i+1);
+		if(lobeNames.size()>i)
+			nameWithNumber.append(QString(" ") + lobeNames[i]);
 		if(tumorSizes.size()>i)
 		{
 			tumorMeshes[i]->setVolumeSizeMl(tumorSizes[i]);
