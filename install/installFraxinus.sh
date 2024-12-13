@@ -84,12 +84,25 @@ chmod +x ~/Desktop/Fraxinus.desktop
 
 
 #Create virtual python environments
-
+rm -R raidionicsVenv
 python3 -m venv raidionicsVenv
 source raidionicsVenv/bin/activate
 pip install --upgrade pip
 pip install git+https://github.com/dbouget/raidionics-rads-lib.git
 deactivate
+
+
+mkdir TotalSegmentator
+cd TotalSegmentator
+mkdir segmentations
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install TotalSegmentator
+totalseg_download_weights -t total
+totalseg_download_weights -t lung_vessels
+deactivate
+
 
 cd ~/Fraxinus/medtekAI/medtekAI/Docker-DeepSintef
 python3 -m venv venv
@@ -97,6 +110,7 @@ source venv/bin/activate
 pip install --upgrade pip
 python -m pip install -r requirements.txt
 deactivate
+
 
 #Add more swap space for AI networks if it does not exist
 if ! grep -q '/swapfile swap swap defaults' /etc/fstab; then
