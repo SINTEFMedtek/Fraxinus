@@ -20,6 +20,9 @@
 sudo apt-get -y update
 sudo apt-get -y upgrade
 sudo apt install -y python3.8-venv
+sudo apt install software-properties-common -y #Needed for Python 3.10 on Ubuntu20.04
+sudo add-apt-repository ppa:deadsnakes/ppa -y #Needed for Python 3.10 on Ubuntu20.04
+sudo apt install -y python3.10-venv
 sudo apt install -y libpcre2-16-0
 sudo apt install -y libdouble-conversion3
 sudo apt install -y git
@@ -85,7 +88,7 @@ chmod +x ~/Desktop/Fraxinus.desktop
 
 #Create virtual python environments
 rm -R raidionicsVenv
-python3 -m venv raidionicsVenv
+python3.8 -m venv raidionicsVenv
 source raidionicsVenv/bin/activate
 pip install --upgrade pip
 pip install git+https://github.com/dbouget/raidionics-rads-lib.git
@@ -95,7 +98,7 @@ deactivate
 mkdir TotalSegmentator
 cd TotalSegmentator
 mkdir segmentations
-python3 -m venv venv
+python3.10 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install TotalSegmentator
@@ -105,7 +108,7 @@ deactivate
 
 
 cd ~/Fraxinus/medtekAI/medtekAI/Docker-DeepSintef
-python3 -m venv venv
+python3.10 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 python -m pip install -r requirements.txt
@@ -120,3 +123,6 @@ if ! grep -q '/swapfile swap swap defaults' /etc/fstab; then
 	sudo swapon /swapfile
 	echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
 fi
+
+
+echo '----------Fraxinus installation completed-------------'
