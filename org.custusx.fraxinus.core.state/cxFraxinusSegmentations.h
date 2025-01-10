@@ -44,7 +44,6 @@ public:
 	void performPETCTregistration();
 	void performPythonSegmentation(ImagePtr image);
 	void performMLSegmentation(ImagePtr image);
-	QString getFilterScriptsPath();
 	void postProcessAirways();
 	void postProcessTumors();
 	void checkIfSegmentationSucceeded();

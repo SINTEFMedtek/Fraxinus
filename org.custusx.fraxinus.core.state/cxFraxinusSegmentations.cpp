@@ -514,14 +514,6 @@ void FraxinusSegmentations::closeSegmentationInfo()
 	mSegmentationFinishedInfo = nullptr;
 }
 
-
-QString FraxinusSegmentations::getFilterScriptsPath()
-{
-	QString configPath = DataLocations::getRootConfigPath();
-	QString retval = configPath + "/profiles/Laboratory/filter_scripts/";
-	return retval;
-}
-
 void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 {
 	if(!image)
@@ -553,7 +545,7 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 		mActiveTimerWidget = mLungLobesTimerWidget;
 		if(mActiveTimerWidget)
 				mActiveTimerWidget->start();
-		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_LungLobes.ini");
+		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_LungLobes.ini");
 		mCurrentSegmentationType = lsLOBE;
 		mLungLobesProcessed = true;
 		input[0]->setValue(image->getUid());
@@ -563,7 +555,7 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 		mActiveTimerWidget = mLungVesselsTimerWidget;
 		if(mActiveTimerWidget)
 				mActiveTimerWidget->start();
-		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_LungVessels.ini");
+		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_LungVessels.ini");
 		mCurrentSegmentationType = lsLUNG_VESSELS;
 		mLungVesselsProcessed = true;
 		input[0]->setValue(image->getUid());
@@ -629,7 +621,7 @@ bool FraxinusSegmentations::runRaidionics(GenericScriptFilterPtr scriptFilter)
 	QStringList outputClasses = getRaidionicsOutputClasses();
 	if(outputClasses.isEmpty())
 		return false;
-	scriptFilter->setParameterFilePath(getFilterScriptsPath() + "raidionics_LungAll.ini");
+	scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "raidionics_LungAll.ini");
 	scriptFilter->setOutputClasses(outputClasses);
 	mCurrentSegmentationType = lsAIRWAYS;
 
@@ -657,7 +649,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 		if(mActiveTimerWidget)
 			mActiveTimerWidget->start();
 		CX_LOG_INFO() << "Segmenting Nodules";
-		scriptFilter->setParameterFilePath(getFilterScriptsPath() + "python_Nodules.ini");
+		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_Nodules.ini");
 		mCurrentSegmentationType = lsNODULES;
 		mNodulesProcessed = true;
 	}
