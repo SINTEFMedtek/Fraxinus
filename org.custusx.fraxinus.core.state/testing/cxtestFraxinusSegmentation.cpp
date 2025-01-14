@@ -15,6 +15,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxRegServices.h"
 #include "cxRaidionics.h"
 #include "cxEnumConverter.h"
+#include "cxDataLocations.h"
 
 namespace
 {
@@ -60,7 +61,7 @@ public:
 TEST_CASE("FraxinusSegmentations: getFilterScriptsPath", "[unit]")
 {
 	cx::FraxinusSegmentations segmentations(cx::RegServices::getNullObjects());
-	QString scriptFilePath = segmentations.getFilterScriptsPath();
+	QString scriptFilePath = cx::DataLocations::getFilterScriptsPath();
 	CHECK(QFileInfo::exists(scriptFilePath));
 	
 	QString iniFilePath = scriptFilePath + "python_Lungs_test.ini";

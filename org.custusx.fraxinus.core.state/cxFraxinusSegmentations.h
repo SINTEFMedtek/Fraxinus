@@ -44,7 +44,6 @@ public:
 	void performPETCTregistration();
 	void performPythonSegmentation(ImagePtr image);
 	void performMLSegmentation(ImagePtr image);
-	QString getFilterScriptsPath();
 	void postProcessAirways();
 	void postProcessTumors();
 	void checkIfSegmentationSucceeded();
@@ -60,6 +59,10 @@ protected:
 	bool mSegmentMediumOrgans = false;
 	bool mSegmentSmallOrgans = false;
 	bool mSegmentTumors = false;
+	bool mSegmentLungVessels = false;
+	bool mSegmentLungLobes = false;
+	bool mSegmentNodules = false;
+	bool mRegisterPET = false;
 
 	QStringList getRaidionicsOutputClasses(bool startTimers = true);
 	void setElastixParameters();
@@ -84,8 +87,9 @@ private slots:
 	
 private:
 	void deleteTumorsAndNodulesVolumes();
+	std::vector<QString> getLobeOfTumors(std::vector<MeshPtr> tumorMeshes);
 	vtkImageDataPtr mergeTumorVolumes(ImagePtr tumorsVolume, ImagePtr nodulesVolume);
-	void setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> tumorMeshes, std::vector<double> tumorSizes);
+	void setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> tumorMeshes, std::vector<double> tumorSizes, std::vector<QString> lobeNames);
 
 	RegServicesPtr mServices;
 	
@@ -106,6 +110,7 @@ private:
 	DisplayTimerWidget* mTumorsTimerWidget;
 	DisplayTimerWidget* mPETTimerWidget;
 	DisplayTimerWidget* mLungVesselsTimerWidget;
+	DisplayTimerWidget* mLungLobesTimerWidget;
 	DisplayTimerWidget* mActiveTimerWidget = NULL;
 	QCheckBox* mCheckBoxAirways = nullptr;
 	QCheckBox* mCheckBoxLungs = nullptr;
@@ -117,17 +122,17 @@ private:
 	QCheckBox* mCheckBoxTumors = nullptr;
 	QCheckBox* mCheckBoxPET = nullptr;
 	QCheckBox* mCheckBoxLungVessels = nullptr;
+	QCheckBox* mCheckBoxLungLobes = nullptr;
 	QCheckBox* mCheckBoxSelectAll = nullptr;
 	bool mAirwaysProcessed = false;
 	bool mLungVesselsProcessed = false;
+	bool mLungLobesProcessed = false;
 	bool mNodulesProcessed = false;
 	bool mTumorsProcessed = false;
 	bool mLymphNodesProcessed = false;
 	bool mHeartProcessed = false;
 	bool mMediumOrgansProcessed = false;
 	bool mSmallOrgansProcessed = false;
-	bool mSegmentLungVessels = false;
-	bool mRegisterPET = false;
 	LUNG_STRUCTURES mCurrentSegmentationType;
 	BranchListPtr mBranchList;
 	ElastixManagerPtr mElastixManager;

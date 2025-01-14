@@ -118,6 +118,10 @@ void TumorInformationWidget::deleteTumorSlot()
 	if(mDeleteDialog)
 		return;
 
+	int currentIndex = mTumorComboBox->currentIndex();
+	if(currentIndex < 0)
+		return;
+
 	mDeleteDialog = new QDialog();
 	mDeleteDialog->setWindowTitle(tr("Delete tumor"));
 

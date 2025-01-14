@@ -447,6 +447,23 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	MeshPtr lungs = mServices->patient()->getData<Mesh>(otLUNGS);
 	if(lungs)
 		lungObjects.push_back(lungs);
+
+	std::vector<DataPtr> lobeObjects;
+	MeshPtr lobeLUL = mServices->patient()->getData<Mesh>(otLOBE_LUL);
+	if(lobeLUL)
+		lobeObjects.push_back(lobeLUL);
+	MeshPtr lobeLLL = mServices->patient()->getData<Mesh>(otLOBE_LLL);
+	if(lobeLLL)
+		lobeObjects.push_back(lobeLLL);
+	MeshPtr lobeRUL = mServices->patient()->getData<Mesh>(otLOBE_RUL);
+	if(lobeRUL)
+		lobeObjects.push_back(lobeRUL);
+	MeshPtr lobeRML = mServices->patient()->getData<Mesh>(otLOBE_RML);
+	if(lobeRML)
+		lobeObjects.push_back(lobeRML);
+	MeshPtr lobeRLL = mServices->patient()->getData<Mesh>(otLOBE_RLL);
+	if(lobeRLL)
+		lobeObjects.push_back(lobeRLL);
 	
 	std::map<QString, MeshPtr> tumors = mServices->patient()->getDataOfType<Mesh>(otTUMOR);
 	std::vector<DataPtr> tumorObjects;
@@ -526,6 +543,8 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 
 	for(DataPtr object : lungObjects)
 		widget->addObject(lsLUNG, object);
+	for(DataPtr object : lobeObjects)
+		widget->addObject(lsLOBE, object);
 	for(DataPtr object : tumorObjects)
 		widget->addObject(lsTUMOR, object);
 	for(DataPtr object : noduleObjects)
