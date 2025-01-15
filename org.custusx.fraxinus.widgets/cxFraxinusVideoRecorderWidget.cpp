@@ -196,19 +196,19 @@ void FraxinusVideoRecorderWidget::checkIfToolIsReadyAndStartRecordingSlot()
 	mTool = mTrackingService->getFirstProbe();
 	if(mTool)
 		connect(mTool.get(), &Tool::toolTransformAndTimestamp, this, &FraxinusVideoRecorderWidget::startRecordingVideo);
-		else
+	else
 	{
 		if(mTimer.elapsed() < 20000) //Trying in 20 seconds
 			QTimer::singleShot(500, this, SLOT(checkIfToolIsReadyAndStartRecordingSlot()));
 		else
 			CX_LOG_WARNING() << "In FraxinusVideoRecorderWidget::checkIfReadyToRecordVideo: Cannot find tool - not able to record video.";
 	}
-
 }
 
 
 void FraxinusVideoRecorderWidget::startRecordingVideo()
-{	disconnect(mTool.get(), &Tool::toolTransformAndTimestamp, this, &FraxinusVideoRecorderWidget::startRecordingVideo);
+{
+	disconnect(mTool.get(), &Tool::toolTransformAndTimestamp, this, &FraxinusVideoRecorderWidget::startRecordingVideo);
 	QString category = QString("BronchoscopyVideo");
 	RecordSessionPtr session = mAcquisitionService->getSession("");
 	mAcquisitionService->startRecord(mContext, category, session);
