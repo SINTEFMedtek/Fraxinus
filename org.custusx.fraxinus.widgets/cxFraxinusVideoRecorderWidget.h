@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FRAXINUSVIDEORECORDERWIDGET_H
 
 
+#include <qelapsedtimer.h>
 #include "org_custusx_fraxinus_widgets_Export.h"
 #include "cxBaseWidget.h"
 #include "cxForwardDeclarations.h"
@@ -58,6 +59,7 @@ public:
 private slots:
 	void startStopClickedSlot();
 	void recordStateChangedSlot();
+	void checkIfToolIsReadyAndStartRecordingSlot();
 
 private:
 	void startRecording();
@@ -82,6 +84,7 @@ private:
 	QPushButton* mStartStopButton;
 	QPalette mStartStopButtonBackgroundColor;
 	bool mIsRecording = false;
+	QElapsedTimer mTimer;
 
 	FraxinusTrackingWidget* mFraxinusTrackingWidget;
 	TrackingServicePtr mTrackingService;
