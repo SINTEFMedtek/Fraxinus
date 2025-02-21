@@ -16,7 +16,7 @@ stages:          # List of stages for jobs, and their order of execution
     OS: OS
     BASE_DIR: /builds/Fraxinus/$OS #Reusing CX build folders don't work
     GIT_CLONE_PATH: $BASE_DIR/FX/FX #Changes CI_PROJECT_DIR
-    BUILD_DIR: $CI_PROJECT_DIR/../build_Release
+    BUILD_DIR: $BASE_DIR/CX/build_Release
 
 .create-installer:
   script:
