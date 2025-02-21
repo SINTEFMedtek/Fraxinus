@@ -87,6 +87,7 @@ build-ubuntu22:
     - rm -rf $CX_SOURCE_PATH/package_artefacts
     - mkdir -p $CX_SOURCE_PATH/package_artefacts
     - cp -R $OS/package_artefacts/Fraxinus*.tar.gz $CX_SOURCE_PATH/package_artefacts/
+    - ls $CX_SOURCE_PATH/package_artefacts  2> /dev/null
     - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
     - cp -R $CX_SOURCE_PATH/test_results ${CI_PROJECT_DIR}/test_results/
   artifacts:
