@@ -17,6 +17,7 @@ stages:          # List of stages for jobs, and their order of execution
     BASE_DIR: /builds/Fraxinus/$OS #Reusing CX build folders don't work
     GIT_CLONE_PATH: $BASE_DIR/FX/FX #Changes CI_PROJECT_DIR
     BUILD_DIR: $BASE_DIR/CX/build_Release
+    CX_SOURCE_PATH: $BASE_DIR/CX/CX
 
 .create-installer:
   script:
@@ -24,7 +25,7 @@ stages:          # List of stages for jobs, and their order of execution
     # Remove old installer
     - rm -f Fraxinus*.tar.gz
     - cpack
-    # The file Fraxinus*.tar.gz should now be in ../build_Release, and html_pure and html_dev in ../build_Release/doc
+    # The file Fraxinus*.tar.gz should now be in CX/build_Release, and html_pure and html_dev in CX/build_Release/doc
     - cd $CI_PROJECT_DIR
     - mkdir -p $OS/package_artefacts
     - cp -R $BUILD_DIR/Fraxinus*.tar.gz $OS/package_artefacts/
@@ -42,7 +43,7 @@ stages:          # List of stages for jobs, and their order of execution
     - .build-variables
     - .create-installer
   before_script:
-  - echo "Run cxInstaller.py"
+  - echo "Run cxFraxinusPrivateInstaller.py"
   - ls $BASE_DIR
   - test -d $BASE_DIR/CTK/build_Release \
       && eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
@@ -82,9 +83,12 @@ build-ubuntu22:
   extends: .build-variables
   script:
     - echo "Running unit tests... "
-    - mkdir -p package_artefacts
-    - cp -R $OS/package_artefacts/Fraxinus*.tar.gz package_artefacts/
+    # Copy installer into CX repository
+    - rm -rf $CX_SOURCE_PATH/package_artefacts
+    - mkdir -p $CX_SOURCE_PATH/package_artefacts
+    - cp -R $OS/package_artefacts/Fraxinus*.tar.gz $CX_SOURCE_PATH/package_artefacts/
     - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
+    - cp -R $CX_SOURCE_PATH/test_results ${CI_PROJECT_DIR}/test_results/
   artifacts:
     when: always
     name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}
