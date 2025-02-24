@@ -85,8 +85,8 @@ build-ubuntu22:
     - echo "Running unit tests... "
     # Checkout CX repo if missing, else only delete package_artefacts folder
     - test -d $CX_SOURCE_PATH
-        && eval git clone -b $CI_COMMIT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx/CustusX.git $CX_SOURCE_PATH
-        || eval rm -rf $CX_SOURCE_PATH/package_artefacts
+        && eval rm -rf $CX_SOURCE_PATH/package_artefacts
+        || eval git clone -b $CI_COMMIT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx/CustusX.git $CX_SOURCE_PATH
     # Copy installer into CX repository
     - mkdir -p $CX_SOURCE_PATH/package_artefacts
     - cp -R $OS/package_artefacts/Fraxinus*.tar.gz $CX_SOURCE_PATH/package_artefacts/
