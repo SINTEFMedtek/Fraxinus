@@ -45,9 +45,10 @@ stages:          # List of stages for jobs, and their order of execution
   before_script:
   - echo "Run cxFraxinusPrivateInstaller.py"
   - ls $BASE_DIR
-  - test -d $BASE_DIR/CTK/build_Release 
+  - rm -rf $BASE_DIR/CTK # Make sure we got a fresh CTK after changing the library
+  - test -d $BASE_DIR/VTK/build_Release 
       && eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx 
-      components CustusX Fraxinus FraxinusTracking USSimulator 
+      components CustusX Fraxinus FraxinusTracking USSimulator CTK
       || eval ./script/cxFraxinusPrivateInstaller.py -s --all --full -t Release --user_doc --developer_doc --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
 
 build-ubuntu20:
