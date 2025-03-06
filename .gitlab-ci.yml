@@ -132,7 +132,7 @@ test-ubuntu22:
      --upload-file $INSTALLER_FILE
      "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Fraxinus/$VERSION/Ubuntu2004/$INSTALLER_FILE"'
   - cd $CI_PROJECT_DIR/Ubuntu2204/package_artefacts
-  - INSTALLER_FILE=$(find CustusX*.tar.gz)
+  - INSTALLER_FILE=$(find Fraxinus*.tar.gz)
   - 'curl
      --header "JOB-TOKEN: $CI_JOB_TOKEN"
      --upload-file $INSTALLER_FILE
