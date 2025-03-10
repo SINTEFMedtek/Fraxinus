@@ -45,6 +45,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxIslandsFilter.h"
 #include "cxMeshesFromLabelsFilter.h"
 #include "cxVolumeHelpers.h"
+#include "cxFileHelpers.h"
 
 namespace cx
 {
@@ -618,6 +619,7 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 
 bool FraxinusSegmentations::runRaidionics(GenericScriptFilterPtr scriptFilter)
 {
+	removeNonemptyDirRecursively(DataLocations::getCachePath() + "/Raidionics_temp/");
 	QStringList outputClasses = getRaidionicsOutputClasses();
 	if(outputClasses.isEmpty())
 		return false;
