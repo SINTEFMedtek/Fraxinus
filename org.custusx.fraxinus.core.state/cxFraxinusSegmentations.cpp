@@ -524,13 +524,18 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 		mLungVesselsProcessed = true;
 	if(mServices->patient()->getData<Mesh>(otLOBE_LUL))
 		mLungLobesProcessed = true;
+	if(mServices->patient()->getData<Mesh>(otTUMOR))
+		mNodulesProcessed = true;
 
 	if(mLungLobesProcessed || !mSegmentLungLobes)
 	{
 		if(mLungVesselsProcessed || !mSegmentLungVessels)
 		{
-			this->performMLSegmentation(image);
-			return;
+			if(mNodulesProcessed || !mSegmentTumors)
+			{
+				this->performMLSegmentation(image);
+				return;
+			}
 		}
 	}
 
@@ -559,6 +564,16 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_LungVessels.ini");
 		mCurrentSegmentationType = lsLUNG_VESSELS;
 		mLungVesselsProcessed = true;
+		input[0]->setValue(image->getUid());
+	}
+	else if(!mNodulesProcessed && mSegmentTumors)
+	{
+		mActiveTimerWidget = mNodulesTimerWidget;
+		if(mActiveTimerWidget)
+				mActiveTimerWidget->start();
+		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_Nodules.ini");
+		mCurrentSegmentationType = lsNODULES;
+		mNodulesProcessed = true;
 		input[0]->setValue(image->getUid());
 	}
 	else
@@ -645,16 +660,6 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 
 	if(runRaidionics(scriptFilter))
 	{}
-	else if(mSegmentTumors && !mNodulesProcessed && !mServices->patient()->getData<Mesh>(otTUMOR))
-	{
-		mActiveTimerWidget = mNodulesTimerWidget;
-		if(mActiveTimerWidget)
-			mActiveTimerWidget->start();
-		CX_LOG_INFO() << "Segmenting Nodules";
-		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_Nodules.ini");
-		mCurrentSegmentationType = lsNODULES;
-		mNodulesProcessed = true;
-	}
 	else
 	{
 		mActiveTimerWidget = NULL;
@@ -784,7 +789,7 @@ void FraxinusSegmentations::MLFinishedSlot()
 	if(mCurrentSegmentationType == lsAIRWAYS && !mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
 		this->postProcessAirways();
 
-	if(mSegmentTumors && mTumorsProcessed && mNodulesProcessed)
+	if(mSegmentTumors)
 		this->postProcessTumors();
 
 	mTimedAlgorithmProgressBar->detach(mThread);

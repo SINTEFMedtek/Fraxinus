@@ -61,7 +61,7 @@ protected:
 	bool mSegmentTumors = false;
 	bool mSegmentLungVessels = false;
 	bool mSegmentLungLobes = false;
-	bool mSegmentNodules = false;
+	//bool mSegmentNodules = false;
 	bool mRegisterPET = false;
 
 	QStringList getRaidionicsOutputClasses(bool startTimers = true);
