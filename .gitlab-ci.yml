@@ -45,11 +45,12 @@ stages:          # List of stages for jobs, and their order of execution
   before_script:
   - echo "Run cxFraxinusPrivateInstaller.py"
   - ls $BASE_DIR
+  - if [ $CI_COMMIT_TAG ]; then CX_COMMIT=$CI_COMMIT_TAG; else CX_COMMIT=$CI_COMMIT_BRANCH; fi
   - rm -rf $BASE_DIR/CTK # Make sure we got a fresh CTK after changing the library
   - test -d $BASE_DIR/VTK/build_Release 
-      && eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx 
+      && eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
       components CustusX Fraxinus FraxinusTracking USSimulator CTK
-      || eval ./script/cxFraxinusPrivateInstaller.py -s --all --full -t Release --user_doc --developer_doc --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
+      || eval ./script/cxFraxinusPrivateInstaller.py -s --all --full -t Release --user_doc --developer_doc --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
 
 build-ubuntu20:
   extends: .reuse-build
@@ -67,9 +68,10 @@ build-ubuntu22:
   stage: test    # It only starts when the job in the build stage completes successfully.
   script:
     - echo "Running unit tests... "
-    - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
+    - if [ $CI_COMMIT_TAG ]; then CX_COMMIT=$CI_COMMIT_TAG; else CX_COMMIT=$CI_COMMIT_BRANCH; fi
+    - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
     #Open source:
-    #- xvfb-run ./script/cxOpenSourceMasterBuildScript.py --test_package --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
+    #- xvfb-run ./script/cxOpenSourceMasterBuildScript.py --test_package --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
     - cp -r /builds/custusx/CustusX/test_results ${CI_PROJECT_DIR}/test_results
   artifacts:
     when: always
@@ -84,15 +86,16 @@ build-ubuntu22:
   extends: .build-variables
   script:
     - echo "Running unit tests... "
+    - if [ $CI_COMMIT_TAG ]; then CX_COMMIT=$CI_COMMIT_TAG; else CX_COMMIT=$CI_COMMIT_BRANCH; fi
     # Checkout CX repo if missing, else only delete package_artefacts folder
     - test -d $CX_SOURCE_PATH
         && eval rm -rf $CX_SOURCE_PATH/package_artefacts
-        || eval git clone -b $CI_COMMIT_BRANCH https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx/CustusX.git $CX_SOURCE_PATH
+        || eval git clone -b $CX_COMMIT https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx/CustusX.git $CX_SOURCE_PATH
     # Copy installer into CX repository
     - mkdir -p $CX_SOURCE_PATH/package_artefacts
     - cp -R $OS/package_artefacts/Fraxinus*.tar.gz $CX_SOURCE_PATH/package_artefacts/
     - ls $CX_SOURCE_PATH/package_artefacts  2> /dev/null
-    - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CI_COMMIT_BRANCH --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
+    - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
     - cp -R $CX_SOURCE_PATH/test_results ${CI_PROJECT_DIR}/test_results/
   artifacts:
     when: always
@@ -129,7 +132,7 @@ test-ubuntu22:
      --upload-file $INSTALLER_FILE
      "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Fraxinus/$VERSION/Ubuntu2004/$INSTALLER_FILE"'
   - cd $CI_PROJECT_DIR/Ubuntu2204/package_artefacts
-  - INSTALLER_FILE=$(find CustusX*.tar.gz)
+  - INSTALLER_FILE=$(find Fraxinus*.tar.gz)
   - 'curl
      --header "JOB-TOKEN: $CI_JOB_TOKEN"
      --upload-file $INSTALLER_FILE
