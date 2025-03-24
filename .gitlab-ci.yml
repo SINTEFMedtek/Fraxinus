@@ -158,6 +158,8 @@ pages:
   stage: deploy
   extends: .build-variables
   environment: production
+  variables:
+    OS: Ubuntu2004
   script:
     - mv $OS/package_artefacts/html_pure/ public/user_doc/
     - mv $OS/package_artefacts/html_dev/ public/developer_doc/
