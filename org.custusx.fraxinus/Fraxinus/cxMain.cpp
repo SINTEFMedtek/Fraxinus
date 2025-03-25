@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
 	cx::DataLocations::setWebsiteURL("http://www.custusx.org/fraxinus");
 
-	cx::Styles::setGrayStyle();
+	cx::Styles::setStyle();
 
 	cx::ApplicationComponentPtr mainwindow(new cx::FraxinusMainWindowApplicationComponent());
 	cx::ProfileManager::getInstance("Bronchoscopy");

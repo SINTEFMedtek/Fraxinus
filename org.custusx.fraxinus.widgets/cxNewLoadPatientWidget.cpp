@@ -17,6 +17,7 @@
 #include "cxFraxinusVideoRecorderWidget.h"
 #include "cxProfile.h"
 #include "cxVisServices.h"
+#include "cxStyles.h"
 
 namespace cx
 {
@@ -40,7 +41,7 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 
 	QPushButton* restoreToFactorySettingsButton = new QPushButton("&Restore factory settings");
 	QPalette palette = restoreToFactorySettingsButton->palette();
-	palette.setColor(QPalette::Button, Qt::red);
+	palette.setColor(QPalette::Button, Styles::getRed());
 	restoreToFactorySettingsButton->setPalette(palette);
 	connect(restoreToFactorySettingsButton, &QPushButton::clicked, this, &NewLoadPatientWidget::restoreToFactorySettings);
 
