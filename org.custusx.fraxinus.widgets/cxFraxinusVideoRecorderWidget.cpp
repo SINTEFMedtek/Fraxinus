@@ -83,7 +83,7 @@ void FraxinusVideoRecorderWidget::startStopClickedSlot()
 	{
 		connect(mAcquisitionService.get(), &AcquisitionService::stateChanged, this, &FraxinusVideoRecorderWidget::recordStateChangedSlot);
 		mStartStopButton->setText("Stop video recording");
-		mStartStopButtonBackgroundColor.setColor(QPalette::Button, Qt::yellow);
+		mStartStopButtonBackgroundColor.setColor(QPalette::Button, Styles::getYellow());
 		mStartStopButton->setPalette(mStartStopButtonBackgroundColor);
 		startRecording();
 	}
