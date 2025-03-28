@@ -73,6 +73,8 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(RegServicesPtr servic
 		this->newState(new RobotWorkflowState(mParentState, services));
 	if(profilesWithSimulator().contains(profile))
 		this->newState(new SimulatorWorkflowState(mParentState, services));
+	if(profilesWithMDT().contains(profile))
+		this->newState(new MDTWorkflowState(mParentState, services));
 #endif
 
 	//logic for enabling workflowsteps

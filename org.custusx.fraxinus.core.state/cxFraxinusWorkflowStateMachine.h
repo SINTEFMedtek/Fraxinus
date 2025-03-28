@@ -68,6 +68,13 @@ static const QStringList profilesWithRobot(){
 	return profilesList;
 };
 
+static const QStringList profilesWithMDT(){
+  QStringList profilesList;
+  profilesList << "Bronchoscopy";
+  profilesList << "MDT";
+  return profilesList;
+};
+
 /** \brief State Machine for the Workflow Steps for CustusX
  *
  *  See StateService for a description.

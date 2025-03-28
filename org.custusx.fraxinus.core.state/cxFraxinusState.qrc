@@ -16,5 +16,6 @@
         <file>icons/tracking.svg</file>
         <file>icons/simulator.svg</file>
         <file>icons/robot.svg</file>
+        <file>icons/MDT.svg</file>
     </qresource>
 </RCC>
