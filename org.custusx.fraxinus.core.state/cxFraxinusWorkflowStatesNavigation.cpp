@@ -644,7 +644,7 @@ void MDTWorkflowState::addDataToView()
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
 
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);
-	MeshPtr airwaysTubes = mFraxinusSegmentations->getMesh(otAIRWAYS_ENHANCED);
+	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
 	if(airwaysTubes)
 		viewGroup0_3D->addData(airwaysTubes->getUid());
 
