@@ -550,7 +550,7 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	{
 		mActiveTimerWidget = mLungLobesTimerWidget;
 		if(mActiveTimerWidget)
-				mActiveTimerWidget->start();
+			mActiveTimerWidget->start();
 		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_LungLobes.ini");
 		mCurrentSegmentationType = lsLOBE;
 		mLungLobesProcessed = true;
@@ -560,7 +560,7 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	{
 		mActiveTimerWidget = mLungVesselsTimerWidget;
 		if(mActiveTimerWidget)
-				mActiveTimerWidget->start();
+			mActiveTimerWidget->start();
 		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_LungVessels.ini");
 		mCurrentSegmentationType = lsLUNG_VESSELS;
 		mLungVesselsProcessed = true;
@@ -570,7 +570,7 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	{
 		mActiveTimerWidget = mNodulesTimerWidget;
 		if(mActiveTimerWidget)
-				mActiveTimerWidget->start();
+			mActiveTimerWidget->start();
 		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_Nodules.ini");
 		mCurrentSegmentationType = lsNODULES;
 		mNodulesProcessed = true;
