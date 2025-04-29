@@ -831,7 +831,7 @@ void FraxinusSegmentations::postProcessAirways()
 	if(!airwaysVolume)
 		return;
 
-	airwaysFromCLPtr->processCenterline(rawCenterline->getVtkPolyData());
+	airwaysFromCLPtr->processCenterline(rawCenterline);
 	airwaysFromCLPtr->setSegmentedVolume(airwaysVolume->getBaseVtkImageData(), airwaysVolume->get_rMd());
 
 	mBranchList = airwaysFromCLPtr->getBranchList();
@@ -843,9 +843,10 @@ void FraxinusSegmentations::postProcessAirways()
 	QString nameMesh = CTimage->getName() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes();
 	MeshPtr airwayWalls = mServices->patient()->createSpecificData<Mesh>(uidMesh, nameMesh);
 	airwayWalls->setColor(QColor(253, 173, 136, 255));
-	airwayWalls->setVtkPolyData(airwaysFromCLPtr->generateTubes(0, true));
-	airwayWalls->get_rMd_History()->setParentSpace(CTimage->getUid());
-	airwayWalls->get_rMd_History()->setRegistration(CTimage->get_rMd());
+	vtkPolyDataPtr vtkPolyDataAirwayWalls_d = airwaysFromCLPtr->generateTubes(0, true);
+	airwayWalls->setVtkPolyData(vtkPolyDataAirwayWalls_d);
+	airwayWalls->get_rMd_History()->setParentSpace(rawCenterline->getUid());
+	airwayWalls->get_rMd_History()->setRegistration(airwaysVolume->get_rMd());
 	setMeshNameAndType(airwayWalls, otAIRWAYS_ENHANCED);
 
 	//Apply color varition
@@ -873,7 +874,11 @@ void FraxinusSegmentations::postProcessAirways()
 	QString uidCenterline = CTimage->getUid() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes() + airwaysFilterGetNameSuffixCenterline();
 	QString nameCenterline = CTimage->getName() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes() + airwaysFilterGetNameSuffixCenterline();
 	MeshPtr centerline = mServices->patient()->createSpecificData<Mesh>(uidCenterline, nameCenterline);
-	centerline->setVtkPolyData(airwaysFromCLPtr->getVTKPoints());
+
+	vtkPolyDataPtr vtkPolyDataCenterline_r = airwaysFromCLPtr->getVTKPoints();
+	centerline->setVtkPolyData(vtkPolyDataCenterline_r);
+	vtkPolyDataPtr vtkPolyDataCenterline_d = centerline->getTransformedPolyDataCopy(rawCenterline->get_rMd().inverse());
+	centerline->setVtkPolyData(vtkPolyDataCenterline_d);
 	centerline->get_rMd_History()->setParentSpace(rawCenterline->getUid());
 	centerline->get_rMd_History()->setRegistration(rawCenterline->get_rMd());
 	setMeshNameAndType(centerline, otAIRWAYS_CENTERLINES);

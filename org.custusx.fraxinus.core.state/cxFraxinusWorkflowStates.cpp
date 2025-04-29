@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusWorkflowStates.h"
 #include <QApplication>
 #include <QMainWindow>
+#include <vtkPolyData.h>
 #include "cxStateService.h"
 #include "cxSettings.h"
 #include "cxTrackingService.h"
@@ -658,7 +659,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	if(!mBranchList) // In case of restart of Fraxinus, BranchList is deleted on shut down
 	{
 		AirwaysFromCenterlinePtr airwaysFromCLPtr = AirwaysFromCenterlinePtr(new AirwaysFromCenterline());
-		airwaysFromCLPtr->processCenterline(centerline->getVtkPolyData());
+		airwaysFromCLPtr->processCenterline(centerline);
 		mBranchList = airwaysFromCLPtr->getBranchList();
 	}
 
