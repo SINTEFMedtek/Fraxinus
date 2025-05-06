@@ -1492,6 +1492,7 @@ VirtualBronchoscopyAnyplaneWorkflowState::VirtualBronchoscopyAnyplaneWorkflowSta
   , mFlyThrough3DViewGroupNumber(2)
   , mSurfaceModel3DViewGroupNumber(0)
 	, m2DViewGroupNumber(1)
+	, m2DViewGroupNumber_2(4)
 {
 	connect(mServices->session().get(), &SessionStorageService::sessionChanged, this, &VirtualBronchoscopyAnyplaneWorkflowState::deleteBranchList, Qt::UniqueConnection);
 }
@@ -1539,6 +1540,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onExit(QEvent * event)
 void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 {
 	ImagePtr ctImage = this->getCTImage();
+	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED_COPY);
@@ -1589,6 +1591,16 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 		viewGroup2_3D->addData(routeToTarget->getUid());
 	if(nodules)
 		viewGroup1_2D->addData(nodules->getUid());
+
+	ViewGroupDataPtr viewGroup4_2D = viewService()->getGroup(m2DViewGroupNumber_2);
+	viewGroup1_2D->getGroup2DZoom()->set(1);
+	viewGroup1_2D->getGlobal2DZoom()->set(1);
+	if(ctImage_copied)
+	{
+		viewGroup4_2D->addData(ctImage_copied->getUid());
+		this->setTransferfunction2D("2D CT Abdomen", ctImage_copied);
+	}
+
 }
 
 bool VirtualBronchoscopyAnyplaneWorkflowState::canEnter() const

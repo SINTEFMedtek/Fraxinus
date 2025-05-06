@@ -285,6 +285,7 @@ private:
 	int mFlyThrough3DViewGroupNumber;
 	int mSurfaceModel3DViewGroupNumber;
 	int m2DViewGroupNumber;
+	int m2DViewGroupNumber_2;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ProcedurePlanningWorkflowState: public FraxinusWorkflowState
