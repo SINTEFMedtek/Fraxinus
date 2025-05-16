@@ -336,12 +336,12 @@ void FraxinusSegmentations::imageSelected()
 
 	this->createProcessingInfo();
 
-	ImagePtr image = mServices->patient()->getImage(imCT, istTHORAX_CT);
+	ImagePtr imageCopy = mServices->patient()->getImage(imCT, istCOPY);
 
 	if(mRegisterPET)
 		this->performPETCTregistration();
 	else
-		this->performPythonSegmentation(image);
+		this->performPythonSegmentation(imageCopy);
 }
 
 void FraxinusSegmentations::cancel()
@@ -677,12 +677,12 @@ void FraxinusSegmentations::performPETCTregistration()
 {
 	if(mServices->patient()->getImage(imPET, istPET_REGISTERED))
 	{
-		ImagePtr CTimage = mServices->patient()->getImage(imCT, istTHORAX_CT);
-		this->performPythonSegmentation(CTimage);
+		ImagePtr CTimageCopy = mServices->patient()->getImage(imCT, istCOPY);
+		this->performPythonSegmentation(CTimageCopy);
 		return;
 	}
 
-	ImagePtr CTimage = mServices->patient()->getImage(imCT, istTHORAX_CT);
+	ImagePtr CTimageCopy = mServices->patient()->getImage(imCT, istCOPY);
 	ImagePtr PET_CTimage = mServices->patient()->getImage(imCT, istPET_CT);
 
 	mActiveTimerWidget = mPETTimerWidget;
@@ -693,7 +693,7 @@ void FraxinusSegmentations::performPETCTregistration()
 	//Setting Image Type to istPET_REGISTERED for new PET volume in ElastixManager::addNonlinearData()
 
 	PET_CTimage->get_rMd_History()->setParentSpace(""); //Make sure we don't move any other images
-	mServices->registration()->setFixedData(CTimage);
+	mServices->registration()->setFixedData(CTimageCopy);
 	mServices->registration()->setMovingData(PET_CTimage);
 
 	this->setElastixParameters();
@@ -730,8 +730,8 @@ void FraxinusSegmentations::elastixFinishedSlot()
 
 	mPETTimerWidget->stop();
 
-	ImagePtr CTimage = mServices->patient()->getImage(imCT, istTHORAX_CT);
-	this->performPythonSegmentation(CTimage);
+	ImagePtr CTimageCopy = mServices->patient()->getImage(imCT, istCOPY);
+	this->performPythonSegmentation(CTimageCopy);
 }
 
 void FraxinusSegmentations::runPythonFilterSlot()
@@ -777,11 +777,11 @@ void FraxinusSegmentations::pythonFinishedSlot()
 	this->checkIfSegmentationSucceeded();
 
 	if(mCurrentSegmentationType == lsLOBE && (mSegmentLungVessels || mSegmentTumors))
-		this->performPythonSegmentation(mServices->patient()->getImage(imCT, istTHORAX_CT));
+		this->performPythonSegmentation(mServices->patient()->getImage(imCT, istCOPY));
 	else if(mCurrentSegmentationType == lsLUNG_VESSELS && mSegmentTumors)
-		this->performPythonSegmentation(this->mServices->patient()->getImage(imCT, istTHORAX_CT));
+		this->performPythonSegmentation(this->mServices->patient()->getImage(imCT, istCOPY));
 	else
-		this->performMLSegmentation(mServices->patient()->getImage(imCT, istTHORAX_CT));
+		this->performMLSegmentation(mServices->patient()->getImage(imCT, istCOPY));
 }
 
 void FraxinusSegmentations::MLFinishedSlot()
@@ -804,7 +804,7 @@ void FraxinusSegmentations::MLFinishedSlot()
 	if(mSegmentTumors && mTumorsProcessed && mNodulesProcessed)
 		deleteTumorsAndNodulesVolumes();
 	
-	this->performMLSegmentation(mServices->patient()->getImage(imCT, istTHORAX_CT));
+	this->performMLSegmentation(mServices->patient()->getImage(imCT, istCOPY));
 }
 
 void FraxinusSegmentations::deleteTumorsAndNodulesVolumes()
