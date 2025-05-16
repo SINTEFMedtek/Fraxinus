@@ -882,6 +882,8 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
 
+	this->getCTImageCopied(); //Makes sure CT Image Copied is created before segmentation is started
+
 	//TODO: connect to mFraxinusSegmentations, to run addDataToView() if airways segmentation fails? - Is this needed?
 	mFraxinusSegmentations->createSelectSegmentationBox();
 	connect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished, this, &ProcessWorkflowState::segmentationFinishedSlot);
