@@ -280,9 +280,10 @@ ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
 	imageCopied->setName(originalImage->getName()+"_copy");
 	imageCopied->setUid(originalImage->getUid()+"_copy");
 	imageCopied->setImageType(istCOPY);
-	mServices->patient()->insertData(imageCopied);
 	
 	resampleImageTo512x512(imageCopied);
+
+	mServices->patient()->insertData(imageCopied);
 
 	return imageCopied;
 }
