@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QApplication>
 #include <QMainWindow>
 #include <vtkPolyData.h>
+#include <vtkImageData.h>
 #include "cxStateService.h"
 #include "cxSettings.h"
 #include "cxTrackingService.h"
@@ -69,6 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxAirwaysFromCenterline.h"
 #include "cxMetricManager.h"
 #include "cxNewLoadPatientWidget.h"
+#include "cxImageAlgorithms.h"
 
 namespace cx
 {
@@ -275,14 +277,36 @@ ImagePtr FraxinusWorkflowState::getCTImageCopied() const
 
 ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
 {
-	ImagePtr imageCopied = originalImage->copy();
-	imageCopied->setName(originalImage->getName()+"_copy");
-	imageCopied->setUid(originalImage->getUid()+"_copy");
+	if(!originalImage)
+		return originalImage;
+
+	ImagePtr imageCopied = copyAndResampleImageTo512x512(originalImage);
 	imageCopied->setImageType(istCOPY);
 	mServices->patient()->insertData(imageCopied);
-	
+
 	return imageCopied;
 }
+
+ImagePtr FraxinusWorkflowState::copyAndResampleImageTo512x512(ImagePtr inputImage) const
+{
+	vtkImageDataPtr vtkImageGrayscale =  inputImage->getGrayScaleVtkImageData();
+	if(!vtkImageGrayscale)
+		return inputImage;
+
+	double* spacing = vtkImageGrayscale->GetSpacing();
+	int* dim = vtkImageGrayscale->GetDimensions();
+
+	Vector3D newSpacing;
+	newSpacing[0] = (double) dim[0]/512 * spacing[0];
+	newSpacing[1] = (double) dim[1]/512 * spacing[1];
+	newSpacing[2] = spacing[2];
+
+	ImagePtr imageCopied =  resampleImage(mServices->patient(), inputImage, newSpacing, inputImage->getUid()+"_copy", inputImage->getName()+"_copy");
+
+	return imageCopied;
+}
+
+
 
 PointMetricPtr FraxinusWorkflowState::getPointMetric(QString pointMetricName) const
 {
@@ -845,6 +869,8 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
+
+	this->getCTImageCopied(); //Makes sure CT Image Copied is created before segmentation is started
 
 	//TODO: connect to mFraxinusSegmentations, to run addDataToView() if airways segmentation fails? - Is this needed?
 	mFraxinusSegmentations->createSelectSegmentationBox();
