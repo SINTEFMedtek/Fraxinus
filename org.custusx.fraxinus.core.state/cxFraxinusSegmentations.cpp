@@ -904,7 +904,7 @@ void FraxinusSegmentations::postProcessTumors()
 
 	setDeepModified(combinedVtkImage);
 
-	ImagePtr baseImage = mServices->patient()->getImage(imCT, istTHORAX_CT);
+	ImagePtr baseImage = mServices->patient()->getImage(imCT, istCOPY);
 	if(!baseImage)
 		return;
 
