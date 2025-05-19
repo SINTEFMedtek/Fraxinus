@@ -87,7 +87,7 @@ protected:
 	PinpointWidget *getPinpointWidget();
 	ImagePtr getCTImageCopied() const;
 	ImagePtr createCopiedImage(ImagePtr originalImage) const;
-	void resampleImageTo512x512(ImagePtr inputImage) const;
+	ImagePtr copyAndResampleImageTo512x512(ImagePtr inputImage) const;
 	PointMetricPtr getPointMetric(QString pointMetricName) const;
 	PointMetricPtr	getTargetPoint() const;
 	PointMetricPtr	getEndoscopePoint() const;

@@ -70,6 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxAirwaysFromCenterline.h"
 #include "cxMetricManager.h"
 #include "cxNewLoadPatientWidget.h"
+#include "cxImageAlgorithms.h"
 
 namespace cx
 {
@@ -276,31 +277,33 @@ ImagePtr FraxinusWorkflowState::getCTImageCopied() const
 
 ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
 {
-	ImagePtr imageCopied = originalImage->copy();
-	imageCopied->setName(originalImage->getName()+"_copy");
-	imageCopied->setUid(originalImage->getUid()+"_copy");
-	imageCopied->setImageType(istCOPY);
-	
-	resampleImageTo512x512(imageCopied);
+	if(!originalImage)
+		return originalImage;
 
+	ImagePtr imageCopied = copyAndResampleImageTo512x512(originalImage);
+	imageCopied->setImageType(istCOPY);
 	mServices->patient()->insertData(imageCopied);
 
 	return imageCopied;
 }
 
-void FraxinusWorkflowState::resampleImageTo512x512(ImagePtr inputImage) const
+ImagePtr FraxinusWorkflowState::copyAndResampleImageTo512x512(ImagePtr inputImage) const
 {
-	vtkImageDataPtr vtkImage = inputImage->getGrayScaleVtkImageData();
-	if(!vtkImage)
-		return;
+	vtkImageDataPtr vtkImageGrayscale =  inputImage->getGrayScaleVtkImageData();
+	if(!vtkImageGrayscale)
+		return inputImage;
 
-	int* dim = vtkImage->GetDimensions();
-	if(dim[0] > 512 || dim[1] > 512)
-	{
-		vtkImageDataPtr vtkImageResampled = inputImage->resampleToSize(512, 512 , dim[2]);
-		if(vtkImageResampled)
-			inputImage->setVtkImageData(vtkImageResampled);
-	}
+	double* spacing = vtkImageGrayscale->GetSpacing();
+	int* dim = vtkImageGrayscale->GetDimensions();
+
+	Vector3D newSpacing;
+	newSpacing[0] = (double) dim[0]/512 * spacing[0];
+	newSpacing[1] = (double) dim[1]/512 * spacing[1];
+	newSpacing[2] = spacing[2];
+
+	ImagePtr imageCopied =  resampleImage(mServices->patient(), inputImage, newSpacing, inputImage->getUid()+"_copy", inputImage->getName()+"_copy");
+
+	return imageCopied;
 }
 
 
