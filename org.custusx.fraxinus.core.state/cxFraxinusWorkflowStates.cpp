@@ -295,27 +295,11 @@ void FraxinusWorkflowState::resampleImageTo512x512(ImagePtr inputImage) const
 		return;
 
 	int* dim = vtkImage->GetDimensions();
-	CX_LOG_DEBUG() << "dim: " << dim[0] << " " << dim[1] << " " << dim[2];
 	if(dim[0] > 512 || dim[1] > 512)
 	{
-		CX_LOG_DEBUG() << "Resampling image";
 		vtkImageDataPtr vtkImageResampled = inputImage->resampleToSize(512, 512 , dim[2]);
-		CX_LOG_DEBUG() << "Resampling image 2";
 		if(vtkImageResampled)
-		{
-			int* dimResampled = vtkImageResampled->GetDimensions();
-			CX_LOG_DEBUG() << "vtkImageResampled: " << dimResampled[0] << " " << dimResampled[1] << " " << dimResampled[2];
 			inputImage->setVtkImageData(vtkImageResampled);
-//			image = createDerivedImage(mServices->patient(),
-//																 inputImage->getUid() + "_resampled", inputImage->getName() + "_resampled",
-//																 vtkImageResampled, image);
-//			if(image)
-//				mServices->patient()->insertData(image);
-
-		}
-		else
-			CX_LOG_DEBUG() << "vtkImageResampled not found";
-		CX_LOG_DEBUG() << "Resampling image 3";
 	}
 }
 
