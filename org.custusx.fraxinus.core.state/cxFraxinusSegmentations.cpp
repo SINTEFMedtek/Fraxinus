@@ -301,23 +301,23 @@ void FraxinusSegmentations::checkForPETData()
 
 void FraxinusSegmentations::selectAll(bool checked)
 {
-	if(!mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
+	if(mCheckBoxAirways->isEnabled())
 		mCheckBoxAirways->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otLYMPH_NODES))
+	if(mCheckBoxLymphNodes->isEnabled())
 		mCheckBoxLymphNodes->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otHEART))
+	if(mCheckBoxHeart->isEnabled())
 		mCheckBoxHeart->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otSPINE))
+	if(mCheckBoxMediumOrgans->isEnabled())
 		mCheckBoxMediumOrgans->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otESOPHAGUS))
+	if(mCheckBoxSmallOrgans->isEnabled())
 		mCheckBoxSmallOrgans->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otTUMOR))
+	if(mCheckBoxTumors->isEnabled())
 		mCheckBoxTumors->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
+	if(mCheckBoxLungVessels->isEnabled())
 		mCheckBoxLungVessels->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otLOBE_LUL))
+	if(mCheckBoxLungLobes->isEnabled())
 		mCheckBoxLungLobes->setChecked(checked);
-	if(mCheckBoxPET->isEnabled() && !mServices->patient()->getImage(imPET, istPET_REGISTERED))
+	if(mCheckBoxPET->isEnabled())
 		mCheckBoxPET->setChecked(checked);
 }
 
