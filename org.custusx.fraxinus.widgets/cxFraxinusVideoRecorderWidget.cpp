@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxPatientModelService.h"
 #include "cxViewService.h"
 #include "cxTrackingService.h"
+#include "cxStyles.h"
 
 
 namespace cx {
@@ -60,7 +61,7 @@ FraxinusVideoRecorderWidget::FraxinusVideoRecorderWidget(VisServicesPtr services
 	QGroupBox* recordBox = new QGroupBox(tr("Record bronchoscope video"));
 	QVBoxLayout* recordVLayout = new QVBoxLayout();
 	mStartStopButton = new QPushButton("Start video recording", this);
-	mStartStopButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+	mStartStopButtonBackgroundColor.setColor(QPalette::Button, Styles::getRed());
 	mStartStopButton->setPalette(mStartStopButtonBackgroundColor);
 	recordVLayout->addWidget(mStartStopButton);
 	recordBox->setLayout(recordVLayout);
@@ -82,14 +83,14 @@ void FraxinusVideoRecorderWidget::startStopClickedSlot()
 	{
 		connect(mAcquisitionService.get(), &AcquisitionService::stateChanged, this, &FraxinusVideoRecorderWidget::recordStateChangedSlot);
 		mStartStopButton->setText("Stop video recording");
-		mStartStopButtonBackgroundColor.setColor(QPalette::Button, Qt::yellow);
+		mStartStopButtonBackgroundColor.setColor(QPalette::Button, Styles::getYellow());
 		mStartStopButton->setPalette(mStartStopButtonBackgroundColor);
 		startRecording();
 	}
 	else
 	{
 		mStartStopButton->setText("Start video recording");
-		mStartStopButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+		mStartStopButtonBackgroundColor.setColor(QPalette::Button, Styles::getRed());
 		mStartStopButton->setPalette(mStartStopButtonBackgroundColor);
 		stopRecording();
 	}
@@ -103,7 +104,7 @@ void FraxinusVideoRecorderWidget::recordStateChangedSlot()
 
 	if(state == AcquisitionService::sRUNNING)
 	{
-		mStartStopButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
+		mStartStopButtonBackgroundColor.setColor(QPalette::Button, Styles::getGreen());
 		mStartStopButton->setPalette(mStartStopButtonBackgroundColor);
 		disconnect(mAcquisitionService.get(), &AcquisitionService::stateChanged, this, &FraxinusVideoRecorderWidget::recordStateChangedSlot);
 	}

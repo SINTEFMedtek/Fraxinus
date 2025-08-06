@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxDataLocations.h"
 #include "cxProfile.h"
 #include "cxConfig.h"
+#include "cxStyles.h"
 
 #include "cxFraxinusMainWindowApplicationComponent.h"
 
@@ -58,8 +59,10 @@ int main(int argc, char *argv[])
 	app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
 	cx::DataLocations::setWebsiteURL("http://www.custusx.org/fraxinus");
-	cx::ApplicationComponentPtr mainwindow(new cx::FraxinusMainWindowApplicationComponent());
 
+	cx::Styles::setStyle();
+
+	cx::ApplicationComponentPtr mainwindow(new cx::FraxinusMainWindowApplicationComponent());
 	cx::ProfileManager::getInstance("Bronchoscopy");
 	cx::LogicManager::initialize(mainwindow);
 

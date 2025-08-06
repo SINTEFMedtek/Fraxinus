@@ -45,6 +45,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxIslandsFilter.h"
 #include "cxMeshesFromLabelsFilter.h"
 #include "cxVolumeHelpers.h"
+#include "cxFileHelpers.h"
 
 namespace cx
 {
@@ -300,23 +301,23 @@ void FraxinusSegmentations::checkForPETData()
 
 void FraxinusSegmentations::selectAll(bool checked)
 {
-	if(!mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
+	if(mCheckBoxAirways->isEnabled())
 		mCheckBoxAirways->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otLYMPH_NODES))
+	if(mCheckBoxLymphNodes->isEnabled())
 		mCheckBoxLymphNodes->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otHEART))
+	if(mCheckBoxHeart->isEnabled())
 		mCheckBoxHeart->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otSPINE))
+	if(mCheckBoxMediumOrgans->isEnabled())
 		mCheckBoxMediumOrgans->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otESOPHAGUS))
+	if(mCheckBoxSmallOrgans->isEnabled())
 		mCheckBoxSmallOrgans->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otTUMOR))
+	if(mCheckBoxTumors->isEnabled())
 		mCheckBoxTumors->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
+	if(mCheckBoxLungVessels->isEnabled())
 		mCheckBoxLungVessels->setChecked(checked);
-	if(!mServices->patient()->getData<Mesh>(otLOBE_LUL))
+	if(mCheckBoxLungLobes->isEnabled())
 		mCheckBoxLungLobes->setChecked(checked);
-	if(mCheckBoxPET->isEnabled() && !mServices->patient()->getImage(imPET, istPET_REGISTERED))
+	if(mCheckBoxPET->isEnabled())
 		mCheckBoxPET->setChecked(checked);
 }
 
@@ -335,12 +336,12 @@ void FraxinusSegmentations::imageSelected()
 
 	this->createProcessingInfo();
 
-	ImagePtr image = mServices->patient()->getImage(imCT, istTHORAX_CT);
+	ImagePtr imageCopy = mServices->patient()->getImage(imCT, istCOPY);
 
 	if(mRegisterPET)
 		this->performPETCTregistration();
 	else
-		this->performPythonSegmentation(image);
+		this->performPythonSegmentation(imageCopy);
 }
 
 void FraxinusSegmentations::cancel()
@@ -523,13 +524,18 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 		mLungVesselsProcessed = true;
 	if(mServices->patient()->getData<Mesh>(otLOBE_LUL))
 		mLungLobesProcessed = true;
+	if(mServices->patient()->getData<Mesh>(otTUMOR))
+		mNodulesProcessed = true;
 
 	if(mLungLobesProcessed || !mSegmentLungLobes)
 	{
 		if(mLungVesselsProcessed || !mSegmentLungVessels)
 		{
-			this->performMLSegmentation(image);
-			return;
+			if(mNodulesProcessed || !mSegmentTumors)
+			{
+				this->performMLSegmentation(image);
+				return;
+			}
 		}
 	}
 
@@ -544,7 +550,7 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	{
 		mActiveTimerWidget = mLungLobesTimerWidget;
 		if(mActiveTimerWidget)
-				mActiveTimerWidget->start();
+			mActiveTimerWidget->start();
 		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_LungLobes.ini");
 		mCurrentSegmentationType = lsLOBE;
 		mLungLobesProcessed = true;
@@ -554,10 +560,20 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	{
 		mActiveTimerWidget = mLungVesselsTimerWidget;
 		if(mActiveTimerWidget)
-				mActiveTimerWidget->start();
+			mActiveTimerWidget->start();
 		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_LungVessels.ini");
 		mCurrentSegmentationType = lsLUNG_VESSELS;
 		mLungVesselsProcessed = true;
+		input[0]->setValue(image->getUid());
+	}
+	else if(!mNodulesProcessed && mSegmentTumors)
+	{
+		mActiveTimerWidget = mNodulesTimerWidget;
+		if(mActiveTimerWidget)
+			mActiveTimerWidget->start();
+		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_Nodules.ini");
+		mCurrentSegmentationType = lsNODULES;
+		mNodulesProcessed = true;
 		input[0]->setValue(image->getUid());
 	}
 	else
@@ -618,6 +634,7 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 
 bool FraxinusSegmentations::runRaidionics(GenericScriptFilterPtr scriptFilter)
 {
+	removeNonemptyDirRecursively(DataLocations::getCachePath() + "/Raidionics_temp/");
 	QStringList outputClasses = getRaidionicsOutputClasses();
 	if(outputClasses.isEmpty())
 		return false;
@@ -643,16 +660,6 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 
 	if(runRaidionics(scriptFilter))
 	{}
-	else if(mSegmentTumors && !mNodulesProcessed && !mServices->patient()->getData<Mesh>(otTUMOR))
-	{
-		mActiveTimerWidget = mNodulesTimerWidget;
-		if(mActiveTimerWidget)
-			mActiveTimerWidget->start();
-		CX_LOG_INFO() << "Segmenting Nodules";
-		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_Nodules.ini");
-		mCurrentSegmentationType = lsNODULES;
-		mNodulesProcessed = true;
-	}
 	else
 	{
 		mActiveTimerWidget = NULL;
@@ -670,12 +677,12 @@ void FraxinusSegmentations::performPETCTregistration()
 {
 	if(mServices->patient()->getImage(imPET, istPET_REGISTERED))
 	{
-		ImagePtr CTimage = mServices->patient()->getImage(imCT, istTHORAX_CT);
-		this->performPythonSegmentation(CTimage);
+		ImagePtr CTimageCopy = mServices->patient()->getImage(imCT, istCOPY);
+		this->performPythonSegmentation(CTimageCopy);
 		return;
 	}
 
-	ImagePtr CTimage = mServices->patient()->getImage(imCT, istTHORAX_CT);
+	ImagePtr CTimageCopy = mServices->patient()->getImage(imCT, istCOPY);
 	ImagePtr PET_CTimage = mServices->patient()->getImage(imCT, istPET_CT);
 
 	mActiveTimerWidget = mPETTimerWidget;
@@ -686,7 +693,7 @@ void FraxinusSegmentations::performPETCTregistration()
 	//Setting Image Type to istPET_REGISTERED for new PET volume in ElastixManager::addNonlinearData()
 
 	PET_CTimage->get_rMd_History()->setParentSpace(""); //Make sure we don't move any other images
-	mServices->registration()->setFixedData(CTimage);
+	mServices->registration()->setFixedData(CTimageCopy);
 	mServices->registration()->setMovingData(PET_CTimage);
 
 	this->setElastixParameters();
@@ -723,8 +730,8 @@ void FraxinusSegmentations::elastixFinishedSlot()
 
 	mPETTimerWidget->stop();
 
-	ImagePtr CTimage = mServices->patient()->getImage(imCT, istTHORAX_CT);
-	this->performPythonSegmentation(CTimage);
+	ImagePtr CTimageCopy = mServices->patient()->getImage(imCT, istCOPY);
+	this->performPythonSegmentation(CTimageCopy);
 }
 
 void FraxinusSegmentations::runPythonFilterSlot()
@@ -770,11 +777,11 @@ void FraxinusSegmentations::pythonFinishedSlot()
 	this->checkIfSegmentationSucceeded();
 
 	if(mCurrentSegmentationType == lsLOBE && (mSegmentLungVessels || mSegmentTumors))
-		this->performPythonSegmentation(mServices->patient()->getImage(imCT, istTHORAX_CT));
+		this->performPythonSegmentation(mServices->patient()->getImage(imCT, istCOPY));
 	else if(mCurrentSegmentationType == lsLUNG_VESSELS && mSegmentTumors)
-		this->performPythonSegmentation(this->mServices->patient()->getImage(imCT, istTHORAX_CT));
+		this->performPythonSegmentation(this->mServices->patient()->getImage(imCT, istCOPY));
 	else
-		this->performMLSegmentation(mServices->patient()->getImage(imCT, istTHORAX_CT));
+		this->performMLSegmentation(mServices->patient()->getImage(imCT, istCOPY));
 }
 
 void FraxinusSegmentations::MLFinishedSlot()
@@ -782,7 +789,7 @@ void FraxinusSegmentations::MLFinishedSlot()
 	if(mCurrentSegmentationType == lsAIRWAYS && !mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
 		this->postProcessAirways();
 
-	if(mSegmentTumors && mTumorsProcessed && mNodulesProcessed)
+	if(mSegmentTumors)
 		this->postProcessTumors();
 
 	mTimedAlgorithmProgressBar->detach(mThread);
@@ -797,7 +804,7 @@ void FraxinusSegmentations::MLFinishedSlot()
 	if(mSegmentTumors && mTumorsProcessed && mNodulesProcessed)
 		deleteTumorsAndNodulesVolumes();
 	
-	this->performMLSegmentation(mServices->patient()->getImage(imCT, istTHORAX_CT));
+	this->performMLSegmentation(mServices->patient()->getImage(imCT, istCOPY));
 }
 
 void FraxinusSegmentations::deleteTumorsAndNodulesVolumes()
@@ -824,7 +831,7 @@ void FraxinusSegmentations::postProcessAirways()
 	if(!airwaysVolume)
 		return;
 
-	airwaysFromCLPtr->processCenterline(rawCenterline->getVtkPolyData());
+	airwaysFromCLPtr->processCenterline(rawCenterline);
 	airwaysFromCLPtr->setSegmentedVolume(airwaysVolume->getBaseVtkImageData(), airwaysVolume->get_rMd());
 
 	mBranchList = airwaysFromCLPtr->getBranchList();
@@ -836,9 +843,10 @@ void FraxinusSegmentations::postProcessAirways()
 	QString nameMesh = CTimage->getName() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes();
 	MeshPtr airwayWalls = mServices->patient()->createSpecificData<Mesh>(uidMesh, nameMesh);
 	airwayWalls->setColor(QColor(253, 173, 136, 255));
-	airwayWalls->setVtkPolyData(airwaysFromCLPtr->generateTubes(0, true));
-	airwayWalls->get_rMd_History()->setParentSpace(CTimage->getUid());
-	airwayWalls->get_rMd_History()->setRegistration(CTimage->get_rMd());
+	vtkPolyDataPtr vtkPolyDataAirwayWalls_d = airwaysFromCLPtr->generateTubes(0, true);
+	airwayWalls->setVtkPolyData(vtkPolyDataAirwayWalls_d);
+	airwayWalls->get_rMd_History()->setParentSpace(rawCenterline->getUid());
+	airwayWalls->get_rMd_History()->setRegistration(airwaysVolume->get_rMd());
 	setMeshNameAndType(airwayWalls, otAIRWAYS_ENHANCED);
 
 	//Apply color varition
@@ -866,7 +874,11 @@ void FraxinusSegmentations::postProcessAirways()
 	QString uidCenterline = CTimage->getUid() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes() + airwaysFilterGetNameSuffixCenterline();
 	QString nameCenterline = CTimage->getName() + airwaysFilterGetNameSuffixAirways() + airwaysFilterGetNameSuffixTubes() + airwaysFilterGetNameSuffixCenterline();
 	MeshPtr centerline = mServices->patient()->createSpecificData<Mesh>(uidCenterline, nameCenterline);
-	centerline->setVtkPolyData(airwaysFromCLPtr->getVTKPoints());
+
+	vtkPolyDataPtr vtkPolyDataCenterline_r = airwaysFromCLPtr->getVTKPoints();
+	centerline->setVtkPolyData(vtkPolyDataCenterline_r);
+	vtkPolyDataPtr vtkPolyDataCenterline_d = centerline->getTransformedPolyDataCopy(rawCenterline->get_rMd().inverse());
+	centerline->setVtkPolyData(vtkPolyDataCenterline_d);
 	centerline->get_rMd_History()->setParentSpace(rawCenterline->getUid());
 	centerline->get_rMd_History()->setRegistration(rawCenterline->get_rMd());
 	setMeshNameAndType(centerline, otAIRWAYS_CENTERLINES);
@@ -892,7 +904,7 @@ void FraxinusSegmentations::postProcessTumors()
 
 	setDeepModified(combinedVtkImage);
 
-	ImagePtr baseImage = mServices->patient()->getImage(imCT, istTHORAX_CT);
+	ImagePtr baseImage = mServices->patient()->getImage(imCT, istCOPY);
 	if(!baseImage)
 		return;
 

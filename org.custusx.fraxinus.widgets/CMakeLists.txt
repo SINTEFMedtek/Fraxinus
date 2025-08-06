@@ -65,6 +65,7 @@ set(PLUGIN_MOC_SRCS
     cxFraxinusSimulatorWidget.h
     cxFraxinusEBUSSimulatorWidget.h
     cxFraxinusRobotWidget.h
+    cxFraxinusMDTWidget.h
     cxViewSelectionWidget.h
     cxFraxinusVideoGeneratorWidget.h
     cxFraxinusVideoRecorderWidget.h

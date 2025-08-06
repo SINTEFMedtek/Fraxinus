@@ -33,6 +33,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusWorkflowStates.h"
 #include <QApplication>
 #include <QMainWindow>
+#include <vtkPolyData.h>
+#include <vtkImageData.h>
 #include "cxStateService.h"
 #include "cxSettings.h"
 #include "cxTrackingService.h"
@@ -68,6 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxAirwaysFromCenterline.h"
 #include "cxMetricManager.h"
 #include "cxNewLoadPatientWidget.h"
+#include "cxImageAlgorithms.h"
 
 namespace cx
 {
@@ -274,14 +277,36 @@ ImagePtr FraxinusWorkflowState::getCTImageCopied() const
 
 ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
 {
-	ImagePtr imageCopied = originalImage->copy();
-	imageCopied->setName(originalImage->getName()+"_copy");
-	imageCopied->setUid(originalImage->getUid()+"_copy");
+	if(!originalImage)
+		return originalImage;
+
+	ImagePtr imageCopied = copyAndResampleImageTo512x512(originalImage);
 	imageCopied->setImageType(istCOPY);
 	mServices->patient()->insertData(imageCopied);
-	
+
 	return imageCopied;
 }
+
+ImagePtr FraxinusWorkflowState::copyAndResampleImageTo512x512(ImagePtr inputImage) const
+{
+	vtkImageDataPtr vtkImageGrayscale =  inputImage->getGrayScaleVtkImageData();
+	if(!vtkImageGrayscale)
+		return inputImage;
+
+	double* spacing = vtkImageGrayscale->GetSpacing();
+	int* dim = vtkImageGrayscale->GetDimensions();
+
+	Vector3D newSpacing;
+	newSpacing[0] = (double) dim[0]/512 * spacing[0];
+	newSpacing[1] = (double) dim[1]/512 * spacing[1];
+	newSpacing[2] = spacing[2];
+
+	ImagePtr imageCopied =  resampleImage(mServices->patient(), inputImage, newSpacing, inputImage->getUid()+"_copy", inputImage->getName()+"_copy");
+
+	return imageCopied;
+}
+
+
 
 PointMetricPtr FraxinusWorkflowState::getPointMetric(QString pointMetricName) const
 {
@@ -658,7 +683,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	if(!mBranchList) // In case of restart of Fraxinus, BranchList is deleted on shut down
 	{
 		AirwaysFromCenterlinePtr airwaysFromCLPtr = AirwaysFromCenterlinePtr(new AirwaysFromCenterline());
-		airwaysFromCLPtr->processCenterline(centerline->getVtkPolyData());
+		airwaysFromCLPtr->processCenterline(centerline);
 		mBranchList = airwaysFromCLPtr->getBranchList();
 	}
 
@@ -844,6 +869,8 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 {
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
+
+	this->getCTImageCopied(); //Makes sure CT Image Copied is created before segmentation is started
 
 	//TODO: connect to mFraxinusSegmentations, to run addDataToView() if airways segmentation fails? - Is this needed?
 	mFraxinusSegmentations->createSelectSegmentationBox();
@@ -1491,6 +1518,7 @@ VirtualBronchoscopyAnyplaneWorkflowState::VirtualBronchoscopyAnyplaneWorkflowSta
   , mFlyThrough3DViewGroupNumber(2)
   , mSurfaceModel3DViewGroupNumber(0)
 	, m2DViewGroupNumber(1)
+	, m2DViewGroupNumber_2(4)
 {
 	connect(mServices->session().get(), &SessionStorageService::sessionChanged, this, &VirtualBronchoscopyAnyplaneWorkflowState::deleteBranchList, Qt::UniqueConnection);
 }
@@ -1538,6 +1566,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onExit(QEvent * event)
 void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 {
 	ImagePtr ctImage = this->getCTImage();
+	ImagePtr ctImage_copied = this->getCTImageCopied();
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED_COPY);
@@ -1588,6 +1617,16 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 		viewGroup2_3D->addData(routeToTarget->getUid());
 	if(nodules)
 		viewGroup1_2D->addData(nodules->getUid());
+
+	ViewGroupDataPtr viewGroup4_2D = viewService()->getGroup(m2DViewGroupNumber_2);
+	viewGroup1_2D->getGroup2DZoom()->set(1);
+	viewGroup1_2D->getGlobal2DZoom()->set(1);
+	if(ctImage_copied)
+	{
+		viewGroup4_2D->addData(ctImage_copied->getUid());
+		this->setTransferfunction2D("2D CT Abdomen", ctImage_copied);
+	}
+
 }
 
 bool VirtualBronchoscopyAnyplaneWorkflowState::canEnter() const

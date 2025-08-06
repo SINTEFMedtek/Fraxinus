@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxEnumConversion.h"
 #include "cxTransferFunctionWidget.h"
 #include "cxDoubleWidgets.h"
+#include "cxStyles.h"
 
 namespace cx {
 
@@ -198,9 +199,9 @@ void StructuresSelectionWidget::addObject(LUNG_STRUCTURES name, DataPtr object)
 	structure.mButton->setEnabled(true);
 	structure.mObjects.push_back(object);
 	if(structure.mViewEnabled)
-		structure.mButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
+		structure.mButtonBackgroundColor.setColor(QPalette::Button, Styles::getGreen());
 	else
-		structure.mButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+		structure.mButtonBackgroundColor.setColor(QPalette::Button, Styles::getRed());
 	structure.mButton->setPalette(structure.mButtonBackgroundColor);
 	mSelectableStructuresMap.insert(name, structure);
 
@@ -233,13 +234,13 @@ void StructuresSelectionWidget::viewStructureSlot(LUNG_STRUCTURES name)
 	if(mSelectableStructuresMap[name].mViewEnabled)
 	{
 		this->displayDataObjects(mSelectableStructuresMap[name].mObjects);
-		mSelectableStructuresMap[name].mButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
+		mSelectableStructuresMap[name].mButtonBackgroundColor.setColor(QPalette::Button, Styles::getGreen());
 		mSelectableStructuresMap[name].mButton->setPalette(mSelectableStructuresMap[name].mButtonBackgroundColor);
 	}
 	else
 	{
 		this->hideDataObjects(mSelectableStructuresMap[name].mObjects);
-		mSelectableStructuresMap[name].mButtonBackgroundColor.setColor(QPalette::Button, Qt::red);
+		mSelectableStructuresMap[name].mButtonBackgroundColor.setColor(QPalette::Button, Styles::getRed());
 		mSelectableStructuresMap[name].mButton->setPalette(mSelectableStructuresMap[name].mButtonBackgroundColor);
 	}
 
@@ -268,7 +269,7 @@ void StructuresSelectionWidget::turnOnStructure(LUNG_STRUCTURES name)
 {
 	mSelectableStructuresMap[name].mViewEnabled = true;
 	this->displayDataObjects(mSelectableStructuresMap[name].mObjects);
-	mSelectableStructuresMap[name].mButtonBackgroundColor.setColor(QPalette::Button, Qt::green);
+	mSelectableStructuresMap[name].mButtonBackgroundColor.setColor(QPalette::Button, Styles::getGreen());
 	mSelectableStructuresMap[name].mButton->setPalette(mSelectableStructuresMap[name].mButtonBackgroundColor);
 }
 

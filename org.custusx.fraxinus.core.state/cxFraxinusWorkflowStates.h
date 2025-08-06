@@ -87,6 +87,7 @@ protected:
 	PinpointWidget *getPinpointWidget();
 	ImagePtr getCTImageCopied() const;
 	ImagePtr createCopiedImage(ImagePtr originalImage) const;
+	ImagePtr copyAndResampleImageTo512x512(ImagePtr inputImage) const;
 	PointMetricPtr getPointMetric(QString pointMetricName) const;
 	PointMetricPtr	getTargetPoint() const;
 	PointMetricPtr	getEndoscopePoint() const;
@@ -285,6 +286,7 @@ private:
 	int mFlyThrough3DViewGroupNumber;
 	int mSurfaceModel3DViewGroupNumber;
 	int m2DViewGroupNumber;
+	int m2DViewGroupNumber_2;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ProcedurePlanningWorkflowState: public FraxinusWorkflowState
