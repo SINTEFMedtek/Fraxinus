@@ -261,9 +261,12 @@ void NavigationWorkflowState::onEntry(QEvent * event)
 	if(camera_control)
 	{
 		ViewPtr viewSurface_3D = services->view()->get3DView(mSurfaceModel3DViewGroupNumber);
-		camera_control->setView(viewSurface_3D);
 		camera_control->setAnteriorView();
-		viewSurface_3D->setZoomFactor(1.5);
+		if(viewSurface_3D)
+		{
+			viewSurface_3D->setZoomFactor(1.5);
+			camera_control->setView(viewSurface_3D);
+		}
 	}
 
 	QTimer::singleShot(0, this, SLOT(setAnyplaneCameraStyle()));
