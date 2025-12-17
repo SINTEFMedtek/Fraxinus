@@ -590,9 +590,8 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 	if(mSegmentAirways && !mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES) && !mAirwaysProcessed)
 	{
 		mActiveTimerWidget = mAirwaysTimerWidget;
+		retval << enum2string(otLUNGS);
 		retval << enum2string(otAIRWAYS);
-		if(!mServices->patient()->getData<Mesh>(otLUNGS))
-			retval << enum2string(otLUNGS);
 		if(startTimers)
 			mAirwaysTimerWidget->start();
 	}
