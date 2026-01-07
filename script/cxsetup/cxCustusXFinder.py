@@ -105,7 +105,7 @@ class CustusXFinder(object):
         cx_base = self.locations.getProjectFolder()
 
         cx_root = '%s/%s' % (root, cx_base)
-        url_base = 'git@github.com:SINTEFMedtek'
+        url_base = 'git@gitlab.sintef.no:custusx'
         url_name = 'custusx.git'
         cx_repo_path='%s/%s' % (cx_root, cx_name)
 

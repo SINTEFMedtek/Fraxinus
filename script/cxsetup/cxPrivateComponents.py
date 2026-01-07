@@ -123,7 +123,7 @@ class org_custusx_ussimulator(cx.build.cxComponents.CppComponent):
     #    self._getBuilder().gitClone(self.gitRepository(), self.sourceFolder())
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
-        self._getBuilder().gitCheckout('72537a89660152be60fc5dfc458fe0df33bb18fd')
+        self._getBuilder().gitCheckout('fcafd0a547e36c0c5a5d9a2067eec8385360f71e')
     def configure(self):
         pass
     def build(self):
