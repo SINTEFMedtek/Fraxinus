@@ -64,7 +64,7 @@ TEST_CASE("FraxinusSegmentations: getFilterScriptsPath", "[unit]")
 	QString scriptFilePath = cx::DataLocations::getFilterScriptsPath();
 	CHECK(QFileInfo::exists(scriptFilePath));
 	
-	QString iniFilePath = scriptFilePath + "python_Lungs_test.ini";
+	QString iniFilePath = scriptFilePath + "python_LungVessels.ini";
 	CHECK(QFileInfo::exists(iniFilePath));
 }
 
