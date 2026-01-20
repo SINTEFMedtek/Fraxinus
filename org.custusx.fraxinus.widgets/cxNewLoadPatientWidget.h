@@ -66,6 +66,7 @@ signals:
 private:
 	void enableImportDataButton();
 	void loadCTData();
+//	std::vector<std::string> getUSBPaths();
 	void dataAddedOrRemoved();
 
 	VisServicesPtr mServices;

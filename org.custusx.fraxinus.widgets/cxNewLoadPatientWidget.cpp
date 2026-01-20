@@ -183,6 +183,13 @@ void NewLoadPatientWidget::selectMoreCTData()
 
 void NewLoadPatientWidget::loadCTData()
 {
+//	//debug/test
+//	std::vector<std::string> usbPaths =  getUSBPaths();
+//	if(usbPaths.empty())
+//		CX_LOG_DEBUG() << "No USB found";
+//	for(int i=0; i<usbPaths.size(); i++)
+//		CX_LOG_DEBUG() << "USB path " << i << ": " << usbPaths[i];
+
 	if(mServices->patient()->getImage(imCT, istTHORAX_CT))
 		mThoraxCTLoaded = true;
 	if(mServices->patient()->getImage(imPET, istPET) && mServices->patient()->getImage(imCT, istPET_CT))
@@ -190,11 +197,41 @@ void NewLoadPatientWidget::loadCTData()
 
 	if(mServices->patient()->isPatientValid())
 	{
-		triggerMainWindowActionWithObjectName("AddFilesForImportWithDialogCT");
+		//triggerMainWindowActionWithObjectName("AddFilesForImportWithDialogCT");
+		triggerMainWindowActionWithObjectName("AddFilesForImportFromUSB");
 		triggerMainWindowActionWithObjectName("ImportSelectedData");
 	}
 	dataAddedOrRemoved();
 }
+
+//std::vector<std::string> NewLoadPatientWidget::getUSBPaths()
+//{//Linux implementation
+//	std::vector<std::string> usbPaths;
+//	std::ifstream mounts("/proc/mounts");
+//	if(!mounts.is_open())
+//	{
+//		CX_LOG_WARNING("No USB found in proc/mounts");
+//		return usbPaths;
+//	}
+
+//	std::string line;
+//	while(std::getline(mounts, line))
+//	{
+//		std::istringstream iss(line);
+//		std::string device, mountPoint, fsType;
+//		if(!(iss >> device >> mountPoint >> fsType))
+//			continue;
+//		CX_LOG_DEBUG() << "device: " << device;
+//		CX_LOG_DEBUG() << "mountPoint: " << mountPoint;
+//		CX_LOG_DEBUG() << "fsType: " << fsType;
+//		if(device.find("/dev/sd")==0 && (mountPoint.find("/media")==0 || mountPoint.find("/run/media")==0))
+//			usbPaths.push_back(mountPoint);
+//	}
+
+//	mounts.close();
+//	return usbPaths;
+
+//}
 
 void NewLoadPatientWidget::dataAddedOrRemoved()
 {
