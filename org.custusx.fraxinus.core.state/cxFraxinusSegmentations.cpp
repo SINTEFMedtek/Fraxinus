@@ -590,7 +590,7 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 	if(mSegmentAirways && !mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES) && !mAirwaysProcessed)
 	{
 		mActiveTimerWidget = mAirwaysTimerWidget;
-		retval << enum2string(otLUNGS);
+		//retval << enum2string(otLUNGS);
 		retval << enum2string(otAIRWAYS);
 		if(startTimers)
 			mAirwaysTimerWidget->start();
@@ -627,6 +627,8 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 		if(startTimers)
 			mSmallOrgansTimerWidget->start();
 	}
+	if(!retval.isEmpty())
+		retval.prepend(enum2string(otLUNGS));//always include lungs first as it is needed as a mask for all segmentations
 
 	return retval;
 }
