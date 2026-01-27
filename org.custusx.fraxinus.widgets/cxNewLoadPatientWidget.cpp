@@ -39,12 +39,6 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	loadButton->setIcon(QIcon(":/icons/icons/select.svg"));
 	connect(loadButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadPatient);
 
-	QPushButton* restoreToFactorySettingsButton = new QPushButton("&Restore factory settings");
-	QPalette palette = restoreToFactorySettingsButton->palette();
-	palette.setColor(QPalette::Button, Styles::getRed());
-	restoreToFactorySettingsButton->setPalette(palette);
-	connect(restoreToFactorySettingsButton, &QPushButton::clicked, this, &NewLoadPatientWidget::restoreToFactorySettings);
-
 	mSelectCTDataButton = new QPushButton("&Select CT data");
 	mSelectCTDataButton->setIcon(QIcon(":/icons/icons/import.svg"));
 	mSelectCTDataButton->setEnabled(false);
@@ -68,7 +62,6 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 		layout->addStretch();
 	}
 
-	layout->addWidget(restoreToFactorySettingsButton);
 	this->setLayout(layout);
 }
 
@@ -161,12 +154,6 @@ void NewLoadPatientWidget::enableImportDataButton()
 		mSelectCTDataButton->setEnabled(true);
 	else
 		mSelectCTDataButton->setEnabled(false);
-}
-
-void NewLoadPatientWidget::restoreToFactorySettings()
-{
-	DataLocations::deletePersistentWritablePath();
-	LogicManager::getInstance()->restartServicesWithProfile("Bronchoscopy");
 }
 
 void NewLoadPatientWidget::selectCTData()

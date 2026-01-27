@@ -53,7 +53,6 @@ public:
 private slots:
 	void createNewPatient();
 	void loadPatient();
-	void restoreToFactorySettings();
 	void selectCTData();
 	void selectMoreCTData();
 	void patientCreatedInfo();
