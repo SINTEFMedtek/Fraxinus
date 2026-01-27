@@ -46,63 +46,31 @@ mkdir ~/Fraxinus_settings
 mkdir ~/Fraxinus_settings/models
 mkdir ~/Fraxinus_settings/models/raidionics_models
 cd ~/Fraxinus_settings/models/raidionics_models/
-echo "Downloading CT_Airways..."
-if wget "https://github.com/raidionics/Raidionics-models/releases/download/v1.3.0-rc/Raidionics-CT_Airways-v13.zip"; then
-    unzip Raidionics-CT_Airways-v13.zip
-    echo "Download complete."
-else
-    echo "Error: Download failed."
-fi
-rm Raidionics-CT_Airways-v13.zip
-echo "Downloading CT_Lungs..."
-if wget "https://github.com/raidionics/Raidionics-models/releases/download/v1.3.0-rc/Raidionics-CT_Lungs-v13.zip"; then
-    unzip Raidionics-CT_Lungs-v13.zip
-    echo "Download complete."
-else
-    echo "Error: Download failed."
-fi
-rm Raidionics-CT_Lungs-v13.zip
-echo "Downloading CT_LymphNodes..."
-if wget "https://github.com/raidionics/Raidionics-models/releases/download/v1.3.0-rc/Raidionics-CT_LymphNodes-v13.zip"; then
-    unzip Raidionics-CT_LymphNodes-v13.zip
-    echo "Download complete."
-else
-    echo "Error: Download failed."
-fi
-rm Raidionics-CT_LymphNodes-v13.zip
-echo "Downloading CT_MediumOrgansMediastinum..."
-if wget "https://github.com/raidionics/Raidionics-models/releases/download/v1.3.0-rc/Raidionics-CT_MediumOrgansMediastinum-v13.zip"; then
-    unzip Raidionics-CT_MediumOrgansMediastinum-v13.zip
-    echo "Download complete."
-else
-    echo "Error: Download failed."
-fi
-rm Raidionics-CT_MediumOrgansMediastinum-v13.zip
-echo "Downloading CT_PulmSystHeart..."
-if wget "https://github.com/raidionics/Raidionics-models/releases/download/v1.3.0-rc/Raidionics-CT_PulmSystHeart-v13.zip"; then
-    unzip Raidionics-CT_PulmSystHeart-v13.zip
-    echo "Download complete."
-else
-    echo "Error: Download failed."
-fi
-rm Raidionics-CT_PulmSystHeart-v13.zip
-echo "Downloading CT_SmallOrgansMediastinum..."
-if wget "https://github.com/raidionics/Raidionics-models/releases/download/v1.3.0-rc/Raidionics-CT_SmallOrgansMediastinum-v13.zip"; then
-    unzip Raidionics-CT_SmallOrgansMediastinum-v13.zip
-    echo "Download complete."
-else
-    echo "Error: Download failed."
-fi
-rm Raidionics-CT_SmallOrgansMediastinum-v13.zip
-echo "Downloading CT_Tumor..."
-if wget "https://github.com/raidionics/Raidionics-models/releases/download/v1.3.0-rc/Raidionics-CT_Tumor-v13.zip"; then
-    unzip Raidionics-CT_Tumor-v13.zip
-    echo "Download complete."
-else
-    echo "Error: Download failed."
-fi
-rm Raidionics-CT_Tumor-v13.zip
 
+Raidionics_models_path="https://github.com/raidionics/Raidionics-models/releases/download/v1.3.0-rc/"
+Raidionics_models=()
+Raidionics_models+=("Raidionics-CT_Airways-v13.zip")
+Raidionics_models+=("Raidionics-CT_Lungs-v13.zip")
+Raidionics_models+=("Raidionics-CT_LymphNodes-v13.zip")
+Raidionics_models+=("Raidionics-CT_MediumOrgansMediastinum-v13.zip")
+Raidionics_models+=("Raidionics-CT_PulmSystHeart-v13.zip")
+Raidionics_models+=("Raidionics-CT_SmallOrgansMediastinum-v13.zip")
+Raidionics_models+=("Raidionics-CT_Tumor-v13.zip")
+
+for MODEL in ${Raidionics_models[@]}
+do
+  # Commands to execute for each item
+  echo "Downloading $MODEL..."
+  if wget -N $Raidionics_models_path$MODEL; then
+      unzip -o $MODEL
+      echo "Download complete."
+  else
+      echo "Error: Download failed."
+  fi
+  rm $MODEL
+done
+
+cd ~/Fraxinus
 
 #install elastix
 if command -v elastix > /dev/null 2>&1; then
