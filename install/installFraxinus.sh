@@ -59,7 +59,6 @@ Raidionics_models+=("Raidionics-CT_Tumor-v13.zip")
 
 for MODEL in ${Raidionics_models[@]}
 do
-  # Commands to execute for each item
   echo "Downloading $MODEL..."
   if wget -N $Raidionics_models_path$MODEL; then
       unzip -o $MODEL
@@ -67,7 +66,6 @@ do
   else
       echo "Error: Download failed."
   fi
-  rm $MODEL
 done
 
 cd ~/Fraxinus
