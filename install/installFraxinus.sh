@@ -21,7 +21,6 @@ sudo apt-get -y update
 sudo apt-get -y upgrade
 sudo apt install software-properties-common -y #Needed for Python 3.10 on Ubuntu20.04
 sudo add-apt-repository ppa:deadsnakes/ppa -y #Needed for Python 3.10 on Ubuntu20.04
-sudo apt install -y python3.8-venv
 sudo apt install -y python3.10-venv
 sudo apt install -y libpcre2-16-0
 sudo apt install -y libdouble-conversion3
@@ -42,18 +41,34 @@ cp -r Fraxinus_temp/Fraxinus/* ~/Fraxinus #Copy and replace
 rm -rf Fraxinus_temp
 
 
-#Place Raidionics AI networks in correct position
+#Download Raidionics AI models
 mkdir ~/Fraxinus_settings
 mkdir ~/Fraxinus_settings/models
 mkdir ~/Fraxinus_settings/models/raidionics_models
+cd ~/Fraxinus_settings/models/raidionics_models/
+
+Raidionics_models_path="https://github.com/raidionics/Raidionics-models/releases/download/v1.3.0-rc/"
+Raidionics_models=()
+Raidionics_models+=("Raidionics-CT_Airways-v13.zip")
+Raidionics_models+=("Raidionics-CT_Lungs-v13.zip")
+Raidionics_models+=("Raidionics-CT_LymphNodes-v13.zip")
+Raidionics_models+=("Raidionics-CT_MediumOrgansMediastinum-v13.zip")
+Raidionics_models+=("Raidionics-CT_PulmSystHeart-v13.zip")
+Raidionics_models+=("Raidionics-CT_SmallOrgansMediastinum-v13.zip")
+Raidionics_models+=("Raidionics-CT_Tumor-v13.zip")
+
+for MODEL in ${Raidionics_models[@]}
+do
+  echo "Downloading $MODEL..."
+  if wget -N $Raidionics_models_path$MODEL; then
+      unzip -o $MODEL
+      echo "Download complete."
+  else
+      echo "Error: Download failed."
+  fi
+done
+
 cd ~/Fraxinus
-cp -r ~/Fraxinus/models/raidionics_models/CT_Airways ~/Fraxinus_settings/models/raidionics_models/
-cp -r ~/Fraxinus/models/raidionics_models/CT_Lungs ~/Fraxinus_settings/models/raidionics_models/
-cp -r ~/Fraxinus/models/raidionics_models/CT_LymphNodes ~/Fraxinus_settings/models/raidionics_models/
-cp -r ~/Fraxinus/models/raidionics_models/CT_MediumOrgansMediastinum ~/Fraxinus_settings/models/raidionics_models/
-cp -r ~/Fraxinus/models/raidionics_models/CT_PulmSystHeart ~/Fraxinus_settings/models/raidionics_models/
-cp -r ~/Fraxinus/models/raidionics_models/CT_SmallOrgansMediastinum ~/Fraxinus_settings/models/raidionics_models/
-cp -r ~/Fraxinus/models/raidionics_models/CT_Tumor ~/Fraxinus_settings/models/raidionics_models/
 
 #install elastix
 if command -v elastix > /dev/null 2>&1; then
@@ -88,7 +103,7 @@ chmod +x ~/Desktop/Fraxinus.desktop
 
 #Create virtual python environments
 rm -R raidionicsVenv
-python3.8 -m venv raidionicsVenv
+python3.10 -m venv raidionicsVenv
 source raidionicsVenv/bin/activate
 pip install --upgrade pip
 pip install git+https://github.com/dbouget/raidionics-rads-lib.git
