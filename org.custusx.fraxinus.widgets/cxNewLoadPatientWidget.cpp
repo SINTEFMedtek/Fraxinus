@@ -29,13 +29,13 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	this->setObjectName(this->getWidgetName());
 	this->setWindowTitle("Create or select patient");
 
-	QPushButton* newButton = new QPushButton("&New Patient");
+	QPushButton* newButton = new QPushButton("&Create new patient");
 	const QSize BUTTON_SIZE = QSize(1, 80); //New patient button is larger as it is most important
 	newButton->setMinimumSize(BUTTON_SIZE);
 	newButton->setIcon(QIcon(":/icons/icons/add.svg"));
 	connect(newButton, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatient);
 
-	QPushButton* loadButton = new QPushButton("&Load Patient");
+	QPushButton* loadButton = new QPushButton("&Load existing patient");
 	loadButton->setIcon(QIcon(":/icons/icons/select.svg"));
 	connect(loadButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadPatient);
 
@@ -72,7 +72,7 @@ QString NewLoadPatientWidget::getWidgetName()
 
 void NewLoadPatientWidget::createNewPatient()
 {
-	QString actionName = "NewPatient";
+	QString actionName = "CreatePatientWithPatientName";
 	triggerMainWindowActionWithObjectName(actionName);
 	enableImportDataButton();
 	patientCreatedInfo();
