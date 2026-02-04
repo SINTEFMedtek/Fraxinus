@@ -30,19 +30,20 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	this->setWindowTitle("Create or select patient");
 
 	QPushButton* newButton = new QPushButton("&Create new patient");
-	const QSize BUTTON_SIZE = QSize(1, 80); //New patient button is larger as it is most important
+	const QSize BUTTON_SIZE = QSize(1, 80);
 	newButton->setMinimumSize(BUTTON_SIZE);
 	newButton->setIcon(QIcon(":/icons/icons/add.svg"));
 	connect(newButton, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatient);
 
 	QPushButton* loadButton = new QPushButton("&Load existing patient");
+	loadButton->setMinimumSize(BUTTON_SIZE);
 	loadButton->setIcon(QIcon(":/icons/icons/select.svg"));
 	connect(loadButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadPatient);
 
 	mSelectCTDataButton = new QPushButton("&Select CT data");
 	mSelectCTDataButton->setIcon(QIcon(":/icons/icons/import.svg"));
 	mSelectCTDataButton->setEnabled(false);
-	connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+	connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataDialog);
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->addSpacing(50);
@@ -106,7 +107,7 @@ void NewLoadPatientWidget::patientCreatedInfo()
 	mPatientCreatedInfo->show();
 	mPatientCreatedInfo->activateWindow();
 
-	mConnectionToYesButtonPatientCreated = connect(yesButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+	mConnectionToYesButtonPatientCreated = connect(yesButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataDialog);
 	mConnectionToNoButtonPatientCreated = connect(noButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::closePatientCreatedInfo);
 }
 
@@ -158,24 +159,58 @@ void NewLoadPatientWidget::enableImportDataButton()
 
 void NewLoadPatientWidget::selectCTData()
 {
-	closePatientCreatedInfo();
-	loadCTData();
-}
-
-void NewLoadPatientWidget::selectMoreCTData()
-{
 	closeDataLoadedInfo(false);
-	loadCTData();
+	loadCTDataDialog();
 }
 
-void NewLoadPatientWidget::loadCTData()
+void NewLoadPatientWidget::loadCTDataDialog()
 {
-//	//debug/test
-//	std::vector<std::string> usbPaths =  getUSBPaths();
-//	if(usbPaths.empty())
-//		CX_LOG_DEBUG() << "No USB found";
-//	for(int i=0; i<usbPaths.size(); i++)
-//		CX_LOG_DEBUG() << "USB path " << i << ": " << usbPaths[i];
+	closePatientCreatedInfo();
+
+	if(!mLoadCTDialog)
+		mLoadCTDialog = new QDialog();
+	mLoadCTDialog->setWindowTitle(tr("Load CT data from..."));
+	mLoadCTDialog->setWindowFlags(Qt::WindowStaysOnTopHint);
+
+	if(!mUSBButton)
+		mUSBButton = new QPushButton(tr("&USB drive"));
+	if(!mHardDriveButton)
+		mHardDriveButton = new QPushButton(tr("&Computer"));
+
+	mUSBButton->setMinimumHeight(80);
+	mUSBButton->setMinimumWidth(200);
+	mHardDriveButton->setMinimumHeight(80);
+	mHardDriveButton->setMinimumWidth(200);
+
+	connect(mUSBButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataFromUSB);
+	connect(mHardDriveButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTData);
+	connect(mLoadCTDialog, &QDialog::finished, this, &NewLoadPatientWidget::loadCTDataDialogFinished);
+
+	QGridLayout* mainLayout = new QGridLayout;
+	mainLayout->setSizeConstraint(QLayout::SetFixedSize);
+	mainLayout->addWidget(mUSBButton, 0, 0);
+	mainLayout->addWidget(mHardDriveButton, 0, 1);
+	mLoadCTDialog->setLayout(mainLayout);
+	mLoadCTDialog->show();
+	mLoadCTDialog->activateWindow();
+}
+
+void NewLoadPatientWidget::loadCTDataDialogFinished()
+{
+	mLoadCTDialog->close();
+	mLoadCTDialog = nullptr;
+	disconnect(mUSBButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataFromUSB);
+	disconnect(mHardDriveButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTData);
+}
+
+void NewLoadPatientWidget::loadCTDataFromUSB()
+{
+	loadCTData(true);
+}
+
+void NewLoadPatientWidget::loadCTData(bool fromUSB)
+{
+	loadCTDataDialogFinished();
 
 	if(mServices->patient()->getImage(imCT, istTHORAX_CT))
 		mThoraxCTLoaded = true;
@@ -184,41 +219,14 @@ void NewLoadPatientWidget::loadCTData()
 
 	if(mServices->patient()->isPatientValid())
 	{
-		//triggerMainWindowActionWithObjectName("AddFilesForImportWithDialogCT");
-		triggerMainWindowActionWithObjectName("AddFilesForImportFromUSB");
+		if(fromUSB)
+			triggerMainWindowActionWithObjectName("AddFilesForImportFromUSB");
+		else
+			triggerMainWindowActionWithObjectName("AddFilesForImportWithDialogCT");
 		triggerMainWindowActionWithObjectName("ImportSelectedData");
 	}
 	dataAddedOrRemoved();
 }
-
-//std::vector<std::string> NewLoadPatientWidget::getUSBPaths()
-//{//Linux implementation
-//	std::vector<std::string> usbPaths;
-//	std::ifstream mounts("/proc/mounts");
-//	if(!mounts.is_open())
-//	{
-//		CX_LOG_WARNING("No USB found in proc/mounts");
-//		return usbPaths;
-//	}
-
-//	std::string line;
-//	while(std::getline(mounts, line))
-//	{
-//		std::istringstream iss(line);
-//		std::string device, mountPoint, fsType;
-//		if(!(iss >> device >> mountPoint >> fsType))
-//			continue;
-//		CX_LOG_DEBUG() << "device: " << device;
-//		CX_LOG_DEBUG() << "mountPoint: " << mountPoint;
-//		CX_LOG_DEBUG() << "fsType: " << fsType;
-//		if(device.find("/dev/sd")==0 && (mountPoint.find("/media")==0 || mountPoint.find("/run/media")==0))
-//			usbPaths.push_back(mountPoint);
-//	}
-
-//	mounts.close();
-//	return usbPaths;
-
-//}
 
 void NewLoadPatientWidget::dataAddedOrRemoved()
 {
@@ -290,7 +298,7 @@ void NewLoadPatientWidget::dataAddedOrRemoved()
 
 	layout->addWidget(noButtonDataLoaded,2,1);
 
-	mConnectionToYesButtonDataLoaded = connect(yesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectMoreCTData);
+	mConnectionToYesButtonDataLoaded = connect(yesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
 	mConnectionToNoButtonDataLoaded = connect(noButtonDataLoaded, &QPushButton::clicked, this, [=]() {this->closeDataLoadedInfo(true);});
 	mDataLoadedInfo->setLayout(layout);
 	mDataLoadedInfo->show();
