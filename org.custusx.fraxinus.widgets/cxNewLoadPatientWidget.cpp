@@ -140,7 +140,7 @@ void NewLoadPatientWidget::closeDataLoadedInfo(bool dataLoadingCompleted)
 
 void NewLoadPatientWidget::loadPatient()
 {
-	QString actionName = "LoadFile";
+	QString actionName = "LoadFileWithSimpleDialog";
 	triggerMainWindowActionWithObjectName(actionName);
 	enableImportDataButton();
 	if(mServices->patient()->getImage(imCT, istTHORAX_CT))
