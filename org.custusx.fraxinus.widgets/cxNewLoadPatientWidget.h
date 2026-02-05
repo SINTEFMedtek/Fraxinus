@@ -53,25 +53,29 @@ public:
 private slots:
 	void createNewPatient();
 	void loadPatient();
-	void restoreToFactorySettings();
 	void selectCTData();
-	void selectMoreCTData();
 	void patientCreatedInfo();
 	void closePatientCreatedInfo();
 	void closeDataLoadedInfo(bool dataLoadingCompleted);
+	void loadCTDataDialog();
+	void loadCTDataFromUSB();
+	void loadCTDataDialogFinished();
 
 signals:
 	void dataImportCompleted();
 
 private:
 	void enableImportDataButton();
-	void loadCTData();
+	void loadCTData(bool fromUSB = false);
 	void dataAddedOrRemoved();
 
 	VisServicesPtr mServices;
 	QPushButton* mSelectCTDataButton = nullptr;
 	QDialog* mPatientCreatedInfo = nullptr;
 	QDialog* mDataLoadedInfo = nullptr;
+	QDialog* mLoadCTDialog = nullptr;
+	QPushButton* mUSBButton = nullptr;
+	QPushButton* mHardDriveButton = nullptr;
 	QMetaObject::Connection mConnectionToYesButtonPatientCreated, mConnectionToNoButtonPatientCreated;
 	QMetaObject::Connection mConnectionToYesButtonDataLoaded, mConnectionToNoButtonDataLoaded;
 
