@@ -29,26 +29,21 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	this->setObjectName(this->getWidgetName());
 	this->setWindowTitle("Create or select patient");
 
-	QPushButton* newButton = new QPushButton("&New Patient");
-	const QSize BUTTON_SIZE = QSize(1, 80); //New patient button is larger as it is most important
+	QPushButton* newButton = new QPushButton("&Create new patient");
+	const QSize BUTTON_SIZE = QSize(1, 80);
 	newButton->setMinimumSize(BUTTON_SIZE);
 	newButton->setIcon(QIcon(":/icons/icons/add.svg"));
 	connect(newButton, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatient);
 
-	QPushButton* loadButton = new QPushButton("&Load Patient");
+	QPushButton* loadButton = new QPushButton("&Load existing patient");
+	loadButton->setMinimumSize(BUTTON_SIZE);
 	loadButton->setIcon(QIcon(":/icons/icons/select.svg"));
 	connect(loadButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadPatient);
-
-	QPushButton* restoreToFactorySettingsButton = new QPushButton("&Restore factory settings");
-	QPalette palette = restoreToFactorySettingsButton->palette();
-	palette.setColor(QPalette::Button, Styles::getRed());
-	restoreToFactorySettingsButton->setPalette(palette);
-	connect(restoreToFactorySettingsButton, &QPushButton::clicked, this, &NewLoadPatientWidget::restoreToFactorySettings);
 
 	mSelectCTDataButton = new QPushButton("&Select CT data");
 	mSelectCTDataButton->setIcon(QIcon(":/icons/icons/import.svg"));
 	mSelectCTDataButton->setEnabled(false);
-	connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+	connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataDialog);
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->addSpacing(50);
@@ -68,7 +63,6 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 		layout->addStretch();
 	}
 
-	layout->addWidget(restoreToFactorySettingsButton);
 	this->setLayout(layout);
 }
 
@@ -79,7 +73,7 @@ QString NewLoadPatientWidget::getWidgetName()
 
 void NewLoadPatientWidget::createNewPatient()
 {
-	QString actionName = "NewPatient";
+	QString actionName = "CreatePatientWithPatientName";
 	triggerMainWindowActionWithObjectName(actionName);
 	enableImportDataButton();
 	patientCreatedInfo();
@@ -113,7 +107,7 @@ void NewLoadPatientWidget::patientCreatedInfo()
 	mPatientCreatedInfo->show();
 	mPatientCreatedInfo->activateWindow();
 
-	mConnectionToYesButtonPatientCreated = connect(yesButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
+	mConnectionToYesButtonPatientCreated = connect(yesButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataDialog);
 	mConnectionToNoButtonPatientCreated = connect(noButtonPatientCreated, &QPushButton::clicked, this, &NewLoadPatientWidget::closePatientCreatedInfo);
 }
 
@@ -146,7 +140,7 @@ void NewLoadPatientWidget::closeDataLoadedInfo(bool dataLoadingCompleted)
 
 void NewLoadPatientWidget::loadPatient()
 {
-	QString actionName = "LoadFile";
+	QString actionName = "LoadFileWithSimpleDialog";
 	triggerMainWindowActionWithObjectName(actionName);
 	enableImportDataButton();
 	if(mServices->patient()->getImage(imCT, istTHORAX_CT))
@@ -163,26 +157,61 @@ void NewLoadPatientWidget::enableImportDataButton()
 		mSelectCTDataButton->setEnabled(false);
 }
 
-void NewLoadPatientWidget::restoreToFactorySettings()
-{
-	DataLocations::deletePersistentWritablePath();
-	LogicManager::getInstance()->restartServicesWithProfile("Bronchoscopy");
-}
-
 void NewLoadPatientWidget::selectCTData()
 {
-	closePatientCreatedInfo();
-	loadCTData();
-}
-
-void NewLoadPatientWidget::selectMoreCTData()
-{
 	closeDataLoadedInfo(false);
-	loadCTData();
+	loadCTDataDialog();
 }
 
-void NewLoadPatientWidget::loadCTData()
+void NewLoadPatientWidget::loadCTDataDialog()
 {
+	closePatientCreatedInfo();
+
+	if(!mLoadCTDialog)
+		mLoadCTDialog = new QDialog();
+	mLoadCTDialog->setWindowTitle(tr("Load CT data from..."));
+	mLoadCTDialog->setWindowFlags(Qt::WindowStaysOnTopHint);
+
+	if(!mUSBButton)
+		mUSBButton = new QPushButton(tr("&USB drive"));
+	if(!mHardDriveButton)
+		mHardDriveButton = new QPushButton(tr("&Computer"));
+
+	mUSBButton->setMinimumHeight(80);
+	mUSBButton->setMinimumWidth(200);
+	mHardDriveButton->setMinimumHeight(80);
+	mHardDriveButton->setMinimumWidth(200);
+
+	connect(mUSBButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataFromUSB);
+	connect(mHardDriveButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTData);
+	connect(mLoadCTDialog, &QDialog::finished, this, &NewLoadPatientWidget::loadCTDataDialogFinished);
+
+	QGridLayout* mainLayout = new QGridLayout;
+	mainLayout->setSizeConstraint(QLayout::SetFixedSize);
+	mainLayout->addWidget(mUSBButton, 0, 0);
+	mainLayout->addWidget(mHardDriveButton, 0, 1);
+	mLoadCTDialog->setLayout(mainLayout);
+	mLoadCTDialog->show();
+	mLoadCTDialog->activateWindow();
+}
+
+void NewLoadPatientWidget::loadCTDataDialogFinished()
+{
+	mLoadCTDialog->close();
+	mLoadCTDialog = nullptr;
+	disconnect(mUSBButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataFromUSB);
+	disconnect(mHardDriveButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTData);
+}
+
+void NewLoadPatientWidget::loadCTDataFromUSB()
+{
+	loadCTData(true);
+}
+
+void NewLoadPatientWidget::loadCTData(bool fromUSB)
+{
+	loadCTDataDialogFinished();
+
 	if(mServices->patient()->getImage(imCT, istTHORAX_CT))
 		mThoraxCTLoaded = true;
 	if(mServices->patient()->getImage(imPET, istPET) && mServices->patient()->getImage(imCT, istPET_CT))
@@ -190,7 +219,10 @@ void NewLoadPatientWidget::loadCTData()
 
 	if(mServices->patient()->isPatientValid())
 	{
-		triggerMainWindowActionWithObjectName("AddFilesForImportWithDialogCT");
+		if(fromUSB)
+			triggerMainWindowActionWithObjectName("AddFilesForImportFromUSB");
+		else
+			triggerMainWindowActionWithObjectName("AddFilesForImportWithDialogCT");
 		triggerMainWindowActionWithObjectName("ImportSelectedData");
 	}
 	dataAddedOrRemoved();
@@ -266,7 +298,7 @@ void NewLoadPatientWidget::dataAddedOrRemoved()
 
 	layout->addWidget(noButtonDataLoaded,2,1);
 
-	mConnectionToYesButtonDataLoaded = connect(yesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectMoreCTData);
+	mConnectionToYesButtonDataLoaded = connect(yesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
 	mConnectionToNoButtonDataLoaded = connect(noButtonDataLoaded, &QPushButton::clicked, this, [=]() {this->closeDataLoadedInfo(true);});
 	mDataLoadedInfo->setLayout(layout);
 	mDataLoadedInfo->show();
