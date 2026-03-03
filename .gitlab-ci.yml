@@ -47,6 +47,7 @@ stages:          # List of stages for jobs, and their order of execution
   - ls $BASE_DIR
   - if [ $CI_COMMIT_TAG ]; then CX_COMMIT=$CI_COMMIT_TAG; else CX_COMMIT=$CI_COMMIT_BRANCH; fi
   - rm -rf $BASE_DIR/CTK # Make sure we got a fresh CTK after changing the library
+  - rm -rf $BUILD_DIR # Clean previous build
   - test -d $BASE_DIR/VTK/build_Release 
       && eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
       components CustusX Fraxinus FraxinusTracking USSimulator CTK
