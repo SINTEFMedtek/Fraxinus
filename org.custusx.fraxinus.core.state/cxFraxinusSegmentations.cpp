@@ -1065,8 +1065,8 @@ void FraxinusSegmentations::generateCenterline()
 	ImagePtr airwaysVolume = mServices->patient()->getData<Image>(otAIRWAYS);
 	if(!airwaysVolume)
 	{
-		emit centerlineGenerationFailed();
 		CX_LOG_WARNING() << "In FraxinusSegmentations::generateCenterline airways volume not found.";
+		emit centerlineGenerationFailed();
 		return;
 	}
 	input[0]->setValue(airwaysVolume->getUid());
