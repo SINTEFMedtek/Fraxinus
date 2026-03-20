@@ -50,17 +50,12 @@ public:
 	virtual ~ViewSelectionWidget();
 
 	static QString getWidgetName();
-	void addObjectToVolumeView(DataPtr object);
 	void addObjectToTubeView(DataPtr object);
 	double getOpacity();
 	void setViewGroupNumber(unsigned int viewGroupNumber);
-	void displayVolume();
-	void displayTubes();
-	bool isVolumeButtonChecked();
-	bool isTubeButtonChecked();
+	void displaySmallVB();
+	void displayLargeVB();
 	void updateDataOnEntry();
-	void setVolumeButtonChecked(bool checked);
-	void setTubeButtonChecked(bool checked);
 
 private:
 	void airwayOpacityOn();
@@ -70,12 +65,12 @@ private:
 	void setAirwayOpacity(bool opacity);
 
 	VisServicesPtr mServices;
-	QRadioButton* mVolumeButton;
-	QRadioButton* mTubeButton;
+	QButtonGroup* mLayoutSelectorGroup;
+	QRadioButton* mSmallVBButton;
+	QRadioButton* mLargeVBButton;
 	QRadioButton* mOpacityOnButton;
 	QRadioButton* mOpacityOffButton;
 	double mOpacityValue;
-	std::vector<DataPtr> mVolumeViewObjects;
 	std::vector<DataPtr> mTubeViewObjects;
 	unsigned int mViewGroupNumber;
 

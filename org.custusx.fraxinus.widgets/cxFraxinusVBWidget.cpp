@@ -307,12 +307,6 @@ void FraxinusVBWidget::setViewGroupNumber(unsigned int viewGroupNumber)
 		mViewSelectionWidget->setViewGroupNumber(viewGroupNumber);
 }
 
-void FraxinusVBWidget::addObjectToVolumeView(DataPtr object)
-{
-	if(mViewSelectionWidget)
-		mViewSelectionWidget->addObjectToVolumeView(object);
-}
-
 void FraxinusVBWidget::addObjectToTubeView(DataPtr object)
 {
 	mTubeViewObjects.push_back(object);
@@ -328,6 +322,11 @@ StructuresSelectionWidget* FraxinusVBWidget::getStructuresSelectionWidget()
 FraxinusEBUSSimulatorWidget* FraxinusVBWidget::getEBUSSimulatorWidget()
 {
 	return mEBUSSimulatorWidget;
+}
+
+ViewSelectionWidget* FraxinusVBWidget::getViewSelectionWidget()
+{
+	return mViewSelectionWidget;
 }
 
 void FraxinusVBWidget::setGenerationNumbersAlongRoute(std::vector< int > generationNumbers)

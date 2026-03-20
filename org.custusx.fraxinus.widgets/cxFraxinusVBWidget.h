@@ -60,10 +60,10 @@ public:
 
 	static QString getWidgetName();
 	void setViewGroupNumber(unsigned int viewGroupNumber);
-	void addObjectToVolumeView(DataPtr object);
 	void addObjectToTubeView(DataPtr object);
 	StructuresSelectionWidget *getStructuresSelectionWidget();
 	FraxinusEBUSSimulatorWidget* getEBUSSimulatorWidget();
+	ViewSelectionWidget* getViewSelectionWidget();
 	void setGenerationNumbersAlongRoute(std::vector< int > generationNumbers);
 	void setRadiusAlongRoute(std::vector<double> radius);
 	void setNavigateAlongAirwayWall(bool navigateAlongAirwayWall);

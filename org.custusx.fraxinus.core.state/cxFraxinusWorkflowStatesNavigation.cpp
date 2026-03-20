@@ -292,8 +292,6 @@ void NavigationWorkflowState::setupFraxinusNavigationWidget(int flyThrough3DView
 
 		for(DataPtr object : tubeViewObjects)
 			fraxinusNavigationWidget->addObjectToTubeView(object);
-		for(DataPtr object : volumeViewObjects)
-			fraxinusNavigationWidget->addObjectToVolumeView(object);
 
 		fraxinusNavigationWidget->setViewGroupNumber(flyThrough3DViewGroupNumber);
 	}
