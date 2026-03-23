@@ -51,12 +51,12 @@ ViewSelectionWidget::ViewSelectionWidget(VisServicesPtr services, QWidget* paren
 {
 
 	// Selector for displaying volume or artificial tubes
-	QButtonGroup *displaySelectorGroup = new QButtonGroup(this);
-	mTubeButton = new QRadioButton(tr("Tubes"));
-	mTubeButton->setChecked(true);
-	mVolumeButton = new QRadioButton(tr("Volume"));
-	displaySelectorGroup->addButton(mTubeButton);
-	displaySelectorGroup->addButton(mVolumeButton);
+	mLayoutSelectorGroup = new QButtonGroup(this);
+	mSmallVBButton = new QRadioButton(tr("Small virtual bronchoscopy"));
+	mSmallVBButton->setChecked(true);
+	mLargeVBButton = new QRadioButton(tr("Large virtual bronchoscopy"));
+	mLayoutSelectorGroup->addButton(mSmallVBButton);
+	mLayoutSelectorGroup->addButton(mLargeVBButton);
 
 	// Selector for airway tube opacity
 	QButtonGroup *opacitySelectorGroup = new QButtonGroup(this);
@@ -67,15 +67,15 @@ ViewSelectionWidget::ViewSelectionWidget(VisServicesPtr services, QWidget* paren
 	opacitySelectorGroup->addButton(mOpacityOffButton);
 
 	QGridLayout* gridLayout = new QGridLayout;
-	gridLayout->addWidget(mTubeButton,0,0);
-	gridLayout->addWidget(mVolumeButton,1,0);
+	gridLayout->addWidget(mSmallVBButton,0,0);
+	gridLayout->addWidget(mLargeVBButton,1,0);
 	gridLayout->addWidget(mOpacityOnButton,0,1);
 	gridLayout->addWidget(mOpacityOffButton,1,1);
 
 	this->setLayout(gridLayout);
 
-	connect(mTubeButton, &QRadioButton::clicked, this, &ViewSelectionWidget::displayTubes);
-	connect(mVolumeButton, &QRadioButton::clicked, this, &ViewSelectionWidget::displayVolume);
+	connect(mSmallVBButton, &QRadioButton::clicked, this, &ViewSelectionWidget::displaySmallVB);
+	connect(mLargeVBButton, &QRadioButton::clicked, this, &ViewSelectionWidget::displayLargeVB);
 	connect(mOpacityOnButton, &QRadioButton::clicked, this, &ViewSelectionWidget::airwayOpacityOn);
 	connect(mOpacityOffButton, &QRadioButton::clicked, this, &ViewSelectionWidget::airwayOpacityOff);
 }
@@ -89,20 +89,14 @@ QString ViewSelectionWidget::getWidgetName()
 	return "fraxinus_view_selection_widget";
 }
 
-void ViewSelectionWidget::displayVolume()
+void ViewSelectionWidget::displaySmallVB()
 {
-	this->hideDataObjects(mTubeViewObjects);
-	this->displayDataObjects(mVolumeViewObjects);
-	mOpacityOnButton->hide();
-	mOpacityOffButton->hide();
+	mServices->view()->setActiveLayout("LAYOUT_VB_3D_ANY");
 }
 
-void ViewSelectionWidget::displayTubes()
+void ViewSelectionWidget::displayLargeVB()
 {
-	this->hideDataObjects(mVolumeViewObjects);
-	this->displayDataObjects(mTubeViewObjects);
-	mOpacityOnButton->show();
-	mOpacityOffButton->show();
+	mServices->view()->setActiveLayout("LAYOUT_VB_3D_ACS");
 }
 
 void ViewSelectionWidget::airwayOpacityOn()
@@ -117,13 +111,9 @@ void ViewSelectionWidget::airwayOpacityOff()
 
 void ViewSelectionWidget::updateDataOnEntry()
 {
-	if(mVolumeButton->isChecked())
-		this->displayVolume();
-	else
-	{
-		this->displayTubes();
-		this->setAirwayOpacity(mOpacityOnButton->isChecked());
-	}
+	this->setAirwayOpacity(mOpacityOnButton->isChecked());
+	this->displaySmallVB();
+	mSmallVBButton->setChecked(true);
 }
 
 
@@ -147,11 +137,6 @@ void ViewSelectionWidget::hideDataObjects(std::vector<DataPtr> objects)
 	}
 }
 
-void ViewSelectionWidget::addObjectToVolumeView(DataPtr object)
-{
-	mVolumeViewObjects.push_back(object);
-}
-
 void ViewSelectionWidget::addObjectToTubeView(DataPtr object)
 {
 	mTubeViewObjects.push_back(object);
@@ -160,26 +145,6 @@ void ViewSelectionWidget::addObjectToTubeView(DataPtr object)
 double ViewSelectionWidget::getOpacity()
 {
 	return mOpacityValue;
-}
-
-bool ViewSelectionWidget::isVolumeButtonChecked()
-{
-	return mVolumeButton->isChecked();
-}
-
-bool ViewSelectionWidget::isTubeButtonChecked()
-{
-	return mTubeButton->isChecked();
-}
-
-void ViewSelectionWidget::setVolumeButtonChecked(bool checked)
-{
-	mVolumeButton->setChecked(checked);
-}
-
-void ViewSelectionWidget::setTubeButtonChecked(bool checked)
-{
-	mTubeButton->setChecked(checked);
 }
 
 void ViewSelectionWidget::setAirwayOpacity(bool opacity)
