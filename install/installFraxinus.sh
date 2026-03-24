@@ -100,8 +100,9 @@ cp Fraxinus.desktop ~/Desktop
 gio set ~/Desktop/Fraxinus.desktop metadata::trusted true
 chmod +x ~/Desktop/Fraxinus.desktop
 
-
 #Create virtual python environments
+mkdir ~/Fraxinus_settings/virtualEnvironments
+cd ~/Fraxinus_settings/virtualEnvironments
 rm -R raidionicsVenv
 python3.10 -m venv raidionicsVenv
 source raidionicsVenv/bin/activate
