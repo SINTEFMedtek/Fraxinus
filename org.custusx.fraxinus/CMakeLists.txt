@@ -58,41 +58,43 @@ if(CX_WINDOWS)
   endif()
 endif()
 
-install(FILES
-${CMAKE_CURRENT_LIST_DIR}/installRaidionics.ps1
-DESTINATION .
-COMPONENT RaidionicsSetup)
+if(CX_WINDOWS)
 
-install(FILES
-${CMAKE_CURRENT_LIST_DIR}/installTotalsegmentator.ps1
-DESTINATION .
-COMPONENT TotalSegSetup)
+  install(FILES
+    ${CMAKE_CURRENT_LIST_DIR}/installRaidionics.ps1
+    DESTINATION .
+    COMPONENT RaidionicsSetup)
+  install(FILES
+    ${CMAKE_CURRENT_LIST_DIR}/installTotalsegmentator.ps1
+    DESTINATION .
+    COMPONENT TotalSegSetup)
+  install(FILES
+    ${CMAKE_CURRENT_LIST_DIR}/installElastix.ps1
+    DESTINATION .
+    COMPONENT ElastixSetup)
 
-install(FILES
-${CMAKE_CURRENT_LIST_DIR}/installElastix.ps1
-DESTINATION .
-COMPONENT ElastixSetup)
+  # Add components and labels
+  set(CPACK_COMPONENTS_ALL Core RaidionicsSetup TotalSegSetup ElastixSetup)
 
-# Components and labels
-set(CPACK_COMPONENTS_ALL Core RaidionicsSetup TotalSegSetup ElastixSetup)
+  set(CPACK_NSIS_DISPLAY_NAME_CORE              "Fraxinus Core")
+  set(CPACK_NSIS_DISPLAY_NAME_RAIDIONICSSETUP   "Raidionics Setup")
+  set(CPACK_NSIS_DISPLAY_NAME_TOTALSEGSETUP     "TotalSegmentator Setup")
+  set(CPACK_NSIS_DISPLAY_NAME_ELASTIXSETUP      "Elastix Setup")
 
-set(CPACK_NSIS_DISPLAY_NAME_CORE              "Fraxinus Core")
-set(CPACK_NSIS_DISPLAY_NAME_RAIDIONICSSETUP   "Raidionics Setup")
-set(CPACK_NSIS_DISPLAY_NAME_TOTALSEGSETUP     "TotalSegmentator Setup")
-set(CPACK_NSIS_DISPLAY_NAME_ELASTIXSETUP      "Elastix Setup")
+  set(CPACK_COMPONENT_RAIDIONICSSETUP_DISPLAY_NAME   "Raidionics setup")
+  set(CPACK_COMPONENT_RAIDIONICSSETUP_DESCRIPTION    "Setup a Raidionics venv and download/unpack model files")
 
-set(CPACK_COMPONENT_RAIDIONICSSETUP_DISPLAY_NAME   "Raidionics setup")
-set(CPACK_COMPONENT_RAIDIONICSSETUP_DESCRIPTION    "Setup a Raidionics venv and download/unpack model files")
+  set(CPACK_COMPONENT_TOTALSEGSETUP_DISPLAY_NAME     "TotalSegmentator setup")
+  set(CPACK_COMPONENT_TOTALSEGSETUP_DESCRIPTION      "Create a venv and download weights")
 
-set(CPACK_COMPONENT_TOTALSEGSETUP_DISPLAY_NAME     "TotalSegmentator setup")
-set(CPACK_COMPONENT_TOTALSEGSETUP_DESCRIPTION      "Create a venv and download weights")
+  set(CPACK_COMPONENT_ELASTIXSETUP_DISPLAY_NAME     "Elastix setup")
+  set(CPACK_COMPONENT_ELASTIXSETUP_DESCRIPTION      "Install Elastix")
 
-set(CPACK_COMPONENT_ELASTIXSETUP_DISPLAY_NAME     "Elastix setup")
-set(CPACK_COMPONENT_ELASTIXSETUP_DESCRIPTION      "Install Elastix")
+  # Show details checkbox and route plugin output to the log window
+  set(CPACK_NSIS_ENABLE_LOG ON)
+  #set(CPACK_NSIS_LOG_FILE "$LOCALAPPDATA/Fraxinus/Logs") #TODO: Use?
 
-# Show details checkbox and route plugin output to the log window
-set(CPACK_NSIS_ENABLE_LOG ON)
-#set(CPACK_NSIS_LOG_FILE "$LOCALAPPDATA/Fraxinus/Logs") #TODO: Use?
+endif()
 
 
 # add the application
