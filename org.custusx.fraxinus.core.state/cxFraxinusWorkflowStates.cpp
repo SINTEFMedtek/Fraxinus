@@ -450,8 +450,6 @@ void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroup
 	
 	for(DataPtr object : tubeViewObjects)
 		VBWidget->addObjectToTubeView(object);
-	for(DataPtr object : volumeViewObjects)
-		VBWidget->addObjectToVolumeView(object);
 	
 	std::vector<unsigned int> viewGroupNumbers;
 	viewGroupNumbers.push_back(flyThrough3DViewGroupNumber);
@@ -1551,6 +1549,10 @@ void VirtualBronchoscopyAnyplaneWorkflowState::onEntry(QEvent * event)
 		StructuresSelectionWidget* structureSelectionWidget = FraxinusVBWidgetPtr->getStructuresSelectionWidget();
 		if(structureSelectionWidget)
 			structureSelectionWidget->onEntry();
+
+		ViewSelectionWidget* viewSelectionWidgetPtr = FraxinusVBWidgetPtr->getViewSelectionWidget();
+		if(viewSelectionWidgetPtr)
+			viewSelectionWidgetPtr->updateDataOnEntry();
 
 		FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr->getEBUSSimulatorWidget();
 		if(EBUSSimulatorWidget)
