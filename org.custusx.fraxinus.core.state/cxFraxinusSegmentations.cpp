@@ -762,7 +762,7 @@ void FraxinusSegmentations::runMLFilterSlot()
 		return;
 	}
 	mThread.reset(new FilterTimedAlgorithm(mCurrentFilter));
-	connect(mThread.get(), SIGNAL(finished()), this, SLOT(MLFinishedSlot()));
+	connect(mThread.get(), SIGNAL(finished()), this, SLOT(MLFinishedSlot1()));
 	mTimedAlgorithmProgressBar->attach(mThread);
 	
 	mThread->execute();
@@ -785,27 +785,41 @@ void FraxinusSegmentations::pythonFinishedSlot()
 		this->performMLSegmentation(mServices->patient()->getImage(imCT, istCOPY));
 }
 
-void FraxinusSegmentations::MLFinishedSlot()
+void FraxinusSegmentations::MLFinishedSlot1()
 {
+	disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(MLFinishedSlot1()));
 	if(mCurrentSegmentationType == lsAIRWAYS && !mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
-		this->postProcessAirways();
+	{
+		connect(this, SIGNAL(centerlineReady()), this, SLOT(postProcessAirwaysSlot()));
+		connect(this, SIGNAL(postProcessAirwaysFinished()), this, SLOT(MLFinishedSlot2()));
+		connect(this, SIGNAL(centerlineGenerationFailed()), this, SLOT(MLFinishedSlot2()));
+		this->generateCenterline();
+	}
+	else
+		this->MLFinishedSlot2();
+}
+
+void FraxinusSegmentations::MLFinishedSlot2()
+{
+	disconnect(this, SIGNAL(postProcessAirwaysFinished()), this, SLOT(MLFinishedSlot2()));
+	disconnect(this, SIGNAL(centerlineGenerationFailed()), this, SLOT(MLFinishedSlot2()));
 
 	if(mSegmentTumors)
 		this->postProcessTumors();
 
 	mTimedAlgorithmProgressBar->detach(mThread);
-	disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(MLFinishedSlot()));
 	mThread.reset();
 	//dialog.hide();
 	if(mActiveTimerWidget)
 		mActiveTimerWidget->stop();
-	
+
 	this->checkIfSegmentationSucceeded();
 
 	if(mSegmentTumors && mTumorsProcessed && mNodulesProcessed)
 		deleteTumorsAndNodulesVolumes();
-	
+
 	this->performMLSegmentation(mServices->patient()->getImage(imCT, istCOPY));
+
 }
 
 void FraxinusSegmentations::deleteTumorsAndNodulesVolumes()
@@ -818,19 +832,19 @@ void FraxinusSegmentations::deleteTumorsAndNodulesVolumes()
 		mServices->patient()->removeData(nodulesVolume->getUid());
 }
 
-void FraxinusSegmentations::postProcessAirways()
+void FraxinusSegmentations::postProcessAirwaysSlot()
 {
-	this->generateCenterline();
+	disconnect(this, SIGNAL(centerlineReady()), this, SLOT(postProcessAirwaysSlot()));
+
 	AirwaysFromCenterlinePtr airwaysFromCLPtr = AirwaysFromCenterlinePtr(new AirwaysFromCenterline());
 	ImagePtr CTimage = mServices->patient()->getImage(imCT, istTHORAX_CT);
-	if(!CTimage)
-		return;
 	MeshPtr rawCenterline = mServices->patient()->getData<Mesh>(otCENTERLINES);
-	if(!rawCenterline)
-		return;
 	ImagePtr airwaysVolume = mServices->patient()->getData<Image>(otAIRWAYS);
-	if(!airwaysVolume)
+	if(!CTimage || !rawCenterline || !airwaysVolume)
+	{
+		emit postProcessAirwaysFinished();
 		return;
+	}
 
 	airwaysFromCLPtr->processCenterline(rawCenterline);
 	airwaysFromCLPtr->setSegmentedVolume(airwaysVolume->getBaseVtkImageData(), airwaysVolume->get_rMd());
@@ -890,6 +904,8 @@ void FraxinusSegmentations::postProcessAirways()
 		mServices->patient()->removeData(lungsVolume->getUid());
 //	if(airwaysVolume) // do not remove, needed for airway radius calculation at Fraxinus restart
 //		mServices->patient()->removeData(airwaysVolume->getUid());
+
+	emit postProcessAirwaysFinished();
 }
 
 
@@ -1042,34 +1058,45 @@ void FraxinusSegmentations::setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> 
 void FraxinusSegmentations::generateCenterline()
 {//using BinaryThinningImageFilter3DFilter
 	VisServicesPtr visServices = boost::static_pointer_cast<VisServices>(mServices);
-	BinaryThinningImageFilter3DFilterPtr binaryThinningImageFilter3DFilter =  BinaryThinningImageFilter3DFilterPtr(new BinaryThinningImageFilter3DFilter(visServices));
-	std::vector<SelectDataStringPropertyBasePtr> input = binaryThinningImageFilter3DFilter->getInputTypes();
-	std::vector<SelectDataStringPropertyBasePtr> output = binaryThinningImageFilter3DFilter->getOutputTypes();
-	binaryThinningImageFilter3DFilter->getOptions();
+	mBinaryThinningImageFilter3DFilter.reset(new BinaryThinningImageFilter3DFilter(visServices));
+	std::vector<SelectDataStringPropertyBasePtr> input = mBinaryThinningImageFilter3DFilter->getInputTypes();
+	mBinaryThinningImageFilter3DFilter->getOutputTypes(); //Needed to create output types
+	mBinaryThinningImageFilter3DFilter->getOptions();
 	ImagePtr airwaysVolume = mServices->patient()->getData<Image>(otAIRWAYS);
 	if(!airwaysVolume)
 	{
 		CX_LOG_WARNING() << "In FraxinusSegmentations::generateCenterline airways volume not found.";
+		emit centerlineGenerationFailed();
 		return;
 	}
 	input[0]->setValue(airwaysVolume->getUid());
 
-	binaryThinningImageFilter3DFilter->preProcess();
-	if(binaryThinningImageFilter3DFilter->execute())
+	mCenterlineThread.reset(new FilterTimedAlgorithm(mBinaryThinningImageFilter3DFilter));
+	connect(mCenterlineThread.get(), SIGNAL(finished()), this, SLOT(centerlineFinishedSlot()));
+	mCenterlineThread->execute();
+}
+
+void FraxinusSegmentations::centerlineFinishedSlot()
+{
+	disconnect(mCenterlineThread.get(), SIGNAL(finished()), this, SLOT(centerlineFinishedSlot()));
+	mCenterlineThread.reset();
+
+	std::vector<SelectDataStringPropertyBasePtr> output = mBinaryThinningImageFilter3DFilter->getOutputTypes();
+
+	if(!output[0])
 	{
-		if(binaryThinningImageFilter3DFilter->postProcess())
-		{
-			if(!output[0])
-				return;
-
-			MeshPtr centerline = mServices->patient()->getData<Mesh>(output[0]->getValue());
-			setMeshNameAndType(centerline, otCENTERLINES);
-			centerline->setColor(QColor(255,255,0,255));
-
-			return;
-		}
+		emit centerlineGenerationFailed();
+		CX_LOG_WARNING() << "In FraxinusSegmentations::generateCenterline BinaryThinningImageFilter3DFilter failed.";
+		return;
 	}
-	CX_LOG_WARNING() << "In FraxinusSegmentations::generateCenterline BinaryThinningImageFilter3DFilter failed.";
+
+	MeshPtr centerline = mServices->patient()->getData<Mesh>(output[0]->getValue());
+	setMeshNameAndType(centerline, otCENTERLINES);
+	centerline->setColor(QColor(255,255,0,255));
+
+	emit centerlineReady();
+
+	return;
 }
 
 void FraxinusSegmentations::checkIfSegmentationSucceeded()

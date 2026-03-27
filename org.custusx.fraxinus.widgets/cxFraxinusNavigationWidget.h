@@ -62,7 +62,6 @@ public:
 	static QString getWidgetName(){return "fraxinus_navigation_widget";};;
 	virtual StructuresSelectionWidget* getStructuresSelectionWidget() = 0;
 	virtual void setCenterline(MeshPtr centerline) = 0;
-	virtual void addObjectToVolumeView(DataPtr object) = 0;
 	virtual void addObjectToTubeView(DataPtr object) = 0;
 	virtual void setViewGroupNumber(unsigned int viewGroupNumber) = 0;
 	virtual void updateDataOnEntry() = 0;

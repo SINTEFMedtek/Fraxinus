@@ -44,13 +44,15 @@ public:
 	void performPETCTregistration();
 	void performPythonSegmentation(ImagePtr image);
 	void performMLSegmentation(ImagePtr image);
-	void postProcessAirways();
 	void postProcessTumors();
 	void checkIfSegmentationSucceeded();
 	void close();
 
 signals:
 	void segmentationFinished();
+	void postProcessAirwaysFinished();
+	void centerlineReady();
+	void centerlineGenerationFailed();
 
 protected:
 	bool mSegmentAirways = false;
@@ -78,12 +80,15 @@ private slots:
 	void runPythonFilterSlot();
 	void runMLFilterSlot();
 	void pythonFinishedSlot();
-	void MLFinishedSlot();
+	void MLFinishedSlot1();
+	void MLFinishedSlot2();
 	void runElastixSlot();
 	void elastixFinishedSlot();
 	void checkForPETData();
 	void showProcessingInfoFinished();
 	void closeSegmentationInfo();
+	void postProcessAirwaysSlot();
+	void centerlineFinishedSlot();
 	
 private:
 	void deleteTumorsAndNodulesVolumes();
@@ -95,7 +100,9 @@ private:
 	
 	FilterPtr mCurrentFilter;
 	FilterTimedAlgorithmPtr mThread;
+	FilterTimedAlgorithmPtr mCenterlineThread;
 	TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
+	BinaryThinningImageFilter3DFilterPtr mBinaryThinningImageFilter3DFilter;
 	
 	QDialog* mSegmentationSelectionInput = nullptr;
 	QDialog* mSegmentationProcessingInfo = nullptr;
