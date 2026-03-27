@@ -60,6 +60,13 @@ endif()
 
 if(CX_WINDOWS)
 
+  # Ensure NSIS can access the custom include file
+  configure_file(
+	${CMAKE_CURRENT_LIST_DIR}/FraxinusPostInstall.nsh
+    ${CMAKE_BINARY_DIR}/FraxinusPostInstall.nsh
+    COPYONLY
+  )
+
   install(FILES
     ${CMAKE_CURRENT_LIST_DIR}/installRaidionics.ps1
     DESTINATION .
