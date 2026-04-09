@@ -159,10 +159,9 @@ void StateServiceImpl::changeDefaultSettings()
 	settings()->setValue("View2D/useSagittalSlider", true);
 	settings()->setValue("Navigation/anyplaneViewOffset", 0.25);
 
-
-
-
-
+#ifdef WIN32
+	this->fillDefault("Gui/style", "gray");
+#endif
 
 	this->resetSegmentationSettings();
 }
