@@ -124,7 +124,7 @@ class org_custusx_ussimulator(cx.build.cxComponents.CppComponent):
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
         # self._getBuilder().gitCheckout('fcafd0a547e36c0c5a5d9a2067eec8385360f71e')
-        self._getBuilder().gitCheckout('c14a2d3d2a977c1f8af0509faa08987eaee1bc85') # Using VTK 9.6.1 TODO: Merge branch and update sha
+        self._getBuilder().gitCheckout('6ce6859a93762ef91ab3720af2099d2da8d364c1') # Using VTK 9.6.1
     def configure(self):
         pass
     def build(self):
