@@ -33,6 +33,9 @@
     - mkdir -p $CX_SOURCE_PATH/package_artefacts
     - cp -R $OS/package_artefacts/Fraxinus*.tar.gz $CX_SOURCE_PATH/package_artefacts/
     - ls $CX_SOURCE_PATH/package_artefacts  2> /dev/null
+    # Ensure test data is present (new Docker images do not include pre-built data)
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx/CustusXData.git $CX_SOURCE_PATH/data || git -C $CX_SOURCE_PATH/data fetch --all
+    - git -C $CX_SOURCE_PATH/data reset --hard origin/HEAD
     - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
     - cp -R $CX_SOURCE_PATH/test_results ${CI_PROJECT_DIR}/test_results/
   artifacts:
