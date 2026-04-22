@@ -69,7 +69,7 @@ ApplicationsParser::ApplicationsParser()
 	Desktop desktop;
 
 	QStringList standardToolbars;
-	standardToolbars << "Workflow" << "Screenshot" <<  "Help";
+	standardToolbars << "Workflow" << "Spacer" << "Screenshot" <<  "Help";
 
 	//-----------------------------------------------------
 	// NEW/LOAD PATIENT
