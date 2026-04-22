@@ -52,9 +52,9 @@ ViewSelectionWidget::ViewSelectionWidget(VisServicesPtr services, QWidget* paren
 
 	// Selector for displaying volume or artificial tubes
 	mLayoutSelectorGroup = new QButtonGroup(this);
-	mSmallVBButton = new QRadioButton(tr("Small virtual bronchoscopy"));
+	mSmallVBButton = new QRadioButton(tr("Anyplane"));
 	mSmallVBButton->setChecked(true);
-	mLargeVBButton = new QRadioButton(tr("Large virtual bronchoscopy"));
+	mLargeVBButton = new QRadioButton(tr("ACS"));
 	mLayoutSelectorGroup->addButton(mSmallVBButton);
 	mLayoutSelectorGroup->addButton(mLargeVBButton);
 
