@@ -954,13 +954,13 @@ void FraxinusSegmentations::postProcessTumors()
 	if(labeledImage)
 		mServices->patient()->removeData(labeledImage->getUid());
 
-	std::vector<ORGAN_TYPE> lobeTypes = {otLOBE_LUL, otLOBE_LLL, otLOBE_RUL, otLOBE_RML, otLOBE_RLL};
-	for(int i=0; i<lobeTypes.size(); i++)
-	{
-		ImagePtr lobeImage = mServices->patient()->getData<Image>(lobeTypes[i]);
-		if (lobeImage)
-			mServices->patient()->removeData(lobeImage->getUid());
-	}
+//	std::vector<ORGAN_TYPE> lobeTypes = {otLOBE_LUL, otLOBE_LLL, otLOBE_RUL, otLOBE_RML, otLOBE_RLL};
+//	for(int i=0; i<lobeTypes.size(); i++)
+//	{
+//		ImagePtr lobeImage = mServices->patient()->getData<Image>(lobeTypes[i]);
+//		if (lobeImage)
+//			mServices->patient()->removeData(lobeImage->getUid());
+//	}
 }
 
 std::vector<QString> FraxinusSegmentations::getLobeOfTumors(std::vector<MeshPtr> tumorMeshes)
@@ -968,13 +968,8 @@ std::vector<QString> FraxinusSegmentations::getLobeOfTumors(std::vector<MeshPtr>
 
 	std::vector<QString> lobeNames;
 
-	std::vector<ORGAN_TYPE> lobeTypes = {otLOBE_LUL, otLOBE_LLL, otLOBE_RUL, otLOBE_RML, otLOBE_RLL};
-	std::vector<ImagePtr> lobesImage;
-	for(int i=0; i<lobeTypes.size(); i++)
-		lobesImage.push_back(mServices->patient()->getData<Image>(lobeTypes[i]));
-
-	if(tumorMeshes.empty() || lobesImage.empty())
-		return lobeNames;
+		if(tumorMeshes.empty())
+			return lobeNames;
 
 	std::vector<Vector3D> centerOfTumorsVector_r;
 	for(int i=0; i<tumorMeshes.size(); i++)
@@ -986,12 +981,29 @@ std::vector<QString> FraxinusSegmentations::getLobeOfTumors(std::vector<MeshPtr>
 		centerOfTumorsVector_r.push_back(centerOfTumor_r);
 	}
 
+	lobeNames = getLobeNameFromPositions(centerOfTumorsVector_r, mServices);
+
+	return lobeNames;
+}
+
+std::vector<QString> FraxinusSegmentations::getLobeNameFromPositions(std::vector<Vector3D> positions_r, CoreServicesPtr services)
+{
+	std::vector<QString> lobeNames;
+
+	std::vector<ORGAN_TYPE> lobeTypes = {otLOBE_LUL, otLOBE_LLL, otLOBE_RUL, otLOBE_RML, otLOBE_RLL};
+	std::vector<ImagePtr> lobesImage;
+	for(int i=0; i<lobeTypes.size(); i++)
+		lobesImage.push_back(services->patient()->getData<Image>(lobeTypes[i]));
+
+	if(lobesImage.empty())
+		return lobeNames;
+
 	std::vector<vtkImageDataPtr> lobesVtkImage;
 	for(int i=0; i<lobesImage.size(); i++)
 		if(lobesImage[i])
 			lobesVtkImage.push_back(shiftVtkScalarToUnsignedShort(lobesImage[i]->getBaseVtkImageData()));
 
-	for(int i=0; i<tumorMeshes.size(); i++)
+	for(int i=0; i<positions_r.size(); i++)
 	{
 		for(int j=0; j<lobesVtkImage.size(); j++)
 		{
@@ -999,9 +1011,9 @@ std::vector<QString> FraxinusSegmentations::getLobeOfTumors(std::vector<MeshPtr>
 			double* spacing = lobesVtkImage[j]->GetSpacing();
 			Transform3D rMd  = lobesImage[j]->get_rMd();
 
-			int x = (int) boost::math::round((centerOfTumorsVector_r[i](0) - rMd(0,3)) / spacing[0]);
-			int y = (int) boost::math::round((centerOfTumorsVector_r[i](1) - rMd(1,3)) / spacing[1]);
-			int z = (int) boost::math::round((centerOfTumorsVector_r[i](2) - rMd(2,3)) / spacing[2]);
+			int x = (int) boost::math::round((positions_r[i](0) - rMd(0,3)) / spacing[0]);
+			int y = (int) boost::math::round((positions_r[i](1) - rMd(1,3)) / spacing[1]);
+			int z = (int) boost::math::round((positions_r[i](2) - rMd(2,3)) / spacing[2]);
 
 			if(x<0 || y<0 || z<0 || x>=dim[0] || y>=dim[1] || z>=dim[2])
 				continue;
@@ -1013,10 +1025,10 @@ std::vector<QString> FraxinusSegmentations::getLobeOfTumors(std::vector<MeshPtr>
 				goto endOfLoop;
 			}
 		}
-
-		lobeNames.push_back("");
-		endOfLoop:;
 	}
+
+	lobeNames.push_back("");
+	endOfLoop:;
 
 	return lobeNames;
 }

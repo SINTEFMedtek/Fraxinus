@@ -683,6 +683,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 		AirwaysFromCenterlinePtr airwaysFromCLPtr = AirwaysFromCenterlinePtr(new AirwaysFromCenterline());
 		airwaysFromCLPtr->processCenterline(centerline);
 		mBranchList = airwaysFromCLPtr->getBranchList();
+		mBranchList->setBranchCode();
 	}
 
 	if(mBranchList)
@@ -704,6 +705,14 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	
 	if(!mBranchList->isRadiusAvailable())
 		mBranchList->setRadius(mServices->patient()->getData<Image>(otAIRWAYS));
+
+	std::vector<Vector3D> positionVector;
+	positionVector.push_back(targetPoint->getCoordinate());
+	std::vector<QString> lobeNameVector = FraxinusSegmentations::getLobeNameFromPositions(positionVector, mServices);
+	if(!lobeNameVector.empty())
+		routeToTargetFilter->setLobeOfTarget(lobeNameVector[0]);
+	else
+		routeToTargetFilter->setLobeOfTarget("");
 
 	if(routeToTargetFilter->execute())
 	{

@@ -47,6 +47,7 @@ public:
 	void postProcessTumors();
 	void checkIfSegmentationSucceeded();
 	void close();
+	static std::vector<QString> getLobeNameFromPositions(std::vector<Vector3D> positions_r, CoreServicesPtr services);
 
 signals:
 	void segmentationFinished();
