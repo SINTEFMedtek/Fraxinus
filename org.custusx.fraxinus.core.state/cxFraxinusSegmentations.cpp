@@ -1025,10 +1025,9 @@ std::vector<QString> FraxinusSegmentations::getLobeNameFromPositions(std::vector
 				goto endOfLoop;
 			}
 		}
+		lobeNames.push_back("");
+		endOfLoop:;
 	}
-
-	lobeNames.push_back("");
-	endOfLoop:;
 
 	return lobeNames;
 }
