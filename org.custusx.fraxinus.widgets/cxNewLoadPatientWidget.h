@@ -52,6 +52,7 @@ public:
 
 private slots:
 	void createNewPatient();
+	void createNewPatientFromUSB();
 	void loadPatient();
 	void selectCTData();
 	void patientCreatedInfo();

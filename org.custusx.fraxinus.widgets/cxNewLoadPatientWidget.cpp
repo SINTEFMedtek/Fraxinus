@@ -35,6 +35,11 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	newButton->setIcon(QIcon(":/icons/icons/add.svg"));
 	connect(newButton, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatient);
 
+	QPushButton* newButtonFromUSB = new QPushButton("&Create new patient from USB");
+	newButtonFromUSB->setMinimumSize(BUTTON_SIZE);
+	newButtonFromUSB->setIcon(QIcon(":/icons/icons/add.svg"));
+	connect(newButtonFromUSB, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatientFromUSB);
+
 	QPushButton* loadButton = new QPushButton("&Load existing patient");
 	loadButton->setMinimumSize(BUTTON_SIZE);
 	loadButton->setIcon(QIcon(":/icons/icons/select.svg"));
@@ -48,6 +53,8 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->addSpacing(50);
 	layout->addWidget(newButton);
+	layout->addSpacing(25);
+	layout->addWidget(newButtonFromUSB);
 	layout->addSpacing(25);
 	layout->addWidget(loadButton);
 	layout->addSpacing(50);
@@ -77,6 +84,14 @@ void NewLoadPatientWidget::createNewPatient()
 	triggerMainWindowActionWithObjectName(actionName);
 	enableImportDataButton();
 	patientCreatedInfo();
+}
+
+void NewLoadPatientWidget::createNewPatientFromUSB()
+{
+	QString actionName = "CreatePatientWithPatientName";
+	triggerMainWindowActionWithObjectName(actionName);
+	enableImportDataButton();
+	loadCTDataFromUSB();
 }
 
 void NewLoadPatientWidget::patientCreatedInfo()
@@ -197,7 +212,8 @@ void NewLoadPatientWidget::loadCTDataDialog()
 
 void NewLoadPatientWidget::loadCTDataDialogFinished()
 {
-	mLoadCTDialog->close();
+	if(mLoadCTDialog)
+		mLoadCTDialog->close();
 	mLoadCTDialog = nullptr;
 	disconnect(mUSBButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataFromUSB);
 	disconnect(mHardDriveButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTData);
