@@ -39,6 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxForwardDeclarations.h"
 
 class QPushButton;
+class QCheckBox;
 
 namespace cx
 {
@@ -49,6 +50,14 @@ class org_custusx_fraxinus_widgets_EXPORT NewLoadPatientWidget : public BaseWidg
 public:
 	NewLoadPatientWidget(QWidget *parent, VisServicesPtr services, AcquisitionServicePtr acquisitionService);
 	static QString getWidgetName();
+
+	bool isLymphNodesChecked() const;
+	bool isHeartChecked() const;
+	bool isMediumOrgansChecked() const;
+	bool isSmallOrgansChecked() const;
+	bool isTumorsChecked() const;
+	bool isLungVesselsChecked() const;
+	bool isLungLobesChecked() const;
 
 private slots:
 	void createNewPatient();
@@ -61,9 +70,14 @@ private slots:
 	void loadCTDataDialog();
 	void loadCTDataFromUSB();
 	void loadCTDataDialogFinished();
+	void selectAll(bool checked);
+	void updateRunSegmentationButton();
+	void updateSegmentationCheckBoxes();
 
 signals:
 	void dataImportCompleted();
+	void runSegmentationClicked();
+	void existingPatientLoaded();
 
 private:
 	void enableImportDataButton();
@@ -80,9 +94,20 @@ private:
 	QMetaObject::Connection mConnectionToYesButtonPatientCreated, mConnectionToNoButtonPatientCreated;
 	QMetaObject::Connection mConnectionToYesButtonDataLoaded, mConnectionToNoButtonDataLoaded;
 
+	QCheckBox* mCheckBoxAirways = nullptr;
+	QCheckBox* mCheckBoxLymphNodes = nullptr;
+	QCheckBox* mCheckBoxHeart = nullptr;
+	QCheckBox* mCheckBoxMediumOrgans = nullptr;
+	QCheckBox* mCheckBoxSmallOrgans = nullptr;
+	QCheckBox* mCheckBoxTumors = nullptr;
+	QCheckBox* mCheckBoxLungVessels = nullptr;
+	QCheckBox* mCheckBoxLungLobes = nullptr;
+	QCheckBox* mCheckBoxSelectAll = nullptr;
+	QPushButton* mRunSegmentationButton = nullptr;
 
 	bool mThoraxCTLoaded = false;
 	bool mPETLoaded = false;
+	bool mSkipDataLoadedInfo = false;
 };
 
 }

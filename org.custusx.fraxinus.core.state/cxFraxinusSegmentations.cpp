@@ -66,7 +66,6 @@ void FraxinusSegmentations::close()
 {
 	if(!mSegmentationSelectionInput)
 		return;
-	disconnect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusSegmentations::checkForPETData);
 	disconnect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &FraxinusSegmentations::selectAll);
 	disconnect(mOKbutton, &QPushButton::clicked, this, &FraxinusSegmentations::imageSelected);
 	disconnect(mCancelbutton, &QPushButton::clicked, this, &FraxinusSegmentations::cancel);
@@ -132,7 +131,6 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	
 	updateSelectSegmentationBox();
 
-	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, this, &FraxinusSegmentations::checkForPETData);
 	connect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &FraxinusSegmentations::selectAll);
 	
 	if(!mOKbutton)
@@ -152,7 +150,6 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	checkBoxLayout->addWidget(mCheckBoxTumors);
 	checkBoxLayout->addWidget(mCheckBoxLungVessels);
 	checkBoxLayout->addWidget(mCheckBoxLungLobes);
-	checkBoxLayout->addWidget(mCheckBoxPET);
 	checkBoxLayout->addWidget(mCheckBoxSelectAll);
 	
 	QGridLayout* mainLayout = new QGridLayout;
@@ -273,30 +270,9 @@ void FraxinusSegmentations::updateSelectSegmentationBox()
 		mCheckBoxLungLobes->setDisabled(false);
 	}
 
-	if(!mCheckBoxPET)
-		mCheckBoxPET = new QCheckBox();
-	if(mServices->patient()->getImage(imPET, istPET_REGISTERED))
-	{
-		mCheckBoxPET->setText("PET to CT: Completed");
-		mCheckBoxPET->setDisabled(true);
-	}
-	else
-	{
-		mCheckBoxPET->setText("PET to CT (~2 min)");
-		this->checkForPETData();
-	}
-
 	if(!mCheckBoxSelectAll)
 		mCheckBoxSelectAll = new QCheckBox();
 	mCheckBoxSelectAll->setText("Select all");
-}
-
-void FraxinusSegmentations::checkForPETData()
-{
-	if(!( mServices->patient()->getImage(imCT, istTHORAX_CT) && mServices->patient()->getImage(imCT, istPET_CT) && mServices->patient()->getImage(imPET, istPET) ))
-		mCheckBoxPET->setDisabled(true);
-	else
-		mCheckBoxPET->setDisabled(false);
 }
 
 void FraxinusSegmentations::selectAll(bool checked)
@@ -317,8 +293,6 @@ void FraxinusSegmentations::selectAll(bool checked)
 		mCheckBoxLungVessels->setChecked(checked);
 	if(mCheckBoxLungLobes->isEnabled())
 		mCheckBoxLungLobes->setChecked(checked);
-	if(mCheckBoxPET->isEnabled())
-		mCheckBoxPET->setChecked(checked);
 }
 
 void FraxinusSegmentations::imageSelected()
@@ -331,7 +305,9 @@ void FraxinusSegmentations::imageSelected()
 	mSegmentMediumOrgans = mCheckBoxMediumOrgans->isChecked();
 	mSegmentSmallOrgans = mCheckBoxSmallOrgans->isChecked();
 	mSegmentTumors = mCheckBoxTumors->isChecked();
-	mRegisterPET = mCheckBoxPET->isChecked();
+	mRegisterPET = mServices->patient()->getImage(imCT, istPET_CT)
+	        && mServices->patient()->getImage(imPET, istPET)
+	        && !mServices->patient()->getImage(imPET, istPET_REGISTERED);
 	this->close();
 
 	this->createProcessingInfo();
@@ -347,6 +323,35 @@ void FraxinusSegmentations::imageSelected()
 void FraxinusSegmentations::cancel()
 {
 	this->close();
+}
+
+void FraxinusSegmentations::startSegmentationWithOptions(
+        bool airways, bool lymphNodes, bool heart,
+        bool mediumOrgans, bool smallOrgans, bool tumors,
+        bool lungVessels, bool lungLobes)
+{
+	if(mActiveTimerWidget)
+		return;
+
+	mSegmentAirways = airways;
+	mSegmentLymphNodes = lymphNodes;
+	mSegmentHeart = heart;
+	mSegmentMediumOrgans = mediumOrgans;
+	mSegmentSmallOrgans = smallOrgans;
+	mSegmentTumors = tumors;
+	mSegmentLungVessels = lungVessels;
+	mSegmentLungLobes = lungLobes;
+	mRegisterPET = mServices->patient()->getImage(imCT, istPET_CT)
+	        && mServices->patient()->getImage(imPET, istPET)
+	        && !mServices->patient()->getImage(imPET, istPET_REGISTERED);
+
+	this->createProcessingInfo();
+
+	ImagePtr imageCopy = mServices->patient()->getImage(imCT, istCOPY);
+	if(mRegisterPET)
+		this->performPETCTregistration();
+	else
+		this->performPythonSegmentation(imageCopy);
 }
 
 void FraxinusSegmentations::createProcessingInfo()

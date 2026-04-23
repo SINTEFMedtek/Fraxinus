@@ -104,6 +104,7 @@ void FraxinusWorkflowStateMachine::CreateTransitions()
 		return;
 	
 	mPatientWorkflowState->addTransition(mPatientWorkflowState, SIGNAL(dataImportCompleted()), mProcessWorkflowState);
+	mPatientWorkflowState->addTransition(mPatientWorkflowState, SIGNAL(goToPinpointWorkflow()), mPinpointWorkflowState);
 	//mPatientWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);
 	//mPatientWorkflowState->addTransition(mServices->patient().get(), SIGNAL(patientChanged()), mProcessWorkflowState);
 	//mImportWorkflowState->addTransition(this, SIGNAL(dataAdded()), mProcessWorkflowState);

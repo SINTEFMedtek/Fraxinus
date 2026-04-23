@@ -38,8 +38,11 @@ public:
 	ImagePtr findAndLabelThoraxCT() const;
 
 	BranchListPtr getBranchList();
-	
+
 	void createSelectSegmentationBox();
+	void startSegmentationWithOptions(bool airways, bool lymphNodes, bool heart,
+	                                   bool mediumOrgans, bool smallOrgans, bool tumors,
+	                                   bool lungVessels, bool lungLobes);
 	void createProcessingInfo();
 	void performPETCTregistration();
 	void performPythonSegmentation(ImagePtr image);
@@ -85,7 +88,7 @@ private slots:
 	void MLFinishedSlot2();
 	void runElastixSlot();
 	void elastixFinishedSlot();
-	void checkForPETData();
+
 	void showProcessingInfoFinished();
 	void closeSegmentationInfo();
 	void postProcessAirwaysSlot();
@@ -128,7 +131,7 @@ private:
 	QCheckBox* mCheckBoxSmallOrgans = nullptr;
 	QCheckBox* mCheckBoxNodules = nullptr;
 	QCheckBox* mCheckBoxTumors = nullptr;
-	QCheckBox* mCheckBoxPET = nullptr;
+
 	QCheckBox* mCheckBoxLungVessels = nullptr;
 	QCheckBox* mCheckBoxLungLobes = nullptr;
 	QCheckBox* mCheckBoxSelectAll = nullptr;

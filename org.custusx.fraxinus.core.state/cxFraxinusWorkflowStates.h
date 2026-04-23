@@ -153,6 +153,10 @@ public:
 
 signals:
 	void dataImportCompleted();
+	void goToPinpointWorkflow();
+
+private slots:
+	void onExistingPatientLoaded();
 
 private:
 	virtual void addDataToView();
@@ -170,6 +174,7 @@ public:
 	virtual bool canEnter() const;
 	virtual void onEntry(QEvent *event);
 	virtual void onExit(QEvent * event);
+	virtual void enableAction(bool enable) override;
 
 private:
 	virtual void addDataToView();
@@ -186,6 +191,7 @@ public:
 	virtual void onEntry(QEvent* event);
 	void onExit(QEvent *event);
 	virtual bool canEnter() const;
+	virtual void enableAction(bool enable) override;
 signals:
   void segmentationFinished();
 private slots:

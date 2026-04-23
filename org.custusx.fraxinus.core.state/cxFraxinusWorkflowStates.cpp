@@ -768,14 +768,27 @@ void PatientWorkflowState::onEntry(QEvent * event)
 	this->addDataToView();
 	mNewLoadPatientWidget = this->getNewLoadPatientWidget();
 	if(mNewLoadPatientWidget)
-		connect(mNewLoadPatientWidget, &NewLoadPatientWidget::dataImportCompleted, this, &PatientWorkflowState::dataImportCompleted);
+	{
+		connect(mNewLoadPatientWidget, &NewLoadPatientWidget::dataImportCompleted,
+		        this, &PatientWorkflowState::dataImportCompleted);
+		connect(mNewLoadPatientWidget, &NewLoadPatientWidget::runSegmentationClicked,
+		        this, &PatientWorkflowState::dataImportCompleted);
+		connect(mNewLoadPatientWidget, &NewLoadPatientWidget::existingPatientLoaded,
+		        this, &PatientWorkflowState::onExistingPatientLoaded);
+	}
 }
 
 void PatientWorkflowState::onExit(QEvent * event)
 {
 	if(mNewLoadPatientWidget)
-		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::dataImportCompleted, this, &PatientWorkflowState::dataImportCompleted);
-
+	{
+		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::dataImportCompleted,
+		           this, &PatientWorkflowState::dataImportCompleted);
+		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::runSegmentationClicked,
+		           this, &PatientWorkflowState::dataImportCompleted);
+		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::existingPatientLoaded,
+		           this, &PatientWorkflowState::onExistingPatientLoaded);
+	}
 	WorkflowState::onExit(event);
 }
 
@@ -787,7 +800,7 @@ bool PatientWorkflowState::canEnter() const
 void PatientWorkflowState::addDataToView()
 {
 	ImagePtr ctImage = this->getCTImage();
-	
+
 	//Assuming 3D
 	ViewGroupDataPtr viewGroup0_3D = viewService()->getGroup(0);
 	if(ctImage)
@@ -795,6 +808,12 @@ void PatientWorkflowState::addDataToView()
 		this->setTransferfunction3D("Default", ctImage);
 		viewGroup0_3D->addData(ctImage->getUid());
 	}
+}
+
+void PatientWorkflowState::onExistingPatientLoaded()
+{
+	if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
+		emit goToPinpointWorkflow();
 }
 
 // --------------------------------------------------------
@@ -807,6 +826,13 @@ ImportWorkflowState::ImportWorkflowState(QState* parent, RegServicesPtr services
 
 ImportWorkflowState::~ImportWorkflowState()
 {}
+
+void ImportWorkflowState::enableAction(bool enable)
+{
+	WorkflowState::enableAction(enable);
+	if(mAction)
+		mAction->setVisible(false);
+}
 
 void ImportWorkflowState::onEntry(QEvent * event)
 {
@@ -867,6 +893,13 @@ ProcessWorkflowState::ProcessWorkflowState(QState* parent, RegServicesPtr servic
 ProcessWorkflowState::~ProcessWorkflowState()
 {}
 
+void ProcessWorkflowState::enableAction(bool enable)
+{
+	WorkflowState::enableAction(enable);
+	if(mAction)
+		mAction->setVisible(false);
+}
+
 QIcon ProcessWorkflowState::getIcon() const
 {
 	return QIcon(":/icons/icons/processing.svg");
@@ -879,15 +912,25 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 
 	this->getCTImageCopied(); //Makes sure CT Image Copied is created before segmentation is started
 
-	//TODO: connect to mFraxinusSegmentations, to run addDataToView() if airways segmentation fails? - Is this needed?
-	mFraxinusSegmentations->createSelectSegmentationBox();
+	NewLoadPatientWidget* loadWidget = this->getNewLoadPatientWidget();
+	if(loadWidget)
+	{
+		mFraxinusSegmentations->startSegmentationWithOptions(
+		        true, // airways always included
+		        loadWidget->isLymphNodesChecked(),
+		        loadWidget->isHeartChecked(),
+		        loadWidget->isMediumOrgansChecked(),
+		        loadWidget->isSmallOrgansChecked(),
+		        loadWidget->isTumorsChecked(),
+		        loadWidget->isLungVesselsChecked(),
+		        loadWidget->isLungLobesChecked());
+	}
+	else
+	{
+		mFraxinusSegmentations->createSelectSegmentationBox();
+	}
 	connect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished, this, &ProcessWorkflowState::segmentationFinishedSlot);
 
-	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, mFraxinusSegmentations.get(), &FraxinusSegmentations::updateSelectSegmentationBox, Qt::UniqueConnection);
-	
-	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
-	//QTimer::singleShot(0, this, SLOT(imageSelected()));
-	
 	//Setting Pinpoint workflow active here, in case segmentation is run manuelly if automatic segmentation fails.
 	QObject* parentWorkFlow = this->parent();
 	QList<FraxinusWorkflowState *> allWorkflows = parentWorkFlow->findChildren<FraxinusWorkflowState *>();
@@ -950,7 +993,6 @@ void ProcessWorkflowState::onExit(QEvent * event)
 	tool->setTooltipOffset(0);
 
 	disconnect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished, this, &ProcessWorkflowState::segmentationFinishedSlot);
-	disconnect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, mFraxinusSegmentations.get(), &FraxinusSegmentations::updateSelectSegmentationBox);
 	mFraxinusSegmentations->close();
 	
 	WorkflowState::onExit(event);
