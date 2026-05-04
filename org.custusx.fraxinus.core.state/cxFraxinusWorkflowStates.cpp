@@ -71,6 +71,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxMetricManager.h"
 #include "cxNewLoadPatientWidget.h"
 #include "cxImageAlgorithms.h"
+#include <QGroupBox>
+#include <QTimer>
 
 namespace cx
 {
@@ -750,7 +752,8 @@ void FraxinusWorkflowState::cleanupVBWidget()
 // --------------------------------------------------------
 
 PatientWorkflowState::PatientWorkflowState(QState* parent, RegServicesPtr services) :
-	FraxinusWorkflowState(parent, "FraxinusPatientUid", "New/Load Patient", services, true)
+	FraxinusWorkflowState(parent, "FraxinusPatientUid", "New/Load Patient", services, true),
+	mRegServices(services)
 {
 }
 
@@ -770,9 +773,9 @@ void PatientWorkflowState::onEntry(QEvent * event)
 	if(mNewLoadPatientWidget)
 	{
 		connect(mNewLoadPatientWidget, &NewLoadPatientWidget::dataImportCompleted,
-		        this, &PatientWorkflowState::dataImportCompleted);
+		        this, &PatientWorkflowState::runSegmentation);
 		connect(mNewLoadPatientWidget, &NewLoadPatientWidget::runSegmentationClicked,
-		        this, &PatientWorkflowState::dataImportCompleted);
+		        this, &PatientWorkflowState::runSegmentation);
 		connect(mNewLoadPatientWidget, &NewLoadPatientWidget::existingPatientLoaded,
 		        this, &PatientWorkflowState::onExistingPatientLoaded);
 	}
@@ -783,12 +786,15 @@ void PatientWorkflowState::onExit(QEvent * event)
 	if(mNewLoadPatientWidget)
 	{
 		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::dataImportCompleted,
-		           this, &PatientWorkflowState::dataImportCompleted);
+		           this, &PatientWorkflowState::runSegmentation);
 		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::runSegmentationClicked,
-		           this, &PatientWorkflowState::dataImportCompleted);
+		           this, &PatientWorkflowState::runSegmentation);
 		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::existingPatientLoaded,
 		           this, &PatientWorkflowState::onExistingPatientLoaded);
 	}
+	if(mFraxinusSegmentations)
+		disconnect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished,
+		           this, &PatientWorkflowState::segmentationFinished);
 	WorkflowState::onExit(event);
 }
 
@@ -816,6 +822,37 @@ void PatientWorkflowState::onExistingPatientLoaded()
 		emit goToPinpointWorkflow();
 }
 
+void PatientWorkflowState::runSegmentation()
+{
+	NewLoadPatientWidget* loadWidget = this->getNewLoadPatientWidget();
+	if (!loadWidget)
+		return;
+
+	if (!mFraxinusSegmentations)
+		mFraxinusSegmentations = FraxinusSegmentationsPtr(new FraxinusSegmentations(mRegServices));
+
+	this->getCTImageCopied();
+
+	mFraxinusSegmentations->setProcessingInfoParentWidget(loadWidget->getProcessingInfoGroup());
+	mFraxinusSegmentations->startSegmentationWithOptions(
+	        true,
+	        loadWidget->isLymphNodesChecked(),
+	        loadWidget->isHeartChecked(),
+	        loadWidget->isMediumOrgansChecked(),
+	        loadWidget->isSmallOrgansChecked(),
+	        loadWidget->isTumorsChecked(),
+	        loadWidget->isLungVesselsChecked(),
+	        loadWidget->isLungLobesChecked());
+
+	connect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished,
+	        this, &PatientWorkflowState::segmentationFinished, Qt::UniqueConnection);
+}
+
+void PatientWorkflowState::setImportWorkflowState(ImportWorkflowState* state)
+{
+	mImportWorkflowState = state;
+}
+
 // --------------------------------------------------------
 // --------------------------------------------------------
 
@@ -830,8 +867,6 @@ ImportWorkflowState::~ImportWorkflowState()
 void ImportWorkflowState::enableAction(bool enable)
 {
 	WorkflowState::enableAction(enable);
-	if(mAction)
-		mAction->setVisible(false);
 }
 
 void ImportWorkflowState::onEntry(QEvent * event)
@@ -913,8 +948,14 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 	this->getCTImageCopied(); //Makes sure CT Image Copied is created before segmentation is started
 
 	NewLoadPatientWidget* loadWidget = this->getNewLoadPatientWidget();
-	if(loadWidget)
+	if(loadWidget && mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
 	{
+		// Segmentation was already performed in the Patient state; skip directly to next step.
+		QTimer::singleShot(0, this, SLOT(segmentationFinishedSlot()));
+	}
+	else if(loadWidget)
+	{
+		mFraxinusSegmentations->setProcessingInfoParentWidget(loadWidget->getProcessingInfoGroup());
 		mFraxinusSegmentations->startSegmentationWithOptions(
 		        true, // airways always included
 		        loadWidget->isLymphNodesChecked(),

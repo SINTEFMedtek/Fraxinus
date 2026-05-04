@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QCheckBox>
+#include <QDockWidget>
 #include <QGroupBox>
 #include <QAction>
 #include <QDialog>
@@ -59,28 +60,28 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	mCheckBoxAirways->setDisabled(true);
 
 	mCheckBoxLymphNodes = new QCheckBox("Lymph Nodes (~2 min)");
-	mCheckBoxLymphNodes->setChecked(true);
+	mCheckBoxLymphNodes->setChecked(false);
 
 	mCheckBoxHeart = new QCheckBox("Heart, Pulmonary Veins, Pulmonary Trunk (~4 min)");
-	mCheckBoxHeart->setChecked(true);
+	mCheckBoxHeart->setChecked(false);
 
 	mCheckBoxMediumOrgans = new QCheckBox("Vena Cava, Aorta, Spine (~3 min)");
-	mCheckBoxMediumOrgans->setChecked(true);
+	mCheckBoxMediumOrgans->setChecked(false);
 
 	mCheckBoxSmallOrgans = new QCheckBox("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)");
-	mCheckBoxSmallOrgans->setChecked(true);
+	mCheckBoxSmallOrgans->setChecked(false);
 
 	mCheckBoxTumors = new QCheckBox("Tumors (~5 min)");
-	mCheckBoxTumors->setChecked(true);
+	mCheckBoxTumors->setChecked(false);
 
 	mCheckBoxLungVessels = new QCheckBox("Small Vessels (~5 min)");
-	mCheckBoxLungVessels->setChecked(true);
+	mCheckBoxLungVessels->setChecked(false);
 
 	mCheckBoxLungLobes = new QCheckBox("Lung Lobes (~5 min)");
-	mCheckBoxLungLobes->setChecked(true);
+	mCheckBoxLungLobes->setChecked(false);
 
 	mCheckBoxSelectAll = new QCheckBox("Select all");
-	mCheckBoxSelectAll->setChecked(true);
+	mCheckBoxSelectAll->setChecked(false);
 	connect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &NewLoadPatientWidget::selectAll);
 
 	QVBoxLayout* segLayout = new QVBoxLayout();
@@ -121,6 +122,11 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	layout->addSpacing(10);
 	layout->addWidget(segmentationGroup);
 	layout->addWidget(mRunSegmentationButton);
+
+	mProcessingInfoGroup = new QGroupBox("Segmentation status");
+	mProcessingInfoGroup->setVisible(false);
+	layout->addWidget(mProcessingInfoGroup);
+
 	layout->addStretch();
 
 	QString profile = ProfileManager::getInstance()->activeProfile()->getUid();
@@ -139,12 +145,19 @@ QString NewLoadPatientWidget::getWidgetName()
 	return "new_load_patient_widget";
 }
 
+QGroupBox* NewLoadPatientWidget::getProcessingInfoGroup()
+{
+	mProcessingInfoGroup->setVisible(true);
+	return mProcessingInfoGroup;
+}
+
 void NewLoadPatientWidget::createNewPatient()
 {
 	QString actionName = "CreatePatientWithPatientName";
 	triggerMainWindowActionWithObjectName(actionName);
 	enableImportDataButton();
-	patientCreatedInfo();
+	//patientCreatedInfo();
+	loadCTDataDialog();
 }
 
 void NewLoadPatientWidget::createNewPatientFromUSB()
@@ -434,6 +447,9 @@ void NewLoadPatientWidget::loadCTData(bool fromUSB)
 		else
 			triggerMainWindowActionWithObjectName("AddFilesForImportWithDialogCT");
 		triggerMainWindowActionWithObjectName("ImportSelectedData");
+		QDockWidget* importDockWidget = findMainWindowChildWithObjectName<QDockWidget*>("import_widgetDockWidget");
+		if(importDockWidget)
+			importDockWidget->hide();
 	}
 	dataAddedOrRemoved();
 }

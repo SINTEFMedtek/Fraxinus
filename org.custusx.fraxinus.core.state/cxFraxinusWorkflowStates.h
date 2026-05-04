@@ -62,6 +62,7 @@ class PinpointWidget;
 class StructuresSelectionWidget;
 class TumorInformationWidget;
 class ProcedurePlanningWidget;
+class ImportWorkflowState;
 
 #define MAX_GENERATION_FOR_AUTOMATIC_CAMERA_ROTATION 3
 
@@ -139,6 +140,7 @@ private:
 	TransferFunctions3DPresetsPtr getTransferfunctionPresets();
 };
 
+
 class org_custusx_fraxinus_core_state_EXPORT PatientWorkflowState: public FraxinusWorkflowState
 {
 Q_OBJECT
@@ -154,13 +156,21 @@ public:
 signals:
 	void dataImportCompleted();
 	void goToPinpointWorkflow();
+	void segmentationFinished();
+
+public:
+	void setImportWorkflowState(ImportWorkflowState* state);
 
 private slots:
 	void onExistingPatientLoaded();
+	void runSegmentation();
 
 private:
 	virtual void addDataToView();
 	NewLoadPatientWidget* mNewLoadPatientWidget;
+	FraxinusSegmentationsPtr mFraxinusSegmentations;
+	RegServicesPtr mRegServices;
+	ImportWorkflowState* mImportWorkflowState = nullptr;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public FraxinusWorkflowState
@@ -175,6 +185,9 @@ public:
 	virtual void onEntry(QEvent *event);
 	virtual void onExit(QEvent * event);
 	virtual void enableAction(bool enable) override;
+
+signals:
+	void segmentationCompleted();
 
 private:
 	virtual void addDataToView();

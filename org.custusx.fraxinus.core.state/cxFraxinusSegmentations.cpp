@@ -354,15 +354,19 @@ void FraxinusSegmentations::startSegmentationWithOptions(
 		this->performPythonSegmentation(imageCopy);
 }
 
+void FraxinusSegmentations::setProcessingInfoParentWidget(QWidget* container)
+{
+	mProcessingInfoParentWidget = container;
+}
+
 void FraxinusSegmentations::createProcessingInfo()
 {
-	mSegmentationProcessingInfo = new QDialog();
-	mSegmentationProcessingInfo->setWindowTitle(tr("Segmentation status"));
-	mSegmentationProcessingInfo->setWindowFlags(Qt::WindowStaysOnTopHint);
-	
 	QGridLayout* gridLayout = new QGridLayout;
-	gridLayout->setColumnMinimumWidth(0,500);
-	gridLayout->setColumnMinimumWidth(1,100);
+	if (!mProcessingInfoParentWidget)
+	{
+		gridLayout->setColumnMinimumWidth(0, 500);
+		gridLayout->setColumnMinimumWidth(1, 100);
+	}
 	
 	if (mSegmentAirways)
 	{
@@ -487,9 +491,31 @@ void FraxinusSegmentations::createProcessingInfo()
 	}
 	
 	
-	mSegmentationProcessingInfo->setLayout(gridLayout);
-	mSegmentationProcessingInfo->show();
-	mSegmentationProcessingInfo->activateWindow();
+	if (mProcessingInfoParentWidget)
+	{
+		QLayout* oldLayout = mProcessingInfoParentWidget->layout();
+		if (oldLayout)
+		{
+			QLayoutItem* item;
+			while ((item = oldLayout->takeAt(0)) != nullptr)
+			{
+				delete item->widget();
+				delete item;
+			}
+			delete oldLayout;
+		}
+		mProcessingInfoParentWidget->setLayout(gridLayout);
+		mProcessingInfoParentWidget->setVisible(true);
+	}
+	else
+	{
+		mSegmentationProcessingInfo = new QDialog();
+		mSegmentationProcessingInfo->setWindowTitle(tr("Segmentation status"));
+		mSegmentationProcessingInfo->setWindowFlags(Qt::WindowStaysOnTopHint);
+		mSegmentationProcessingInfo->setLayout(gridLayout);
+		mSegmentationProcessingInfo->show();
+		mSegmentationProcessingInfo->activateWindow();
+	}
 }
 
 void FraxinusSegmentations::showProcessingInfoFinished()
@@ -514,8 +540,11 @@ void FraxinusSegmentations::closeSegmentationInfo()
 {
 	disconnect(mOKbuttonProcessingFinished, &QPushButton::clicked, this, &FraxinusSegmentations::closeSegmentationInfo);
 	emit segmentationFinished();
-	mSegmentationProcessingInfo->close();
-	mSegmentationProcessingInfo = nullptr;
+	if (mSegmentationProcessingInfo)
+	{
+		mSegmentationProcessingInfo->close();
+		mSegmentationProcessingInfo = nullptr;
+	}
 	mSegmentationFinishedInfo->close();
 	mSegmentationFinishedInfo = nullptr;
 }

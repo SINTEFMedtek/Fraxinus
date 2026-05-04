@@ -43,6 +43,7 @@ public:
 	void startSegmentationWithOptions(bool airways, bool lymphNodes, bool heart,
 	                                   bool mediumOrgans, bool smallOrgans, bool tumors,
 	                                   bool lungVessels, bool lungLobes);
+	void setProcessingInfoParentWidget(QWidget* container);
 	void createProcessingInfo();
 	void performPETCTregistration();
 	void performPythonSegmentation(ImagePtr image);
@@ -111,6 +112,7 @@ private:
 	QDialog* mSegmentationSelectionInput = nullptr;
 	QDialog* mSegmentationProcessingInfo = nullptr;
 	QDialog* mSegmentationFinishedInfo = nullptr;
+	QWidget* mProcessingInfoParentWidget = nullptr;
 	DisplayTimerWidget* mAirwaysTimerWidget;
 	DisplayTimerWidget* mLungsTimerWidget;
 	DisplayTimerWidget* mLymphNodesTimerWidget;

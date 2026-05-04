@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class QPushButton;
 class QCheckBox;
+class QGroupBox;
 
 namespace cx
 {
@@ -50,6 +51,8 @@ class org_custusx_fraxinus_widgets_EXPORT NewLoadPatientWidget : public BaseWidg
 public:
 	NewLoadPatientWidget(QWidget *parent, VisServicesPtr services, AcquisitionServicePtr acquisitionService);
 	static QString getWidgetName();
+
+	QGroupBox* getProcessingInfoGroup();
 
 	bool isLymphNodesChecked() const;
 	bool isHeartChecked() const;
@@ -104,6 +107,7 @@ private:
 	QCheckBox* mCheckBoxLungLobes = nullptr;
 	QCheckBox* mCheckBoxSelectAll = nullptr;
 	QPushButton* mRunSegmentationButton = nullptr;
+	QGroupBox* mProcessingInfoGroup = nullptr;
 
 	bool mThoraxCTLoaded = false;
 	bool mPETLoaded = false;
