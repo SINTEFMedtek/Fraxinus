@@ -28,6 +28,7 @@ class PrivateControlData(cx.build.cxInstallData.Common):
         self.gitrepo_main_site_base = "git@gitlab.sintef.no:custusx"
 
         self.system_base_name = "Fraxinus"
+        self.mBuildIGSTK = True # Turn on igstk tracking plugin for Fraxinus for now
 
 class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
     '''
