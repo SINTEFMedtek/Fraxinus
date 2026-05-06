@@ -140,3 +140,30 @@ class org_custusx_ussimulator(cx.build.cxComponents.CppComponent):
         add = builder.addCMakeOption
         add('CX_PLUGIN_org.custusx.ussimulator:BOOL', 'ON');
 # ---------------------------------------------------------
+
+class org_custusx_core_tracking_system_ndi(cx.build.cxComponents.CppComponent):
+
+    def name(self):
+        return "org.custusx.core.tracking.system.ndi"
+    def help(self):
+        return 'Plugin for NDI tracking'
+    def path(self):
+        custusx = self._createSibling(cx.build.cxComponents.CustusX)
+        return '%s/%s/source/plugins' % (custusx.path(), custusx.sourceFolder())
+    def sourceFolder(self):
+        return 'org.custusx.core.tracking.system.ndi'
+    def update(self):
+        self._getBuilder().gitSetRemoteURL(self.repository())
+        self._getBuilder().gitCheckoutDefaultBranch()
+    def configure(self):
+        pass
+    def build(self):
+        pass
+    def repository(self):
+        base = self.controlData.gitrepo_main_site_base
+        return '%s/org.custusx.core.tracking.system.ndi.git' % base
+    def makeClean(self):
+        pass
+    def pluginPath(self):
+        return '%s' % self.sourcePath()
+# ---------------------------------------------------------
