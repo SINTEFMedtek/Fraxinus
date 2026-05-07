@@ -44,10 +44,13 @@
   # If the image changes, the sentinel won't match and a full rebuild is triggered,
   # preventing ABI mismatches between CTK/VTK (old image) and Fraxinus (new image).
   - DOCKER_SENTINEL=$BASE_DIR/.built_with_$(echo $CI_JOB_IMAGE | sed 's|.*/||' | tr ':' '_')
+  # Remove any ITK cmake dir that doesn't match the expected version for this platform.
+  # This forces a full ITK rebuild when switching between old (IGSTK) and new ITK versions.
+  - find $BASE_DIR/ITK/build_Release/lib/cmake -mindepth 1 -maxdepth 1 -not -name $EXPECTED_ITK_CMAKE_DIR -exec rm -rf {} \; 2>/dev/null || true
   # Reuse previous library build folders if the correct library versions are already built.
   # Using version-specific paths so agents with outdated libraries automatically do a full rebuild once.
   - test -f $BASE_DIR/VTK/build_Release/lib/cmake/vtk-9.6/VTKConfig.cmake
-      && test -d $BASE_DIR/ITK/build_Release/lib/cmake/ITK-5.4
+      && test -d $BASE_DIR/ITK/build_Release/lib/cmake/$EXPECTED_ITK_CMAKE_DIR
       && test -f $DOCKER_SENTINEL
       && eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
       components CustusX Fraxinus FraxinusTracking USSimulator CTK
@@ -59,15 +62,18 @@ build-ubuntu20:
   image: $IMAGE_UBUNTU2004
   variables:
     OS: Ubuntu2004
+    EXPECTED_ITK_CMAKE_DIR: ITK-4.12
 
 build-ubuntu22:
   extends: .reuse-build
   image: $IMAGE_UBUNTU2204
   variables:
     OS: Ubuntu2204
+    EXPECTED_ITK_CMAKE_DIR: ITK-4.12
 
 build-ubuntu24:
   extends: .reuse-build
   image: $IMAGE_UBUNTU2404
   variables:
     OS: Ubuntu2404
+    EXPECTED_ITK_CMAKE_DIR: ITK-5.4
