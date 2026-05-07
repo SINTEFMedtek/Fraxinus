@@ -28,7 +28,20 @@ class PrivateControlData(cx.build.cxInstallData.Common):
         self.gitrepo_main_site_base = "git@gitlab.sintef.no:custusx"
 
         self.system_base_name = "Fraxinus"
-        self.mBuildIGSTK = True
+        self.mBuildIGSTK = self._igstk_supported()
+
+    def _igstk_supported(self):
+        if platform.system() != 'Linux':
+            return False
+        try:
+            with open('/etc/os-release') as f:
+                for line in f:
+                    if line.startswith('VERSION_ID='):
+                        version_id = float(line.strip().split('=')[1].strip('"'))
+                        return version_id < 24.0
+        except Exception:
+            pass
+        return False
 
 class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
     '''
