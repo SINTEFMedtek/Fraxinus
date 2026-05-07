@@ -28,7 +28,7 @@ class PrivateControlData(cx.build.cxInstallData.Common):
         self.gitrepo_main_site_base = "git@gitlab.sintef.no:custusx"
 
         self.system_base_name = "Fraxinus"
-        self.mBuildIGSTK = True # Turn on igstk tracking plugin for Fraxinus for now
+        self.mBuildIGSTK = True
 
 class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
     '''
@@ -43,7 +43,8 @@ class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
         self.addComponent(cxPrivateComponents.Fraxinus())
         self.addComponent(cxPrivateComponents.org_custusx_fraxinus_tracking())
         self.addComponent(cxPrivateComponents.org_custusx_ussimulator())
-        self.addComponent(cxPrivateComponents.org_custusx_core_tracking_system_ndi())
+        if not self.controlData.mBuildIGSTK:
+            self.addComponent(cxPrivateComponents.org_custusx_core_tracking_system_ndi())
 	#self.addComponent(cxPrivateComponents.thoraxCTdata())
         self.libraries.remove(self.custusx)
         self.addComponent(self.custusx)
