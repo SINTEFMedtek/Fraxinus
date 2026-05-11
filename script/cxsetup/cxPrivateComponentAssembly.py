@@ -28,7 +28,7 @@ class PrivateControlData(cx.build.cxInstallData.Common):
         self.gitrepo_main_site_base = "git@gitlab.sintef.no:custusx"
 
         self.system_base_name = "Fraxinus"
-        self.mBuildIGSTK = self._igstk_supported()
+        self.mBuildIGSTK = self._igstk_supported() # Build with IGSK tracking for Ubuntu 20 and 22
 
     def _igstk_supported(self):
         if platform.system() != 'Linux':
