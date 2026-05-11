@@ -9,6 +9,7 @@
     GIT_CLONE_PATH: $BASE_DIR/FX/FX #Changes CI_PROJECT_DIR
     BUILD_DIR: $BASE_DIR/CX/build_Release
     CX_SOURCE_PATH: $BASE_DIR/CX/CX
+    BUILD_IGSTK: "false"
 
 .create-installer:
   script:
@@ -34,46 +35,104 @@
     - .build-variables
     - .create-installer
   before_script:
-  - echo "Run cxFraxinusPrivateInstaller.py"
   - ls $BASE_DIR
   - if [ $CI_COMMIT_TAG ]; then CX_COMMIT=$CI_COMMIT_TAG; else CX_COMMIT=$CI_COMMIT_BRANCH; fi
-  - rm -rf $BASE_DIR/IGSTK  # IGSTK removed from build; clean up old agents
-  - find $BASE_DIR/CX/build_Release -name "*igstk*" -delete 2>/dev/null || true  # Remove stale IGSTK plugin artifacts from previous builds
-  - rm -rf $BUILD_DIR # Clean previous build
-  # Sentinel file records which Docker image the cached libraries were built with.
-  # If the image changes, the sentinel won't match and a full rebuild is triggered,
-  # preventing ABI mismatches between CTK/VTK (old image) and Fraxinus (new image).
-  - DOCKER_SENTINEL=$BASE_DIR/.built_with_$(echo $CI_JOB_IMAGE | sed 's|.*/||' | tr ':' '_')
-  # Remove any ITK cmake dir that doesn't match the expected version for this platform.
-  # This forces a full ITK rebuild when switching between old (IGSTK) and new ITK versions.
-  - find $BASE_DIR/ITK/build_Release/lib/cmake -mindepth 1 -maxdepth 1 -not -name $EXPECTED_ITK_CMAKE_DIR -exec rm -rf {} \; 2>/dev/null || true
-  # Reuse previous library build folders if the correct library versions are already built.
-  # Using version-specific paths so agents with outdated libraries automatically do a full rebuild once.
-  - test -f $BASE_DIR/VTK/build_Release/lib/cmake/vtk-9.6/VTKConfig.cmake
-      && test -d $BASE_DIR/ITK/build_Release/lib/cmake/$EXPECTED_ITK_CMAKE_DIR
-      && test -f $DOCKER_SENTINEL
-      && eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
-      components CustusX Fraxinus FraxinusTracking USSimulator CTK
-      || (eval ./script/cxFraxinusPrivateInstaller.py -s --all --full -t Release --user_doc --developer_doc --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
-      && touch $DOCKER_SENTINEL)
+  # Set IGSTK variant variables. Must come first so cleanup below is conditional.
+  # Pass --igstk/--no-igstk explicitly to override PrivateControlData auto-detection.
+  - |
+    if [ "${BUILD_IGSTK}" = "true" ]; then
+      IGSTK_SUFFIX="igstk"
+      IGSTK_FLAG="--igstk"
+      IGSTK_LIBS="eigen VTK ITK IGSTK OpenCV OpenIGTLink CTK OpenIGTLinkIO OpenCLUtilityLibrary QHttpServer"
+    else
+      IGSTK_SUFFIX="noigstk"
+      IGSTK_FLAG="--no-igstk"
+      IGSTK_LIBS="eigen VTK ITK OpenCV OpenIGTLink CTK OpenIGTLinkIO OpenCLUtilityLibrary QHttpServer"
+      rm -rf $BASE_DIR/IGSTK  # not used in this build; remove stale dir from old agents
+    fi
+  - rm -rf $BUILD_DIR  # always clean the app build dir before rebuilding
+  # Compute version key from CX source. LIBS_HASH requires CX source to be present
+  # (it persists on warm runners). On cold runners the hash is empty and the registry
+  # check is skipped, falling straight through to a full build which then uploads.
+  - |
+    LIBS_HASH=""
+    if [ -f "$CX_SOURCE_PATH/install/cx/build/cxComponents.py" ]; then
+      LIBS_HASH=$(sha256sum $CX_SOURCE_PATH/install/cx/build/cxComponents.py | awk '{print $1}' | cut -c1-16)
+    fi
+  - IMAGE_TAG=$(echo $CI_JOB_IMAGE | sed 's|.*/||' | tr ':' '_')
+  - PACKAGE_NAME="fraxinus-external-libs"
+  - PACKAGE_VERSION="${OS}-${IMAGE_TAG}-${IGSTK_SUFFIX}-${LIBS_HASH}"
+  - PACKAGE_FILE="fx-external-libs-${OS}-${IGSTK_SUFFIX}.tar.gz"
+  - PACKAGE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${PACKAGE_VERSION}/${PACKAGE_FILE}"
+  - LIBS_SENTINEL="$BASE_DIR/.lib_version_${PACKAGE_VERSION}"
+  - echo "Libs package version $PACKAGE_VERSION"
+  # Try to use prebuilt libs: local cache first, then Package Registry, then full rebuild.
+  # All cd $BASE_DIR calls use subshells to keep the working directory at CI_PROJECT_DIR.
+  - |
+    LIBS_READY=false
+    if [ -n "$LIBS_HASH" ] && [ -f "$LIBS_SENTINEL" ]; then
+      echo "Lib cache hit: $LIBS_SENTINEL"
+      LIBS_READY=true
+    elif [ -n "$LIBS_HASH" ]; then
+      echo "Lib cache miss, checking Package Registry..."
+      HTTP_CODE=$(curl -s -o /tmp/$PACKAGE_FILE -w "%{http_code}" \
+        --header "JOB-TOKEN: $CI_JOB_TOKEN" "$PACKAGE_URL")
+      if [ "$HTTP_CODE" = "200" ]; then
+        echo "Downloaded prebuilt libs, extracting to $BASE_DIR..."
+        ( cd $BASE_DIR && rm -rf $IGSTK_LIBS && tar -xzf /tmp/$PACKAGE_FILE )
+        rm -f $BASE_DIR/.lib_version_*
+        touch "$LIBS_SENTINEL"
+        LIBS_READY=true
+      else
+        echo "Package not found (HTTP $HTTP_CODE), will build all from scratch."
+      fi
+    else
+      echo "CX source not yet available, building all from scratch."
+    fi
+  - |
+    if [ "$LIBS_READY" = "true" ]; then
+      echo "Building Fraxinus components only..."
+      eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc $IGSTK_FLAG \
+        --main_branch $CX_COMMIT \
+        --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
+        components CustusX Fraxinus FraxinusTracking USSimulator CTK
+    else
+      echo "Full build (all external libs + Fraxinus)..."
+      eval ./script/cxFraxinusPrivateInstaller.py -s --all --full -t Release --user_doc --developer_doc $IGSTK_FLAG \
+        --main_branch $CX_COMMIT \
+        --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
+      echo "Uploading libs to Package Registry for future runs..."
+      LIBS_HASH=$(sha256sum $CX_SOURCE_PATH/install/cx/build/cxComponents.py | awk '{print $1}' | cut -c1-16)
+      PACKAGE_VERSION="${OS}-${IMAGE_TAG}-${IGSTK_SUFFIX}-${LIBS_HASH}"
+      PACKAGE_FILE="fx-external-libs-${OS}-${IGSTK_SUFFIX}.tar.gz"
+      PACKAGE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${PACKAGE_VERSION}/${PACKAGE_FILE}"
+      LIBS_SENTINEL="$BASE_DIR/.lib_version_${PACKAGE_VERSION}"
+      ( cd $BASE_DIR && tar -czf /tmp/$PACKAGE_FILE \
+        --exclude='*/CMakeFiles' \
+        --exclude='*/.git' \
+        $IGSTK_LIBS )
+      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+        --upload-file /tmp/$PACKAGE_FILE "$PACKAGE_URL" || true
+      rm -f $BASE_DIR/.lib_version_*
+      touch "$LIBS_SENTINEL"
+    fi
 
 build-ubuntu20:
   extends: .reuse-build
   image: $IMAGE_UBUNTU2004
   variables:
     OS: Ubuntu2004
-    EXPECTED_ITK_CMAKE_DIR: ITK-4.12
+    BUILD_IGSTK: "true"
 
 build-ubuntu22:
   extends: .reuse-build
   image: $IMAGE_UBUNTU2204
   variables:
     OS: Ubuntu2204
-    EXPECTED_ITK_CMAKE_DIR: ITK-4.12
+    BUILD_IGSTK: "true"
 
 build-ubuntu24:
   extends: .reuse-build
   image: $IMAGE_UBUNTU2404
   variables:
     OS: Ubuntu2404
-    EXPECTED_ITK_CMAKE_DIR: ITK-5.4
