@@ -38,15 +38,17 @@
   - ls $BASE_DIR
   - if [ $CI_COMMIT_TAG ]; then CX_COMMIT=$CI_COMMIT_TAG; else CX_COMMIT=$CI_COMMIT_BRANCH; fi
   # Set IGSTK variant variables. Must come first so cleanup below is conditional.
-  # Pass --igstk/--no-igstk explicitly to override PrivateControlData auto-detection.
+  # No IGSTK_FLAG: PrivateControlData auto-detects via /etc/os-release (Ubuntu 20/22 → on,
+  # Ubuntu 24 → off), which is always correct for the Docker images in use.
+  # add_boolean_inverter() generates --skip_igstk when the default is True (Ubuntu 20/22)
+  # and --igstk when the default is False (Ubuntu 24), so there is no single flag that
+  # works across both platforms — relying on auto-detection is simpler and safe.
   - |
     if [ "${BUILD_IGSTK}" = "true" ]; then
       IGSTK_SUFFIX="igstk"
-      IGSTK_FLAG="--igstk"
       IGSTK_LIBS="eigen VTK ITK IGSTK OpenCV OpenIGTLink CTK OpenIGTLinkIO OpenCLUtilityLibrary QHttpServer"
     else
       IGSTK_SUFFIX="noigstk"
-      IGSTK_FLAG="--no-igstk"
       IGSTK_LIBS="eigen VTK ITK OpenCV OpenIGTLink CTK OpenIGTLinkIO OpenCLUtilityLibrary QHttpServer"
       rm -rf $BASE_DIR/IGSTK  # not used in this build; remove stale dir from old agents
     fi
@@ -92,13 +94,13 @@
   - |
     if [ "$LIBS_READY" = "true" ]; then
       echo "Building Fraxinus components only..."
-      eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc $IGSTK_FLAG \
+      eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc \
         --main_branch $CX_COMMIT \
         --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
         components CustusX Fraxinus FraxinusTracking USSimulator CTK
     else
       echo "Full build (all external libs + Fraxinus)..."
-      eval ./script/cxFraxinusPrivateInstaller.py -s --all --full -t Release --user_doc --developer_doc $IGSTK_FLAG \
+      eval ./script/cxFraxinusPrivateInstaller.py -s --all --full -t Release --user_doc --developer_doc \
         --main_branch $CX_COMMIT \
         --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
       echo "Uploading libs to Package Registry for future runs..."
