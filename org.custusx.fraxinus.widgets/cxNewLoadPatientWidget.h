@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class QPushButton;
 class QCheckBox;
 class QGroupBox;
+class QLabel;
 
 namespace cx
 {
@@ -54,6 +55,7 @@ public:
 
 	QGroupBox* getProcessingInfoGroup();
 
+	bool isAirwaysChecked() const;
 	bool isLymphNodesChecked() const;
 	bool isHeartChecked() const;
 	bool isMediumOrgansChecked() const;
@@ -106,6 +108,14 @@ private:
 	QCheckBox* mCheckBoxLungVessels = nullptr;
 	QCheckBox* mCheckBoxLungLobes = nullptr;
 	QCheckBox* mCheckBoxSelectAll = nullptr;
+	QLabel* mStatusLabelAirways = nullptr;
+	QLabel* mStatusLabelLymphNodes = nullptr;
+	QLabel* mStatusLabelHeart = nullptr;
+	QLabel* mStatusLabelMediumOrgans = nullptr;
+	QLabel* mStatusLabelSmallOrgans = nullptr;
+	QLabel* mStatusLabelTumors = nullptr;
+	QLabel* mStatusLabelLungVessels = nullptr;
+	QLabel* mStatusLabelLungLobes = nullptr;
 	QPushButton* mRunSegmentationButton = nullptr;
 	QGroupBox* mProcessingInfoGroup = nullptr;
 

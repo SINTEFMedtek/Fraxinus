@@ -11,6 +11,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 
 #include "cxFraxinusSegmentations.h"
 #include <QLabel>
+#include <QFrame>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QPushButton>
@@ -46,6 +47,19 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxMeshesFromLabelsFilter.h"
 #include "cxVolumeHelpers.h"
 #include "cxFileHelpers.h"
+
+namespace
+{
+const int kMinAirways      = 7;
+const int kMinLungVessels  = 5;
+const int kMinLymphNodes   = 2;
+const int kMinHeart        = 4;
+const int kMinMediumOrgans = 3;
+const int kMinSmallOrgans  = 2;
+const int kMinTumors       = 5;
+const int kMinLungLobes    = 5;
+const int kMinPET          = 5;
+}
 
 namespace cx
 {
@@ -174,7 +188,7 @@ void FraxinusSegmentations::updateSelectSegmentationBox()
 	}
 	else
 	{
-		mCheckBoxAirways->setText("Airways, Lungs (~7 min)");
+		mCheckBoxAirways->setText(QString("Airways, Lungs (~%1 min)").arg(kMinAirways));
 		mCheckBoxAirways->setChecked(true);
 	}
 	mCheckBoxAirways->setDisabled(true);
@@ -188,20 +202,23 @@ void FraxinusSegmentations::updateSelectSegmentationBox()
 	}
 	else
 	{
-		mCheckBoxLymphNodes->setText("Lymph Nodes (~2 min)");
+		mCheckBoxLymphNodes->setText(QString("Lymph Nodes (~%1 min)").arg(kMinLymphNodes));
 		mCheckBoxLymphNodes->setDisabled(false);
 	}
 
 	if(!mCheckBoxHeart)
+	{
 		mCheckBoxHeart = new QCheckBox();
+		mCheckBoxHeart->setToolTip("Heart, Pulmonary Veins, Pulmonary Trunk");
+	}
 	if(mServices->patient()->getData<Mesh>(otHEART) || mHeartProcessed)
 	{
-		mCheckBoxHeart->setText("Heart, Pulmonary Veins, Pulmonary Trunk: Completed");
+		mCheckBoxHeart->setText("Pulmonary System: Completed");
 		mCheckBoxHeart->setDisabled(true);
 	}
 	else
 	{
-		mCheckBoxHeart->setText("Heart, Pulmonary Veins, Pulmonary Trunk  (~4 min)");
+		mCheckBoxHeart->setText(QString("Pulmonary System (~%1 min)").arg(kMinHeart));
 		mCheckBoxHeart->setDisabled(false);
 	}
 
@@ -214,20 +231,23 @@ void FraxinusSegmentations::updateSelectSegmentationBox()
 	}
 	else
 	{
-		mCheckBoxMediumOrgans->setText("Vena Cava, Aorta, Spine (~3 min)");
+		mCheckBoxMediumOrgans->setText(QString("Vena Cava, Aorta, Spine (~%1 min)").arg(kMinMediumOrgans));
 		mCheckBoxMediumOrgans->setDisabled(false);
 	}
 
 	if(!mCheckBoxSmallOrgans)
+	{
 		mCheckBoxSmallOrgans = new QCheckBox();
+		mCheckBoxSmallOrgans->setToolTip("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos");
+	}
 	if(mServices->patient()->getData<Mesh>(otESOPHAGUS) || mSmallOrgansProcessed)
 	{
-		mCheckBoxSmallOrgans->setText("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos: Completed");
+		mCheckBoxSmallOrgans->setText("Small Mediastinal Organs: Completed");
 		mCheckBoxSmallOrgans->setDisabled(true);
 	}
 	else
 	{
-		mCheckBoxSmallOrgans->setText("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)");
+		mCheckBoxSmallOrgans->setText(QString("Small Mediastinal Organs (~%1 min)").arg(kMinSmallOrgans));
 		mCheckBoxSmallOrgans->setDisabled(false);
 	}
 
@@ -240,7 +260,7 @@ void FraxinusSegmentations::updateSelectSegmentationBox()
 	}
 	else
 	{
-		mCheckBoxTumors->setText("Tumors (~5 min)");
+		mCheckBoxTumors->setText(QString("Tumors (~%1 min)").arg(kMinTumors));
 		mCheckBoxTumors->setDisabled(false);
 	}
 
@@ -253,7 +273,7 @@ void FraxinusSegmentations::updateSelectSegmentationBox()
 	}
 	else
 	{
-		mCheckBoxLungVessels->setText("Small Vessels (~5 min)");
+		mCheckBoxLungVessels->setText(QString("Small Vessels (~%1 min)").arg(kMinLungVessels));
 		mCheckBoxLungVessels->setDisabled(false);
 	}
 
@@ -266,7 +286,7 @@ void FraxinusSegmentations::updateSelectSegmentationBox()
 	}
 	else
 	{
-		mCheckBoxLungLobes->setText("Lung Lobes (~5 min)");
+		mCheckBoxLungLobes->setText(QString("Lung Lobes (~%1 min)").arg(kMinLungLobes));
 		mCheckBoxLungLobes->setDisabled(false);
 	}
 
@@ -368,126 +388,126 @@ void FraxinusSegmentations::createProcessingInfo()
 		gridLayout->setColumnMinimumWidth(1, 100);
 	}
 	
+	int totalMinutes = 0;
+	int row = 0;
 	if (mSegmentAirways)
 	{
-		QWidget* timerWidget = new QWidget;
-		mAirwaysTimerWidget = new DisplayTimerWidget(timerWidget);
+		mAirwaysTimerWidget = new DisplayTimerWidget(nullptr);
 		mAirwaysTimerWidget->setFontSize(3);
-		mAirwaysTimerWidget->setFixedWidth(50);
-		mAirwaysTimerWidget->show();
-		QLabel* label = new QLabel("Airways, Lungs:");
-		gridLayout->addWidget(label,0,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,0,1);
+		mAirwaysTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Airways, Lungs:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mAirwaysTimerWidget, row, 1);
 		if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
 			mAirwaysTimerWidget->stop();
+		totalMinutes += kMinAirways; row++;
 	}
 	if (mSegmentLungVessels)
 	{
-		QWidget* timerWidget = new QWidget;
-		mLungVesselsTimerWidget = new DisplayTimerWidget(timerWidget);
+		mLungVesselsTimerWidget = new DisplayTimerWidget(nullptr);
 		mLungVesselsTimerWidget->setFontSize(3);
-		mLungVesselsTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("Small vessels:");
-		gridLayout->addWidget(label,1,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,1,1);
+		mLungVesselsTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Small vessels:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mLungVesselsTimerWidget, row, 1);
 		if(mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
 			mLungVesselsTimerWidget->stop();
+		totalMinutes += kMinLungVessels; row++;
 	}
 	if (mSegmentLymphNodes)
 	{
-		QWidget* timerWidget = new QWidget;
-		mLymphNodesTimerWidget = new DisplayTimerWidget(timerWidget);
+		mLymphNodesTimerWidget = new DisplayTimerWidget(nullptr);
 		mLymphNodesTimerWidget->setFontSize(3);
-		mLymphNodesTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("Lymph Nodes:");
-		gridLayout->addWidget(label,3,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,3,1);
+		mLymphNodesTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Lymph Nodes:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mLymphNodesTimerWidget, row, 1);
 		if(mServices->patient()->getData<Mesh>(otLYMPH_NODES))
 			mLymphNodesTimerWidget->stop();
+		totalMinutes += kMinLymphNodes; row++;
 	}
 	if (mSegmentHeart)
 	{
-		QWidget* timerWidget = new QWidget;
-		mHeartTimerWidget = new DisplayTimerWidget(timerWidget);
+		mHeartTimerWidget = new DisplayTimerWidget(nullptr);
 		mHeartTimerWidget->setFontSize(3);
-		mHeartTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("Pulmonary System:");
-		gridLayout->addWidget(label,4,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,4,1);
+		mHeartTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Pulmonary System:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mHeartTimerWidget, row, 1);
 		if(mServices->patient()->getData<Mesh>(otHEART))
 			mHeartTimerWidget->stop();
+		totalMinutes += kMinHeart; row++;
 	}
 	if (mSegmentMediumOrgans)
 	{
-		QWidget* timerWidget = new QWidget;
-		mMediumOrgansTimerWidget = new DisplayTimerWidget(timerWidget);
+		mMediumOrgansTimerWidget = new DisplayTimerWidget(nullptr);
 		mMediumOrgansTimerWidget->setFontSize(3);
-		mMediumOrgansTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("Vena Cava, Aorta, Spine:");
-		gridLayout->addWidget(label,5,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,5,1);
+		mMediumOrgansTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Vena Cava, Aorta, Spine:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mMediumOrgansTimerWidget, row, 1);
 		if(mServices->patient()->getData<Mesh>(otSPINE))
 			mMediumOrgansTimerWidget->stop();
+		totalMinutes += kMinMediumOrgans; row++;
 	}
 	if (mSegmentSmallOrgans)
 	{
-		QWidget* timerWidget = new QWidget;
-		mSmallOrgansTimerWidget = new DisplayTimerWidget(timerWidget);
+		mSmallOrgansTimerWidget = new DisplayTimerWidget(nullptr);
 		mSmallOrgansTimerWidget->setFontSize(3);
-		mSmallOrgansTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos:");
-		gridLayout->addWidget(label,6,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,6,1);
+		mSmallOrgansTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Small Mediastinal Organs:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mSmallOrgansTimerWidget, row, 1);
 		if(mServices->patient()->getData<Mesh>(otESOPHAGUS))
 			mSmallOrgansTimerWidget->stop();
+		totalMinutes += kMinSmallOrgans; row++;
 	}
 	if (mSegmentTumors)
 	{
-		QWidget* timerWidget = new QWidget;
-		mNodulesTimerWidget = new DisplayTimerWidget(timerWidget);
+		mNodulesTimerWidget = new DisplayTimerWidget(nullptr);
 		mNodulesTimerWidget->setFontSize(3);
-		mNodulesTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("Small Tumors:");
-		gridLayout->addWidget(label,7,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,7,1);
+		mNodulesTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Small Tumors:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mNodulesTimerWidget, row, 1);
 		if(mServices->patient()->getData<Mesh>(otTUMOR))
 			mNodulesTimerWidget->stop();
-	}
-	if (mSegmentTumors)
-	{
-		QWidget* timerWidget = new QWidget;
-		mTumorsTimerWidget = new DisplayTimerWidget(timerWidget);
+		row++;
+
+		mTumorsTimerWidget = new DisplayTimerWidget(nullptr);
 		mTumorsTimerWidget->setFontSize(3);
-		mTumorsTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("Large Tumors:");
-		gridLayout->addWidget(label,8,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,8,1);
+		mTumorsTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Large Tumors:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mTumorsTimerWidget, row, 1);
 		if(mServices->patient()->getData<Mesh>(otTUMOR))
 			mTumorsTimerWidget->stop();
+		totalMinutes += kMinTumors; row++;
 	}
 	if (mSegmentLungLobes)
 	{
-		QWidget* timerWidget = new QWidget;
-		mLungLobesTimerWidget = new DisplayTimerWidget(timerWidget);
+		mLungLobesTimerWidget = new DisplayTimerWidget(nullptr);
 		mLungLobesTimerWidget->setFontSize(3);
-		mLungLobesTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("Lung Lobes:");
-		gridLayout->addWidget(label,9,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,9,1);
+		mLungLobesTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Lung Lobes:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mLungLobesTimerWidget, row, 1);
 		if(mServices->patient()->getData<Mesh>(otLOBE_LUL))
 			mLungLobesTimerWidget->stop();
+		totalMinutes += kMinLungLobes; row++;
 	}
 	if (mRegisterPET)
 	{
-		QWidget* timerWidget = new QWidget;
-		mPETTimerWidget = new DisplayTimerWidget(timerWidget);
+		mPETTimerWidget = new DisplayTimerWidget(nullptr);
 		mPETTimerWidget->setFontSize(3);
-		mPETTimerWidget->setFixedWidth(50);
-		QLabel* label = new QLabel("PET:");
-		gridLayout->addWidget(label,10,0,Qt::AlignRight);
-		gridLayout->addWidget(timerWidget,10,1,11,3);
+		mPETTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("PET:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mPETTimerWidget, row, 1);
 		if(mServices->patient()->getImage(imPET, istPET_REGISTERED))
 			mPETTimerWidget->stop();
+		totalMinutes += kMinPET; row++;
+	}
+
+	if (row > 0)
+	{
+		QFrame* separator = new QFrame;
+		separator->setFrameShape(QFrame::HLine);
+		separator->setFrameShadow(QFrame::Sunken);
+		gridLayout->addWidget(separator, row, 0, 1, 2);
+		row++;
+		QLabel* totalLabel = new QLabel(QString("Estimated total: ~%1 min").arg(totalMinutes));
+		gridLayout->addWidget(totalLabel, row, 0, 1, 2, Qt::AlignRight);
 	}
 	
 	

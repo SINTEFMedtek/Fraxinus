@@ -835,7 +835,7 @@ void PatientWorkflowState::runSegmentation()
 
 	mFraxinusSegmentations->setProcessingInfoParentWidget(loadWidget->getProcessingInfoGroup());
 	mFraxinusSegmentations->startSegmentationWithOptions(
-	        true,
+	        loadWidget->isAirwaysChecked(),
 	        loadWidget->isLymphNodesChecked(),
 	        loadWidget->isHeartChecked(),
 	        loadWidget->isMediumOrgansChecked(),
@@ -957,7 +957,7 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 	{
 		mFraxinusSegmentations->setProcessingInfoParentWidget(loadWidget->getProcessingInfoGroup());
 		mFraxinusSegmentations->startSegmentationWithOptions(
-		        true, // airways always included
+		        loadWidget->isAirwaysChecked(),
 		        loadWidget->isLymphNodesChecked(),
 		        loadWidget->isHeartChecked(),
 		        loadWidget->isMediumOrgansChecked(),

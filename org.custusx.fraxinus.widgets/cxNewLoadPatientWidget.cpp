@@ -3,6 +3,8 @@
 #include <iostream>
 
 #include <QHBoxLayout>
+#include <QGridLayout>
+#include <QFrame>
 #include <QPushButton>
 #include <QCheckBox>
 #include <QDockWidget>
@@ -55,45 +57,63 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataDialog);
 
 	// Segmentation selection checkboxes
-	mCheckBoxAirways = new QCheckBox("Airways, Lungs (~7 min)");
+	mCheckBoxAirways = new QCheckBox("Airways, Lungs");
 	mCheckBoxAirways->setChecked(true);
 	mCheckBoxAirways->setDisabled(true);
+	mStatusLabelAirways = new QLabel("~7 min");
 
-	mCheckBoxLymphNodes = new QCheckBox("Lymph Nodes (~2 min)");
+	mCheckBoxLymphNodes = new QCheckBox("Lymph Nodes");
 	mCheckBoxLymphNodes->setChecked(false);
+	mStatusLabelLymphNodes = new QLabel("~2 min");
 
-	mCheckBoxHeart = new QCheckBox("Heart, Pulmonary Veins, Pulmonary Trunk (~4 min)");
+	mCheckBoxHeart = new QCheckBox("Pulmonary System");
+	mCheckBoxHeart->setToolTip("Heart, Pulmonary Veins, Pulmonary Trunk");
 	mCheckBoxHeart->setChecked(false);
+	mStatusLabelHeart = new QLabel("~4 min");
 
-	mCheckBoxMediumOrgans = new QCheckBox("Vena Cava, Aorta, Spine (~3 min)");
+	mCheckBoxMediumOrgans = new QCheckBox("Vena Cava, Aorta, Spine");
 	mCheckBoxMediumOrgans->setChecked(false);
+	mStatusLabelMediumOrgans = new QLabel("~3 min");
 
-	mCheckBoxSmallOrgans = new QCheckBox("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)");
+	mCheckBoxSmallOrgans = new QCheckBox("Small Mediastinal Organs");
+	mCheckBoxSmallOrgans->setToolTip("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos");
 	mCheckBoxSmallOrgans->setChecked(false);
+	mStatusLabelSmallOrgans = new QLabel("~2 min");
 
-	mCheckBoxTumors = new QCheckBox("Tumors (~5 min)");
+	mCheckBoxTumors = new QCheckBox("Tumors");
 	mCheckBoxTumors->setChecked(false);
+	mStatusLabelTumors = new QLabel("~5 min");
 
-	mCheckBoxLungVessels = new QCheckBox("Small Vessels (~5 min)");
+	mCheckBoxLungVessels = new QCheckBox("Small Vessels");
 	mCheckBoxLungVessels->setChecked(false);
+	mStatusLabelLungVessels = new QLabel("~5 min");
 
-	mCheckBoxLungLobes = new QCheckBox("Lung Lobes (~5 min)");
+	mCheckBoxLungLobes = new QCheckBox("Lung Lobes");
 	mCheckBoxLungLobes->setChecked(false);
+	mStatusLabelLungLobes = new QLabel("~5 min");
 
 	mCheckBoxSelectAll = new QCheckBox("Select all");
 	mCheckBoxSelectAll->setChecked(false);
 	connect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &NewLoadPatientWidget::selectAll);
 
-	QVBoxLayout* segLayout = new QVBoxLayout();
-	segLayout->addWidget(mCheckBoxAirways);
-	segLayout->addWidget(mCheckBoxLymphNodes);
-	segLayout->addWidget(mCheckBoxHeart);
-	segLayout->addWidget(mCheckBoxMediumOrgans);
-	segLayout->addWidget(mCheckBoxSmallOrgans);
-	segLayout->addWidget(mCheckBoxTumors);
-	segLayout->addWidget(mCheckBoxLungVessels);
-	segLayout->addWidget(mCheckBoxLungLobes);
-	segLayout->addWidget(mCheckBoxSelectAll);
+	QGridLayout* segLayout = new QGridLayout();
+	segLayout->setColumnStretch(0, 1);
+	int segRow = 0;
+	segLayout->addWidget(mCheckBoxSelectAll, segRow, 0, 1, 2);
+	segRow++;
+	QFrame* segSeparator = new QFrame();
+	segSeparator->setFrameShape(QFrame::HLine);
+	segSeparator->setFrameShadow(QFrame::Sunken);
+	segLayout->addWidget(segSeparator, segRow, 0, 1, 2);
+	segRow++;
+	segLayout->addWidget(mCheckBoxAirways,      segRow, 0); segLayout->addWidget(mStatusLabelAirways,      segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxLymphNodes,   segRow, 0); segLayout->addWidget(mStatusLabelLymphNodes,   segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxHeart,        segRow, 0); segLayout->addWidget(mStatusLabelHeart,        segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxMediumOrgans, segRow, 0); segLayout->addWidget(mStatusLabelMediumOrgans, segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxSmallOrgans,  segRow, 0); segLayout->addWidget(mStatusLabelSmallOrgans,  segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxTumors,       segRow, 0); segLayout->addWidget(mStatusLabelTumors,       segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxLungVessels,  segRow, 0); segLayout->addWidget(mStatusLabelLungVessels,  segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxLungLobes,    segRow, 0); segLayout->addWidget(mStatusLabelLungLobes,    segRow, 1);
 	QGroupBox* segmentationGroup = new QGroupBox("Segmentation");
 	segmentationGroup->setLayout(segLayout);
 
@@ -257,99 +277,81 @@ void NewLoadPatientWidget::updateSegmentationCheckBoxes()
 {
 	bool patientValid = mServices->patient()->isPatientValid();
 
+	auto setDone = [](QCheckBox* cb, QLabel* lbl) {
+		cb->setChecked(false);
+		cb->setDisabled(true);
+		QColor c = Styles::getGreen();
+		lbl->setStyleSheet(QString("color: rgb(%1,%2,%3); font-weight: bold;")
+			.arg(c.red()).arg(c.green()).arg(c.blue()));
+		lbl->setText("Done");
+	};
+	auto setPending = [](QLabel* lbl, const QString& est) {
+		lbl->setStyleSheet("");
+		lbl->setText(est);
+	};
+
 	if(patientValid && mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
-	{
-		mCheckBoxAirways->setText("Airways, Lungs: Completed");
-		mCheckBoxAirways->setChecked(false);
-	}
+		setDone(mCheckBoxAirways, mStatusLabelAirways);
 	else
 	{
-		mCheckBoxAirways->setText("Airways, Lungs (~7 min)");
 		mCheckBoxAirways->setChecked(true);
+		setPending(mStatusLabelAirways, "~7 min");
 	}
 
 	if(patientValid && mServices->patient()->getData<Mesh>(otLYMPH_NODES))
-	{
-		mCheckBoxLymphNodes->setText("Lymph Nodes: Completed");
-		mCheckBoxLymphNodes->setChecked(false);
-		mCheckBoxLymphNodes->setDisabled(true);
-	}
+		setDone(mCheckBoxLymphNodes, mStatusLabelLymphNodes);
 	else
 	{
-		mCheckBoxLymphNodes->setText("Lymph Nodes (~2 min)");
 		mCheckBoxLymphNodes->setDisabled(false);
+		setPending(mStatusLabelLymphNodes, "~2 min");
 	}
 
 	if(patientValid && mServices->patient()->getData<Mesh>(otHEART))
-	{
-		mCheckBoxHeart->setText("Heart, Pulmonary Veins, Pulmonary Trunk: Completed");
-		mCheckBoxHeart->setChecked(false);
-		mCheckBoxHeart->setDisabled(true);
-	}
+		setDone(mCheckBoxHeart, mStatusLabelHeart);
 	else
 	{
-		mCheckBoxHeart->setText("Heart, Pulmonary Veins, Pulmonary Trunk (~4 min)");
 		mCheckBoxHeart->setDisabled(false);
+		setPending(mStatusLabelHeart, "~4 min");
 	}
 
 	if(patientValid && mServices->patient()->getData<Mesh>(otSPINE))
-	{
-		mCheckBoxMediumOrgans->setText("Vena Cava, Aorta, Spine: Completed");
-		mCheckBoxMediumOrgans->setChecked(false);
-		mCheckBoxMediumOrgans->setDisabled(true);
-	}
+		setDone(mCheckBoxMediumOrgans, mStatusLabelMediumOrgans);
 	else
 	{
-		mCheckBoxMediumOrgans->setText("Vena Cava, Aorta, Spine (~3 min)");
 		mCheckBoxMediumOrgans->setDisabled(false);
+		setPending(mStatusLabelMediumOrgans, "~3 min");
 	}
 
 	if(patientValid && mServices->patient()->getData<Mesh>(otESOPHAGUS))
-	{
-		mCheckBoxSmallOrgans->setText("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos: Completed");
-		mCheckBoxSmallOrgans->setChecked(false);
-		mCheckBoxSmallOrgans->setDisabled(true);
-	}
+		setDone(mCheckBoxSmallOrgans, mStatusLabelSmallOrgans);
 	else
 	{
-		mCheckBoxSmallOrgans->setText("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos (~2 min)");
 		mCheckBoxSmallOrgans->setDisabled(false);
+		setPending(mStatusLabelSmallOrgans, "~2 min");
 	}
 
 	if(patientValid && mServices->patient()->getData<Mesh>(otTUMOR))
-	{
-		mCheckBoxTumors->setText("Tumors: Completed");
-		mCheckBoxTumors->setChecked(false);
-		mCheckBoxTumors->setDisabled(true);
-	}
+		setDone(mCheckBoxTumors, mStatusLabelTumors);
 	else
 	{
-		mCheckBoxTumors->setText("Tumors (~5 min)");
 		mCheckBoxTumors->setDisabled(false);
+		setPending(mStatusLabelTumors, "~5 min");
 	}
 
 	if(patientValid && mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
-	{
-		mCheckBoxLungVessels->setText("Small Vessels: Completed");
-		mCheckBoxLungVessels->setChecked(false);
-		mCheckBoxLungVessels->setDisabled(true);
-	}
+		setDone(mCheckBoxLungVessels, mStatusLabelLungVessels);
 	else
 	{
-		mCheckBoxLungVessels->setText("Small Vessels (~5 min)");
 		mCheckBoxLungVessels->setDisabled(false);
+		setPending(mStatusLabelLungVessels, "~5 min");
 	}
 
 	if(patientValid && mServices->patient()->getData<Mesh>(otLOBE_LUL))
-	{
-		mCheckBoxLungLobes->setText("Lung Lobes: Completed");
-		mCheckBoxLungLobes->setChecked(false);
-		mCheckBoxLungLobes->setDisabled(true);
-	}
+		setDone(mCheckBoxLungLobes, mStatusLabelLungLobes);
 	else
 	{
-		mCheckBoxLungLobes->setText("Lung Lobes (~5 min)");
 		mCheckBoxLungLobes->setDisabled(false);
+		setPending(mStatusLabelLungLobes, "~5 min");
 	}
 }
 
@@ -371,6 +373,7 @@ void NewLoadPatientWidget::selectAll(bool checked)
 		mCheckBoxLungLobes->setChecked(checked);
 }
 
+bool NewLoadPatientWidget::isAirwaysChecked() const { return mCheckBoxAirways->isChecked(); }
 bool NewLoadPatientWidget::isLymphNodesChecked() const { return mCheckBoxLymphNodes->isChecked(); }
 bool NewLoadPatientWidget::isHeartChecked() const { return mCheckBoxHeart->isChecked(); }
 bool NewLoadPatientWidget::isMediumOrgansChecked() const { return mCheckBoxMediumOrgans->isChecked(); }
