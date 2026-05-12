@@ -62,13 +62,18 @@
       LIBS_HASH=$(sha256sum $CX_SOURCE_PATH/install/cx/build/cxComponents.py | awk '{print $1}' | cut -c1-16)
     fi
   - IMAGE_TAG=$(echo $CI_JOB_IMAGE | sed 's|.*/||' | tr ':' '_')
-  - PACKAGE_NAME="fraxinus-external-libs"
   - PACKAGE_VERSION="${OS}-${IMAGE_TAG}-${IGSTK_SUFFIX}-${LIBS_HASH}"
-  - PACKAGE_FILE="fx-external-libs-${OS}-${IGSTK_SUFFIX}.tar.gz"
-  - PACKAGE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${PACKAGE_VERSION}/${PACKAGE_FILE}"
+  # CX Package Registry (primary source — requires CX project to allow FX job token access)
+  - CX_PACKAGE_NAME="custusx-external-libs"
+  - CX_PACKAGE_FILE="cx-external-libs-${OS}-${IGSTK_SUFFIX}.tar.gz"
+  - CX_PACKAGE_URL="${CI_API_V4_URL}/projects/custusx%2FCustusX/packages/generic/${CX_PACKAGE_NAME}/${PACKAGE_VERSION}/${CX_PACKAGE_FILE}"
+  # FX Package Registry (secondary source — used when FX built libs itself as fallback)
+  - FX_PACKAGE_NAME="fraxinus-external-libs"
+  - FX_PACKAGE_FILE="fx-external-libs-${OS}-${IGSTK_SUFFIX}.tar.gz"
+  - FX_PACKAGE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${FX_PACKAGE_NAME}/${PACKAGE_VERSION}/${FX_PACKAGE_FILE}"
   - LIBS_SENTINEL="$BASE_DIR/.lib_version_${PACKAGE_VERSION}"
   - echo "Libs package version $PACKAGE_VERSION"
-  # Try to use prebuilt libs: local cache first, then Package Registry, then full rebuild.
+  # Try to use prebuilt libs: local cache first, then CX registry, then FX registry, then full rebuild.
   # All cd $BASE_DIR calls use subshells to keep the working directory at CI_PROJECT_DIR.
   - |
     LIBS_READY=false
@@ -76,17 +81,28 @@
       echo "Lib cache hit: $LIBS_SENTINEL"
       LIBS_READY=true
     elif [ -n "$LIBS_HASH" ]; then
-      echo "Lib cache miss, checking Package Registry..."
-      HTTP_CODE=$(curl -s -o /tmp/$PACKAGE_FILE -w "%{http_code}" \
-        --header "JOB-TOKEN: $CI_JOB_TOKEN" "$PACKAGE_URL")
+      echo "Lib cache miss, checking CX Package Registry..."
+      HTTP_CODE=$(curl -s -o /tmp/$CX_PACKAGE_FILE -w "%{http_code}" \
+        --header "JOB-TOKEN: $CI_JOB_TOKEN" "$CX_PACKAGE_URL")
       if [ "$HTTP_CODE" = "200" ]; then
-        echo "Downloaded prebuilt libs, extracting to $BASE_DIR..."
-        ( cd $BASE_DIR && rm -rf $IGSTK_LIBS && tar -xzf /tmp/$PACKAGE_FILE )
+        echo "Downloaded CX prebuilt libs, extracting to $BASE_DIR..."
+        ( cd $BASE_DIR && rm -rf $IGSTK_LIBS && tar -xzf /tmp/$CX_PACKAGE_FILE )
         rm -f $BASE_DIR/.lib_version_*
         touch "$LIBS_SENTINEL"
         LIBS_READY=true
       else
-        echo "Package not found (HTTP $HTTP_CODE), will build all from scratch."
+        echo "Not in CX registry (HTTP $HTTP_CODE), checking FX Package Registry..."
+        HTTP_CODE=$(curl -s -o /tmp/$FX_PACKAGE_FILE -w "%{http_code}" \
+          --header "JOB-TOKEN: $CI_JOB_TOKEN" "$FX_PACKAGE_URL")
+        if [ "$HTTP_CODE" = "200" ]; then
+          echo "Downloaded FX prebuilt libs, extracting to $BASE_DIR..."
+          ( cd $BASE_DIR && rm -rf $IGSTK_LIBS && tar -xzf /tmp/$FX_PACKAGE_FILE )
+          rm -f $BASE_DIR/.lib_version_*
+          touch "$LIBS_SENTINEL"
+          LIBS_READY=true
+        else
+          echo "Package not found in either registry (HTTP $HTTP_CODE), will build all from scratch."
+        fi
       fi
     else
       echo "CX source not yet available, building all from scratch."
@@ -103,18 +119,18 @@
       eval ./script/cxFraxinusPrivateInstaller.py -s --all --full -t Release --user_doc --developer_doc \
         --main_branch $CX_COMMIT \
         --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
-      echo "Uploading libs to Package Registry for future runs..."
+      echo "Uploading libs to FX Package Registry for future runs..."
       LIBS_HASH=$(sha256sum $CX_SOURCE_PATH/install/cx/build/cxComponents.py | awk '{print $1}' | cut -c1-16)
       PACKAGE_VERSION="${OS}-${IMAGE_TAG}-${IGSTK_SUFFIX}-${LIBS_HASH}"
-      PACKAGE_FILE="fx-external-libs-${OS}-${IGSTK_SUFFIX}.tar.gz"
-      PACKAGE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${PACKAGE_VERSION}/${PACKAGE_FILE}"
+      FX_PACKAGE_FILE="fx-external-libs-${OS}-${IGSTK_SUFFIX}.tar.gz"
+      FX_PACKAGE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${FX_PACKAGE_NAME}/${PACKAGE_VERSION}/${FX_PACKAGE_FILE}"
       LIBS_SENTINEL="$BASE_DIR/.lib_version_${PACKAGE_VERSION}"
-      ( cd $BASE_DIR && tar -czf /tmp/$PACKAGE_FILE \
+      ( cd $BASE_DIR && tar -czf /tmp/$FX_PACKAGE_FILE \
         --exclude='*/CMakeFiles' \
         --exclude='*/.git' \
         $IGSTK_LIBS )
       curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-        --upload-file /tmp/$PACKAGE_FILE "$PACKAGE_URL" || true
+        --upload-file /tmp/$FX_PACKAGE_FILE "$FX_PACKAGE_URL" || true
       rm -f $BASE_DIR/.lib_version_*
       touch "$LIBS_SENTINEL"
     fi
