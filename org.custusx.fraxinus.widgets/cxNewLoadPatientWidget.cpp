@@ -111,9 +111,9 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->addSpacing(50);
-	layout->addWidget(newButton);
-	layout->addSpacing(25);
 	layout->addWidget(newButtonFromUSB);
+	layout->addSpacing(25);
+	layout->addWidget(newButton);
 	layout->addSpacing(25);
 	layout->addWidget(loadButton);
 	layout->addSpacing(50);
