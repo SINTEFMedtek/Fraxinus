@@ -172,6 +172,7 @@ build-ubuntu20:
   variables:
     OS: Ubuntu2004
     BUILD_IGSTK: "true"
+    BASE_DIR: /builds/Ubuntu2004igstk
 
 build-ubuntu22:
   extends: .reuse-build
@@ -179,9 +180,11 @@ build-ubuntu22:
   variables:
     OS: Ubuntu2204
     BUILD_IGSTK: "true"
+    BASE_DIR: /builds/Ubuntu2204igstk
 
 build-ubuntu24:
   extends: .reuse-build
   image: $IMAGE_UBUNTU2404
   variables:
     OS: Ubuntu2404
+    BASE_DIR: /builds/Ubuntu2404
