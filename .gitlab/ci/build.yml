@@ -144,7 +144,7 @@
       eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc \
         --main_branch $CX_COMMIT \
         --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
-        components CustusX Fraxinus FraxinusTracking USSimulator CTK
+        components CustusX Fraxinus FraxinusTracking USSimulator
     else
       echo "Full build (all external libs + Fraxinus)..."
       eval ./script/cxFraxinusPrivateInstaller.py -s --all --full -t Release --user_doc --developer_doc \
