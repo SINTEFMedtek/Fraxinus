@@ -16,6 +16,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 
 #include <QDialog>
 #include <QCheckBox>
+#include <QMap>
 #include "cxFilterTimedAlgorithm.h"
 #include "cxTimedAlgorithmProgressBar.h"
 #include "cxDefinitions.h"
@@ -119,17 +120,7 @@ private:
 	QDialog* mSegmentationProcessingInfo = nullptr;
 	QDialog* mSegmentationFinishedInfo = nullptr;
 	QWidget* mProcessingInfoParentWidget = nullptr;
-	QProgressBar* mProgressBarAirways = nullptr;
-	QProgressBar* mProgressBarLungVessels = nullptr;
-	QProgressBar* mProgressBarLymphNodes = nullptr;
-	QProgressBar* mProgressBarHeart = nullptr;
-	QProgressBar* mProgressBarMediumOrgans = nullptr;
-	QProgressBar* mProgressBarSmallOrgans = nullptr;
-	QProgressBar* mProgressBarNodules = nullptr;
-	QProgressBar* mProgressBarTumors = nullptr;
-	QProgressBar* mProgressBarLungLobes = nullptr;
-	QProgressBar* mProgressBarCenterlines = nullptr;
-	QProgressBar* mProgressBarPET = nullptr;
+	QMap<LUNG_STRUCTURES, QProgressBar*> mProgressBars;
 	DisplayTimerWidget* mAirwaysTimerWidget = nullptr;
 	DisplayTimerWidget* mLungsTimerWidget = nullptr;
 	DisplayTimerWidget* mLymphNodesTimerWidget = nullptr;
