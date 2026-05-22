@@ -134,17 +134,7 @@ private:
 	DisplayTimerWidget* mLungLobesTimerWidget = nullptr;
 	DisplayTimerWidget* mCenterlinesTimerWidget = nullptr;
 	DisplayTimerWidget* mActiveTimerWidget = NULL;
-	QCheckBox* mCheckBoxAirways = nullptr;
-	QCheckBox* mCheckBoxLungs = nullptr;
-	QCheckBox* mCheckBoxLymphNodes = nullptr;
-	QCheckBox* mCheckBoxHeart = nullptr;
-	QCheckBox* mCheckBoxMediumOrgans = nullptr;
-	QCheckBox* mCheckBoxSmallOrgans = nullptr;
-	QCheckBox* mCheckBoxNodules = nullptr;
-	QCheckBox* mCheckBoxTumors = nullptr;
-
-	QCheckBox* mCheckBoxLungVessels = nullptr;
-	QCheckBox* mCheckBoxLungLobes = nullptr;
+	QMap<LUNG_STRUCTURES, QCheckBox*> mCheckBoxes;
 	QCheckBox* mCheckBoxSelectAll = nullptr;
 	bool mAirwaysProcessed = false;
 	bool mLungVesselsProcessed = false;

@@ -163,14 +163,9 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	connect(mCancelbutton, &QPushButton::clicked, this, &FraxinusSegmentations::cancel);
 	
 	QVBoxLayout* checkBoxLayout = new QVBoxLayout;
-	checkBoxLayout->addWidget(mCheckBoxAirways);
-	checkBoxLayout->addWidget(mCheckBoxLymphNodes);
-	checkBoxLayout->addWidget(mCheckBoxHeart);
-	checkBoxLayout->addWidget(mCheckBoxMediumOrgans);
-	checkBoxLayout->addWidget(mCheckBoxSmallOrgans);
-	checkBoxLayout->addWidget(mCheckBoxTumors);
-	checkBoxLayout->addWidget(mCheckBoxLungVessels);
-	checkBoxLayout->addWidget(mCheckBoxLungLobes);
+	for (LUNG_STRUCTURES key : {lsAIRWAYS, lsLYMPH_NODES, lsHEART, lsMEDIUM_ORGANS, lsSMALL_ORGANS, lsTUMOR, lsLUNG_VESSELS, lsLOBE})
+		if (QCheckBox* cb = mCheckBoxes.value(key, nullptr))
+			checkBoxLayout->addWidget(cb);
 	checkBoxLayout->addWidget(mCheckBoxSelectAll);
 	
 	QGridLayout* mainLayout = new QGridLayout;
@@ -186,115 +181,123 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 
 void FraxinusSegmentations::updateSelectSegmentationBox()
 {
-	if(!mCheckBoxAirways)
-		mCheckBoxAirways = new QCheckBox();
+	QCheckBox*& cbAirways = mCheckBoxes[lsAIRWAYS];
+	if (!cbAirways)
+		cbAirways = new QCheckBox();
 	if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES) || mAirwaysProcessed)
 	{
-		mCheckBoxAirways->setText("Airways, Lungs: Completed");
-		mCheckBoxAirways->setChecked(false);
+		cbAirways->setText("Airways, Lungs: Completed");
+		cbAirways->setChecked(false);
 	}
 	else
 	{
-		mCheckBoxAirways->setText(QString("Airways, Lungs (~%1 min)").arg(kMinAirways));
-		mCheckBoxAirways->setChecked(true);
+		cbAirways->setText(QString("Airways, Lungs (~%1 min)").arg(kMinAirways));
+		cbAirways->setChecked(true);
 	}
-	mCheckBoxAirways->setDisabled(true);
+	cbAirways->setDisabled(true);
 
-	if(!mCheckBoxLymphNodes)
-		mCheckBoxLymphNodes = new QCheckBox();
+	QCheckBox*& cbLymphNodes = mCheckBoxes[lsLYMPH_NODES];
+	if (!cbLymphNodes)
+		cbLymphNodes = new QCheckBox();
 	if(mServices->patient()->getData<Mesh>(otLYMPH_NODES) || mLymphNodesProcessed)
 	{
-		mCheckBoxLymphNodes->setText("Lymph Nodes: Completed");
-		mCheckBoxLymphNodes->setDisabled(true);
+		cbLymphNodes->setText("Lymph Nodes: Completed");
+		cbLymphNodes->setDisabled(true);
 	}
 	else
 	{
-		mCheckBoxLymphNodes->setText(QString("Lymph Nodes (~%1 min)").arg(kMinLymphNodes));
-		mCheckBoxLymphNodes->setDisabled(false);
+		cbLymphNodes->setText(QString("Lymph Nodes (~%1 min)").arg(kMinLymphNodes));
+		cbLymphNodes->setDisabled(false);
 	}
 
-	if(!mCheckBoxHeart)
+	QCheckBox*& cbHeart = mCheckBoxes[lsHEART];
+	if (!cbHeart)
 	{
-		mCheckBoxHeart = new QCheckBox();
-		mCheckBoxHeart->setToolTip("Heart, Pulmonary Veins, Pulmonary Trunk");
+		cbHeart = new QCheckBox();
+		cbHeart->setToolTip("Heart, Pulmonary Veins, Pulmonary Trunk");
 	}
 	if(mServices->patient()->getData<Mesh>(otHEART) || mHeartProcessed)
 	{
-		mCheckBoxHeart->setText("Pulmonary System: Completed");
-		mCheckBoxHeart->setDisabled(true);
+		cbHeart->setText("Pulmonary System: Completed");
+		cbHeart->setDisabled(true);
 	}
 	else
 	{
-		mCheckBoxHeart->setText(QString("Pulmonary System (~%1 min)").arg(kMinHeart));
-		mCheckBoxHeart->setDisabled(false);
+		cbHeart->setText(QString("Pulmonary System (~%1 min)").arg(kMinHeart));
+		cbHeart->setDisabled(false);
 	}
 
-	if(!mCheckBoxMediumOrgans)
-		mCheckBoxMediumOrgans = new QCheckBox();
+	QCheckBox*& cbMediumOrgans = mCheckBoxes[lsMEDIUM_ORGANS];
+	if (!cbMediumOrgans)
+		cbMediumOrgans = new QCheckBox();
 	if(mServices->patient()->getData<Mesh>(otSPINE) || mMediumOrgansProcessed)
 	{
-		mCheckBoxMediumOrgans->setText("Vena Cava, Aorta, Spine: Completed");
-		mCheckBoxMediumOrgans->setDisabled(true);
+		cbMediumOrgans->setText("Vena Cava, Aorta, Spine: Completed");
+		cbMediumOrgans->setDisabled(true);
 	}
 	else
 	{
-		mCheckBoxMediumOrgans->setText(QString("Vena Cava, Aorta, Spine (~%1 min)").arg(kMinMediumOrgans));
-		mCheckBoxMediumOrgans->setDisabled(false);
+		cbMediumOrgans->setText(QString("Vena Cava, Aorta, Spine (~%1 min)").arg(kMinMediumOrgans));
+		cbMediumOrgans->setDisabled(false);
 	}
 
-	if(!mCheckBoxSmallOrgans)
+	QCheckBox*& cbSmallOrgans = mCheckBoxes[lsSMALL_ORGANS];
+	if (!cbSmallOrgans)
 	{
-		mCheckBoxSmallOrgans = new QCheckBox();
-		mCheckBoxSmallOrgans->setToolTip("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos");
+		cbSmallOrgans = new QCheckBox();
+		cbSmallOrgans->setToolTip("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos");
 	}
 	if(mServices->patient()->getData<Mesh>(otESOPHAGUS) || mSmallOrgansProcessed)
 	{
-		mCheckBoxSmallOrgans->setText("Small Mediastinal Organs: Completed");
-		mCheckBoxSmallOrgans->setDisabled(true);
+		cbSmallOrgans->setText("Small Mediastinal Organs: Completed");
+		cbSmallOrgans->setDisabled(true);
 	}
 	else
 	{
-		mCheckBoxSmallOrgans->setText(QString("Small Mediastinal Organs (~%1 min)").arg(kMinSmallOrgans));
-		mCheckBoxSmallOrgans->setDisabled(false);
+		cbSmallOrgans->setText(QString("Small Mediastinal Organs (~%1 min)").arg(kMinSmallOrgans));
+		cbSmallOrgans->setDisabled(false);
 	}
 
-	if(!mCheckBoxTumors)
-		mCheckBoxTumors = new QCheckBox();
+	QCheckBox*& cbTumors = mCheckBoxes[lsTUMOR];
+	if (!cbTumors)
+		cbTumors = new QCheckBox();
 	if(mServices->patient()->getData<Mesh>(otTUMOR) || mTumorsProcessed)
 	{
-		mCheckBoxTumors->setText("Tumors: Completed");
-		mCheckBoxTumors->setDisabled(true);
+		cbTumors->setText("Tumors: Completed");
+		cbTumors->setDisabled(true);
 	}
 	else
 	{
-		mCheckBoxTumors->setText(QString("Tumors (~%1 min)").arg(kMinTumors));
-		mCheckBoxTumors->setDisabled(false);
+		cbTumors->setText(QString("Tumors (~%1 min)").arg(kMinTumors));
+		cbTumors->setDisabled(false);
 	}
 
-	if(!mCheckBoxLungVessels)
-		mCheckBoxLungVessels = new QCheckBox();
+	QCheckBox*& cbLungVessels = mCheckBoxes[lsLUNG_VESSELS];
+	if (!cbLungVessels)
+		cbLungVessels = new QCheckBox();
 	if(mServices->patient()->getData<Mesh>(otLUNG_VESSELS) || mLungVesselsProcessed)
 	{
-		mCheckBoxLungVessels->setText("Small Vessels: Completed");
-		mCheckBoxLungVessels->setDisabled(true);
+		cbLungVessels->setText("Small Vessels: Completed");
+		cbLungVessels->setDisabled(true);
 	}
 	else
 	{
-		mCheckBoxLungVessels->setText(QString("Small Vessels (~%1 min)").arg(kMinLungVessels));
-		mCheckBoxLungVessels->setDisabled(false);
+		cbLungVessels->setText(QString("Small Vessels (~%1 min)").arg(kMinLungVessels));
+		cbLungVessels->setDisabled(false);
 	}
 
-	if(!mCheckBoxLungLobes)
-		mCheckBoxLungLobes = new QCheckBox();
+	QCheckBox*& cbLungLobes = mCheckBoxes[lsLOBE];
+	if (!cbLungLobes)
+		cbLungLobes = new QCheckBox();
 	if(mServices->patient()->getData<Mesh>(otLOBE_LUL) || mLungLobesProcessed)
 	{
-		mCheckBoxLungLobes->setText("Lung Lobes: Completed");
-		mCheckBoxLungLobes->setDisabled(true);
+		cbLungLobes->setText("Lung Lobes: Completed");
+		cbLungLobes->setDisabled(true);
 	}
 	else
 	{
-		mCheckBoxLungLobes->setText(QString("Lung Lobes (~%1 min)").arg(kMinLungLobes));
-		mCheckBoxLungLobes->setDisabled(false);
+		cbLungLobes->setText(QString("Lung Lobes (~%1 min)").arg(kMinLungLobes));
+		cbLungLobes->setDisabled(false);
 	}
 
 	if(!mCheckBoxSelectAll)
@@ -304,34 +307,25 @@ void FraxinusSegmentations::updateSelectSegmentationBox()
 
 void FraxinusSegmentations::selectAll(bool checked)
 {
-	if(mCheckBoxAirways->isEnabled())
-		mCheckBoxAirways->setChecked(checked);
-	if(mCheckBoxLymphNodes->isEnabled())
-		mCheckBoxLymphNodes->setChecked(checked);
-	if(mCheckBoxHeart->isEnabled())
-		mCheckBoxHeart->setChecked(checked);
-	if(mCheckBoxMediumOrgans->isEnabled())
-		mCheckBoxMediumOrgans->setChecked(checked);
-	if(mCheckBoxSmallOrgans->isEnabled())
-		mCheckBoxSmallOrgans->setChecked(checked);
-	if(mCheckBoxTumors->isEnabled())
-		mCheckBoxTumors->setChecked(checked);
-	if(mCheckBoxLungVessels->isEnabled())
-		mCheckBoxLungVessels->setChecked(checked);
-	if(mCheckBoxLungLobes->isEnabled())
-		mCheckBoxLungLobes->setChecked(checked);
+	for (QCheckBox* cb : mCheckBoxes)
+		if (cb && cb->isEnabled())
+			cb->setChecked(checked);
 }
 
 void FraxinusSegmentations::imageSelected()
 {
-	mSegmentAirways = mCheckBoxAirways->isChecked();
-	mSegmentLungVessels = mCheckBoxLungVessels->isChecked();
-	mSegmentLungLobes = mCheckBoxLungLobes->isChecked();
-	mSegmentLymphNodes = mCheckBoxLymphNodes->isChecked();
-	mSegmentHeart = mCheckBoxHeart->isChecked();
-	mSegmentMediumOrgans = mCheckBoxMediumOrgans->isChecked();
-	mSegmentSmallOrgans = mCheckBoxSmallOrgans->isChecked();
-	mSegmentTumors = mCheckBoxTumors->isChecked();
+	auto isChecked = [this](LUNG_STRUCTURES key) {
+		QCheckBox* cb = mCheckBoxes.value(key, nullptr);
+		return cb && cb->isChecked();
+	};
+	mSegmentAirways      = isChecked(lsAIRWAYS);
+	mSegmentLungVessels  = isChecked(lsLUNG_VESSELS);
+	mSegmentLungLobes    = isChecked(lsLOBE);
+	mSegmentLymphNodes   = isChecked(lsLYMPH_NODES);
+	mSegmentHeart        = isChecked(lsHEART);
+	mSegmentMediumOrgans = isChecked(lsMEDIUM_ORGANS);
+	mSegmentSmallOrgans  = isChecked(lsSMALL_ORGANS);
+	mSegmentTumors       = isChecked(lsTUMOR);
 	mRegisterPET = mServices->patient()->getImage(imCT, istPET_CT)
 	        && mServices->patient()->getImage(imPET, istPET)
 	        && !mServices->patient()->getImage(imPET, istPET_REGISTERED);
