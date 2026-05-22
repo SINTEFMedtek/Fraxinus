@@ -359,7 +359,7 @@ QMainWindow* FraxinusWorkflowState::getMainWindow()
 	for (QWidgetList::iterator i = widgets.begin(); i != widgets.end(); ++i)
 		if ((*i)->objectName() == "main_window")
 			return (QMainWindow*) (*i);
-	return NULL;
+	return nullptr;
 }
 
 NewLoadPatientWidget* FraxinusWorkflowState::getNewLoadPatientWidget()
@@ -492,8 +492,8 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	
 	std::map<QString, MeshPtr> tumors = mServices->patient()->getDataOfType<Mesh>(otTUMOR);
 	std::vector<DataPtr> tumorObjects;
-	for (std::map<QString, MeshPtr>::const_iterator iter = tumors.begin(); iter != tumors.end(); ++iter)
-		tumorObjects.push_back(iter->second);
+	for (const auto& item : tumors)
+		tumorObjects.push_back(item.second);
 
 	std::vector<DataPtr> noduleObjects;
 	MeshPtr nodules = mServices->patient()->getData<Mesh>(otNODULES);
@@ -607,8 +607,8 @@ void FraxinusWorkflowState::setupTumorInformationWidget(TumorInformationWidget* 
 {
 	std::map<QString, MeshPtr> tumors = mServices->patient()->getDataOfType<Mesh>(otTUMOR);
 	std::vector<MeshPtr> tumorObjects;
-	for (std::map<QString, MeshPtr>::const_iterator iter = tumors.begin(); iter != tumors.end(); ++iter)
-		tumorObjects.push_back(iter->second);
+	for (const auto& item : tumors)
+		tumorObjects.push_back(item.second);
 
 	widget->setTumorMeshes(tumorObjects);
 }
@@ -1065,9 +1065,7 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
-	std::vector<unsigned int> viewGroupNumbers;
-	viewGroupNumbers.push_back(m3DViewGroupNumber);
-	viewGroupNumbers.push_back(m2DViewGroupNumber);
+	std::vector<unsigned int> viewGroupNumbers = {m3DViewGroupNumber, m2DViewGroupNumber};
 	this->setupPinPointWidget(viewGroupNumbers);
 	
 	PinpointWidget* pinPointWidget = this->getPinpointWidget();
@@ -1234,9 +1232,8 @@ void PinpointWorkflowState::showViaPoints(bool show)
 	if(!metricManager)
 		return;
 	std::map<QString, PointMetricPtr> airwayMetrics = metricManager->getPointMetrics(pinPointWidget->getExtraAirwayMetricUid());
-	std::map<QString, PointMetricPtr>::iterator it = airwayMetrics.begin();
-	for( ; it != airwayMetrics.end(); ++it)
-		this->showPointMetric(it->second, show);
+	for (const auto& item : airwayMetrics)
+		this->showPointMetric(item.second, show);
 }
 
 void PinpointWorkflowState::showPointMetric(PointMetricPtr point, bool show)
@@ -1333,11 +1330,10 @@ void PinpointWorkflowState::deleteOldRouteToTarget()
 
 	QString targetName = target->getName();
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
-	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+	for (const auto& item : datas)
 	{
-		QString meshName = iter->first;
-		if(meshName.contains(targetName))
-			mServices->patient()->removeData(iter->second->getUid());
+		if (item.first.contains(targetName))
+			mServices->patient()->removeData(item.second->getUid());
 	}
 }
 
@@ -1738,7 +1734,7 @@ bool VirtualBronchoscopyAnyplaneWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 ProcedurePlanningWorkflowState::ProcedurePlanningWorkflowState(QState* parent, RegServicesPtr services) :
-	FraxinusWorkflowState(parent, "ProcedurePlanningUid", "Procedure Plannig", services, true)
+	FraxinusWorkflowState(parent, "ProcedurePlanningUid", "Procedure Planning", services, true)
 , m3DViewGroupNumber(0)
 , m2DViewGroupNumber(1)
 {
@@ -1758,9 +1754,7 @@ void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
 	viewService()->setCenterToTool2D(false);
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
-	std::vector<unsigned int> viewGroupNumbers;
-	viewGroupNumbers.push_back(m3DViewGroupNumber);
-	viewGroupNumbers.push_back(m2DViewGroupNumber);
+	std::vector<unsigned int> viewGroupNumbers = {m3DViewGroupNumber, m2DViewGroupNumber};
 	this->setupProcedurePlanningWidget(viewGroupNumbers);
 	ProcedurePlanningWidget* procedurePlanningWidget = this->getProcedurePlanningWidget();
 	if(procedurePlanningWidget)
@@ -1804,7 +1798,7 @@ void ProcedurePlanningWorkflowState::addDataToView()
 
 bool ProcedurePlanningWorkflowState::canEnter() const
 {
-	return mServices->patient()->isPatientValid();;
+	return mServices->patient()->isPatientValid();
 }
 
 } //namespace cx
