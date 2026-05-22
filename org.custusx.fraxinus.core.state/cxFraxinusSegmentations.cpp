@@ -458,6 +458,16 @@ void FraxinusSegmentations::createProcessingInfo()
 
 	int totalMinutes = 0;
 	int row = 0;
+	bool raidionicsTimerPlaced = false;
+
+	auto addRaidionicsTimer = [&](DisplayTimerWidget* timer, int layoutRow) {
+		if (!raidionicsTimerPlaced)
+		{
+			gridLayout->addWidget(timer, layoutRow, 2);
+			raidionicsTimerPlaced = true;
+		}
+	};
+
 	if (mSegmentAirways)
 	{
 		mProgressBarAirways = makeProgressBar();
@@ -466,7 +476,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		mAirwaysTimerWidget->setFixedWidth(80);
 		gridLayout->addWidget(new QLabel("Airways, Lungs:"), row, 0, Qt::AlignRight);
 		gridLayout->addWidget(mProgressBarAirways, row, 1);
-		gridLayout->addWidget(mAirwaysTimerWidget, row, 2);
+		addRaidionicsTimer(mAirwaysTimerWidget, row);
 		if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
 		{
 			mAirwaysTimerWidget->stop();
@@ -512,7 +522,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		mLymphNodesTimerWidget->setFixedWidth(80);
 		gridLayout->addWidget(new QLabel("Lymph Nodes:"), row, 0, Qt::AlignRight);
 		gridLayout->addWidget(mProgressBarLymphNodes, row, 1);
-		gridLayout->addWidget(mLymphNodesTimerWidget, row, 2);
+		addRaidionicsTimer(mLymphNodesTimerWidget, row);
 		if(mServices->patient()->getData<Mesh>(otLYMPH_NODES))
 		{
 			mLymphNodesTimerWidget->stop();
@@ -528,7 +538,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		mHeartTimerWidget->setFixedWidth(80);
 		gridLayout->addWidget(new QLabel("Pulmonary System:"), row, 0, Qt::AlignRight);
 		gridLayout->addWidget(mProgressBarHeart, row, 1);
-		gridLayout->addWidget(mHeartTimerWidget, row, 2);
+		addRaidionicsTimer(mHeartTimerWidget, row);
 		if(mServices->patient()->getData<Mesh>(otHEART))
 		{
 			mHeartTimerWidget->stop();
@@ -544,7 +554,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		mMediumOrgansTimerWidget->setFixedWidth(80);
 		gridLayout->addWidget(new QLabel("Vena Cava, Aorta, Spine:"), row, 0, Qt::AlignRight);
 		gridLayout->addWidget(mProgressBarMediumOrgans, row, 1);
-		gridLayout->addWidget(mMediumOrgansTimerWidget, row, 2);
+		addRaidionicsTimer(mMediumOrgansTimerWidget, row);
 		if(mServices->patient()->getData<Mesh>(otSPINE))
 		{
 			mMediumOrgansTimerWidget->stop();
@@ -560,7 +570,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		mSmallOrgansTimerWidget->setFixedWidth(80);
 		gridLayout->addWidget(new QLabel("Small Mediastinal Organs:"), row, 0, Qt::AlignRight);
 		gridLayout->addWidget(mProgressBarSmallOrgans, row, 1);
-		gridLayout->addWidget(mSmallOrgansTimerWidget, row, 2);
+		addRaidionicsTimer(mSmallOrgansTimerWidget, row);
 		if(mServices->patient()->getData<Mesh>(otESOPHAGUS))
 		{
 			mSmallOrgansTimerWidget->stop();
@@ -590,7 +600,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		mTumorsTimerWidget->setFixedWidth(80);
 		gridLayout->addWidget(new QLabel("Large Tumors:"), row, 0, Qt::AlignRight);
 		gridLayout->addWidget(mProgressBarTumors, row, 1);
-		gridLayout->addWidget(mTumorsTimerWidget, row, 2);
+		addRaidionicsTimer(mTumorsTimerWidget, row);
 		if(mServices->patient()->getData<Mesh>(otTUMOR))
 		{
 			mTumorsTimerWidget->stop();
