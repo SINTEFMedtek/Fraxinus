@@ -507,16 +507,12 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	if(mServices->patient()->getData<Mesh>(otTUMOR))
 		mNodulesProcessed = true;
 
-	if(mLungLobesProcessed || !mSegmentLungLobes)
+	if ((!mSegmentLungLobes   || mLungLobesProcessed)  &&
+	    (!mSegmentLungVessels || mLungVesselsProcessed) &&
+	    (!mSegmentTumors      || mNodulesProcessed))
 	{
-		if(mLungVesselsProcessed || !mSegmentLungVessels)
-		{
-			if(mNodulesProcessed || !mSegmentTumors)
-			{
-				this->performMLSegmentation(image);
-				return;
-			}
-		}
+		this->performMLSegmentation(image);
+		return;
 	}
 
 	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
@@ -571,7 +567,6 @@ QStringList FraxinusSegmentations::getRaidionicsOutputClasses(bool startTimers)
 	if(mSegmentAirways && !mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES) && !mAirwaysProcessed)
 	{
 		mActiveTimerWidget = mTimerWidgets.value(lsAIRWAYS, nullptr);
-		//retval << enum2string(otLUNGS);
 		retval << enum2string(otAIRWAYS);
 		if(startTimers && mActiveTimerWidget)
 			mActiveTimerWidget->start();
@@ -645,15 +640,13 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 	scriptFilter->getOutputTypes();
 	scriptFilter->getOptions();
 
-	if(runRaidionics(scriptFilter))
-	{}
-	else
+	if(!runRaidionics(scriptFilter))
 	{
-		mActiveTimerWidget = NULL;
+		mActiveTimerWidget = nullptr;
 		mCurrentSegmentationType = lsUNKNOWN;
 		this->showProcessingInfoFinished();
 		return;
-	} 
+	}
 	
 	input[0]->setValue(image->getUid());
 	mCurrentFilter = scriptFilter;
