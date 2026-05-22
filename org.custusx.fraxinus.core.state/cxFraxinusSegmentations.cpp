@@ -12,10 +12,16 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxFraxinusSegmentations.h"
 #include <QLabel>
 #include <QFrame>
+#include <QProgressBar>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QPushButton>
 #include <QMessageBox>
+#include <QApplication>
+#include <QDockWidget>
+#include <QMainWindow>
+#include <QScrollArea>
+#include <QTimer>
 #include <vtkImageBlend.h>
 #include <vtkImageData.h>
 #include <vtkPolyData.h>
@@ -51,6 +57,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 namespace
 {
 const int kMinAirways      = 7;
+const int kMinCenterlines  = 2;
 const int kMinLungVessels  = 5;
 const int kMinLymphNodes   = 2;
 const int kMinHeart        = 4;
@@ -381,141 +388,53 @@ void FraxinusSegmentations::setProcessingInfoParentWidget(QWidget* container)
 
 void FraxinusSegmentations::createProcessingInfo()
 {
-	QGridLayout* gridLayout = new QGridLayout;
-	if (!mProcessingInfoParentWidget)
-	{
-		gridLayout->setColumnMinimumWidth(0, 500);
-		gridLayout->setColumnMinimumWidth(1, 100);
-	}
-	
-	int totalMinutes = 0;
-	int row = 0;
-	if (mSegmentAirways)
-	{
-		mAirwaysTimerWidget = new DisplayTimerWidget(nullptr);
-		mAirwaysTimerWidget->setFontSize(3);
-		mAirwaysTimerWidget->setFixedWidth(80);
-		gridLayout->addWidget(new QLabel("Airways, Lungs:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(mAirwaysTimerWidget, row, 1);
-		if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
-			mAirwaysTimerWidget->stop();
-		totalMinutes += kMinAirways; row++;
-	}
-	if (mSegmentLungVessels)
-	{
-		mLungVesselsTimerWidget = new DisplayTimerWidget(nullptr);
-		mLungVesselsTimerWidget->setFontSize(3);
-		mLungVesselsTimerWidget->setFixedWidth(80);
-		gridLayout->addWidget(new QLabel("Small vessels:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(mLungVesselsTimerWidget, row, 1);
-		if(mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
-			mLungVesselsTimerWidget->stop();
-		totalMinutes += kMinLungVessels; row++;
-	}
-	if (mSegmentLymphNodes)
-	{
-		mLymphNodesTimerWidget = new DisplayTimerWidget(nullptr);
-		mLymphNodesTimerWidget->setFontSize(3);
-		mLymphNodesTimerWidget->setFixedWidth(80);
-		gridLayout->addWidget(new QLabel("Lymph Nodes:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(mLymphNodesTimerWidget, row, 1);
-		if(mServices->patient()->getData<Mesh>(otLYMPH_NODES))
-			mLymphNodesTimerWidget->stop();
-		totalMinutes += kMinLymphNodes; row++;
-	}
-	if (mSegmentHeart)
-	{
-		mHeartTimerWidget = new DisplayTimerWidget(nullptr);
-		mHeartTimerWidget->setFontSize(3);
-		mHeartTimerWidget->setFixedWidth(80);
-		gridLayout->addWidget(new QLabel("Pulmonary System:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(mHeartTimerWidget, row, 1);
-		if(mServices->patient()->getData<Mesh>(otHEART))
-			mHeartTimerWidget->stop();
-		totalMinutes += kMinHeart; row++;
-	}
-	if (mSegmentMediumOrgans)
-	{
-		mMediumOrgansTimerWidget = new DisplayTimerWidget(nullptr);
-		mMediumOrgansTimerWidget->setFontSize(3);
-		mMediumOrgansTimerWidget->setFixedWidth(80);
-		gridLayout->addWidget(new QLabel("Vena Cava, Aorta, Spine:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(mMediumOrgansTimerWidget, row, 1);
-		if(mServices->patient()->getData<Mesh>(otSPINE))
-			mMediumOrgansTimerWidget->stop();
-		totalMinutes += kMinMediumOrgans; row++;
-	}
-	if (mSegmentSmallOrgans)
-	{
-		mSmallOrgansTimerWidget = new DisplayTimerWidget(nullptr);
-		mSmallOrgansTimerWidget->setFontSize(3);
-		mSmallOrgansTimerWidget->setFixedWidth(80);
-		gridLayout->addWidget(new QLabel("Small Mediastinal Organs:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(mSmallOrgansTimerWidget, row, 1);
-		if(mServices->patient()->getData<Mesh>(otESOPHAGUS))
-			mSmallOrgansTimerWidget->stop();
-		totalMinutes += kMinSmallOrgans; row++;
-	}
-	if (mSegmentTumors)
-	{
-		mNodulesTimerWidget = new DisplayTimerWidget(nullptr);
-		mNodulesTimerWidget->setFontSize(3);
-		mNodulesTimerWidget->setFixedWidth(80);
-		gridLayout->addWidget(new QLabel("Small Tumors:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(mNodulesTimerWidget, row, 1);
-		if(mServices->patient()->getData<Mesh>(otTUMOR))
-			mNodulesTimerWidget->stop();
-		row++;
-
-		mTumorsTimerWidget = new DisplayTimerWidget(nullptr);
-		mTumorsTimerWidget->setFontSize(3);
-		mTumorsTimerWidget->setFixedWidth(80);
-		gridLayout->addWidget(new QLabel("Large Tumors:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(mTumorsTimerWidget, row, 1);
-		if(mServices->patient()->getData<Mesh>(otTUMOR))
-			mTumorsTimerWidget->stop();
-		totalMinutes += kMinTumors; row++;
-	}
-	if (mSegmentLungLobes)
-	{
-		mLungLobesTimerWidget = new DisplayTimerWidget(nullptr);
-		mLungLobesTimerWidget->setFontSize(3);
-		mLungLobesTimerWidget->setFixedWidth(80);
-		gridLayout->addWidget(new QLabel("Lung Lobes:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(mLungLobesTimerWidget, row, 1);
-		if(mServices->patient()->getData<Mesh>(otLOBE_LUL))
-			mLungLobesTimerWidget->stop();
-		totalMinutes += kMinLungLobes; row++;
-	}
-	if (mRegisterPET)
-	{
-		mPETTimerWidget = new DisplayTimerWidget(nullptr);
-		mPETTimerWidget->setFontSize(3);
-		mPETTimerWidget->setFixedWidth(80);
-		gridLayout->addWidget(new QLabel("PET:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(mPETTimerWidget, row, 1);
-		if(mServices->patient()->getImage(imPET, istPET_REGISTERED))
-			mPETTimerWidget->stop();
-		totalMinutes += kMinPET; row++;
-	}
-
-	if (row > 0)
-	{
-		QFrame* separator = new QFrame;
-		separator->setFrameShape(QFrame::HLine);
-		separator->setFrameShadow(QFrame::Sunken);
-		gridLayout->addWidget(separator, row, 0, 1, 2);
-		row++;
-		QLabel* totalLabel = new QLabel(QString("Estimated total: ~%1 min").arg(totalMinutes));
-		gridLayout->addWidget(totalLabel, row, 0, 1, 2, Qt::AlignRight);
-	}
-	
-	
 	if (mProcessingInfoParentWidget)
 	{
 		QLayout* oldLayout = mProcessingInfoParentWidget->layout();
 		if (oldLayout)
 		{
+			mProgressBarAirways = nullptr;
+			mProgressBarLungVessels = nullptr;
+			mProgressBarLymphNodes = nullptr;
+			mProgressBarHeart = nullptr;
+			mProgressBarMediumOrgans = nullptr;
+			mProgressBarSmallOrgans = nullptr;
+			mProgressBarNodules = nullptr;
+			mProgressBarTumors = nullptr;
+			mProgressBarLungLobes = nullptr;
+			mProgressBarCenterlines = nullptr;
+			mAirwaysTimerWidget = nullptr;
+			mLungsTimerWidget = nullptr;
+			mLymphNodesTimerWidget = nullptr;
+			mHeartTimerWidget = nullptr;
+			mMediumOrgansTimerWidget = nullptr;
+			mSmallOrgansTimerWidget = nullptr;
+			mNodulesTimerWidget = nullptr;
+			mTumorsTimerWidget = nullptr;
+			mPETTimerWidget = nullptr;
+			mProgressBarPET = nullptr;
+			mLungVesselsTimerWidget = nullptr;
+			mLungLobesTimerWidget = nullptr;
+			mCenterlinesTimerWidget = nullptr;
+			mActiveTimerWidget = nullptr;
+			mCurrentRaidionicsBar = nullptr;
+			mRaidionicsInInference = false;
+			mPipelineCurrentStep = 1;
+			mPipelineTotalSteps = 1;
+			if (mCenterlineProgressTimer)
+			{
+				mCenterlineProgressTimer->stop();
+				delete mCenterlineProgressTimer;
+				mCenterlineProgressTimer = nullptr;
+			}
+			mCenterlineProgressTicks = 0;
+			if (mPETProgressTimer)
+			{
+				mPETProgressTimer->stop();
+				delete mPETProgressTimer;
+				mPETProgressTimer = nullptr;
+			}
+			mPETProgressTicks = 0;
 			QLayoutItem* item;
 			while ((item = oldLayout->takeAt(0)) != nullptr)
 			{
@@ -524,8 +443,235 @@ void FraxinusSegmentations::createProcessingInfo()
 			}
 			delete oldLayout;
 		}
+	}
+
+	QGridLayout* gridLayout = new QGridLayout;
+	gridLayout->setColumnMinimumWidth(0, 200);
+	gridLayout->setColumnMinimumWidth(1, 200);
+
+	auto makeProgressBar = []() {
+		QProgressBar* bar = new QProgressBar(nullptr);
+		bar->setRange(0, 100);
+		bar->setValue(0);
+		return bar;
+	};
+
+	int totalMinutes = 0;
+	int row = 0;
+	if (mSegmentAirways)
+	{
+		mProgressBarAirways = makeProgressBar();
+		mAirwaysTimerWidget = new DisplayTimerWidget(nullptr);
+		mAirwaysTimerWidget->setFontSize(3);
+		mAirwaysTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Airways, Lungs:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mProgressBarAirways, row, 1);
+		gridLayout->addWidget(mAirwaysTimerWidget, row, 2);
+		if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
+		{
+			mAirwaysTimerWidget->stop();
+			mProgressBarAirways->setValue(100);
+		}
+		totalMinutes += kMinAirways; row++;
+
+		mProgressBarCenterlines = makeProgressBar();
+		mCenterlinesTimerWidget = new DisplayTimerWidget(nullptr);
+		mCenterlinesTimerWidget->setFontSize(3);
+		mCenterlinesTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Airways centerlines:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mProgressBarCenterlines, row, 1);
+		gridLayout->addWidget(mCenterlinesTimerWidget, row, 2);
+		if (mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
+		{
+			mCenterlinesTimerWidget->stop();
+			mProgressBarCenterlines->setValue(100);
+		}
+		row++;
+	}
+	if (mSegmentLungVessels)
+	{
+		mProgressBarLungVessels = makeProgressBar();
+		mLungVesselsTimerWidget = new DisplayTimerWidget(nullptr);
+		mLungVesselsTimerWidget->setFontSize(3);
+		mLungVesselsTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Small vessels:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mProgressBarLungVessels, row, 1);
+		gridLayout->addWidget(mLungVesselsTimerWidget, row, 2);
+		if(mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
+		{
+			mLungVesselsTimerWidget->stop();
+			mProgressBarLungVessels->setValue(100);
+		}
+		totalMinutes += kMinLungVessels; row++;
+	}
+	if (mSegmentLymphNodes)
+	{
+		mProgressBarLymphNodes = makeProgressBar();
+		mLymphNodesTimerWidget = new DisplayTimerWidget(nullptr);
+		mLymphNodesTimerWidget->setFontSize(3);
+		mLymphNodesTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Lymph Nodes:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mProgressBarLymphNodes, row, 1);
+		gridLayout->addWidget(mLymphNodesTimerWidget, row, 2);
+		if(mServices->patient()->getData<Mesh>(otLYMPH_NODES))
+		{
+			mLymphNodesTimerWidget->stop();
+			mProgressBarLymphNodes->setValue(100);
+		}
+		totalMinutes += kMinLymphNodes; row++;
+	}
+	if (mSegmentHeart)
+	{
+		mProgressBarHeart = makeProgressBar();
+		mHeartTimerWidget = new DisplayTimerWidget(nullptr);
+		mHeartTimerWidget->setFontSize(3);
+		mHeartTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Pulmonary System:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mProgressBarHeart, row, 1);
+		gridLayout->addWidget(mHeartTimerWidget, row, 2);
+		if(mServices->patient()->getData<Mesh>(otHEART))
+		{
+			mHeartTimerWidget->stop();
+			mProgressBarHeart->setValue(100);
+		}
+		totalMinutes += kMinHeart; row++;
+	}
+	if (mSegmentMediumOrgans)
+	{
+		mProgressBarMediumOrgans = makeProgressBar();
+		mMediumOrgansTimerWidget = new DisplayTimerWidget(nullptr);
+		mMediumOrgansTimerWidget->setFontSize(3);
+		mMediumOrgansTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Vena Cava, Aorta, Spine:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mProgressBarMediumOrgans, row, 1);
+		gridLayout->addWidget(mMediumOrgansTimerWidget, row, 2);
+		if(mServices->patient()->getData<Mesh>(otSPINE))
+		{
+			mMediumOrgansTimerWidget->stop();
+			mProgressBarMediumOrgans->setValue(100);
+		}
+		totalMinutes += kMinMediumOrgans; row++;
+	}
+	if (mSegmentSmallOrgans)
+	{
+		mProgressBarSmallOrgans = makeProgressBar();
+		mSmallOrgansTimerWidget = new DisplayTimerWidget(nullptr);
+		mSmallOrgansTimerWidget->setFontSize(3);
+		mSmallOrgansTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Small Mediastinal Organs:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mProgressBarSmallOrgans, row, 1);
+		gridLayout->addWidget(mSmallOrgansTimerWidget, row, 2);
+		if(mServices->patient()->getData<Mesh>(otESOPHAGUS))
+		{
+			mSmallOrgansTimerWidget->stop();
+			mProgressBarSmallOrgans->setValue(100);
+		}
+		totalMinutes += kMinSmallOrgans; row++;
+	}
+	if (mSegmentTumors)
+	{
+		mProgressBarNodules = makeProgressBar();
+		mNodulesTimerWidget = new DisplayTimerWidget(nullptr);
+		mNodulesTimerWidget->setFontSize(3);
+		mNodulesTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Small Tumors:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mProgressBarNodules, row, 1);
+		gridLayout->addWidget(mNodulesTimerWidget, row, 2);
+		if(mServices->patient()->getData<Mesh>(otTUMOR))
+		{
+			mNodulesTimerWidget->stop();
+			mProgressBarNodules->setValue(100);
+		}
+		row++;
+
+		mProgressBarTumors = makeProgressBar();
+		mTumorsTimerWidget = new DisplayTimerWidget(nullptr);
+		mTumorsTimerWidget->setFontSize(3);
+		mTumorsTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Large Tumors:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mProgressBarTumors, row, 1);
+		gridLayout->addWidget(mTumorsTimerWidget, row, 2);
+		if(mServices->patient()->getData<Mesh>(otTUMOR))
+		{
+			mTumorsTimerWidget->stop();
+			mProgressBarTumors->setValue(100);
+		}
+		totalMinutes += kMinTumors; row++;
+	}
+	if (mSegmentLungLobes)
+	{
+		mProgressBarLungLobes = makeProgressBar();
+		mLungLobesTimerWidget = new DisplayTimerWidget(nullptr);
+		mLungLobesTimerWidget->setFontSize(3);
+		mLungLobesTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("Lung Lobes:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mProgressBarLungLobes, row, 1);
+		gridLayout->addWidget(mLungLobesTimerWidget, row, 2);
+		if(mServices->patient()->getData<Mesh>(otLOBE_LUL))
+		{
+			mLungLobesTimerWidget->stop();
+			mProgressBarLungLobes->setValue(100);
+		}
+		totalMinutes += kMinLungLobes; row++;
+	}
+	if (mRegisterPET)
+	{
+		mProgressBarPET = makeProgressBar();
+		mPETTimerWidget = new DisplayTimerWidget(nullptr);
+		mPETTimerWidget->setFontSize(3);
+		mPETTimerWidget->setFixedWidth(80);
+		gridLayout->addWidget(new QLabel("PET:"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(mProgressBarPET, row, 1);
+		gridLayout->addWidget(mPETTimerWidget, row, 2);
+		if(mServices->patient()->getImage(imPET, istPET_REGISTERED))
+		{
+			mPETTimerWidget->stop();
+			mProgressBarPET->setValue(100);
+		}
+		totalMinutes += kMinPET; row++;
+	}
+
+	if (row > 0)
+	{
+		QFrame* separator = new QFrame;
+		separator->setFrameShape(QFrame::HLine);
+		separator->setFrameShadow(QFrame::Sunken);
+		gridLayout->addWidget(separator, row, 0, 1, 3);
+		row++;
+		QLabel* totalLabel = new QLabel(QString("Estimated total: ~%1 min").arg(totalMinutes));
+		gridLayout->addWidget(totalLabel, row, 0, 1, 3, Qt::AlignRight);
+	}
+	
+	
+	if (mProcessingInfoParentWidget)
+	{
 		mProcessingInfoParentWidget->setLayout(gridLayout);
 		mProcessingInfoParentWidget->setVisible(true);
+		QTimer::singleShot(0, [this](){
+			QMainWindow* mw = nullptr;
+			for (QWidget* w : qApp->topLevelWidgets())
+			{
+				if (w->objectName() == "main_window")
+				{
+					mw = qobject_cast<QMainWindow*>(w);
+					break;
+				}
+			}
+			if (!mw) return;
+			QDockWidget* dock = mw->findChild<QDockWidget*>("new_load_patient_widgetDockWidget");
+			if (!dock) return;
+			// The dock content is a QScrollArea wrapping the NewLoadPatientWidget.
+			// sizeHint() reports the current (narrow) size because setWidgetResizable(true)
+			// resizes the content to fit the dock. Use minimumSizeHint() on the actual
+			// content widget instead, which is computed from layout constraints.
+			QScrollArea* scroller = qobject_cast<QScrollArea*>(dock->widget());
+			if (!scroller || !scroller->widget()) return;
+			int neededWidth = scroller->widget()->minimumSizeHint().width()
+			                  + dock->contentsMargins().left()
+			                  + dock->contentsMargins().right();
+			if (neededWidth > dock->width())
+				mw->resizeDocks({dock}, {neededWidth}, Qt::Horizontal);
+		});
 	}
 	else
 	{
@@ -634,6 +780,7 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 		return;
 
 	mCurrentFilter = scriptFilter;
+	mCurrentScriptFilter = scriptFilter;
 	this->runPythonFilterSlot();
 }
 
@@ -725,6 +872,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 	
 	input[0]->setValue(image->getUid());
 	mCurrentFilter = scriptFilter;
+	mCurrentScriptFilter = scriptFilter;
 	this->runMLFilterSlot();
 }
 
@@ -743,6 +891,16 @@ void FraxinusSegmentations::performPETCTregistration()
 	mActiveTimerWidget = mPETTimerWidget;
 	if(mActiveTimerWidget)
 		mActiveTimerWidget->start();
+
+	mPETProgressTicks = 0;
+	if (mPETProgressTimer)
+	{
+		mPETProgressTimer->stop();
+		delete mPETProgressTimer;
+	}
+	mPETProgressTimer = new QTimer();
+	connect(mPETProgressTimer, &QTimer::timeout, this, &FraxinusSegmentations::PETProgressTick);
+	mPETProgressTimer->start(1000); //updates progressbar every second
 
 	//NB: Elastix creates (modified) copies of PETimage and PET_CTimage
 	//Setting Image Type to istPET_REGISTERED for new PET volume in ElastixManager::addNonlinearData()
@@ -778,10 +936,29 @@ void FraxinusSegmentations::runElastixSlot()
 	mElastixManager->execute();
 }
 
+void FraxinusSegmentations::PETProgressTick()
+{
+	int pauseAtPercentage = 90;
+	if (!mProgressBarPET)
+		return;
+	++mPETProgressTicks;
+	int value = std::min(pauseAtPercentage, mPETProgressTicks * pauseAtPercentage / (kMinPET*60));
+	mProgressBarPET->setValue(value);
+}
+
 void FraxinusSegmentations::elastixFinishedSlot()
 {
 	mTimedAlgorithmProgressBar->detach(mThread);
 	disconnect(mElastixManager->getExecuter().get(), &TimedBaseAlgorithm::finished, this, &FraxinusSegmentations::elastixFinishedSlot);
+
+	if (mPETProgressTimer)
+	{
+		mPETProgressTimer->stop();
+		delete mPETProgressTimer;
+		mPETProgressTimer = nullptr;
+	}
+	if (mProgressBarPET)
+		mProgressBarPET->setValue(100);
 
 	mPETTimerWidget->stop();
 
@@ -793,7 +970,7 @@ void FraxinusSegmentations::runPythonFilterSlot()
 {
 	if (!mCurrentFilter)
 		return;
-	
+
 	if (mThread)
 	{
 		reportWarning(QString("Last operation on %1 is not finished. Could not start filtering.").arg(mThread->getFilter()->getName()));
@@ -802,7 +979,11 @@ void FraxinusSegmentations::runPythonFilterSlot()
 	mThread.reset(new FilterTimedAlgorithm(mCurrentFilter));
 	connect(mThread.get(), SIGNAL(finished()), this, SLOT(pythonFinishedSlot()));
 	mTimedAlgorithmProgressBar->attach(mThread);
-	
+
+	if (mCurrentScriptFilter)
+		connect(mCurrentScriptFilter.get(), &GenericScriptFilter::scriptOutput,
+		        this, &FraxinusSegmentations::onScriptOutput, Qt::QueuedConnection);
+
 	mThread->execute();
 }
 
@@ -818,9 +999,12 @@ void FraxinusSegmentations::runMLFilterSlot()
 	mThread.reset(new FilterTimedAlgorithm(mCurrentFilter));
 	connect(mThread.get(), SIGNAL(finished()), this, SLOT(MLFinishedSlot1()));
 	mTimedAlgorithmProgressBar->attach(mThread);
-	
+
+	if (mCurrentScriptFilter)
+		connect(mCurrentScriptFilter.get(), &GenericScriptFilter::scriptOutput,
+		        this, &FraxinusSegmentations::onScriptOutput, Qt::QueuedConnection);
+
 	mThread->execute();
-	
 }
 
 void FraxinusSegmentations::pythonFinishedSlot()
@@ -828,6 +1012,19 @@ void FraxinusSegmentations::pythonFinishedSlot()
 	mTimedAlgorithmProgressBar->detach(mThread);
 	disconnect(mThread.get(), SIGNAL(finished()), this, SLOT(pythonFinishedSlot()));
 	mThread.reset();
+
+	if (mCurrentScriptFilter)
+	{
+		disconnect(mCurrentScriptFilter.get(), &GenericScriptFilter::scriptOutput,
+		           this, &FraxinusSegmentations::onScriptOutput);
+		QProgressBar* bar = getProgressBar(mCurrentSegmentationType);
+		if (bar)
+		{
+			if (bar->maximum() == 0)
+				bar->setRange(0, 100);
+			bar->setValue(100);
+		}
+	}
 
 	this->checkIfSegmentationSucceeded();
 
@@ -857,6 +1054,33 @@ void FraxinusSegmentations::MLFinishedSlot2()
 {
 	disconnect(this, SIGNAL(postProcessAirwaysFinished()), this, SLOT(MLFinishedSlot2()));
 	disconnect(this, SIGNAL(centerlineGenerationFailed()), this, SLOT(MLFinishedSlot2()));
+
+	if (mCurrentScriptFilter)
+		disconnect(mCurrentScriptFilter.get(), &GenericScriptFilter::scriptOutput,
+		           this, &FraxinusSegmentations::onScriptOutput);
+
+	mCurrentRaidionicsBar = nullptr;
+	mRaidionicsInInference = false;
+
+	for (QProgressBar* bar : {mProgressBarAirways, mProgressBarLymphNodes, mProgressBarHeart,
+	                           mProgressBarMediumOrgans, mProgressBarSmallOrgans, mProgressBarTumors})
+		if (bar)
+		{
+			if (bar->maximum() == 0)
+				bar->setRange(0, 100);
+			bar->setValue(100);
+		}
+
+	if (mCenterlineProgressTimer)
+	{
+		mCenterlineProgressTimer->stop();
+		delete mCenterlineProgressTimer;
+		mCenterlineProgressTimer = nullptr;
+	}
+	if (mProgressBarCenterlines)
+		mProgressBarCenterlines->setValue(100);
+	if (mCenterlinesTimerWidget)
+		mCenterlinesTimerWidget->stop();
 
 	if(mSegmentTumors)
 		this->postProcessTumors();
@@ -1136,9 +1360,45 @@ void FraxinusSegmentations::generateCenterline()
 	}
 	input[0]->setValue(airwaysVolume->getUid());
 
+	for (QProgressBar* bar : {mProgressBarAirways, mProgressBarLymphNodes, mProgressBarHeart,
+	                           mProgressBarMediumOrgans, mProgressBarSmallOrgans, mProgressBarTumors})
+		if (bar)
+		{
+			bar->setRange(0, 100);
+			bar->setValue(100);
+		}
+	for (DisplayTimerWidget* timer : {mAirwaysTimerWidget, mLymphNodesTimerWidget, mHeartTimerWidget,
+	                                   mMediumOrgansTimerWidget, mSmallOrgansTimerWidget, mTumorsTimerWidget})
+		if (timer)
+			timer->stop();
+
+	if (mProgressBarCenterlines)
+	{
+		mCenterlineProgressTicks = 0;
+		if (mCenterlineProgressTimer)
+		{
+			mCenterlineProgressTimer->stop();
+			delete mCenterlineProgressTimer;
+		}
+		mCenterlineProgressTimer = new QTimer();
+		connect(mCenterlineProgressTimer, &QTimer::timeout, this, &FraxinusSegmentations::centerlineProgressTick);
+		mCenterlineProgressTimer->start(1000); //updates progressbar every second
+		mCenterlinesTimerWidget->start();
+	}
+
 	mCenterlineThread.reset(new FilterTimedAlgorithm(mBinaryThinningImageFilter3DFilter));
 	connect(mCenterlineThread.get(), SIGNAL(finished()), this, SLOT(centerlineFinishedSlot()));
 	mCenterlineThread->execute();
+}
+
+void FraxinusSegmentations::centerlineProgressTick()
+{
+	int pauseAtPercentage = 90;
+	if (!mProgressBarCenterlines)
+		return;
+	++mCenterlineProgressTicks;
+	int value = std::min(pauseAtPercentage, mCenterlineProgressTicks * pauseAtPercentage / (kMinCenterlines*60));
+	mProgressBarCenterlines->setValue(value);
 }
 
 void FraxinusSegmentations::centerlineFinishedSlot()
@@ -1326,4 +1586,166 @@ DisplayTimerWidget* FraxinusSegmentations::getTimer(ORGAN_TYPE target)
 
 	return timer;
 }
+
+QProgressBar* FraxinusSegmentations::getProgressBar(LUNG_STRUCTURES type)
+{
+	switch(type)
+	{
+	case lsLUNG:
+	case lsAIRWAYS:        return mProgressBarAirways;
+	case lsCENTERLINES:    return mProgressBarCenterlines;
+	case lsLUNG_VESSELS:   return mProgressBarLungVessels;
+	case lsLOBE:           return mProgressBarLungLobes;
+	case lsNODULES:        return mProgressBarNodules;
+	case lsTUMOR:          return mProgressBarTumors;
+	case lsLYMPH_NODES:    return mProgressBarLymphNodes;
+	case lsHEART:
+	case lsPULMONARY_VEINS:
+	case lsPULMONARY_TRUNK: return mProgressBarHeart;
+	case lsVENA_CAVA:
+	case lsAORTA:
+	case lsSPINE:          return mProgressBarMediumOrgans;
+	case lsVENA_AZYGOS:
+	case lsSUBCLAVIAN_ARTERY:
+	case lsESOPHAGUS:      return mProgressBarSmallOrgans;
+	case lsPET_REGISTERED: return mProgressBarPET;
+	default:               return nullptr;
+	}
+}
+
+QProgressBar* FraxinusSegmentations::getRaidionicsBarForLine(const QString& line)
+{
+	if (line.contains("Tumor"))
+		return mProgressBarTumors;
+	if (line.contains("Lymph"))
+		return mProgressBarLymphNodes;
+	if (line.contains("Respiratory") || line.contains("Pulmonary") || line.contains("Heart"))
+		return mProgressBarHeart;
+	if (line.contains("Large organ") || line.contains("Vena") || line.contains("Aorta") || line.contains("Spine"))
+		return mProgressBarMediumOrgans;
+	if (line.contains("Small organ") || line.contains("Esophagus"))
+		return mProgressBarSmallOrgans;
+	if (line.contains("Lungs") || line.contains("Airway"))
+		return mProgressBarAirways;
+	return nullptr;
+}
+
+int FraxinusSegmentations::scaledPipelineValue(int val) const
+{
+	if (mPipelineTotalSteps <= 1)
+		return val;
+	return ((mPipelineCurrentStep - 1) * 100 + val) / mPipelineTotalSteps;
+}
+
+void FraxinusSegmentations::onScriptOutput(const QString& line)
+{
+	// Raidionics pipeline-level progress: "LOG: Pipeline - <name> - Begin/End (N/M)"
+	if (line.contains("LOG: Pipeline -") && (line.contains("- Begin") || line.contains("- End")))
+	{
+		bool isBegin = line.contains("- Begin");
+		if (isBegin)
+		{
+			// Parse (N/M) to track which pipeline step we are in
+			int lastParen = line.lastIndexOf('(');
+			if (lastParen >= 0)
+			{
+				QString inner = line.mid(lastParen + 1);
+				int closeParen = inner.indexOf(')');
+				if (closeParen >= 0)
+				{
+					QStringList parts = inner.left(closeParen).split('/');
+					if (parts.size() == 2)
+					{
+						bool ok1, ok2;
+						int n = parts[0].toInt(&ok1);
+						int m = parts[1].toInt(&ok2);
+						if (ok1 && ok2 && m > 0)
+						{
+							mPipelineCurrentStep = n;
+							mPipelineTotalSteps = m;
+						}
+					}
+				}
+			}
+
+			mCurrentRaidionicsBar = getRaidionicsBarForLine(line);
+			mRaidionicsInInference = false;
+			if (mCurrentRaidionicsBar)
+			{
+				if (mCurrentRaidionicsBar->maximum() == 0)
+					mCurrentRaidionicsBar->setRange(0, 100);
+				mCurrentRaidionicsBar->setValue(scaledPipelineValue(5));
+			}
+		}
+		else
+		{
+			if (mCurrentRaidionicsBar)
+				mCurrentRaidionicsBar->setValue(scaledPipelineValue(100));
+			mCurrentRaidionicsBar = nullptr;
+			mRaidionicsInInference = false;
+		}
+	}
+	// Raidionics segmentation sub-step: "LOG: Segmentation - <step> - Begin/End (K/4)"
+	else if (line.contains("LOG: Segmentation -") && (line.contains("- Begin") || line.contains("- End")))
+	{
+		if (!mCurrentRaidionicsBar)
+			return;
+		bool isBegin = line.contains("- Begin");
+		int val = 0;
+		if (line.contains("Preprocessing"))
+			val = isBegin ? 5 : 15;
+		else if (line.contains("Inference"))
+		{
+			mRaidionicsInInference = isBegin;
+			val = isBegin ? 15 : 75;
+		}
+		else if (line.contains("Reconstruction"))
+			val = isBegin ? 75 : 90;
+		else if (line.contains("Data dump"))
+			val = isBegin ? 90 : 98;
+		if (val > 0)
+		{
+			if (mCurrentRaidionicsBar->maximum() == 0)
+				mCurrentRaidionicsBar->setRange(0, 100);
+			mCurrentRaidionicsBar->setValue(scaledPipelineValue(val));
+		}
+	}
+	// tqdm inside Raidionics Inference sub-step
+	else if (line.contains("%|") && mRaidionicsInInference && mCurrentRaidionicsBar)
+	{
+		bool ok;
+		int within_pct = line.split("%").first().trimmed().toInt(&ok);
+		if (ok)
+		{
+			int overall = 15 + 60 * within_pct / 100;  // 15–75
+			if (mCurrentRaidionicsBar->maximum() == 0)
+				mCurrentRaidionicsBar->setRange(0, 100);
+			mCurrentRaidionicsBar->setValue(scaledPipelineValue(overall));
+		}
+	}
+	// TotalSegmentator PROGRESS: markers
+	else if (line.startsWith("PROGRESS:"))
+	{
+		bool ok;
+		int val = line.mid(9).trimmed().toInt(&ok);
+		if (ok)
+		{
+			QProgressBar* bar = getProgressBar(mCurrentSegmentationType);
+			if (bar)
+			{
+				if (val < 0)
+				{
+					bar->setRange(0, 0);
+				}
+				else
+				{
+					if (bar->maximum() == 0)
+						bar->setRange(0, 100);
+					bar->setValue(val);
+				}
+			}
+		}
+	}
+}
+
 }//cx

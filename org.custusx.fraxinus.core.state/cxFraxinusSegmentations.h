@@ -21,6 +21,8 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxDefinitions.h"
 #include "cxElastixManager.h"
 
+class QProgressBar;
+
 namespace cx
 {
 typedef boost::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
@@ -94,6 +96,9 @@ private slots:
 	void closeSegmentationInfo();
 	void postProcessAirwaysSlot();
 	void centerlineFinishedSlot();
+	void onScriptOutput(const QString& line);
+	void centerlineProgressTick();
+	void PETProgressTick();
 	
 private:
 	void deleteTumorsAndNodulesVolumes();
@@ -104,6 +109,7 @@ private:
 	RegServicesPtr mServices;
 	
 	FilterPtr mCurrentFilter;
+	GenericScriptFilterPtr mCurrentScriptFilter;
 	FilterTimedAlgorithmPtr mThread;
 	FilterTimedAlgorithmPtr mCenterlineThread;
 	TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
@@ -113,17 +119,29 @@ private:
 	QDialog* mSegmentationProcessingInfo = nullptr;
 	QDialog* mSegmentationFinishedInfo = nullptr;
 	QWidget* mProcessingInfoParentWidget = nullptr;
-	DisplayTimerWidget* mAirwaysTimerWidget;
-	DisplayTimerWidget* mLungsTimerWidget;
-	DisplayTimerWidget* mLymphNodesTimerWidget;
-	DisplayTimerWidget* mHeartTimerWidget;
-	DisplayTimerWidget* mMediumOrgansTimerWidget;
-	DisplayTimerWidget* mSmallOrgansTimerWidget;
-	DisplayTimerWidget* mNodulesTimerWidget;
-	DisplayTimerWidget* mTumorsTimerWidget;
-	DisplayTimerWidget* mPETTimerWidget;
-	DisplayTimerWidget* mLungVesselsTimerWidget;
-	DisplayTimerWidget* mLungLobesTimerWidget;
+	QProgressBar* mProgressBarAirways = nullptr;
+	QProgressBar* mProgressBarLungVessels = nullptr;
+	QProgressBar* mProgressBarLymphNodes = nullptr;
+	QProgressBar* mProgressBarHeart = nullptr;
+	QProgressBar* mProgressBarMediumOrgans = nullptr;
+	QProgressBar* mProgressBarSmallOrgans = nullptr;
+	QProgressBar* mProgressBarNodules = nullptr;
+	QProgressBar* mProgressBarTumors = nullptr;
+	QProgressBar* mProgressBarLungLobes = nullptr;
+	QProgressBar* mProgressBarCenterlines = nullptr;
+	QProgressBar* mProgressBarPET = nullptr;
+	DisplayTimerWidget* mAirwaysTimerWidget = nullptr;
+	DisplayTimerWidget* mLungsTimerWidget = nullptr;
+	DisplayTimerWidget* mLymphNodesTimerWidget = nullptr;
+	DisplayTimerWidget* mHeartTimerWidget = nullptr;
+	DisplayTimerWidget* mMediumOrgansTimerWidget = nullptr;
+	DisplayTimerWidget* mSmallOrgansTimerWidget = nullptr;
+	DisplayTimerWidget* mNodulesTimerWidget = nullptr;
+	DisplayTimerWidget* mTumorsTimerWidget = nullptr;
+	DisplayTimerWidget* mPETTimerWidget = nullptr;
+	DisplayTimerWidget* mLungVesselsTimerWidget = nullptr;
+	DisplayTimerWidget* mLungLobesTimerWidget = nullptr;
+	DisplayTimerWidget* mCenterlinesTimerWidget = nullptr;
 	DisplayTimerWidget* mActiveTimerWidget = NULL;
 	QCheckBox* mCheckBoxAirways = nullptr;
 	QCheckBox* mCheckBoxLungs = nullptr;
@@ -160,6 +178,18 @@ private:
 	void generateCenterline();
 	bool runRaidionics(GenericScriptFilterPtr scriptFilter);
 	DisplayTimerWidget *getTimer(ORGAN_TYPE target);
+	QProgressBar* getProgressBar(LUNG_STRUCTURES type);
+	QProgressBar* getRaidionicsBarForLine(const QString& line);
+	int scaledPipelineValue(int val) const;
+
+	QProgressBar* mCurrentRaidionicsBar = nullptr;
+	bool mRaidionicsInInference = false;
+	int mPipelineCurrentStep = 1;
+	int mPipelineTotalSteps = 1;
+	QTimer* mCenterlineProgressTimer = nullptr;
+	int mCenterlineProgressTicks = 0;
+	QTimer* mPETProgressTimer = nullptr;
+	int mPETProgressTicks = 0;
 };
 }//cx
 #endif // CXFRAXINUSSEGMENTATIONS_H
