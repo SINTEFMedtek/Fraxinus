@@ -181,126 +181,48 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 
 void FraxinusSegmentations::updateSelectSegmentationBox()
 {
+	auto setupCheckBox = [&](LUNG_STRUCTURES key, const QString& label, int kMin, bool isDone,
+	                          const QString& tooltip = QString()) {
+		QCheckBox*& cb = mCheckBoxes[key];
+		if (!cb)
+		{
+			cb = new QCheckBox();
+			if (!tooltip.isEmpty())
+				cb->setToolTip(tooltip);
+		}
+		if (isDone)
+		{
+			cb->setText(label + ": Completed");
+			cb->setDisabled(true);
+		}
+		else
+		{
+			cb->setText(QString("%1 (~%2 min)").arg(label).arg(kMin));
+			cb->setDisabled(false);
+		}
+	};
+
+	// Airways is always disabled (mandatory) and tracks its checked state
 	QCheckBox*& cbAirways = mCheckBoxes[lsAIRWAYS];
 	if (!cbAirways)
 		cbAirways = new QCheckBox();
-	if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES) || mAirwaysProcessed)
-	{
-		cbAirways->setText("Airways, Lungs: Completed");
-		cbAirways->setChecked(false);
-	}
-	else
-	{
-		cbAirways->setText(QString("Airways, Lungs (~%1 min)").arg(kMinAirways));
-		cbAirways->setChecked(true);
-	}
+	bool airwaysDone = bool(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES)) || mAirwaysProcessed;
+	cbAirways->setText(airwaysDone ? "Airways, Lungs: Completed"
+	                               : QString("Airways, Lungs (~%1 min)").arg(kMinAirways));
+	cbAirways->setChecked(!airwaysDone);
 	cbAirways->setDisabled(true);
 
-	QCheckBox*& cbLymphNodes = mCheckBoxes[lsLYMPH_NODES];
-	if (!cbLymphNodes)
-		cbLymphNodes = new QCheckBox();
-	if(mServices->patient()->getData<Mesh>(otLYMPH_NODES) || mLymphNodesProcessed)
-	{
-		cbLymphNodes->setText("Lymph Nodes: Completed");
-		cbLymphNodes->setDisabled(true);
-	}
-	else
-	{
-		cbLymphNodes->setText(QString("Lymph Nodes (~%1 min)").arg(kMinLymphNodes));
-		cbLymphNodes->setDisabled(false);
-	}
+	setupCheckBox(lsLYMPH_NODES,   "Lymph Nodes",             kMinLymphNodes,   bool(mServices->patient()->getData<Mesh>(otLYMPH_NODES))  || mLymphNodesProcessed);
+	setupCheckBox(lsHEART,         "Pulmonary System",         kMinHeart,        bool(mServices->patient()->getData<Mesh>(otHEART))        || mHeartProcessed,
+	              "Heart, Pulmonary Veins, Pulmonary Trunk");
+	setupCheckBox(lsMEDIUM_ORGANS, "Vena Cava, Aorta, Spine", kMinMediumOrgans, bool(mServices->patient()->getData<Mesh>(otSPINE))        || mMediumOrgansProcessed);
+	setupCheckBox(lsSMALL_ORGANS,  "Small Mediastinal Organs", kMinSmallOrgans,  bool(mServices->patient()->getData<Mesh>(otESOPHAGUS))    || mSmallOrgansProcessed,
+	              "Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos");
+	setupCheckBox(lsTUMOR,         "Tumors",                   kMinTumors,       bool(mServices->patient()->getData<Mesh>(otTUMOR))        || mTumorsProcessed);
+	setupCheckBox(lsLUNG_VESSELS,  "Small Vessels",            kMinLungVessels,  bool(mServices->patient()->getData<Mesh>(otLUNG_VESSELS)) || mLungVesselsProcessed);
+	setupCheckBox(lsLOBE,          "Lung Lobes",               kMinLungLobes,    bool(mServices->patient()->getData<Mesh>(otLOBE_LUL))     || mLungLobesProcessed);
 
-	QCheckBox*& cbHeart = mCheckBoxes[lsHEART];
-	if (!cbHeart)
-	{
-		cbHeart = new QCheckBox();
-		cbHeart->setToolTip("Heart, Pulmonary Veins, Pulmonary Trunk");
-	}
-	if(mServices->patient()->getData<Mesh>(otHEART) || mHeartProcessed)
-	{
-		cbHeart->setText("Pulmonary System: Completed");
-		cbHeart->setDisabled(true);
-	}
-	else
-	{
-		cbHeart->setText(QString("Pulmonary System (~%1 min)").arg(kMinHeart));
-		cbHeart->setDisabled(false);
-	}
-
-	QCheckBox*& cbMediumOrgans = mCheckBoxes[lsMEDIUM_ORGANS];
-	if (!cbMediumOrgans)
-		cbMediumOrgans = new QCheckBox();
-	if(mServices->patient()->getData<Mesh>(otSPINE) || mMediumOrgansProcessed)
-	{
-		cbMediumOrgans->setText("Vena Cava, Aorta, Spine: Completed");
-		cbMediumOrgans->setDisabled(true);
-	}
-	else
-	{
-		cbMediumOrgans->setText(QString("Vena Cava, Aorta, Spine (~%1 min)").arg(kMinMediumOrgans));
-		cbMediumOrgans->setDisabled(false);
-	}
-
-	QCheckBox*& cbSmallOrgans = mCheckBoxes[lsSMALL_ORGANS];
-	if (!cbSmallOrgans)
-	{
-		cbSmallOrgans = new QCheckBox();
-		cbSmallOrgans->setToolTip("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos");
-	}
-	if(mServices->patient()->getData<Mesh>(otESOPHAGUS) || mSmallOrgansProcessed)
-	{
-		cbSmallOrgans->setText("Small Mediastinal Organs: Completed");
-		cbSmallOrgans->setDisabled(true);
-	}
-	else
-	{
-		cbSmallOrgans->setText(QString("Small Mediastinal Organs (~%1 min)").arg(kMinSmallOrgans));
-		cbSmallOrgans->setDisabled(false);
-	}
-
-	QCheckBox*& cbTumors = mCheckBoxes[lsTUMOR];
-	if (!cbTumors)
-		cbTumors = new QCheckBox();
-	if(mServices->patient()->getData<Mesh>(otTUMOR) || mTumorsProcessed)
-	{
-		cbTumors->setText("Tumors: Completed");
-		cbTumors->setDisabled(true);
-	}
-	else
-	{
-		cbTumors->setText(QString("Tumors (~%1 min)").arg(kMinTumors));
-		cbTumors->setDisabled(false);
-	}
-
-	QCheckBox*& cbLungVessels = mCheckBoxes[lsLUNG_VESSELS];
-	if (!cbLungVessels)
-		cbLungVessels = new QCheckBox();
-	if(mServices->patient()->getData<Mesh>(otLUNG_VESSELS) || mLungVesselsProcessed)
-	{
-		cbLungVessels->setText("Small Vessels: Completed");
-		cbLungVessels->setDisabled(true);
-	}
-	else
-	{
-		cbLungVessels->setText(QString("Small Vessels (~%1 min)").arg(kMinLungVessels));
-		cbLungVessels->setDisabled(false);
-	}
-
-	QCheckBox*& cbLungLobes = mCheckBoxes[lsLOBE];
-	if (!cbLungLobes)
-		cbLungLobes = new QCheckBox();
-	if(mServices->patient()->getData<Mesh>(otLOBE_LUL) || mLungLobesProcessed)
-	{
-		cbLungLobes->setText("Lung Lobes: Completed");
-		cbLungLobes->setDisabled(true);
-	}
-	else
-	{
-		cbLungLobes->setText(QString("Lung Lobes (~%1 min)").arg(kMinLungLobes));
-		cbLungLobes->setDisabled(false);
-	}
-
-	if(!mCheckBoxSelectAll)
+	if (!mCheckBoxSelectAll)
 		mCheckBoxSelectAll = new QCheckBox();
 	mCheckBoxSelectAll->setText("Select all");
 }
@@ -448,156 +370,46 @@ void FraxinusSegmentations::createProcessingInfo()
 		}
 	};
 
+	auto addRow = [&](LUNG_STRUCTURES key, const QString& label, int kMin, bool isRaidionics, bool isDone) {
+		QProgressBar* bar = mProgressBars[key] = makeProgressBar();
+		DisplayTimerWidget* timer = mTimerWidgets[key] = makeTimerWidget();
+		gridLayout->addWidget(new QLabel(label + ":"), row, 0, Qt::AlignRight);
+		gridLayout->addWidget(bar, row, 1);
+		if (isRaidionics)
+			addRaidionicsTimer(timer, row);
+		else
+			gridLayout->addWidget(timer, row, 2);
+		if (isDone) { timer->stop(); bar->setValue(100); }
+		if (kMin > 0) totalMinutes += kMin;
+		row++;
+	};
+
 	if (mSegmentAirways)
 	{
-		QProgressBar* bar = mProgressBars[lsAIRWAYS] = makeProgressBar();
-		DisplayTimerWidget* airwaysTimer = mTimerWidgets[lsAIRWAYS] = makeTimerWidget();
-		gridLayout->addWidget(new QLabel("Airways, Lungs:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(bar, row, 1);
-		addRaidionicsTimer(airwaysTimer, row);
-		if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
-		{
-			airwaysTimer->stop();
-			bar->setValue(100);
-		}
-		totalMinutes += kMinAirways; row++;
-
-		QProgressBar* clBar = mProgressBars[lsCENTERLINES] = makeProgressBar();
-		DisplayTimerWidget* clTimer = mTimerWidgets[lsCENTERLINES] = makeTimerWidget();
-		gridLayout->addWidget(new QLabel("Airways centerlines:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(clBar, row, 1);
-		gridLayout->addWidget(clTimer, row, 2);
-		if (mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
-		{
-			clTimer->stop();
-			clBar->setValue(100);
-		}
-		row++;
+		bool done = bool(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES));
+		addRow(lsAIRWAYS,     "Airways, Lungs",     kMinAirways, true,  done);
+		addRow(lsCENTERLINES, "Airways centerlines", 0,           false, done);
 	}
 	if (mSegmentLungVessels)
-	{
-		QProgressBar* bar = mProgressBars[lsLUNG_VESSELS] = makeProgressBar();
-		DisplayTimerWidget* lungVesselsTimer = mTimerWidgets[lsLUNG_VESSELS] = makeTimerWidget();
-		gridLayout->addWidget(new QLabel("Small vessels:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(bar, row, 1);
-		gridLayout->addWidget(lungVesselsTimer, row, 2);
-		if(mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
-		{
-			lungVesselsTimer->stop();
-			bar->setValue(100);
-		}
-		totalMinutes += kMinLungVessels; row++;
-	}
+		addRow(lsLUNG_VESSELS,   "Small vessels",             kMinLungVessels,  false, bool(mServices->patient()->getData<Mesh>(otLUNG_VESSELS)));
 	if (mSegmentLymphNodes)
-	{
-		QProgressBar* bar = mProgressBars[lsLYMPH_NODES] = makeProgressBar();
-		DisplayTimerWidget* lymphNodesTimer = mTimerWidgets[lsLYMPH_NODES] = makeTimerWidget();
-		gridLayout->addWidget(new QLabel("Lymph Nodes:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(bar, row, 1);
-		addRaidionicsTimer(lymphNodesTimer, row);
-		if(mServices->patient()->getData<Mesh>(otLYMPH_NODES))
-		{
-			lymphNodesTimer->stop();
-			bar->setValue(100);
-		}
-		totalMinutes += kMinLymphNodes; row++;
-	}
+		addRow(lsLYMPH_NODES,    "Lymph Nodes",               kMinLymphNodes,   true,  bool(mServices->patient()->getData<Mesh>(otLYMPH_NODES)));
 	if (mSegmentHeart)
-	{
-		QProgressBar* bar = mProgressBars[lsHEART] = makeProgressBar();
-		DisplayTimerWidget* heartTimer = mTimerWidgets[lsHEART] = makeTimerWidget();
-		gridLayout->addWidget(new QLabel("Pulmonary System:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(bar, row, 1);
-		addRaidionicsTimer(heartTimer, row);
-		if(mServices->patient()->getData<Mesh>(otHEART))
-		{
-			heartTimer->stop();
-			bar->setValue(100);
-		}
-		totalMinutes += kMinHeart; row++;
-	}
+		addRow(lsHEART,          "Pulmonary System",           kMinHeart,        true,  bool(mServices->patient()->getData<Mesh>(otHEART)));
 	if (mSegmentMediumOrgans)
-	{
-		QProgressBar* bar = mProgressBars[lsMEDIUM_ORGANS] = makeProgressBar();
-		DisplayTimerWidget* mediumOrgansTimer = mTimerWidgets[lsMEDIUM_ORGANS] = makeTimerWidget();
-		gridLayout->addWidget(new QLabel("Vena Cava, Aorta, Spine:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(bar, row, 1);
-		addRaidionicsTimer(mediumOrgansTimer, row);
-		if(mServices->patient()->getData<Mesh>(otSPINE))
-		{
-			mediumOrgansTimer->stop();
-			bar->setValue(100);
-		}
-		totalMinutes += kMinMediumOrgans; row++;
-	}
+		addRow(lsMEDIUM_ORGANS,  "Vena Cava, Aorta, Spine",   kMinMediumOrgans, true,  bool(mServices->patient()->getData<Mesh>(otSPINE)));
 	if (mSegmentSmallOrgans)
-	{
-		QProgressBar* bar = mProgressBars[lsSMALL_ORGANS] = makeProgressBar();
-		DisplayTimerWidget* smallOrgansTimer = mTimerWidgets[lsSMALL_ORGANS] = makeTimerWidget();
-		gridLayout->addWidget(new QLabel("Small Mediastinal Organs:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(bar, row, 1);
-		addRaidionicsTimer(smallOrgansTimer, row);
-		if(mServices->patient()->getData<Mesh>(otESOPHAGUS))
-		{
-			smallOrgansTimer->stop();
-			bar->setValue(100);
-		}
-		totalMinutes += kMinSmallOrgans; row++;
-	}
+		addRow(lsSMALL_ORGANS,   "Small Mediastinal Organs",   kMinSmallOrgans,  true,  bool(mServices->patient()->getData<Mesh>(otESOPHAGUS)));
 	if (mSegmentTumors)
 	{
-		QProgressBar* nodulesBar = mProgressBars[lsNODULES] = makeProgressBar();
-		DisplayTimerWidget* nodulesTimer = mTimerWidgets[lsNODULES] = makeTimerWidget();
-		gridLayout->addWidget(new QLabel("Small Tumors:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(nodulesBar, row, 1);
-		gridLayout->addWidget(nodulesTimer, row, 2);
-		if(mServices->patient()->getData<Mesh>(otTUMOR))
-		{
-			nodulesTimer->stop();
-			nodulesBar->setValue(100);
-		}
-		row++;
-
-		QProgressBar* tumorBar = mProgressBars[lsTUMOR] = makeProgressBar();
-		DisplayTimerWidget* tumorsTimer = mTimerWidgets[lsTUMOR] = makeTimerWidget();
-		gridLayout->addWidget(new QLabel("Large Tumors:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(tumorBar, row, 1);
-		addRaidionicsTimer(tumorsTimer, row);
-		if(mServices->patient()->getData<Mesh>(otTUMOR))
-		{
-			tumorsTimer->stop();
-			tumorBar->setValue(100);
-		}
-		totalMinutes += kMinTumors; row++;
+		bool done = bool(mServices->patient()->getData<Mesh>(otTUMOR));
+		addRow(lsNODULES, "Small Tumors", 0,          false, done);
+		addRow(lsTUMOR,   "Large Tumors", kMinTumors, true,  done);
 	}
 	if (mSegmentLungLobes)
-	{
-		QProgressBar* bar = mProgressBars[lsLOBE] = makeProgressBar();
-		DisplayTimerWidget* lungLobesTimer = mTimerWidgets[lsLOBE] = makeTimerWidget();
-		gridLayout->addWidget(new QLabel("Lung Lobes:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(bar, row, 1);
-		gridLayout->addWidget(lungLobesTimer, row, 2);
-		if(mServices->patient()->getData<Mesh>(otLOBE_LUL))
-		{
-			lungLobesTimer->stop();
-			bar->setValue(100);
-		}
-		totalMinutes += kMinLungLobes; row++;
-	}
+		addRow(lsLOBE,           "Lung Lobes",                 kMinLungLobes,    false, bool(mServices->patient()->getData<Mesh>(otLOBE_LUL)));
 	if (mRegisterPET)
-	{
-		QProgressBar* bar = mProgressBars[lsPET_REGISTERED] = makeProgressBar();
-		DisplayTimerWidget* petTimer = mTimerWidgets[lsPET_REGISTERED] = makeTimerWidget();
-		gridLayout->addWidget(new QLabel("PET:"), row, 0, Qt::AlignRight);
-		gridLayout->addWidget(bar, row, 1);
-		gridLayout->addWidget(petTimer, row, 2);
-		if(mServices->patient()->getImage(imPET, istPET_REGISTERED))
-		{
-			petTimer->stop();
-			bar->setValue(100);
-		}
-		totalMinutes += kMinPET; row++;
-	}
+		addRow(lsPET_REGISTERED, "PET",                        kMinPET,          false, bool(mServices->patient()->getImage(imPET, istPET_REGISTERED)));
 
 	if (row > 0)
 	{
