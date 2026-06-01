@@ -40,41 +40,6 @@ class Fraxinus(cx.build.cxComponents.CppComponent):
 
 # ---------------------------------------------------------
 
-class medtekAI(cx.build.cxComponents.CppComponent):
-    def name(self):
-        return "medtekAI"
-    def help(self):
-        return 'Machine Learning tools related to CustusS (SINTEF private)'
-    #def path(self):
-    #    custusx = self._createSibling(cx.build.cxComponents.CustusX)
-    #    return '%s/%s' % (custusx.path(), custusx.sourceFolder())
-    def sourcePath(self):
-        return '%s/%s/%s' % (self.controlData.getWorkingPath(), self.sourceFolder(), self.sourceFolder())
-    def sourceFolder(self):
-        return 'medtekAI'
-    def repository(self):
-        return '%s/medtekAI.git' % self.controlData.gitrepo_main_site_base
-    def update(self):
-        self._getBuilder().gitSetRemoteURL(self.repository())
-        self._getBuilder().gitCheckoutSha('3722851ab8c1fa8e7488697fe998596e4fe17604')
-        # self.unzip()
-    def configure(self):
-        pass
-    def build(self):
-        pass
-    def makeClean(self):
-        pass
-    def useInIntegrationTesting(self):
-        'use during integration test'
-        return True
-    def thoraxCTdataFolder(self):
-        return 'ThoraxCT'
-    def thoraxCTdataPath(self):
-        return '%s/%s/%s/%s/%s' % (self.controlData.getWorkingPath(), cxCustusXFinder.RepoLocations().getProjectFolder(), cxCustusXFinder.RepoLocations().getPublicRepoFolder(), 'data', self.thoraxCTdataFolder())
-    def url_link(self):
-        return 'https://datadryad.org/stash/downloads/file_stream/15192' #Patient016.zip
-# ---------------------------------------------------------
-
 class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
     def name(self):
         return "FraxinusTracking"

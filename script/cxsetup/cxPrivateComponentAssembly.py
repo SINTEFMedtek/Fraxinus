@@ -38,7 +38,6 @@ class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
         controlData = PrivateControlData()
         super(LibraryAssembly, self).__init__(controlData)
 
-        self.addComponent(cxPrivateComponents.medtekAI())
         self.addComponent(cxPrivateComponents.Fraxinus())
         self.addComponent(cxPrivateComponents.org_custusx_fraxinus_tracking())
         self.addComponent(cxPrivateComponents.org_custusx_ussimulator())
