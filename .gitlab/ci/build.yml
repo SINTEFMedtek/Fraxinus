@@ -3,13 +3,15 @@
 .build-variables:
   stage: build
   variables:
-    VERSION: ${CI_COMMIT_SHORT_SHA}
     OS: OS
     BASE_DIR: /builds/Fraxinus/$OS
     GIT_CLONE_PATH: $BASE_DIR/FX/FX #Changes CI_PROJECT_DIR
-    BUILD_DIR: $BASE_DIR/CX/build_Release
+    BUILD_DIR: $BASE_DIR/CX/build_Release_FX
     CX_SOURCE_PATH: $BASE_DIR/CX/CX
     BUILD_IGSTK: "false"
+    # URL-encoded path to the CustusX GitLab project. Override this variable
+    # (e.g. in project CI settings) if CustusX is ever renamed or moved.
+    CX_REGISTRY_PROJECT: "custusx%2FCustusX"
 
 .create-installer:
   script:
@@ -71,7 +73,7 @@
         token = os.environ['CI_JOB_TOKEN']
         prefix = os.environ['PREFIX'] + '-'
         req = urllib.request.Request(
-            f'{api}/projects/custusx%2FCustusX/packages?package_name=custusx-external-libs&per_page=100',
+            f'{api}/projects/{os.environ["CX_REGISTRY_PROJECT"]}/packages?package_name=custusx-external-libs&per_page=100',
             headers={'JOB-TOKEN': token})
         with urllib.request.urlopen(req) as r:
             pkgs = json.loads(r.read())
@@ -144,12 +146,14 @@
       eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc \
         --main_branch $CX_COMMIT \
         --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
+        --build_folder CustusX=build_Release_FX \
         components CustusX Fraxinus FraxinusTracking USSimulator
     else
       echo "Full build (all external libs + Fraxinus)..."
       eval ./script/cxFraxinusPrivateInstaller.py -s --all --full -t Release --user_doc --developer_doc \
         --main_branch $CX_COMMIT \
-        --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
+        --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
+        --build_folder CustusX=build_Release_FX
       echo "Uploading libs to FX Package Registry for future runs..."
       LIBS_HASH=$(sha256sum $CX_SOURCE_PATH/install/cx/build/cxComponents.py | awk '{print $1}' | cut -c1-16)
       PACKAGE_VERSION="${OS}-${IMAGE_TAG}-${IGSTK_SUFFIX}-${LIBS_HASH}"

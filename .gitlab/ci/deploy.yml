@@ -10,18 +10,24 @@
     - echo "Deploying application..."
     - |
       for OS in Ubuntu2004 Ubuntu2204 Ubuntu2404; do
-        cd $CI_PROJECT_DIR/$OS/package_artefacts
-        INSTALLER_FILE=$(find Fraxinus*.tar.gz)
+        DIR="$CI_PROJECT_DIR/$OS/package_artefacts"
+        if [ ! -d "$DIR" ]; then
+          echo "WARNING: no artifacts for $OS, skipping."
+          continue
+        fi
+        INSTALLER_FILE=$(find "$DIR" -maxdepth 1 -name 'Fraxinus*.tar.gz' -printf '%f\n' | head -1)
+        if [ -z "$INSTALLER_FILE" ]; then
+          echo "WARNING: no Fraxinus*.tar.gz in $DIR, skipping."
+          continue
+        fi
         curl \
           --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-          --upload-file $INSTALLER_FILE \
+          --upload-file "$DIR/$INSTALLER_FILE" \
           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Fraxinus/$VERSION/$OS/$INSTALLER_FILE"
       done
 
 deploy-commit:
   extends: .deploy
-  variables:
-    VERSION: ${CI_COMMIT_SHORT_SHA}
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: never
