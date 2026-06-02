@@ -40,7 +40,6 @@ class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
 
         self.addComponent(cxPrivateComponents.Fraxinus())
         self.addComponent(cxPrivateComponents.org_custusx_fraxinus_tracking())
-        self.addComponent(cxPrivateComponents.org_custusx_ussimulator())
 	#self.addComponent(cxPrivateComponents.thoraxCTdata())
         self.libraries.remove(self.custusx)
         self.addComponent(self.custusx)
