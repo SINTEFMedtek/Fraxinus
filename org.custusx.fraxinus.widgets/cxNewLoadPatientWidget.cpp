@@ -295,6 +295,7 @@ void NewLoadPatientWidget::updateSegmentationCheckBoxes()
 	else
 	{
 		mCheckBoxAirways->setChecked(true);
+		mCheckBoxAirways->setDisabled(true);
 		setPending(mStatusLabelAirways, "~7 min");
 	}
 
@@ -423,7 +424,7 @@ void NewLoadPatientWidget::loadCTDataDialog()
 void NewLoadPatientWidget::loadCTDataDialogFinished()
 {
 	if(mLoadCTDialog)
-		mLoadCTDialog->close();
+		mLoadCTDialog->deleteLater();
 	mLoadCTDialog = nullptr;
 	disconnect(mUSBButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataFromUSB);
 	disconnect(mHardDriveButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTData);
@@ -481,6 +482,9 @@ void NewLoadPatientWidget::dataAddedOrRemoved()
 		emit dataImportCompleted();
 		return;
 	}
+
+	if(mDataLoadedInfo)
+		return;
 
 	QTextEdit* textBox = new QTextEdit();
 	textBox->setReadOnly(true);

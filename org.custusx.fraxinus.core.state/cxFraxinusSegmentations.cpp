@@ -310,6 +310,9 @@ void FraxinusSegmentations::createProcessingInfo()
 		if (oldLayout)
 		{
 			mProgressBars.clear();
+			for (DisplayTimerWidget* t : mTimerWidgets)
+				if (t && !t->parent())
+					delete t;
 			mTimerWidgets.clear();
 			mActiveTimerWidget = nullptr;
 			mCurrentRaidionicsBar = nullptr;
@@ -427,7 +430,7 @@ void FraxinusSegmentations::createProcessingInfo()
 	{
 		mProcessingInfoParentWidget->setLayout(gridLayout);
 		mProcessingInfoParentWidget->setVisible(true);
-		QTimer::singleShot(0, [this](){
+		QTimer::singleShot(0, mProcessingInfoParentWidget, [this](){
 			QMainWindow* mw = nullptr;
 			for (QWidget* w : qApp->topLevelWidgets())
 			{
@@ -721,12 +724,12 @@ void FraxinusSegmentations::PETProgressTick()
 	if (!bar)
 		return;
 	++mPETProgressTicks;
-	bar->setValue(std::min(pauseAtPercentage, mPETProgressTicks * pauseAtPercentage / (kMinPET*60)));
+	bar->setValue(std::min(pauseAtPercentage, (int)(mPETProgressTicks * pauseAtPercentage / (kMinPET * 60.0))));
 }
 
 void FraxinusSegmentations::elastixFinishedSlot()
 {
-	mTimedAlgorithmProgressBar->detach(mThread);
+	mTimedAlgorithmProgressBar->detach(mElastixManager->getExecuter());
 	disconnect(mElastixManager->getExecuter().get(), &TimedBaseAlgorithm::finished, this, &FraxinusSegmentations::elastixFinishedSlot);
 
 	if (mPETProgressTimer)
@@ -761,7 +764,8 @@ void FraxinusSegmentations::runPythonFilterSlot()
 
 	if (mCurrentScriptFilter)
 		connect(mCurrentScriptFilter.get(), &GenericScriptFilter::scriptOutput,
-		        this, &FraxinusSegmentations::onScriptOutput, Qt::QueuedConnection);
+		        this, &FraxinusSegmentations::onScriptOutput,
+		        Qt::ConnectionType(Qt::QueuedConnection | Qt::UniqueConnection));
 
 	mThread->execute();
 }
@@ -781,7 +785,8 @@ void FraxinusSegmentations::runMLFilterSlot()
 
 	if (mCurrentScriptFilter)
 		connect(mCurrentScriptFilter.get(), &GenericScriptFilter::scriptOutput,
-		        this, &FraxinusSegmentations::onScriptOutput, Qt::QueuedConnection);
+		        this, &FraxinusSegmentations::onScriptOutput,
+		        Qt::ConnectionType(Qt::QueuedConnection | Qt::UniqueConnection));
 
 	mThread->execute();
 }
@@ -1176,7 +1181,7 @@ void FraxinusSegmentations::centerlineProgressTick()
 	if (!bar)
 		return;
 	++mCenterlineProgressTicks;
-	bar->setValue(std::min(pauseAtPercentage, mCenterlineProgressTicks * pauseAtPercentage / (kMinCenterlines*60)));
+	bar->setValue(std::min(pauseAtPercentage, (int)(mCenterlineProgressTicks * pauseAtPercentage / (kMinCenterlines * 60.0))));
 }
 
 void FraxinusSegmentations::centerlineFinishedSlot()

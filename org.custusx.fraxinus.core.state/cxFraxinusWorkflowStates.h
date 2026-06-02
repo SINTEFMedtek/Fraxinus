@@ -154,7 +154,6 @@ public:
 	virtual void onExit(QEvent * event);
 
 signals:
-	void dataImportCompleted();
 	void goToPinpointWorkflow();
 	void segmentationFinished();
 
@@ -185,9 +184,6 @@ public:
 	virtual void onEntry(QEvent *event);
 	virtual void onExit(QEvent * event);
 	virtual void enableAction(bool enable) override;
-
-signals:
-	void segmentationCompleted();
 
 private:
 	virtual void addDataToView();
