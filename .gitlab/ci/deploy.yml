@@ -1,0 +1,59 @@
+# Deploy stage jobs
+
+.deploy:
+  stage: deploy
+  extends: .build-variables
+  environment: production
+  variables:
+    VERSION: ${CI_COMMIT_SHORT_SHA}
+  script:
+    - echo "Deploying application..."
+    - |
+      for OS in Ubuntu2004 Ubuntu2204 Ubuntu2404; do
+        DIR="$CI_PROJECT_DIR/$OS/package_artefacts"
+        if [ ! -d "$DIR" ]; then
+          echo "WARNING: no artifacts for $OS, skipping."
+          continue
+        fi
+        INSTALLER_FILE=$(find "$DIR" -maxdepth 1 -name 'Fraxinus*.tar.gz' -printf '%f\n' | head -1)
+        if [ -z "$INSTALLER_FILE" ]; then
+          echo "WARNING: no Fraxinus*.tar.gz in $DIR, skipping."
+          continue
+        fi
+        curl \
+          --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+          --upload-file "$DIR/$INSTALLER_FILE" \
+          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Fraxinus/$VERSION/$OS/$INSTALLER_FILE"
+      done
+
+deploy-commit:
+  extends: .deploy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH # Only run for changes to the default (develop) branch
+      when: never
+    - if: '$CI_COMMIT_TAG == null' # Run for all commits, except tags
+      when: never # Don't deploy for develop branch either
+
+deploy-tag:
+  extends: .deploy
+  variables:
+    VERSION: ${CI_COMMIT_TAG}
+  rules:
+    - if: '$CI_COMMIT_TAG != null' # Run if a tag is present (= release or release candidate)
+
+pages:
+  stage: deploy
+  extends: .build-variables
+  environment: production
+  variables:
+    OS: Ubuntu2004
+  script:
+    - mv $OS/package_artefacts/html_pure/ public/user_doc/
+    - mv $OS/package_artefacts/html_dev/ public/developer_doc/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run for all changes to the default (develop) branch only

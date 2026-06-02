@@ -1,0 +1,194 @@
+# Build stage templates and jobs
+
+.build-variables:
+  stage: build
+  variables:
+    OS: OS
+    BASE_DIR: /builds/Fraxinus/$OS
+    GIT_CLONE_PATH: $BASE_DIR/FX/FX #Changes CI_PROJECT_DIR
+    BUILD_DIR: $BASE_DIR/CX/build_Release_FX
+    CX_SOURCE_PATH: $BASE_DIR/CX/CX
+    BUILD_IGSTK: "false"
+    # URL-encoded path to the CustusX GitLab project. Override this variable
+    # (e.g. in project CI settings) if CustusX is ever renamed or moved.
+    CX_REGISTRY_PROJECT: "custusx%2FCustusX"
+
+.create-installer:
+  script:
+    - cd $BUILD_DIR
+    # Remove old installer
+    - rm -f Fraxinus*.tar.gz
+    - cpack
+    # The file Fraxinus*.tar.gz should now be in CX/build_Release, and html_pure and html_dev in CX/build_Release/doc
+    - cd $CI_PROJECT_DIR
+    - mkdir -p $OS/package_artefacts
+    - cp -R $BUILD_DIR/Fraxinus*.tar.gz $OS/package_artefacts/
+    - cp -R $BUILD_DIR/doc/html_pure $OS/package_artefacts/html_pure/
+    - cp -R $BUILD_DIR/doc/html_dev $OS/package_artefacts/html_dev/
+    - echo "Compile complete."
+  artifacts:
+    paths:
+      - $OS/package_artefacts/Fraxinus*.tar.gz
+      - $OS/package_artefacts/html_pure/
+      - $OS/package_artefacts/html_dev/
+
+.reuse-build:
+  extends:
+    - .build-variables
+    - .create-installer
+  before_script:
+  - ls $BASE_DIR
+  - if [ $CI_COMMIT_TAG ]; then CX_COMMIT=$CI_COMMIT_TAG; else CX_COMMIT=$CI_COMMIT_BRANCH; fi
+  # Set IGSTK variant variables. Must come first so cleanup below is conditional.
+  # No IGSTK_FLAG: PrivateControlData auto-detects via /etc/os-release (Ubuntu 20/22 → on,
+  # Ubuntu 24 → off), which is always correct for the Docker images in use.
+  # add_boolean_inverter() generates --skip_igstk when the default is True (Ubuntu 20/22)
+  # and --igstk when the default is False (Ubuntu 24), so there is no single flag that
+  # works across both platforms — relying on auto-detection is simpler and safe.
+  - |
+    if [ "${BUILD_IGSTK}" = "true" ]; then
+      IGSTK_SUFFIX="igstk"
+      IGSTK_LIBS="eigen VTK ITK IGSTK OpenCV OpenIGTLink CTK OpenIGTLinkIO OpenCLUtilityLibrary QHttpServer"
+    else
+      IGSTK_SUFFIX="noigstk"
+      IGSTK_LIBS="eigen VTK ITK OpenCV OpenIGTLink CTK OpenIGTLinkIO OpenCLUtilityLibrary QHttpServer"
+      rm -rf $BASE_DIR/IGSTK  # not used in this build; remove stale dir from old agents
+    fi
+  - rm -rf $BUILD_DIR  # always clean the app build dir before rebuilding
+  - IMAGE_TAG=$(echo $CI_JOB_IMAGE | sed 's|.*/||' | tr ':' '_')
+  - export PREFIX="${OS}-${IMAGE_TAG}-${IGSTK_SUFFIX}"
+  - CX_PACKAGE_NAME="custusx-external-libs"
+  - CX_PACKAGE_FILE="cx-external-libs-${OS}-${IGSTK_SUFFIX}.tar.gz"
+  - FX_PACKAGE_NAME="fraxinus-external-libs"
+  - FX_PACKAGE_FILE="fx-external-libs-${OS}-${IGSTK_SUFFIX}.tar.gz"
+  # Query CX Package Registry for the latest package matching this OS/image/variant.
+  # A prefix query avoids hashing a local CX clone that may be at a different commit
+  # than when CX published the package, which would cause a version-key mismatch.
+  - echo "Querying CX Package Registry for ${PREFIX}..."
+  - |
+    CX_PACKAGE_VERSION=$(python3 << 'PYEOF'
+    import json, sys, os, urllib.request, urllib.error
+    try:
+        api = os.environ['CI_API_V4_URL']
+        token = os.environ['CI_JOB_TOKEN']
+        prefix = os.environ['PREFIX'] + '-'
+        req = urllib.request.Request(
+            f'{api}/projects/{os.environ["CX_REGISTRY_PROJECT"]}/packages?package_name=custusx-external-libs&per_page=100',
+            headers={'JOB-TOKEN': token})
+        with urllib.request.urlopen(req) as r:
+            pkgs = json.loads(r.read())
+        m = [p for p in pkgs if p['version'].startswith(prefix)]
+        m.sort(key=lambda p: p['created_at'], reverse=True)
+        print(m[0]['version'] if m else '', end='')
+    except Exception as e:
+        sys.stderr.write(str(e) + '\n')
+    PYEOF
+    )
+    echo "Latest CX package: ${CX_PACKAGE_VERSION:-none}"
+  # Try to use prebuilt libs: local cache first, then CX registry, then FX registry, then full rebuild.
+  # All cd $BASE_DIR calls use subshells to keep the working directory at CI_PROJECT_DIR.
+  - |
+    LIBS_READY=false
+    if [ -n "$CX_PACKAGE_VERSION" ]; then
+      LIBS_SENTINEL="$BASE_DIR/.lib_version_${CX_PACKAGE_VERSION}"
+      if [ -f "$LIBS_SENTINEL" ]; then
+        echo "Lib cache hit: $LIBS_SENTINEL"
+        LIBS_READY=true
+      else
+        CX_PACKAGE_URL="${CI_API_V4_URL}/projects/custusx%2FCustusX/packages/generic/${CX_PACKAGE_NAME}/${CX_PACKAGE_VERSION}/${CX_PACKAGE_FILE}"
+        HTTP_CODE=$(curl -s -o /tmp/$CX_PACKAGE_FILE -w "%{http_code}" \
+          --header "JOB-TOKEN: $CI_JOB_TOKEN" "$CX_PACKAGE_URL")
+        if [ "$HTTP_CODE" = "200" ]; then
+          echo "Downloaded CX prebuilt libs (${CX_PACKAGE_VERSION}), extracting to $BASE_DIR..."
+          ( cd $BASE_DIR && rm -rf $IGSTK_LIBS && tar -xzf /tmp/$CX_PACKAGE_FILE )
+          rm -f $BASE_DIR/.lib_version_*
+          touch "$LIBS_SENTINEL"
+          LIBS_READY=true
+        else
+          echo "CX download failed (HTTP $HTTP_CODE)"
+        fi
+      fi
+    fi
+  - |
+    if [ "$LIBS_READY" = "false" ]; then
+      LIBS_HASH=""
+      if [ -f "$CX_SOURCE_PATH/install/cx/build/cxComponents.py" ]; then
+        LIBS_HASH=$(sha256sum $CX_SOURCE_PATH/install/cx/build/cxComponents.py | awk '{print $1}' | cut -c1-16)
+      fi
+      if [ -n "$LIBS_HASH" ]; then
+        FX_PACKAGE_VERSION="${OS}-${IMAGE_TAG}-${IGSTK_SUFFIX}-${LIBS_HASH}"
+        FX_PACKAGE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${FX_PACKAGE_NAME}/${FX_PACKAGE_VERSION}/${FX_PACKAGE_FILE}"
+        LIBS_SENTINEL="$BASE_DIR/.lib_version_${FX_PACKAGE_VERSION}"
+        if [ -f "$LIBS_SENTINEL" ]; then
+          echo "Lib cache hit: $LIBS_SENTINEL"
+          LIBS_READY=true
+        else
+          echo "Checking FX Package Registry for ${FX_PACKAGE_VERSION}..."
+          HTTP_CODE=$(curl -s -o /tmp/$FX_PACKAGE_FILE -w "%{http_code}" \
+            --header "JOB-TOKEN: $CI_JOB_TOKEN" "$FX_PACKAGE_URL")
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "Downloaded FX prebuilt libs, extracting to $BASE_DIR..."
+            ( cd $BASE_DIR && rm -rf $IGSTK_LIBS && tar -xzf /tmp/$FX_PACKAGE_FILE )
+            rm -f $BASE_DIR/.lib_version_*
+            touch "$LIBS_SENTINEL"
+            LIBS_READY=true
+          else
+            echo "Not in FX registry (HTTP $HTTP_CODE), will build from scratch."
+          fi
+        fi
+      else
+        echo "CX source not yet available, will build from scratch."
+      fi
+    fi
+  - |
+    if [ "$LIBS_READY" = "true" ]; then
+      echo "Building Fraxinus components only..."
+      eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc \
+        --main_branch $CX_COMMIT \
+        --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
+        --build_folder CustusX=build_Release_FX \
+        components CustusX Fraxinus FraxinusTracking USSimulator
+    else
+      echo "Full build (all external libs + Fraxinus)..."
+      eval ./script/cxFraxinusPrivateInstaller.py -s --all --full -t Release --user_doc --developer_doc \
+        --main_branch $CX_COMMIT \
+        --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
+        --build_folder CustusX=build_Release_FX
+      echo "Uploading libs to FX Package Registry for future runs..."
+      LIBS_HASH=$(sha256sum $CX_SOURCE_PATH/install/cx/build/cxComponents.py | awk '{print $1}' | cut -c1-16)
+      PACKAGE_VERSION="${OS}-${IMAGE_TAG}-${IGSTK_SUFFIX}-${LIBS_HASH}"
+      FX_PACKAGE_FILE="fx-external-libs-${OS}-${IGSTK_SUFFIX}.tar.gz"
+      FX_PACKAGE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${FX_PACKAGE_NAME}/${PACKAGE_VERSION}/${FX_PACKAGE_FILE}"
+      LIBS_SENTINEL="$BASE_DIR/.lib_version_${PACKAGE_VERSION}"
+      ( cd $BASE_DIR && tar -czf /tmp/$FX_PACKAGE_FILE \
+        --exclude='*/CMakeFiles' \
+        --exclude='*/.git' \
+        $IGSTK_LIBS )
+      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+        --upload-file /tmp/$FX_PACKAGE_FILE "$FX_PACKAGE_URL" || true
+      rm -f $BASE_DIR/.lib_version_*
+      touch "$LIBS_SENTINEL"
+    fi
+
+build-ubuntu20:
+  extends: .reuse-build
+  image: $IMAGE_UBUNTU2004
+  variables:
+    OS: Ubuntu2004
+    BUILD_IGSTK: "true"
+    BASE_DIR: /builds/Ubuntu2004igstk
+
+build-ubuntu22:
+  extends: .reuse-build
+  image: $IMAGE_UBUNTU2204
+  variables:
+    OS: Ubuntu2204
+    BUILD_IGSTK: "true"
+    BASE_DIR: /builds/Ubuntu2204igstk
+
+build-ubuntu24:
+  extends: .reuse-build
+  image: $IMAGE_UBUNTU2404
+  variables:
+    OS: Ubuntu2404
+    BASE_DIR: /builds/Ubuntu2404
