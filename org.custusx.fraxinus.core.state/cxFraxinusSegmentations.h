@@ -16,10 +16,14 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 
 #include <QDialog>
 #include <QCheckBox>
+#include <QMap>
 #include "cxFilterTimedAlgorithm.h"
 #include "cxTimedAlgorithmProgressBar.h"
 #include "cxDefinitions.h"
 #include "cxElastixManager.h"
+
+class QGridLayout;
+class QProgressBar;
 
 namespace cx
 {
@@ -38,8 +42,12 @@ public:
 	ImagePtr findAndLabelThoraxCT() const;
 
 	BranchListPtr getBranchList();
-	
+
 	void createSelectSegmentationBox();
+	void startSegmentationWithOptions(bool airways, bool lymphNodes, bool heart,
+	                                   bool mediumOrgans, bool smallOrgans, bool tumors,
+	                                   bool lungVessels, bool lungLobes);
+	void setProcessingInfoParentWidget(QWidget* container);
 	void createProcessingInfo();
 	void performPETCTregistration();
 	void performPythonSegmentation(ImagePtr image);
@@ -85,13 +93,19 @@ private slots:
 	void MLFinishedSlot2();
 	void runElastixSlot();
 	void elastixFinishedSlot();
-	void checkForPETData();
+
 	void showProcessingInfoFinished();
 	void closeSegmentationInfo();
 	void postProcessAirwaysSlot();
 	void centerlineFinishedSlot();
+	void onScriptOutput(const QString& line);
+	void centerlineProgressTick();
+	void PETProgressTick();
 	
 private:
+	void resetProcessingInfoState();
+	QGridLayout* buildProcessingInfoLayout();
+	void showProcessingInfoLayout(QGridLayout* layout);
 	void deleteTumorsAndNodulesVolumes();
 	std::vector<QString> getLobeOfTumors(std::vector<MeshPtr> tumorMeshes);
 	vtkImageDataPtr mergeTumorVolumes(ImagePtr tumorsVolume, ImagePtr nodulesVolume);
@@ -100,6 +114,7 @@ private:
 	RegServicesPtr mServices;
 	
 	FilterPtr mCurrentFilter;
+	GenericScriptFilterPtr mCurrentScriptFilter;
 	FilterTimedAlgorithmPtr mThread;
 	FilterTimedAlgorithmPtr mCenterlineThread;
 	TimedAlgorithmProgressBar* mTimedAlgorithmProgressBar;
@@ -108,29 +123,11 @@ private:
 	QDialog* mSegmentationSelectionInput = nullptr;
 	QDialog* mSegmentationProcessingInfo = nullptr;
 	QDialog* mSegmentationFinishedInfo = nullptr;
-	DisplayTimerWidget* mAirwaysTimerWidget;
-	DisplayTimerWidget* mLungsTimerWidget;
-	DisplayTimerWidget* mLymphNodesTimerWidget;
-	DisplayTimerWidget* mHeartTimerWidget;
-	DisplayTimerWidget* mMediumOrgansTimerWidget;
-	DisplayTimerWidget* mSmallOrgansTimerWidget;
-	DisplayTimerWidget* mNodulesTimerWidget;
-	DisplayTimerWidget* mTumorsTimerWidget;
-	DisplayTimerWidget* mPETTimerWidget;
-	DisplayTimerWidget* mLungVesselsTimerWidget;
-	DisplayTimerWidget* mLungLobesTimerWidget;
-	DisplayTimerWidget* mActiveTimerWidget = NULL;
-	QCheckBox* mCheckBoxAirways = nullptr;
-	QCheckBox* mCheckBoxLungs = nullptr;
-	QCheckBox* mCheckBoxLymphNodes = nullptr;
-	QCheckBox* mCheckBoxHeart = nullptr;
-	QCheckBox* mCheckBoxMediumOrgans = nullptr;
-	QCheckBox* mCheckBoxSmallOrgans = nullptr;
-	QCheckBox* mCheckBoxNodules = nullptr;
-	QCheckBox* mCheckBoxTumors = nullptr;
-	QCheckBox* mCheckBoxPET = nullptr;
-	QCheckBox* mCheckBoxLungVessels = nullptr;
-	QCheckBox* mCheckBoxLungLobes = nullptr;
+	QWidget* mProcessingInfoParentWidget = nullptr;
+	QMap<LUNG_STRUCTURES, QProgressBar*> mProgressBars;
+	QMap<LUNG_STRUCTURES, DisplayTimerWidget*> mTimerWidgets;
+	DisplayTimerWidget* mActiveTimerWidget = nullptr;
+	QMap<LUNG_STRUCTURES, QCheckBox*> mCheckBoxes;
 	QCheckBox* mCheckBoxSelectAll = nullptr;
 	bool mAirwaysProcessed = false;
 	bool mLungVesselsProcessed = false;
@@ -155,6 +152,18 @@ private:
 	void generateCenterline();
 	bool runRaidionics(GenericScriptFilterPtr scriptFilter);
 	DisplayTimerWidget *getTimer(ORGAN_TYPE target);
+	QProgressBar* getProgressBar(LUNG_STRUCTURES type);
+	QProgressBar* getRaidionicsBarForLine(const QString& line);
+	int scaledPipelineValue(int val) const;
+
+	QProgressBar* mCurrentRaidionicsBar = nullptr;
+	bool mRaidionicsInInference = false;
+	int mPipelineCurrentStep = 1;
+	int mPipelineTotalSteps = 1;
+	QTimer* mCenterlineProgressTimer = nullptr;
+	int mCenterlineProgressTicks = 0;
+	QTimer* mPETProgressTimer = nullptr;
+	int mPETProgressTicks = 0;
 };
 }//cx
 #endif // CXFRAXINUSSEGMENTATIONS_H

@@ -42,6 +42,7 @@ class QLineEdit;
 class QRadioButton;
 class QCheckBox;
 class QRadioButton;
+class QDomElement;
 
 namespace cx {
 
@@ -81,6 +82,8 @@ private slots:
 	void centerToImage();
 	void targetNameChanged(const QString &text);
 	void loadNameOfPointMetric();
+	void onSessionSave(QDomElement& root);
+	void onSessionLoad(QDomElement& root);
 
 private:
 	void createEndoscopeMetric();

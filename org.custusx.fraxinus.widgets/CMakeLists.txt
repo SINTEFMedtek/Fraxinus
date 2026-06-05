@@ -28,6 +28,8 @@ set(PLUGIN_SRCS
     cxFraxinusVideoGeneratorWidget.cpp
     cxFraxinusVideoRecorderWidget.cpp
     cxTumorInformationWidget.cpp
+    cxFraxinusEBUSSimulatorImplWidget.h
+    cxFraxinusEBUSSimulatorImplWidget.cpp
 )
 
 #if(CX_LINUX)
@@ -64,6 +66,7 @@ set(PLUGIN_MOC_SRCS
     cxFraxinusNavigationWidget.h
     cxFraxinusSimulatorWidget.h
     cxFraxinusEBUSSimulatorWidget.h
+    cxFraxinusEBUSSimulatorImplWidget.h
     cxFraxinusRobotWidget.h
     cxFraxinusMDTWidget.h
     cxViewSelectionWidget.h
@@ -101,6 +104,8 @@ set(PLUGIN_target_libraries
     org_custusx_bronchoscopynavigation
     org_custusx_acquisition
     cxLogicManager
+    cxGrabber
+    org_custusx_core_video
     )
 
 #if(CX_LINUX)

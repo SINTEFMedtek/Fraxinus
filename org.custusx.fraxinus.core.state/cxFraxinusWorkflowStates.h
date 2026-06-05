@@ -62,6 +62,7 @@ class PinpointWidget;
 class StructuresSelectionWidget;
 class TumorInformationWidget;
 class ProcedurePlanningWidget;
+class ImportWorkflowState;
 
 #define MAX_GENERATION_FOR_AUTOMATIC_CAMERA_ROTATION 3
 
@@ -139,6 +140,7 @@ private:
 	TransferFunctions3DPresetsPtr getTransferfunctionPresets();
 };
 
+
 class org_custusx_fraxinus_core_state_EXPORT PatientWorkflowState: public FraxinusWorkflowState
 {
 Q_OBJECT
@@ -152,11 +154,22 @@ public:
 	virtual void onExit(QEvent * event);
 
 signals:
-	void dataImportCompleted();
+	void goToPinpointWorkflow();
+	void segmentationFinished();
+
+public:
+	void setImportWorkflowState(ImportWorkflowState* state);
+
+private slots:
+	void onExistingPatientLoaded();
+	void runSegmentation();
 
 private:
 	virtual void addDataToView();
 	NewLoadPatientWidget* mNewLoadPatientWidget;
+	FraxinusSegmentationsPtr mFraxinusSegmentations;
+	RegServicesPtr mRegServices;
+	ImportWorkflowState* mImportWorkflowState = nullptr;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ImportWorkflowState: public FraxinusWorkflowState
@@ -170,6 +183,7 @@ public:
 	virtual bool canEnter() const;
 	virtual void onEntry(QEvent *event);
 	virtual void onExit(QEvent * event);
+	virtual void enableAction(bool enable) override;
 
 private:
 	virtual void addDataToView();
@@ -186,6 +200,7 @@ public:
 	virtual void onEntry(QEvent* event);
 	void onExit(QEvent *event);
 	virtual bool canEnter() const;
+	virtual void enableAction(bool enable) override;
 signals:
   void segmentationFinished();
 private slots:
@@ -229,8 +244,8 @@ private:
 
 	bool mPointChanged;
 	bool mUpdateTargetAllowed = true;
-	int m3DViewGroupNumber;
-	int m2DViewGroupNumber;
+	unsigned int m3DViewGroupNumber;
+	unsigned int m2DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyFlyThroughWorkflowState: public FraxinusWorkflowState
@@ -246,9 +261,9 @@ public:
 	virtual bool canEnter() const;
 private:
 	void addDataToView();
-	int mFlyThrough3DViewGroupNumber;
-	int mSurfaceModel3DViewGroupNumber;
-	int m2DViewGroupNumber;
+	unsigned int mFlyThrough3DViewGroupNumber;
+	unsigned int mSurfaceModel3DViewGroupNumber;
+	unsigned int m2DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyCutPlanesWorkflowState: public FraxinusWorkflowState
@@ -265,9 +280,9 @@ public:
 
 private:
 	void addDataToView();
-	int mFlyThrough3DViewGroupNumber;
-	int mSurfaceModel3DViewGroupNumber;
-	int m2DViewGroupNumber;
+	unsigned int mFlyThrough3DViewGroupNumber;
+	unsigned int mSurfaceModel3DViewGroupNumber;
+	unsigned int m2DViewGroupNumber;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT VirtualBronchoscopyAnyplaneWorkflowState: public FraxinusWorkflowState
@@ -283,10 +298,10 @@ public:
 	virtual bool canEnter() const;
 private:
 	void addDataToView();
-	int mFlyThrough3DViewGroupNumber;
-	int mSurfaceModel3DViewGroupNumber;
-	int m2DViewGroupNumber;
-	int m2DViewGroupNumber_2;
+	unsigned int mFlyThrough3DViewGroupNumber;
+	unsigned int mSurfaceModel3DViewGroupNumber;
+	unsigned int m2DViewGroupNumber;
+	unsigned int m2DViewGroupNumber_2;
 };
 
 class org_custusx_fraxinus_core_state_EXPORT ProcedurePlanningWorkflowState: public FraxinusWorkflowState
@@ -303,8 +318,8 @@ public:
 
 private:
 	void addDataToView();
-	int m3DViewGroupNumber;
-	int m2DViewGroupNumber;
+	unsigned int m3DViewGroupNumber;
+	unsigned int m2DViewGroupNumber;
 };
 
 /**

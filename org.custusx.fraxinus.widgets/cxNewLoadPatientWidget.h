@@ -39,6 +39,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxForwardDeclarations.h"
 
 class QPushButton;
+class QCheckBox;
+class QGroupBox;
+class QLabel;
 
 namespace cx
 {
@@ -50,8 +53,20 @@ public:
 	NewLoadPatientWidget(QWidget *parent, VisServicesPtr services, AcquisitionServicePtr acquisitionService);
 	static QString getWidgetName();
 
+	QGroupBox* getProcessingInfoGroup();
+
+	bool isAirwaysChecked() const;
+	bool isLymphNodesChecked() const;
+	bool isHeartChecked() const;
+	bool isMediumOrgansChecked() const;
+	bool isSmallOrgansChecked() const;
+	bool isTumorsChecked() const;
+	bool isLungVesselsChecked() const;
+	bool isLungLobesChecked() const;
+
 private slots:
 	void createNewPatient();
+	void createNewPatientFromUSB();
 	void loadPatient();
 	void selectCTData();
 	void patientCreatedInfo();
@@ -60,9 +75,14 @@ private slots:
 	void loadCTDataDialog();
 	void loadCTDataFromUSB();
 	void loadCTDataDialogFinished();
+	void selectAll(bool checked);
+	void updateRunSegmentationButton();
+	void updateSegmentationCheckBoxes();
 
 signals:
 	void dataImportCompleted();
+	void runSegmentationClicked();
+	void existingPatientLoaded();
 
 private:
 	void enableImportDataButton();
@@ -79,9 +99,29 @@ private:
 	QMetaObject::Connection mConnectionToYesButtonPatientCreated, mConnectionToNoButtonPatientCreated;
 	QMetaObject::Connection mConnectionToYesButtonDataLoaded, mConnectionToNoButtonDataLoaded;
 
+	QCheckBox* mCheckBoxAirways = nullptr;
+	QCheckBox* mCheckBoxLymphNodes = nullptr;
+	QCheckBox* mCheckBoxHeart = nullptr;
+	QCheckBox* mCheckBoxMediumOrgans = nullptr;
+	QCheckBox* mCheckBoxSmallOrgans = nullptr;
+	QCheckBox* mCheckBoxTumors = nullptr;
+	QCheckBox* mCheckBoxLungVessels = nullptr;
+	QCheckBox* mCheckBoxLungLobes = nullptr;
+	QCheckBox* mCheckBoxSelectAll = nullptr;
+	QLabel* mStatusLabelAirways = nullptr;
+	QLabel* mStatusLabelLymphNodes = nullptr;
+	QLabel* mStatusLabelHeart = nullptr;
+	QLabel* mStatusLabelMediumOrgans = nullptr;
+	QLabel* mStatusLabelSmallOrgans = nullptr;
+	QLabel* mStatusLabelTumors = nullptr;
+	QLabel* mStatusLabelLungVessels = nullptr;
+	QLabel* mStatusLabelLungLobes = nullptr;
+	QPushButton* mRunSegmentationButton = nullptr;
+	QGroupBox* mProcessingInfoGroup = nullptr;
 
 	bool mThoraxCTLoaded = false;
 	bool mPETLoaded = false;
+	bool mSkipDataLoadedInfo = false;
 };
 
 }

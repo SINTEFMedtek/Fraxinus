@@ -1,9 +1,15 @@
 #include "cxNewLoadPatientWidget.h"
 
+#include <functional>
 #include <iostream>
 
 #include <QHBoxLayout>
+#include <QGridLayout>
+#include <QFrame>
 #include <QPushButton>
+#include <QCheckBox>
+#include <QDockWidget>
+#include <QGroupBox>
 #include <QAction>
 #include <QDialog>
 #include <QLabel>
@@ -14,6 +20,7 @@
 #include "cxLogicManager.h"
 #include "cxDataLocations.h"
 #include "cxPatientModelService.h"
+#include "cxMesh.h"
 #include "cxFraxinusVideoRecorderWidget.h"
 #include "cxProfile.h"
 #include "cxVisServices.h"
@@ -35,6 +42,11 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	newButton->setIcon(QIcon(":/icons/icons/add.svg"));
 	connect(newButton, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatient);
 
+	QPushButton* newButtonFromUSB = new QPushButton("&Create new patient from USB");
+	newButtonFromUSB->setMinimumSize(BUTTON_SIZE);
+	newButtonFromUSB->setIcon(QIcon(":/icons/icons/add.svg"));
+	connect(newButtonFromUSB, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatientFromUSB);
+
 	QPushButton* loadButton = new QPushButton("&Load existing patient");
 	loadButton->setMinimumSize(BUTTON_SIZE);
 	loadButton->setIcon(QIcon(":/icons/icons/select.svg"));
@@ -45,14 +57,97 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	mSelectCTDataButton->setEnabled(false);
 	connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataDialog);
 
+	// Segmentation selection checkboxes
+	mCheckBoxAirways = new QCheckBox("Airways, Lungs");
+	mCheckBoxAirways->setChecked(true);
+	mCheckBoxAirways->setDisabled(true);
+	mStatusLabelAirways = new QLabel("~7 min");
+
+	mCheckBoxLymphNodes = new QCheckBox("Lymph Nodes");
+	mCheckBoxLymphNodes->setChecked(false);
+	mStatusLabelLymphNodes = new QLabel("~2 min");
+
+	mCheckBoxHeart = new QCheckBox("Pulmonary System");
+	mCheckBoxHeart->setToolTip("Heart, Pulmonary Veins, Pulmonary Trunk");
+	mCheckBoxHeart->setChecked(false);
+	mStatusLabelHeart = new QLabel("~4 min");
+
+	mCheckBoxMediumOrgans = new QCheckBox("Vena Cava, Aorta, Spine");
+	mCheckBoxMediumOrgans->setChecked(false);
+	mStatusLabelMediumOrgans = new QLabel("~3 min");
+
+	mCheckBoxSmallOrgans = new QCheckBox("Small Mediastinal Organs");
+	mCheckBoxSmallOrgans->setToolTip("Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos");
+	mCheckBoxSmallOrgans->setChecked(false);
+	mStatusLabelSmallOrgans = new QLabel("~2 min");
+
+	mCheckBoxTumors = new QCheckBox("Tumors");
+	mCheckBoxTumors->setChecked(false);
+	mStatusLabelTumors = new QLabel("~5 min");
+
+	mCheckBoxLungVessels = new QCheckBox("Small Vessels");
+	mCheckBoxLungVessels->setChecked(false);
+	mStatusLabelLungVessels = new QLabel("~5 min");
+
+	mCheckBoxLungLobes = new QCheckBox("Lung Lobes");
+	mCheckBoxLungLobes->setChecked(false);
+	mStatusLabelLungLobes = new QLabel("~5 min");
+
+	mCheckBoxSelectAll = new QCheckBox("Select all");
+	mCheckBoxSelectAll->setChecked(false);
+	connect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &NewLoadPatientWidget::selectAll);
+
+	QGridLayout* segLayout = new QGridLayout();
+	segLayout->setColumnStretch(0, 1);
+	int segRow = 0;
+	segLayout->addWidget(mCheckBoxSelectAll, segRow, 0, 1, 2);
+	segRow++;
+	QFrame* segSeparator = new QFrame();
+	segSeparator->setFrameShape(QFrame::HLine);
+	segSeparator->setFrameShadow(QFrame::Sunken);
+	segLayout->addWidget(segSeparator, segRow, 0, 1, 2);
+	segRow++;
+	segLayout->addWidget(mCheckBoxAirways,      segRow, 0); segLayout->addWidget(mStatusLabelAirways,      segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxLymphNodes,   segRow, 0); segLayout->addWidget(mStatusLabelLymphNodes,   segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxHeart,        segRow, 0); segLayout->addWidget(mStatusLabelHeart,        segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxMediumOrgans, segRow, 0); segLayout->addWidget(mStatusLabelMediumOrgans, segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxSmallOrgans,  segRow, 0); segLayout->addWidget(mStatusLabelSmallOrgans,  segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxTumors,       segRow, 0); segLayout->addWidget(mStatusLabelTumors,       segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxLungVessels,  segRow, 0); segLayout->addWidget(mStatusLabelLungVessels,  segRow, 1); segRow++;
+	segLayout->addWidget(mCheckBoxLungLobes,    segRow, 0); segLayout->addWidget(mStatusLabelLungLobes,    segRow, 1);
+	QGroupBox* segmentationGroup = new QGroupBox("Segmentation");
+	segmentationGroup->setLayout(segLayout);
+
+	mRunSegmentationButton = new QPushButton("Run Segmentation");
+	mRunSegmentationButton->setIcon(QIcon(":/icons/icons/processing.svg"));
+	mRunSegmentationButton->setEnabled(false);
+	connect(mRunSegmentationButton, &QPushButton::clicked, this, &NewLoadPatientWidget::runSegmentationClicked);
+
+	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved,
+	        this, &NewLoadPatientWidget::updateRunSegmentationButton);
+	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved,
+	        this, &NewLoadPatientWidget::updateSegmentationCheckBoxes);
+	connect(mServices->patient().get(), &PatientModelService::patientChanged,
+	        this, &NewLoadPatientWidget::updateSegmentationCheckBoxes);
+
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->addSpacing(50);
+	layout->addWidget(newButtonFromUSB);
+	layout->addSpacing(25);
 	layout->addWidget(newButton);
 	layout->addSpacing(25);
 	layout->addWidget(loadButton);
 	layout->addSpacing(50);
 
 	layout->addWidget(mSelectCTDataButton);
+	layout->addSpacing(10);
+	layout->addWidget(segmentationGroup);
+	layout->addWidget(mRunSegmentationButton);
+
+	mProcessingInfoGroup = new QGroupBox("Segmentation status");
+	mProcessingInfoGroup->setVisible(false);
+	layout->addWidget(mProcessingInfoGroup);
+
 	layout->addStretch();
 
 	QString profile = ProfileManager::getInstance()->activeProfile()->getUid();
@@ -71,12 +166,28 @@ QString NewLoadPatientWidget::getWidgetName()
 	return "new_load_patient_widget";
 }
 
+QGroupBox* NewLoadPatientWidget::getProcessingInfoGroup()
+{
+	mProcessingInfoGroup->setVisible(true);
+	return mProcessingInfoGroup;
+}
+
 void NewLoadPatientWidget::createNewPatient()
 {
 	QString actionName = "CreatePatientWithPatientName";
 	triggerMainWindowActionWithObjectName(actionName);
 	enableImportDataButton();
-	patientCreatedInfo();
+	//patientCreatedInfo();
+	loadCTDataDialog();
+}
+
+void NewLoadPatientWidget::createNewPatientFromUSB()
+{
+	QString actionName = "CreatePatientWithPatientName";
+	triggerMainWindowActionWithObjectName(actionName);
+	enableImportDataButton();
+	mSkipDataLoadedInfo = true;
+	loadCTDataFromUSB();
 }
 
 void NewLoadPatientWidget::patientCreatedInfo()
@@ -143,10 +254,7 @@ void NewLoadPatientWidget::loadPatient()
 	QString actionName = "LoadFileWithSimpleDialog";
 	triggerMainWindowActionWithObjectName(actionName);
 	enableImportDataButton();
-	if(mServices->patient()->getImage(imCT, istTHORAX_CT))
-		emit dataImportCompleted();
-	else
-		dataAddedOrRemoved();
+	emit existingPatientLoaded();
 }
 
 void NewLoadPatientWidget::enableImportDataButton()
@@ -155,7 +263,126 @@ void NewLoadPatientWidget::enableImportDataButton()
 		mSelectCTDataButton->setEnabled(true);
 	else
 		mSelectCTDataButton->setEnabled(false);
+	this->updateRunSegmentationButton();
+	this->updateSegmentationCheckBoxes();
 }
+
+void NewLoadPatientWidget::updateRunSegmentationButton()
+{
+	bool ctLoaded = mServices->patient()->getImage(imCT, istTHORAX_CT) != nullptr;
+	bool patientValid = mServices->patient()->isPatientValid();
+	mRunSegmentationButton->setEnabled(ctLoaded && patientValid);
+}
+
+void NewLoadPatientWidget::updateSegmentationCheckBoxes()
+{
+	bool patientValid = mServices->patient()->isPatientValid();
+
+	std::function<void(QCheckBox*, QLabel*)> setDone = [](QCheckBox* cb, QLabel* lbl) {
+		cb->setChecked(false);
+		cb->setDisabled(true);
+		QColor c = Styles::getGreen();
+		lbl->setStyleSheet(QString("color: rgb(%1,%2,%3); font-weight: bold;")
+			.arg(c.red()).arg(c.green()).arg(c.blue()));
+		lbl->setText("Done");
+	};
+	std::function<void(QLabel*, const QString&)> setPending = [](QLabel* lbl, const QString& est) {
+		lbl->setStyleSheet("");
+		lbl->setText(est);
+	};
+
+	if(patientValid && mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
+		setDone(mCheckBoxAirways, mStatusLabelAirways);
+	else
+	{
+		mCheckBoxAirways->setChecked(true);
+		mCheckBoxAirways->setDisabled(true);
+		setPending(mStatusLabelAirways, "~7 min");
+	}
+
+	if(patientValid && mServices->patient()->getData<Mesh>(otLYMPH_NODES))
+		setDone(mCheckBoxLymphNodes, mStatusLabelLymphNodes);
+	else
+	{
+		mCheckBoxLymphNodes->setDisabled(false);
+		setPending(mStatusLabelLymphNodes, "~2 min");
+	}
+
+	if(patientValid && mServices->patient()->getData<Mesh>(otHEART))
+		setDone(mCheckBoxHeart, mStatusLabelHeart);
+	else
+	{
+		mCheckBoxHeart->setDisabled(false);
+		setPending(mStatusLabelHeart, "~4 min");
+	}
+
+	if(patientValid && mServices->patient()->getData<Mesh>(otSPINE))
+		setDone(mCheckBoxMediumOrgans, mStatusLabelMediumOrgans);
+	else
+	{
+		mCheckBoxMediumOrgans->setDisabled(false);
+		setPending(mStatusLabelMediumOrgans, "~3 min");
+	}
+
+	if(patientValid && mServices->patient()->getData<Mesh>(otESOPHAGUS))
+		setDone(mCheckBoxSmallOrgans, mStatusLabelSmallOrgans);
+	else
+	{
+		mCheckBoxSmallOrgans->setDisabled(false);
+		setPending(mStatusLabelSmallOrgans, "~2 min");
+	}
+
+	if(patientValid && mServices->patient()->getData<Mesh>(otTUMOR))
+		setDone(mCheckBoxTumors, mStatusLabelTumors);
+	else
+	{
+		mCheckBoxTumors->setDisabled(false);
+		setPending(mStatusLabelTumors, "~5 min");
+	}
+
+	if(patientValid && mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
+		setDone(mCheckBoxLungVessels, mStatusLabelLungVessels);
+	else
+	{
+		mCheckBoxLungVessels->setDisabled(false);
+		setPending(mStatusLabelLungVessels, "~5 min");
+	}
+
+	if(patientValid && mServices->patient()->getData<Mesh>(otLOBE_LUL))
+		setDone(mCheckBoxLungLobes, mStatusLabelLungLobes);
+	else
+	{
+		mCheckBoxLungLobes->setDisabled(false);
+		setPending(mStatusLabelLungLobes, "~5 min");
+	}
+}
+
+void NewLoadPatientWidget::selectAll(bool checked)
+{
+	if(mCheckBoxLymphNodes->isEnabled())
+		mCheckBoxLymphNodes->setChecked(checked);
+	if(mCheckBoxHeart->isEnabled())
+		mCheckBoxHeart->setChecked(checked);
+	if(mCheckBoxMediumOrgans->isEnabled())
+		mCheckBoxMediumOrgans->setChecked(checked);
+	if(mCheckBoxSmallOrgans->isEnabled())
+		mCheckBoxSmallOrgans->setChecked(checked);
+	if(mCheckBoxTumors->isEnabled())
+		mCheckBoxTumors->setChecked(checked);
+	if(mCheckBoxLungVessels->isEnabled())
+		mCheckBoxLungVessels->setChecked(checked);
+	if(mCheckBoxLungLobes->isEnabled())
+		mCheckBoxLungLobes->setChecked(checked);
+}
+
+bool NewLoadPatientWidget::isAirwaysChecked() const { return mCheckBoxAirways->isChecked(); }
+bool NewLoadPatientWidget::isLymphNodesChecked() const { return mCheckBoxLymphNodes->isChecked(); }
+bool NewLoadPatientWidget::isHeartChecked() const { return mCheckBoxHeart->isChecked(); }
+bool NewLoadPatientWidget::isMediumOrgansChecked() const { return mCheckBoxMediumOrgans->isChecked(); }
+bool NewLoadPatientWidget::isSmallOrgansChecked() const { return mCheckBoxSmallOrgans->isChecked(); }
+bool NewLoadPatientWidget::isTumorsChecked() const { return mCheckBoxTumors->isChecked(); }
+bool NewLoadPatientWidget::isLungVesselsChecked() const { return mCheckBoxLungVessels->isChecked(); }
+bool NewLoadPatientWidget::isLungLobesChecked() const { return mCheckBoxLungLobes->isChecked(); }
 
 void NewLoadPatientWidget::selectCTData()
 {
@@ -197,7 +424,8 @@ void NewLoadPatientWidget::loadCTDataDialog()
 
 void NewLoadPatientWidget::loadCTDataDialogFinished()
 {
-	mLoadCTDialog->close();
+	if(mLoadCTDialog)
+		mLoadCTDialog->deleteLater();
 	mLoadCTDialog = nullptr;
 	disconnect(mUSBButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataFromUSB);
 	disconnect(mHardDriveButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTData);
@@ -224,6 +452,9 @@ void NewLoadPatientWidget::loadCTData(bool fromUSB)
 		else
 			triggerMainWindowActionWithObjectName("AddFilesForImportWithDialogCT");
 		triggerMainWindowActionWithObjectName("ImportSelectedData");
+		QDockWidget* importDockWidget = findMainWindowChildWithObjectName<QDockWidget*>("import_widgetDockWidget");
+		if(importDockWidget)
+			importDockWidget->hide();
 	}
 	dataAddedOrRemoved();
 }
@@ -233,43 +464,44 @@ void NewLoadPatientWidget::dataAddedOrRemoved()
 	if(!mServices->patient()->isPatientValid())
 		return;
 
-	QString text;
-	bool allDataLoaded = false;
-	bool ctAvailable = false;
-	bool petAvailable = false;
-	bool pet_ctAvailable = false;
+	bool ctAvailable = mServices->patient()->getImage(imCT, istTHORAX_CT) != nullptr;
+	bool petAvailable = mServices->patient()->getImage(imPET, istPET) != nullptr;
+	bool pet_ctAvailable = mServices->patient()->getImage(imCT, istPET_CT) != nullptr;
+	bool allDataLoaded = ctAvailable && petAvailable && pet_ctAvailable;
 
-	if(mServices->patient()->getImage(imCT, istTHORAX_CT))
-		ctAvailable = true;
-	if(mServices->patient()->getImage(imPET, istPET))
-		petAvailable = true;
-	if(mServices->patient()->getImage(imCT, istPET_CT))
-		pet_ctAvailable = true;
+	bool thoraxCTJustLoaded = ctAvailable && !mThoraxCTLoaded;
+	bool petJustLoaded = petAvailable && pet_ctAvailable && !mPETLoaded;
+
+	bool skipInfo = allDataLoaded || (mSkipDataLoadedInfo && ctAvailable);
+
+	mSkipDataLoadedInfo = false;
+	mThoraxCTLoaded = false;
+	mPETLoaded = false;
+
+	if(skipInfo)
+	{
+		emit dataImportCompleted();
+		return;
+	}
+
+	if(mDataLoadedInfo)
+		return;
 
 	QTextEdit* textBox = new QTextEdit();
 	textBox->setReadOnly(true);
 	textBox->setFixedWidth(400);
 
-	if(petAvailable && !mPETLoaded && ctAvailable && pet_ctAvailable && !mThoraxCTLoaded)
+	if(thoraxCTJustLoaded && petJustLoaded)
 		textBox->append("<b>CT and PET data loaded</b><br>");
-	else if(ctAvailable && !mThoraxCTLoaded)
+	else if(thoraxCTJustLoaded)
 		textBox->append("<b>CT data loaded</b><br>");
-	else if(petAvailable && pet_ctAvailable && !mPETLoaded)
+	else if(petJustLoaded)
 		textBox->append("<b>PET data loaded</b><br>");
 	else
 		textBox->append("<b>No valid new data loaded</b><br>");
 
-	if (ctAvailable && petAvailable && pet_ctAvailable)
-		allDataLoaded = true;
-	else
-		textBox->append("Do you want to load more data?");
+	textBox->append("Do you want to load more data?");
 
-	mDataLoadedInfo = new QDialog();
-	mDataLoadedInfo->setWindowTitle(tr("Data Loaded"));
-	mDataLoadedInfo->setWindowFlags(Qt::WindowStaysOnTopHint);
-	QGridLayout* layout = new QGridLayout();
-	QLabel* textLabel = new QLabel(text);
-	layout->addWidget(textLabel,0,0,1,2);
 	if(ctAvailable)
 		textBox->append("<ul><li><font color=green><b> Thorax CT:  OK </b></font></li>");
 	else
@@ -283,29 +515,22 @@ void NewLoadPatientWidget::dataAddedOrRemoved()
 	else
 		textBox->append("<li><font color=red><b> PET CT (optional):  Not available </b></font></li></ul>");
 
-	layout->addWidget(textBox,1,0,1,2);
-
+	mDataLoadedInfo = new QDialog();
+	mDataLoadedInfo->setWindowTitle(tr("Data Loaded"));
+	mDataLoadedInfo->setWindowFlags(Qt::WindowStaysOnTopHint);
+	QGridLayout* layout = new QGridLayout();
+	layout->addWidget(textBox, 0, 0, 1, 2);
 
 	QPushButton* yesButtonDataLoaded = new QPushButton(tr("Yes"));
-	QPushButton* noButtonDataLoaded = nullptr;
-	if(!allDataLoaded)
-	{
-		layout->addWidget(yesButtonDataLoaded,2,0);
-		noButtonDataLoaded = new QPushButton(tr("No"));
-	}
-	else
-		noButtonDataLoaded = new QPushButton(tr("Continue"));
-
-	layout->addWidget(noButtonDataLoaded,2,1);
+	QPushButton* noButtonDataLoaded = new QPushButton(tr("No"));
+	layout->addWidget(yesButtonDataLoaded, 1, 0);
+	layout->addWidget(noButtonDataLoaded, 1, 1);
 
 	mConnectionToYesButtonDataLoaded = connect(yesButtonDataLoaded, &QPushButton::clicked, this, &NewLoadPatientWidget::selectCTData);
 	mConnectionToNoButtonDataLoaded = connect(noButtonDataLoaded, &QPushButton::clicked, this, [=]() {this->closeDataLoadedInfo(true);});
 	mDataLoadedInfo->setLayout(layout);
 	mDataLoadedInfo->show();
 	mDataLoadedInfo->activateWindow();
-
-	mThoraxCTLoaded = false;
-	mPETLoaded = false;
 }
 
 

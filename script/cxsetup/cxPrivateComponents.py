@@ -40,41 +40,6 @@ class Fraxinus(cx.build.cxComponents.CppComponent):
 
 # ---------------------------------------------------------
 
-class medtekAI(cx.build.cxComponents.CppComponent):
-    def name(self):
-        return "medtekAI"
-    def help(self):
-        return 'Machine Learning tools related to CustusS (SINTEF private)'
-    #def path(self):
-    #    custusx = self._createSibling(cx.build.cxComponents.CustusX)
-    #    return '%s/%s' % (custusx.path(), custusx.sourceFolder())
-    def sourcePath(self):
-        return '%s/%s/%s' % (self.controlData.getWorkingPath(), self.sourceFolder(), self.sourceFolder())
-    def sourceFolder(self):
-        return 'medtekAI'
-    def repository(self):
-        return '%s/medtekAI.git' % self.controlData.gitrepo_main_site_base
-    def update(self):
-        self._getBuilder().gitSetRemoteURL(self.repository())
-        self._getBuilder().gitCheckoutSha('3722851ab8c1fa8e7488697fe998596e4fe17604')
-        # self.unzip()
-    def configure(self):
-        pass
-    def build(self):
-        pass
-    def makeClean(self):
-        pass
-    def useInIntegrationTesting(self):
-        'use during integration test'
-        return True
-    def thoraxCTdataFolder(self):
-        return 'ThoraxCT'
-    def thoraxCTdataPath(self):
-        return '%s/%s/%s/%s/%s' % (self.controlData.getWorkingPath(), cxCustusXFinder.RepoLocations().getProjectFolder(), cxCustusXFinder.RepoLocations().getPublicRepoFolder(), 'data', self.thoraxCTdataFolder())
-    def url_link(self):
-        return 'https://datadryad.org/stash/downloads/file_stream/15192' #Patient016.zip
-# ---------------------------------------------------------
-
 class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
     def name(self):
         return "FraxinusTracking"
@@ -105,40 +70,7 @@ class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
         add = builder.addCMakeOption
         add('CX_FRAXINUS_TRACKING:BOOL', 'ON');
         add('CX_EXTERNAL_PLUGIN_org_custusx_fraxinus_tracking', self.path() + '/' + self.sourceFolder())
-# ---------------------------------------------------------
 
-class org_custusx_ussimulator(cx.build.cxComponents.CppComponent):
-
-    def name(self):
-        return "USSimulator"
-    def help(self):
-        return 'Plugin for simulating streaming of ultrasound images from any kinda of volume.'
-    def path(self):
-        custusx = self._createSibling(cx.build.cxComponents.CustusX)
-        return '%s/%s/source/plugins' % (custusx.path(), custusx.sourceFolder())
-#        return self.controlData.getWorkingPath() + "/CustusX/CustusX/source/plugins"
-    def sourceFolder(self):
-        return 'org.custusx.ussimulator'
-    #def _rawCheckout(self):
-    #    self._getBuilder().gitClone(self.gitRepository(), self.sourceFolder())
-    def update(self):
-        self._getBuilder().gitSetRemoteURL(self.repository())
-        # self._getBuilder().gitCheckout('fcafd0a547e36c0c5a5d9a2067eec8385360f71e')
-        self._getBuilder().gitCheckout('6ce6859a93762ef91ab3720af2099d2da8d364c1') # Using VTK 9.6.1
-    def configure(self):
-        pass
-    def build(self):
-        pass
-    def repository(self):
-        base = self.controlData.gitrepo_main_site_base
-        return '%s/org.custusx.ussimulator.git' % base
-    def makeClean(self):
-        pass
-    def pluginPath(self):
-        return '%s' % self.sourcePath()
-    def addConfigurationToDownstreamLib(self, builder):
-        add = builder.addCMakeOption
-        add('CX_PLUGIN_org.custusx.ussimulator:BOOL', 'ON');
 # ---------------------------------------------------------
 
 class org_custusx_core_tracking_system_ndi(cx.build.cxComponents.CppComponent):

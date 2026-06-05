@@ -69,7 +69,7 @@ ApplicationsParser::ApplicationsParser()
 	Desktop desktop;
 
 	QStringList standardToolbars;
-	standardToolbars << "Workflow" << "Screenshot" <<  "Help";
+	standardToolbars << "Workflow" << "Spacer" << "Screenshot" <<  "Help";
 
 	//-----------------------------------------------------
 	// NEW/LOAD PATIENT
@@ -78,7 +78,7 @@ ApplicationsParser::ApplicationsParser()
 	toolbars << standardToolbars;
 	this->addToolbarsToDesktop(desktop, toolbars);
 	desktop.addPreset("new_load_patient_widget", Qt::LeftDockWidgetArea, true);
-	desktop.addPreset("help_widget", Qt::RightDockWidgetArea, false);
+	//desktop.addPreset("help_widget", Qt::RightDockWidgetArea, false);
 	mWorkflowDefaultDesktops["FraxinusPatientUid"] = desktop;
 	//-----------------------------------------------------
 

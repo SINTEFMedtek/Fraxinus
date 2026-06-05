@@ -64,12 +64,12 @@ class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
             controlData = PrivateControlData()
         super(LibraryAssembly, self).__init__(controlData)
 
-        self.addComponent(cxPrivateComponents.medtekAI())
         self.addComponent(cxPrivateComponents.Fraxinus())
         self.addComponent(cxPrivateComponents.org_custusx_fraxinus_tracking())
-        self.addComponent(cxPrivateComponents.org_custusx_ussimulator())
+
         if not self.controlData.mBuildIGSTK:
             self.addComponent(cxPrivateComponents.org_custusx_core_tracking_system_ndi())
+
 	#self.addComponent(cxPrivateComponents.thoraxCTdata())
         self.libraries.remove(self.custusx)
         self.addComponent(self.custusx)

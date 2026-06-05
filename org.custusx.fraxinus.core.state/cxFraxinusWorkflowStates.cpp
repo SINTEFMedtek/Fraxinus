@@ -71,6 +71,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxMetricManager.h"
 #include "cxNewLoadPatientWidget.h"
 #include "cxImageAlgorithms.h"
+#include <QGroupBox>
+#include <QTimer>
 
 namespace cx
 {
@@ -357,7 +359,7 @@ QMainWindow* FraxinusWorkflowState::getMainWindow()
 	for (QWidgetList::iterator i = widgets.begin(); i != widgets.end(); ++i)
 		if ((*i)->objectName() == "main_window")
 			return (QMainWindow*) (*i);
-	return NULL;
+	return nullptr;
 }
 
 NewLoadPatientWidget* FraxinusWorkflowState::getNewLoadPatientWidget()
@@ -490,8 +492,8 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	
 	std::map<QString, MeshPtr> tumors = mServices->patient()->getDataOfType<Mesh>(otTUMOR);
 	std::vector<DataPtr> tumorObjects;
-	for (std::map<QString, MeshPtr>::const_iterator iter = tumors.begin(); iter != tumors.end(); ++iter)
-		tumorObjects.push_back(iter->second);
+	for (const std::map<QString, MeshPtr>::value_type& item : tumors)
+		tumorObjects.push_back(item.second);
 
 	std::vector<DataPtr> noduleObjects;
 	MeshPtr nodules = mServices->patient()->getData<Mesh>(otNODULES);
@@ -605,8 +607,8 @@ void FraxinusWorkflowState::setupTumorInformationWidget(TumorInformationWidget* 
 {
 	std::map<QString, MeshPtr> tumors = mServices->patient()->getDataOfType<Mesh>(otTUMOR);
 	std::vector<MeshPtr> tumorObjects;
-	for (std::map<QString, MeshPtr>::const_iterator iter = tumors.begin(); iter != tumors.end(); ++iter)
-		tumorObjects.push_back(iter->second);
+	for (const std::map<QString, MeshPtr>::value_type& item : tumors)
+		tumorObjects.push_back(item.second);
 
 	widget->setTumorMeshes(tumorObjects);
 }
@@ -750,7 +752,8 @@ void FraxinusWorkflowState::cleanupVBWidget()
 // --------------------------------------------------------
 
 PatientWorkflowState::PatientWorkflowState(QState* parent, RegServicesPtr services) :
-	FraxinusWorkflowState(parent, "FraxinusPatientUid", "New/Load Patient", services, true)
+	FraxinusWorkflowState(parent, "FraxinusPatientUid", "New/Load Patient", services, true),
+	mRegServices(services)
 {
 }
 
@@ -768,14 +771,30 @@ void PatientWorkflowState::onEntry(QEvent * event)
 	this->addDataToView();
 	mNewLoadPatientWidget = this->getNewLoadPatientWidget();
 	if(mNewLoadPatientWidget)
-		connect(mNewLoadPatientWidget, &NewLoadPatientWidget::dataImportCompleted, this, &PatientWorkflowState::dataImportCompleted);
+	{
+		connect(mNewLoadPatientWidget, &NewLoadPatientWidget::dataImportCompleted,
+		        this, &PatientWorkflowState::runSegmentation);
+		connect(mNewLoadPatientWidget, &NewLoadPatientWidget::runSegmentationClicked,
+		        this, &PatientWorkflowState::runSegmentation);
+		connect(mNewLoadPatientWidget, &NewLoadPatientWidget::existingPatientLoaded,
+		        this, &PatientWorkflowState::onExistingPatientLoaded);
+	}
 }
 
 void PatientWorkflowState::onExit(QEvent * event)
 {
 	if(mNewLoadPatientWidget)
-		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::dataImportCompleted, this, &PatientWorkflowState::dataImportCompleted);
-
+	{
+		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::dataImportCompleted,
+		           this, &PatientWorkflowState::runSegmentation);
+		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::runSegmentationClicked,
+		           this, &PatientWorkflowState::runSegmentation);
+		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::existingPatientLoaded,
+		           this, &PatientWorkflowState::onExistingPatientLoaded);
+	}
+	if(mFraxinusSegmentations)
+		disconnect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished,
+		           this, &PatientWorkflowState::segmentationFinished);
 	WorkflowState::onExit(event);
 }
 
@@ -787,7 +806,7 @@ bool PatientWorkflowState::canEnter() const
 void PatientWorkflowState::addDataToView()
 {
 	ImagePtr ctImage = this->getCTImage();
-	
+
 	//Assuming 3D
 	ViewGroupDataPtr viewGroup0_3D = viewService()->getGroup(0);
 	if(ctImage)
@@ -795,6 +814,43 @@ void PatientWorkflowState::addDataToView()
 		this->setTransferfunction3D("Default", ctImage);
 		viewGroup0_3D->addData(ctImage->getUid());
 	}
+}
+
+void PatientWorkflowState::onExistingPatientLoaded()
+{
+	if(mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
+		emit goToPinpointWorkflow();
+}
+
+void PatientWorkflowState::runSegmentation()
+{
+	NewLoadPatientWidget* loadWidget = this->getNewLoadPatientWidget();
+	if (!loadWidget)
+		return;
+
+	if (!mFraxinusSegmentations)
+		mFraxinusSegmentations = FraxinusSegmentationsPtr(new FraxinusSegmentations(mRegServices));
+
+	this->getCTImageCopied();
+
+	mFraxinusSegmentations->setProcessingInfoParentWidget(loadWidget->getProcessingInfoGroup());
+	mFraxinusSegmentations->startSegmentationWithOptions(
+	        loadWidget->isAirwaysChecked(),
+	        loadWidget->isLymphNodesChecked(),
+	        loadWidget->isHeartChecked(),
+	        loadWidget->isMediumOrgansChecked(),
+	        loadWidget->isSmallOrgansChecked(),
+	        loadWidget->isTumorsChecked(),
+	        loadWidget->isLungVesselsChecked(),
+	        loadWidget->isLungLobesChecked());
+
+	connect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished,
+	        this, &PatientWorkflowState::segmentationFinished, Qt::UniqueConnection);
+}
+
+void PatientWorkflowState::setImportWorkflowState(ImportWorkflowState* state)
+{
+	mImportWorkflowState = state;
 }
 
 // --------------------------------------------------------
@@ -807,6 +863,11 @@ ImportWorkflowState::ImportWorkflowState(QState* parent, RegServicesPtr services
 
 ImportWorkflowState::~ImportWorkflowState()
 {}
+
+void ImportWorkflowState::enableAction(bool enable)
+{
+	WorkflowState::enableAction(enable);
+}
 
 void ImportWorkflowState::onEntry(QEvent * event)
 {
@@ -867,6 +928,13 @@ ProcessWorkflowState::ProcessWorkflowState(QState* parent, RegServicesPtr servic
 ProcessWorkflowState::~ProcessWorkflowState()
 {}
 
+void ProcessWorkflowState::enableAction(bool enable)
+{
+	WorkflowState::enableAction(enable);
+	if(mAction)
+		mAction->setVisible(false);
+}
+
 QIcon ProcessWorkflowState::getIcon() const
 {
 	return QIcon(":/icons/icons/processing.svg");
@@ -879,15 +947,31 @@ void ProcessWorkflowState::onEntry(QEvent * event)
 
 	this->getCTImageCopied(); //Makes sure CT Image Copied is created before segmentation is started
 
-	//TODO: connect to mFraxinusSegmentations, to run addDataToView() if airways segmentation fails? - Is this needed?
-	mFraxinusSegmentations->createSelectSegmentationBox();
+	NewLoadPatientWidget* loadWidget = this->getNewLoadPatientWidget();
+	if(loadWidget && mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES))
+	{
+		// Segmentation was already performed in the Patient state; skip directly to next step.
+		QTimer::singleShot(0, this, SLOT(segmentationFinishedSlot()));
+	}
+	else if(loadWidget)
+	{
+		mFraxinusSegmentations->setProcessingInfoParentWidget(loadWidget->getProcessingInfoGroup());
+		mFraxinusSegmentations->startSegmentationWithOptions(
+		        loadWidget->isAirwaysChecked(),
+		        loadWidget->isLymphNodesChecked(),
+		        loadWidget->isHeartChecked(),
+		        loadWidget->isMediumOrgansChecked(),
+		        loadWidget->isSmallOrgansChecked(),
+		        loadWidget->isTumorsChecked(),
+		        loadWidget->isLungVesselsChecked(),
+		        loadWidget->isLungLobesChecked());
+	}
+	else
+	{
+		mFraxinusSegmentations->createSelectSegmentationBox();
+	}
 	connect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished, this, &ProcessWorkflowState::segmentationFinishedSlot);
 
-	connect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, mFraxinusSegmentations.get(), &FraxinusSegmentations::updateSelectSegmentationBox, Qt::UniqueConnection);
-	
-	//Hack to make sure file is present for AirwaysSegmentation as this loads file from disk instead of using the image
-	//QTimer::singleShot(0, this, SLOT(imageSelected()));
-	
 	//Setting Pinpoint workflow active here, in case segmentation is run manuelly if automatic segmentation fails.
 	QObject* parentWorkFlow = this->parent();
 	QList<FraxinusWorkflowState *> allWorkflows = parentWorkFlow->findChildren<FraxinusWorkflowState *>();
@@ -950,7 +1034,6 @@ void ProcessWorkflowState::onExit(QEvent * event)
 	tool->setTooltipOffset(0);
 
 	disconnect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished, this, &ProcessWorkflowState::segmentationFinishedSlot);
-	disconnect(mServices->patient().get(), &PatientModelService::dataAddedOrRemoved, mFraxinusSegmentations.get(), &FraxinusSegmentations::updateSelectSegmentationBox);
 	mFraxinusSegmentations->close();
 	
 	WorkflowState::onExit(event);
@@ -982,9 +1065,7 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
-	std::vector<unsigned int> viewGroupNumbers;
-	viewGroupNumbers.push_back(m3DViewGroupNumber);
-	viewGroupNumbers.push_back(m2DViewGroupNumber);
+	std::vector<unsigned int> viewGroupNumbers = {m3DViewGroupNumber, m2DViewGroupNumber};
 	this->setupPinPointWidget(viewGroupNumbers);
 	
 	PinpointWidget* pinPointWidget = this->getPinpointWidget();
@@ -1151,9 +1232,8 @@ void PinpointWorkflowState::showViaPoints(bool show)
 	if(!metricManager)
 		return;
 	std::map<QString, PointMetricPtr> airwayMetrics = metricManager->getPointMetrics(pinPointWidget->getExtraAirwayMetricUid());
-	std::map<QString, PointMetricPtr>::iterator it = airwayMetrics.begin();
-	for( ; it != airwayMetrics.end(); ++it)
-		this->showPointMetric(it->second, show);
+	for (const std::map<QString, PointMetricPtr>::value_type& item : airwayMetrics)
+		this->showPointMetric(item.second, show);
 }
 
 void PinpointWorkflowState::showPointMetric(PointMetricPtr point, bool show)
@@ -1250,11 +1330,10 @@ void PinpointWorkflowState::deleteOldRouteToTarget()
 
 	QString targetName = target->getName();
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
-	for (std::map<QString, MeshPtr>::const_iterator iter = datas.begin(); iter != datas.end(); ++iter)
+	for (const std::map<QString, MeshPtr>::value_type& item : datas)
 	{
-		QString meshName = iter->first;
-		if(meshName.contains(targetName))
-			mServices->patient()->removeData(iter->second->getUid());
+		if (item.first.contains(targetName))
+			mServices->patient()->removeData(item.second->getUid());
 	}
 }
 
@@ -1578,6 +1657,7 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 {
 	ImagePtr ctImage = this->getCTImage();
 	ImagePtr ctImage_copied = this->getCTImageCopied();
+	MeshPtr centerline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED_COPY);
@@ -1622,6 +1702,8 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 		viewGroup2_3D->addData(targetPoint->getUid());
 	if(airwaysTubes)
 		viewGroup2_3D->addData(airwaysTubes->getUid());
+	if(centerline)
+		viewGroup2_3D->addData(centerline->getUid());
 	if(extendedRouteToTarget)
 		viewGroup2_3D->addData(extendedRouteToTarget->getUid());
 	if(routeToTarget)
@@ -1652,7 +1734,7 @@ bool VirtualBronchoscopyAnyplaneWorkflowState::canEnter() const
 // --------------------------------------------------------
 
 ProcedurePlanningWorkflowState::ProcedurePlanningWorkflowState(QState* parent, RegServicesPtr services) :
-	FraxinusWorkflowState(parent, "ProcedurePlanningUid", "Procedure Plannig", services, true)
+	FraxinusWorkflowState(parent, "ProcedurePlanningUid", "Procedure Planning", services, true)
 , m3DViewGroupNumber(0)
 , m2DViewGroupNumber(1)
 {
@@ -1672,9 +1754,7 @@ void ProcedurePlanningWorkflowState::onEntry(QEvent * event)
 	viewService()->setCenterToTool2D(false);
 	FraxinusWorkflowState::onEntry(event);
 	this->addDataToView();
-	std::vector<unsigned int> viewGroupNumbers;
-	viewGroupNumbers.push_back(m3DViewGroupNumber);
-	viewGroupNumbers.push_back(m2DViewGroupNumber);
+	std::vector<unsigned int> viewGroupNumbers = {m3DViewGroupNumber, m2DViewGroupNumber};
 	this->setupProcedurePlanningWidget(viewGroupNumbers);
 	ProcedurePlanningWidget* procedurePlanningWidget = this->getProcedurePlanningWidget();
 	if(procedurePlanningWidget)
@@ -1718,7 +1798,7 @@ void ProcedurePlanningWorkflowState::addDataToView()
 
 bool ProcedurePlanningWorkflowState::canEnter() const
 {
-	return mServices->patient()->isPatientValid();;
+	return mServices->patient()->isPatientValid();
 }
 
 } //namespace cx

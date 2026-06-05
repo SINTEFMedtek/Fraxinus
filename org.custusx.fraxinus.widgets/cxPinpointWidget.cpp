@@ -14,10 +14,13 @@
 #include "cxDistanceMetric.h"
 #include "cxVisServices.h"
 #include "cxPatientModelService.h"
+#include "cxSessionStorageService.h"
 #include "cxSpaceProvider.h"
 #include "cxLogger.h"
 #include "cxViewService.h"
 #include "cxCameraControl.h"
+#include "cxXmlOptionItem.h"
+#include "cxXMLNodeWrapper.h"
 
 
 namespace cx {
@@ -57,6 +60,8 @@ PinpointWidget::PinpointWidget(VisServicesPtr services, QWidget *parent) :
 	mDeletePointButton->hide();
 
 	connect(mServices->patient().get(), &PatientModelService::patientChanged, this, &PinpointWidget::loadNameOfPointMetric);
+	connect(mServices->session().get(), &SessionStorageService::isSaving, this, &PinpointWidget::onSessionSave);
+	connect(mServices->session().get(), &SessionStorageService::isLoading, this, &PinpointWidget::onSessionLoad);
 
 	// Selector for 2D Window type
 	QButtonGroup *windowGroup = new QButtonGroup(this);
@@ -171,6 +176,32 @@ void PinpointWidget::loadNameOfPointMetric()
 	mPointMetricNameLineEdit->blockSignals(true);
 	mPointMetricNameLineEdit->setText(mTargetMetricName);
 	mPointMetricNameLineEdit->blockSignals(false);
+}
+
+void PinpointWidget::onSessionSave(QDomElement& root)
+{
+	XMLNodeAdder adder(root);
+	QDomElement node = adder.descend("managers/fraxinusPinpoint").node().toElement();
+	XmlOptionItem("addManualAirway", node).writeValue(mAddAirwayPoints ? "true" : "false");
+}
+
+void PinpointWidget::onSessionLoad(QDomElement& root)
+{
+	XMLNodeParser parser(root);
+	QDomElement node = parser.descend("managers/fraxinusPinpoint").node().toElement();
+	bool checked = XmlOptionItem("addManualAirway", node).readValue("false") == "true";
+	mAddAirwayCheckBox->setChecked(checked);
+	mAddAirwayPoints = checked;
+	if(checked)
+	{
+		mAddAirwayPointButton->show();
+		mDeletePointButton->show();
+	}
+	else
+	{
+		mAddAirwayPointButton->hide();
+		mDeletePointButton->hide();
+	}
 }
 
 void PinpointWidget::centerToImage()
