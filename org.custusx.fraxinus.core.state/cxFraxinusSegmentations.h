@@ -22,6 +22,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxDefinitions.h"
 #include "cxElastixManager.h"
 
+class QGridLayout;
 class QProgressBar;
 
 namespace cx
@@ -102,6 +103,9 @@ private slots:
 	void PETProgressTick();
 	
 private:
+	void resetProcessingInfoState();
+	QGridLayout* buildProcessingInfoLayout();
+	void showProcessingInfoLayout(QGridLayout* layout);
 	void deleteTumorsAndNodulesVolumes();
 	std::vector<QString> getLobeOfTumors(std::vector<MeshPtr> tumorMeshes);
 	vtkImageDataPtr mergeTumorVolumes(ImagePtr tumorsVolume, ImagePtr nodulesVolume);

@@ -492,7 +492,7 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	
 	std::map<QString, MeshPtr> tumors = mServices->patient()->getDataOfType<Mesh>(otTUMOR);
 	std::vector<DataPtr> tumorObjects;
-	for (const auto& item : tumors)
+	for (const std::map<QString, MeshPtr>::value_type& item : tumors)
 		tumorObjects.push_back(item.second);
 
 	std::vector<DataPtr> noduleObjects;
@@ -607,7 +607,7 @@ void FraxinusWorkflowState::setupTumorInformationWidget(TumorInformationWidget* 
 {
 	std::map<QString, MeshPtr> tumors = mServices->patient()->getDataOfType<Mesh>(otTUMOR);
 	std::vector<MeshPtr> tumorObjects;
-	for (const auto& item : tumors)
+	for (const std::map<QString, MeshPtr>::value_type& item : tumors)
 		tumorObjects.push_back(item.second);
 
 	widget->setTumorMeshes(tumorObjects);
@@ -1232,7 +1232,7 @@ void PinpointWorkflowState::showViaPoints(bool show)
 	if(!metricManager)
 		return;
 	std::map<QString, PointMetricPtr> airwayMetrics = metricManager->getPointMetrics(pinPointWidget->getExtraAirwayMetricUid());
-	for (const auto& item : airwayMetrics)
+	for (const std::map<QString, PointMetricPtr>::value_type& item : airwayMetrics)
 		this->showPointMetric(item.second, show);
 }
 
@@ -1330,7 +1330,7 @@ void PinpointWorkflowState::deleteOldRouteToTarget()
 
 	QString targetName = target->getName();
 	std::map<QString, MeshPtr> datas = mServices->patient()->getDataOfType<Mesh>();
-	for (const auto& item : datas)
+	for (const std::map<QString, MeshPtr>::value_type& item : datas)
 	{
 		if (item.first.contains(targetName))
 			mServices->patient()->removeData(item.second->getUid());

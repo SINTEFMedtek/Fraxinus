@@ -1,5 +1,6 @@
 #include "cxNewLoadPatientWidget.h"
 
+#include <functional>
 #include <iostream>
 
 #include <QHBoxLayout>
@@ -277,7 +278,7 @@ void NewLoadPatientWidget::updateSegmentationCheckBoxes()
 {
 	bool patientValid = mServices->patient()->isPatientValid();
 
-	auto setDone = [](QCheckBox* cb, QLabel* lbl) {
+	std::function<void(QCheckBox*, QLabel*)> setDone = [](QCheckBox* cb, QLabel* lbl) {
 		cb->setChecked(false);
 		cb->setDisabled(true);
 		QColor c = Styles::getGreen();
@@ -285,7 +286,7 @@ void NewLoadPatientWidget::updateSegmentationCheckBoxes()
 			.arg(c.red()).arg(c.green()).arg(c.blue()));
 		lbl->setText("Done");
 	};
-	auto setPending = [](QLabel* lbl, const QString& est) {
+	std::function<void(QLabel*, const QString&)> setPending = [](QLabel* lbl, const QString& est) {
 		lbl->setStyleSheet("");
 		lbl->setText(est);
 	};

@@ -10,6 +10,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 =========================================================================*/
 
 #include "cxFraxinusSegmentations.h"
+#include <functional>
 #include <QLabel>
 #include <QFrame>
 #include <QProgressBar>
@@ -181,8 +182,8 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 
 void FraxinusSegmentations::updateSelectSegmentationBox()
 {
-	auto setupCheckBox = [&](LUNG_STRUCTURES key, const QString& label, int kMin, bool isDone,
-	                          const QString& tooltip = QString()) {
+	std::function<void(LUNG_STRUCTURES, const QString&, int, bool, const QString&)> setupCheckBox = [&](LUNG_STRUCTURES key, const QString& label, int kMin, bool isDone,
+	                          const QString& tooltip) {
 		QCheckBox*& cb = mCheckBoxes[key];
 		if (!cb)
 		{
@@ -212,15 +213,15 @@ void FraxinusSegmentations::updateSelectSegmentationBox()
 	cbAirways->setChecked(!airwaysDone);
 	cbAirways->setDisabled(true);
 
-	setupCheckBox(lsLYMPH_NODES,   "Lymph Nodes",             kMinLymphNodes,   bool(mServices->patient()->getData<Mesh>(otLYMPH_NODES))  || mLymphNodesProcessed);
+	setupCheckBox(lsLYMPH_NODES,   "Lymph Nodes",             kMinLymphNodes,   bool(mServices->patient()->getData<Mesh>(otLYMPH_NODES))  || mLymphNodesProcessed,   QString());
 	setupCheckBox(lsHEART,         "Pulmonary System",         kMinHeart,        bool(mServices->patient()->getData<Mesh>(otHEART))        || mHeartProcessed,
 	              "Heart, Pulmonary Veins, Pulmonary Trunk");
-	setupCheckBox(lsMEDIUM_ORGANS, "Vena Cava, Aorta, Spine", kMinMediumOrgans, bool(mServices->patient()->getData<Mesh>(otSPINE))        || mMediumOrgansProcessed);
+	setupCheckBox(lsMEDIUM_ORGANS, "Vena Cava, Aorta, Spine", kMinMediumOrgans, bool(mServices->patient()->getData<Mesh>(otSPINE))        || mMediumOrgansProcessed, QString());
 	setupCheckBox(lsSMALL_ORGANS,  "Small Mediastinal Organs", kMinSmallOrgans,  bool(mServices->patient()->getData<Mesh>(otESOPHAGUS))    || mSmallOrgansProcessed,
 	              "Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos");
-	setupCheckBox(lsTUMOR,         "Tumors",                   kMinTumors,       bool(mServices->patient()->getData<Mesh>(otTUMOR))        || mTumorsProcessed);
-	setupCheckBox(lsLUNG_VESSELS,  "Small Vessels",            kMinLungVessels,  bool(mServices->patient()->getData<Mesh>(otLUNG_VESSELS)) || mLungVesselsProcessed);
-	setupCheckBox(lsLOBE,          "Lung Lobes",               kMinLungLobes,    bool(mServices->patient()->getData<Mesh>(otLOBE_LUL))     || mLungLobesProcessed);
+	setupCheckBox(lsTUMOR,         "Tumors",                   kMinTumors,       bool(mServices->patient()->getData<Mesh>(otTUMOR))        || mTumorsProcessed,       QString());
+	setupCheckBox(lsLUNG_VESSELS,  "Small Vessels",            kMinLungVessels,  bool(mServices->patient()->getData<Mesh>(otLUNG_VESSELS)) || mLungVesselsProcessed,  QString());
+	setupCheckBox(lsLOBE,          "Lung Lobes",               kMinLungLobes,    bool(mServices->patient()->getData<Mesh>(otLOBE_LUL))     || mLungLobesProcessed,    QString());
 
 	if (!mCheckBoxSelectAll)
 		mCheckBoxSelectAll = new QCheckBox();
@@ -236,7 +237,7 @@ void FraxinusSegmentations::selectAll(bool checked)
 
 void FraxinusSegmentations::imageSelected()
 {
-	auto isChecked = [this](LUNG_STRUCTURES key) {
+	std::function<bool(LUNG_STRUCTURES)> isChecked = [this](LUNG_STRUCTURES key) {
 		QCheckBox* cb = mCheckBoxes.value(key, nullptr);
 		return cb && cb->isChecked();
 	};
@@ -304,57 +305,66 @@ void FraxinusSegmentations::setProcessingInfoParentWidget(QWidget* container)
 
 void FraxinusSegmentations::createProcessingInfo()
 {
-	if (mProcessingInfoParentWidget)
-	{
-		QLayout* oldLayout = mProcessingInfoParentWidget->layout();
-		if (oldLayout)
-		{
-			mProgressBars.clear();
-			for (DisplayTimerWidget* t : mTimerWidgets)
-				if (t && !t->parent())
-					delete t;
-			mTimerWidgets.clear();
-			mActiveTimerWidget = nullptr;
-			mCurrentRaidionicsBar = nullptr;
-			mRaidionicsInInference = false;
-			mPipelineCurrentStep = 1;
-			mPipelineTotalSteps = 1;
-			if (mCenterlineProgressTimer)
-			{
-				mCenterlineProgressTimer->stop();
-				delete mCenterlineProgressTimer;
-				mCenterlineProgressTimer = nullptr;
-			}
-			mCenterlineProgressTicks = 0;
-			if (mPETProgressTimer)
-			{
-				mPETProgressTimer->stop();
-				delete mPETProgressTimer;
-				mPETProgressTimer = nullptr;
-			}
-			mPETProgressTicks = 0;
-			QLayoutItem* item;
-			while ((item = oldLayout->takeAt(0)) != nullptr)
-			{
-				delete item->widget();
-				delete item;
-			}
-			delete oldLayout;
-		}
-	}
+	resetProcessingInfoState();
+	QGridLayout* layout = buildProcessingInfoLayout();
+	showProcessingInfoLayout(layout);
+}
 
+void FraxinusSegmentations::resetProcessingInfoState()
+{
+	if (!mProcessingInfoParentWidget)
+		return;
+	QLayout* oldLayout = mProcessingInfoParentWidget->layout();
+	if (!oldLayout)
+		return;
+
+	mProgressBars.clear();
+	for (DisplayTimerWidget* t : mTimerWidgets)
+		if (t && !t->parent())
+			delete t;
+	mTimerWidgets.clear();
+	mActiveTimerWidget = nullptr;
+	mCurrentRaidionicsBar = nullptr;
+	mRaidionicsInInference = false;
+	mPipelineCurrentStep = 1;
+	mPipelineTotalSteps = 1;
+	if (mCenterlineProgressTimer)
+	{
+		mCenterlineProgressTimer->stop();
+		delete mCenterlineProgressTimer;
+		mCenterlineProgressTimer = nullptr;
+	}
+	mCenterlineProgressTicks = 0;
+	if (mPETProgressTimer)
+	{
+		mPETProgressTimer->stop();
+		delete mPETProgressTimer;
+		mPETProgressTimer = nullptr;
+	}
+	mPETProgressTicks = 0;
+	QLayoutItem* item;
+	while ((item = oldLayout->takeAt(0)) != nullptr)
+	{
+		delete item->widget();
+		delete item;
+	}
+	delete oldLayout;
+}
+
+QGridLayout* FraxinusSegmentations::buildProcessingInfoLayout()
+{
 	QGridLayout* gridLayout = new QGridLayout;
 	gridLayout->setColumnMinimumWidth(0, 200);
 	gridLayout->setColumnMinimumWidth(1, 200);
 
-	auto makeProgressBar = []() {
+	std::function<QProgressBar*()> makeProgressBar = []() {
 		QProgressBar* bar = new QProgressBar(nullptr);
 		bar->setRange(0, 100);
 		bar->setValue(0);
 		return bar;
 	};
 
-	auto makeTimerWidget = []() {
+	std::function<DisplayTimerWidget*()> makeTimerWidget = []() {
 		DisplayTimerWidget* timer = new DisplayTimerWidget(nullptr);
 		timer->setFontSize(3);
 		timer->setFixedWidth(80);
@@ -365,7 +375,7 @@ void FraxinusSegmentations::createProcessingInfo()
 	int row = 0;
 	bool raidionicsTimerPlaced = false;
 
-	auto addRaidionicsTimer = [&](DisplayTimerWidget* timer, int layoutRow) {
+	std::function<void(DisplayTimerWidget*, int)> addRaidionicsTimer = [&](DisplayTimerWidget* timer, int layoutRow) {
 		if (!raidionicsTimerPlaced)
 		{
 			gridLayout->addWidget(timer, layoutRow, 2);
@@ -373,7 +383,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		}
 	};
 
-	auto addRow = [&](LUNG_STRUCTURES key, const QString& label, int kMin, bool isRaidionics, bool isDone) {
+	std::function<void(LUNG_STRUCTURES, const QString&, int, bool, bool)> addRow = [&](LUNG_STRUCTURES key, const QString& label, int kMin, bool isRaidionics, bool isDone) {
 		QProgressBar* bar = mProgressBars[key] = makeProgressBar();
 		DisplayTimerWidget* timer = mTimerWidgets[key] = makeTimerWidget();
 		gridLayout->addWidget(new QLabel(label + ":"), row, 0, Qt::AlignRight);
@@ -424,11 +434,15 @@ void FraxinusSegmentations::createProcessingInfo()
 		QLabel* totalLabel = new QLabel(QString("Estimated total: ~%1 min").arg(totalMinutes));
 		gridLayout->addWidget(totalLabel, row, 0, 1, 3, Qt::AlignRight);
 	}
-	
-	
+
+	return gridLayout;
+}
+
+void FraxinusSegmentations::showProcessingInfoLayout(QGridLayout* layout)
+{
 	if (mProcessingInfoParentWidget)
 	{
-		mProcessingInfoParentWidget->setLayout(gridLayout);
+		mProcessingInfoParentWidget->setLayout(layout);
 		mProcessingInfoParentWidget->setVisible(true);
 		QTimer::singleShot(0, mProcessingInfoParentWidget, [this](){
 			QMainWindow* mw = nullptr;
@@ -461,7 +475,7 @@ void FraxinusSegmentations::createProcessingInfo()
 		mSegmentationProcessingInfo = new QDialog();
 		mSegmentationProcessingInfo->setWindowTitle(tr("Segmentation status"));
 		mSegmentationProcessingInfo->setWindowFlags(Qt::WindowStaysOnTopHint);
-		mSegmentationProcessingInfo->setLayout(gridLayout);
+		mSegmentationProcessingInfo->setLayout(layout);
 		mSegmentationProcessingInfo->show();
 		mSegmentationProcessingInfo->activateWindow();
 	}
