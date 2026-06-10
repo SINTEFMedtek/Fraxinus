@@ -30,6 +30,7 @@ set(PLUGIN_SRCS
     cxTumorInformationWidget.cpp
     cxFraxinusEBUSSimulatorImplWidget.h
     cxFraxinusEBUSSimulatorImplWidget.cpp
+    cxFraxinusTrackingWidget.cpp
 )
 
 #if(CX_LINUX)

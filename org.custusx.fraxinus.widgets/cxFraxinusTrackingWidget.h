@@ -33,7 +33,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef FRAXINUSTRACKINGWIDGET_H
 #define FRAXINUSTRACKINGWIDGET_H
 
-
 #include "org_custusx_fraxinus_widgets_Export.h"
 #include "cxStructuresSelectionWidget.h"
 #include "cxFraxinusPatientOrientationWidget.h"
@@ -41,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxBaseWidget.h"
 #include "cxForwardDeclarations.h"
 #include "cxTrackerConfiguration.h"
-#include "cxTool.h"
+#include "cxTrackingService.h"
 
 class QRadioButton;
 class QLabel;
@@ -51,25 +50,55 @@ class QComboBox;
 namespace cx {
 
 class ToolConfigureGroupBox;
+typedef boost::shared_ptr<class ManualToolAdapter> ManualToolAdapterPtr;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusTrackingWidget : public BaseWidget
 {
 	Q_OBJECT
 public:
-	FraxinusTrackingWidget(QWidget* parent, QString objectName, QString windowTitle):
-	  BaseWidget(parent, objectName, windowTitle){};
-	virtual ~FraxinusTrackingWidget(){};
+	FraxinusTrackingWidget(VisServicesPtr services, FraxinusNavigationWidget* fraxinusNavigationWidget = nullptr, QWidget *parent = nullptr);
+	virtual ~FraxinusTrackingWidget();
 
-	static QString getWidgetName(){return "fraxinus_tracking_widget";};
-	virtual void startTracking() = 0;
-	virtual void stopTracking() = 0;
-	virtual void startUltrasoundSimulation() = 0;
-	virtual void stopUltrasoundSimulation() = 0;
-	virtual TrackingServicePtr getTrackingService() = 0;
+	static QString getWidgetName(){return "fraxinus_tracking_widget";}
+	void startTracking();
+	void stopTracking();
+	void startUltrasoundSimulation();
+	void stopUltrasoundSimulation();
+	TrackingSystemServicePtr getIGSTKTrackingSystemService();
+	TrackingServicePtr getTrackingService();
 
 signals:
 	void trackingReady();
 
+private slots:
+	void updateButtonStatusSlot();
+	void updateTrackerConfigurationTools();
+	void startTrackingClickedSlot(bool);
+	void stopTrackingClickedSlot(bool);
+	void setUpEBUSToolAndStartTracking();
+	void trackingStarted();
+
+private:
+	TrackingServicePtr mTrackingService;
+	ToolConfigureGroupBox* mToolConfigureGroupBox;
+	QString mTrackerUid;
+	QString mClinicalApplication;
+	QString mTrackingSystemImplementation;
+	QString mTrackingSystemName;
+	QString mEBUSProbeUid;
+	QString mEBUSProbeName;
+	QString mEBUSProbeConfigurationName;
+	int mNumberOfTools;
+	TrackerConfigurationPtr mTrackerConfiguration;
+	std::vector<QComboBox*> mToolFilesComboBoxes;
+	QPushButton* mStartTrackingButton;
+	QPushButton* mStopTrackingButton;
+	FraxinusNavigationWidget* mFraxinusNavigationWidget;
+	Tool::State mToolState;
+
+	void copyToolConfigFile(QString filename);
+	void addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr configuration, QStringList applicationsFilter, QStringList trackingsystemsFilter);
+	void printTrackerConfiguration(); //debug
 };
 
 
