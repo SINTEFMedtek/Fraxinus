@@ -65,7 +65,7 @@ class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
         super(LibraryAssembly, self).__init__(controlData)
 
         self.addComponent(cxPrivateComponents.Fraxinus())
-        self.addComponent(cxPrivateComponents.org_custusx_fraxinus_tracking())
+        self.addComponent(cxPrivateComponents.org_custusx_fraxinus_private())
 
         if not self.controlData.mBuildIGSTK:
             self.addComponent(cxPrivateComponents.org_custusx_core_tracking_system_ndi())

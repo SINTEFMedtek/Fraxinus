@@ -40,19 +40,19 @@ class Fraxinus(cx.build.cxComponents.CppComponent):
 
 # ---------------------------------------------------------
 
-class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
+class org_custusx_fraxinus_private(cx.build.cxComponents.CppComponent):
     def name(self):
-        return "FraxinusTracking"
+        return "FraxinusPrivate"
     def help(self):
-        return 'Tracking and navigation in Fraxinus (SINTEF private)'
+        return 'Private plugin for Fraxinus (SINTEF private)'
     def path(self):
         fraxinus = self._createSibling(Fraxinus)
         #return '%s/FX/FX/%s' % (self.controlData.getWorkingPath(), self.sourceFolder())
         return fraxinus.path() + "/" + fraxinus.sourceFolder()
     def sourceFolder(self):
-        return 'org.custusx.fraxinus.tracking'
+        return 'org.custusx.fraxinus.private'
     def repository(self):
-        return '%s/org.custusx.fraxinus.tracking.git' % self.controlData.gitrepo_main_site_base
+        return '%s/org.custusx.fraxinus.private.git' % self.controlData.gitrepo_main_site_base
     def update(self):
         self._getBuilder().gitSetRemoteURL(self.repository())
         # self._getBuilder().gitCheckoutSha('c98f39a1f5ab11d24ae9547391f0fd4118a2cc8c')
@@ -68,8 +68,8 @@ class org_custusx_fraxinus_tracking(cx.build.cxComponents.CppComponent):
         return True
     def addConfigurationToDownstreamLib(self, builder):
         add = builder.addCMakeOption
-        add('CX_FRAXINUS_TRACKING:BOOL', 'ON');
-        add('CX_EXTERNAL_PLUGIN_org_custusx_fraxinus_tracking', self.path() + '/' + self.sourceFolder())
+        add('CX_FRAXINUS_PRIVATE:BOOL', 'ON');
+        add('CX_EXTERNAL_PLUGIN_org_custusx_fraxinus_private', self.path() + '/' + self.sourceFolder())
 
 # ---------------------------------------------------------
 
