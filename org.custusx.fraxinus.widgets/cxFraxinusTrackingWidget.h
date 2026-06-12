@@ -50,7 +50,6 @@ class QComboBox;
 namespace cx {
 
 class ToolConfigureGroupBox;
-typedef boost::shared_ptr<class ManualToolAdapter> ManualToolAdapterPtr;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusTrackingWidget : public BaseWidget
 {
@@ -81,9 +80,7 @@ private slots:
 private:
 	TrackingServicePtr mTrackingService;
 	ToolConfigureGroupBox* mToolConfigureGroupBox;
-	QString mTrackerUid;
 	QString mClinicalApplication;
-	QString mTrackingSystemImplementation;
 	QString mTrackingSystemName;
 	QString mEBUSProbeUid;
 	QString mEBUSProbeName;
