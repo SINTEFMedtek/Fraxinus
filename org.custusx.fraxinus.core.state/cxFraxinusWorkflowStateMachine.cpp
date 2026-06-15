@@ -59,7 +59,7 @@ FraxinusWorkflowStateMachine::FraxinusWorkflowStateMachine(RegServicesPtr servic
 	mVirtualBronchoscopyAnyplaneWorkflowState = this->newState(new VirtualBronchoscopyAnyplaneWorkflowState(mParentState, services));
 	mProcedurePlanningWorkflowState = this->newState(new ProcedurePlanningWorkflowState(mParentState, services));
 
-#ifdef CX_BUILD_FRAXINUS_TRACKING
+#ifdef CX_BUILD_FRAXINUS_PRIVATE
 	QString profile = ProfileManager::getInstance()->activeProfile()->getUid();
 	if(profilesWithTracking().contains(profile))
 	{

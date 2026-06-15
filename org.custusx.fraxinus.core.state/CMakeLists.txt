@@ -128,4 +128,8 @@ target_include_directories(org_custusx_fraxinus_core_state
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+if(CX_FRAXINUS_PRIVATE)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC CX_BUILD_FRAXINUS_PRIVATE)
+endif()
+
 add_subdirectory(testing)
