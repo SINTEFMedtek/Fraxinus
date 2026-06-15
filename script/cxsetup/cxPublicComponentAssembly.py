@@ -4,7 +4,7 @@ import platform
 
 import cx.build.cxComponents
 import cx.build.cxComponentAssembly
-from . import cxPrivateComponents
+from . import cxPublicComponents
 import cx.build.cxInstallData
 import cx.utils.cxSSH
 from . import cxCustusXFinder
@@ -41,7 +41,7 @@ class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
         controlData = PrivateControlData()
         super(LibraryAssembly, self).__init__(controlData)
 
-        self.addComponent(cxPrivateComponents.Fraxinus())
+        self.addComponent(cxPublicComponents.Fraxinus())
         self.libraries.remove(self.custusx)
         self.addComponent(self.custusx)
 
