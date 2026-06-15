@@ -27,7 +27,7 @@ class PrivateControlData(cx.build.cxInstallData.Common):
         if self.git_use_https:
             self.gitrepo_open_site_base = "https://gitlab.sintef.no/custusx"
         else:
-            self.gitrepo_open_site_base = "ssh://git@git.code.sintef.no/mt"
+            self.gitrepo_open_site_base = "git@gitlab.sintef.no:custusx"
         self.gitrepo_main_site_base = self.gitrepo_open_site_base
 
         self.system_base_name = "Fraxinus"
