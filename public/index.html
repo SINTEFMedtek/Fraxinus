@@ -238,6 +238,31 @@
 		color: #333;
 	}
 
+	/* Workflow screenshots */
+	.workflow-figure {
+		margin: 14px 0 24px 0;
+	}
+
+	.workflow-img {
+		display: block;
+		width: 100%;
+		border: 1px solid #c8d4e8;
+		border-radius: 3px 3px 0 0;
+		box-shadow: 0 2px 6px rgba(0,0,0,0.10);
+	}
+
+	.workflow-caption {
+		display: block;
+		background: #eef1f8;
+		border: 1px solid #c8d4e8;
+		border-top: none;
+		border-radius: 0 0 3px 3px;
+		padding: 6px 12px;
+		font-size: 12px;
+		color: #555;
+		font-style: italic;
+	}
+
 	/* Footer */
 	#footer {
 		background: #1a3560;
@@ -276,30 +301,26 @@
 	<div id="tab-home" class="tab-panel active">
 		<img src="SintefLungeNavigasjon-8706_1600x500_format.jpg" alt="Image-guided bronchoscopy in the operating room"
 			style="width: 100%; display: block; margin-bottom: 24px;">
-		<h2>Image-Guided Bronchoscopy</h2>
+		<h2>Image-Guided Bronchoscopy Planning</h2>
 		<p>
 			Fraxinus is an open-source research platform for image-guided bronchoscopy, developed by
 			SINTEF Medical Technology in collaboration with St. Olavs Hospital, Trondheim University
 			Hospital, Norway. Built on top of <a href="https://custusx.pages.sintef.no/CustusX/" target="_blank">CustusX</a>,
-			Fraxinus provides a streamlined workflow for virtual bronchoscopy planning, integrating CT
-			imaging, airway segmentation, and route planning into an intuitive research tool.
+			Fraxinus guides the user through a streamlined pre-procedure workflow: CT data is imported
+			directly from a USB drive or disk, airways and surrounding anatomy are segmented
+			automatically, a route to the target lesion is planned, and the procedure is rehearsed
+			via virtual bronchoscopy and EBUS simulation — all in four steps.
 		</p>
-		<p>
-			Fraxinus enables researchers to import CT volumes, automatically segment the lung airways,
-			and plan routes to targets via virtual bronchoscopy. The platform is designed for use in
-			clinical research and has been applied in studies of minimally invasive lung diagnostics
-			and therapy.
-		</p>
-		<p>
-			The software is freely available under a BSD-3 license. Fraxinus is a research tool and
-			is not intended for routine clinical use. It is neither FDA nor CE approved.
-		</p>
+
+		<div class="disclaimer">
+			Fraxinus is a research tool. It is not intended for routine clinical use and is neither FDA nor CE approved.
+		</div>
 
 		<h3>Source Code</h3>
 		<p>
 			The source code is available on <a href="https://gitlab.sintef.no/custusx/Fraxinus" target="_blank">GitLab</a>.
 			A public mirror is also available on <a href="https://github.com/SINTEFMedTek/Fraxinus" target="_blank">GitHub</a>.
-			Developers are welcome to report bugs on GitHub.
+			Bugs and feature requests are welcome on GitHub.
 		</p>
 
 		<h3>Contact</h3>
@@ -320,16 +341,102 @@
 	<div id="tab-about" class="tab-panel">
 		<h2>About Fraxinus</h2>
 		<p>
-			Fraxinus is a planning and navigation software for research in bronchoscopy. It provides a
-			smooth and simple workflow for virtual bronchoscopy built on top of the
-			<a href="https://custusx.pages.sintef.no/CustusX/" target="_blank">CustusX</a> research platform.
+			Fraxinus is a pre-procedure planning and simulation platform for bronchoscopy research,
+			built on top of <a href="https://custusx.pages.sintef.no/CustusX/" target="_blank">CustusX</a>.
+			It is developed by SINTEF Medical Technology in collaboration with St. Olavs Hospital,
+			Trondheim University Hospital, Norway, and is designed for use by expert personnel in a
+			clinical research setting.
 		</p>
 		<p>
-			The Fraxinus workflow guides the user through a sequence of steps: importing a CT volume,
-			automatically segmenting the lung airways, setting a bronchoscopy target, and navigating
-			to that target via a virtual fly-through of the airways. The platform is designed to be
-			used by expert personnel in a clinical research setting.
+			The application is organized into four steps, accessed via the workflow icons in the top
+			toolbar. Fraxinus advances automatically to the next step when a task is completed, but
+			any previous step can be revisited at any time.
 		</p>
+
+		<h3>Workflow</h3>
+
+		<p><strong>1. Patient</strong><br>
+			The starting point for every session. Three options are available:
+		</p>
+		<ul>
+			<li><strong>Create new patient from USB</strong> — enter a patient name and Fraxinus
+				opens the file dialog with the USB drive pre-selected. After import, segmentation
+				starts automatically for the selected structures.</li>
+			<li><strong>Create new patient</strong> — enter a patient name and manually select the
+				CT data from disk. Select which anatomical structures to segment (see below), then
+				press <em>Run Segmentation</em>. Segmentation progress is shown inline in the same
+				panel.</li>
+			<li><strong>Load existing patient</strong> — reload a previously saved patient. If
+				airway centerlines already exist, Fraxinus skips directly to the Set Target step.</li>
+		</ul>
+		<figure class="workflow-figure">
+			<img class="workflow-img" src="img/new_patient_loadCT_segmentation.png" alt="Patient step showing the three entry buttons and inline segmentation structure selection">
+			<figcaption class="workflow-caption">The Patient step: create a new patient from USB, from disk, or load an existing one. Segmentation structures are selected inline before running.</figcaption>
+		</figure>
+		<p>
+			CT data is imported as a standard high-resolution Thorax CT in DICOM format. A PET series
+			and the corresponding PET CT can optionally be imported at the same time to support
+			metabolic target planning. When PET data is present, PET-to-CT registration runs
+			automatically as part of segmentation.
+		</p>
+		<p>
+			The following anatomical structures can be segmented from the CT. Airways and lungs are
+			always included; the remaining structures are optional:
+		</p>
+		<ul>
+			<li>Airways and lungs (mandatory)</li>
+			<li>Lymph nodes</li>
+			<li>Pulmonary system: heart, pulmonary veins, pulmonary trunk</li>
+			<li>Vena cava, aorta, spine</li>
+			<li>Small mediastinal organs: subcostal artery, esophagus, brachiocephalic veins, azygos</li>
+			<li>Tumors</li>
+			<li>Small vessels</li>
+			<li>Lung lobes</li>
+		</ul>
+		<p>
+			When segmentation completes, Fraxinus advances automatically to the Set Target step.
+		</p>
+		<p><strong>2. Set Target</strong><br>
+			Click in the CT to place a bronchoscopy target. The planned route from the trachea to the
+			target is computed automatically and shown as a red line in the 3D view. A list of detected
+			tumors and nodules (sorted by size) is available for quick target selection. If the target
+			lies beyond the automatically segmented airways, manual airway points can be added to
+			extend the route.
+		</p>
+		<figure class="workflow-figure">
+			<img class="workflow-img" src="img/set_target.jpg" alt="Set target: CT views with airway tree and tumour highlighted">
+			<figcaption class="workflow-caption">Set Target: the target tumour (yellow) is selected from the CT. The planned route through the airways is shown in the 3D view.</figcaption>
+		</figure>
+
+		<p><strong>3. Virtual Bronchoscopy</strong><br>
+			A virtual camera navigates the segmented airway tree from the trachea to the target,
+			providing an endoscopic fly-through view synchronized with orthogonal CT cross-sections and
+			a 3D overview. All segmented structures can be shown or hidden individually.
+		</p>
+		<p>
+			An <strong>EBUS simulator</strong> is also available within this step. A virtual
+			endobronchial ultrasound probe (depth, 4 cm) is swept along the airway wall following the planned route,
+			allowing the user to locate lymph nodes and other structures in a simulated ultrasound
+			sector view alongside the CT and 3D model.
+		</p>
+		<figure class="workflow-figure">
+			<img class="workflow-img" src="img/vb_flythrough.jpg" alt="Virtual bronchoscopy fly-through view with CT cross-sections and 3D airway tree">
+			<figcaption class="workflow-caption">Virtual Bronchoscopy: endoscopic fly-through view of the airways, synchronized with orthogonal CT cross-sections and a 3D airway overview.</figcaption>
+		</figure>
+		<figure class="workflow-figure">
+			<img class="workflow-img" src="img/ebus.jpg" alt="EBUS simulator: virtual ultrasound probe with highlighted lymph nodes">
+			<figcaption class="workflow-caption">EBUS Simulator: a virtual endobronchial ultrasound probe sweeps along the airway wall. Lymph nodes (green) and PET activity (yellow/red) are shown alongside the simulated ultrasound sector.</figcaption>
+		</figure>
+
+		<p><strong>4. Procedure Planning</strong><br>
+			A general-purpose planning view displaying all segmented structures simultaneously in both
+			2D cross-sections and a 3D scene. Useful for reviewing anatomy and discussing the procedure
+			approach before entering the bronchoscopy suite.
+		</p>
+		<figure class="workflow-figure">
+			<img class="workflow-img" src="img/planning.jpg" alt="Procedure planning: all segmented structures in 3D and 2D">
+			<figcaption class="workflow-caption">Procedure Planning: all segmented structures displayed simultaneously in a 3D scene and 2D cross-sections for pre-procedure review.</figcaption>
+		</figure>
 
 		<h3>License</h3>
 		<p>
