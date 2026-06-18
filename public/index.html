@@ -1,14 +1,533 @@
-<HTML>
+<!DOCTYPE html>
+<html lang="en">
 <HEAD>
-Fraxinus documentation
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fraxinus - Image-Guided Bronchoscopy</title>
+<style>
+	* {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+	}
+
+	body {
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: 14px;
+		color: #333;
+		background: #f0f2f5;
+	}
+
+	/* Header */
+	#header {
+		background: #ffffff;
+		border-bottom: 3px solid #1a3560;
+		padding: 0;
+	}
+
+	#header-inner {
+		max-width: 960px;
+		margin: 0 auto;
+		padding: 12px 20px;
+		display: flex;
+		align-items: center;
+		gap: 16px;
+	}
+
+	#header img.logo-icon {
+		height: 64px;
+		display: block;
+	}
+
+	#header-text h1 {
+		font-size: 28px;
+		font-weight: bold;
+		color: #1a3560;
+		letter-spacing: 1px;
+	}
+
+	#header-text p {
+		font-size: 13px;
+		color: #4a6ea8;
+		margin-top: 3px;
+	}
+
+	/* Navigation */
+	#nav {
+		background: #1a3560;
+	}
+
+	#nav ul {
+		max-width: 960px;
+		margin: 0 auto;
+		padding: 0 20px;
+		list-style: none;
+		display: flex;
+	}
+
+	#nav ul li a {
+		display: block;
+		padding: 12px 20px;
+		color: #b8ccee;
+		text-decoration: none;
+		font-size: 14px;
+		font-weight: bold;
+		transition: background 0.2s, color 0.2s;
+	}
+
+	#nav ul li a:hover,
+	#nav ul li a.active {
+		background: #112246;
+		color: #ffffff;
+	}
+
+	/* Content */
+	#wrapper {
+		max-width: 960px;
+		margin: 0 auto;
+		padding: 20px;
+	}
+
+	/* Tab panels */
+	.tab-panel {
+		display: none;
+		background: white;
+		border: 1px solid #c8d4e8;
+		padding: 30px;
+		line-height: 1.7;
+	}
+
+	.tab-panel.active {
+		display: block;
+	}
+
+	.tab-panel h2 {
+		font-size: 22px;
+		color: #1a3560;
+		margin-bottom: 16px;
+		padding-bottom: 8px;
+		border-bottom: 2px solid #4a6ea8;
+	}
+
+	.tab-panel h3 {
+		font-size: 17px;
+		color: #4a6ea8;
+		margin-top: 24px;
+		margin-bottom: 10px;
+	}
+
+	.tab-panel p {
+		margin-bottom: 14px;
+		color: #444;
+	}
+
+	.tab-panel ul {
+		margin: 10px 0 14px 24px;
+		color: #444;
+	}
+
+	.tab-panel ul li {
+		margin-bottom: 6px;
+	}
+
+	.tab-panel a {
+		color: #1a3560;
+		text-decoration: none;
+	}
+
+	.tab-panel a:hover {
+		text-decoration: underline;
+	}
+
+	/* Disclaimer box */
+	.disclaimer {
+		background: #fff8e1;
+		border-left: 4px solid #f0a500;
+		padding: 12px 16px;
+		margin: 20px 0;
+		font-style: italic;
+		color: #555;
+	}
+
+	/* Documentation cards */
+	.doc-cards {
+		display: flex;
+		gap: 20px;
+		margin-top: 20px;
+		flex-wrap: wrap;
+	}
+
+	.doc-card {
+		flex: 1;
+		min-width: 200px;
+		border: 1px solid #4a6ea8;
+		padding: 24px 20px;
+		text-align: center;
+		background: #eef1f8;
+		border-radius: 4px;
+		transition: background 0.2s;
+	}
+
+	.doc-card:hover {
+		background: #d8e2f4;
+	}
+
+	.doc-card a {
+		display: block;
+		font-size: 16px;
+		font-weight: bold;
+		color: #1a3560;
+		text-decoration: none;
+	}
+
+	.doc-card p {
+		margin-top: 8px;
+		font-size: 13px;
+		color: #555;
+	}
+
+	/* Contact section */
+	.contact-block {
+		background: #eef1f8;
+		border: 1px solid #b0bedd;
+		padding: 20px 24px;
+		margin-top: 16px;
+		border-radius: 4px;
+	}
+
+	.contact-block p {
+		margin-bottom: 6px;
+	}
+
+	/* Downloads section */
+	.download-box {
+		background: #eef1f8;
+		border: 1px solid #4a6ea8;
+		border-radius: 4px;
+		padding: 28px 24px;
+		margin-top: 20px;
+		text-align: center;
+	}
+
+	.download-box p {
+		margin-bottom: 20px;
+		font-size: 15px;
+	}
+
+	.download-btn {
+		display: inline-block;
+		background: #1a3560;
+		color: #ffffff !important;
+		text-decoration: none !important;
+		padding: 12px 32px;
+		font-size: 15px;
+		font-weight: bold;
+		border-radius: 4px;
+		transition: background 0.2s;
+	}
+
+	.download-btn:hover {
+		background: #112246 !important;
+	}
+
+	/* Citation block */
+	.citation {
+		margin-left: 1.5em;
+		border-left: 3px solid #4a6ea8;
+		padding-left: 1em;
+		color: #333;
+	}
+
+	/* Workflow screenshots */
+	.workflow-figure {
+		margin: 14px 0 24px 0;
+	}
+
+	.workflow-img {
+		display: block;
+		width: 100%;
+		border: 1px solid #c8d4e8;
+		border-radius: 3px 3px 0 0;
+		box-shadow: 0 2px 6px rgba(0,0,0,0.10);
+	}
+
+	.workflow-caption {
+		display: block;
+		background: #eef1f8;
+		border: 1px solid #c8d4e8;
+		border-top: none;
+		border-radius: 0 0 3px 3px;
+		padding: 6px 12px;
+		font-size: 12px;
+		color: #555;
+		font-style: italic;
+	}
+
+	/* Footer */
+	#footer {
+		background: #1a3560;
+		color: #8aa8d8;
+		text-align: center;
+		padding: 14px;
+		font-size: 12px;
+		margin-top: 20px;
+	}
+</style>
 </HEAD>
 <BODY>
 
-<p>Select a type of documentation depending on your needs:</p>
-<ul>
-<li><a href="/Fraxinus/user_doc">User Documentation</a></li>
-<li><a href="/Fraxinus/developer_doc">Developer Documentation</a></li>
-</ul>
+<div id="header">
+	<div id="header-inner">
+		<img class="logo-icon" src="Fraxinus.png" alt="Fraxinus logo">
+		<div id="header-text">
+			<h1>Fraxinus</h1>
+			<p>An Open Source Research Platform for Image-Guided Bronchoscopy</p>
+		</div>
+	</div>
+</div>
+
+<div id="nav">
+	<ul>
+		<li><a href="#" class="active" onclick="showTab('home', this); return false;">Home</a></li>
+		<li><a href="#" onclick="showTab('about', this); return false;">About</a></li>
+		<li><a href="#" onclick="showTab('documentation', this); return false;">Documentation</a></li>
+		<li><a href="#" onclick="showTab('downloads', this); return false;">Downloads</a></li>
+	</ul>
+</div>
+
+<div id="wrapper">
+
+	<!-- HOME TAB -->
+	<div id="tab-home" class="tab-panel active">
+		<img src="SintefLungeNavigasjon-8706_1600x500_format.jpg" alt="Image-guided bronchoscopy in the operating room"
+			style="width: 100%; display: block; margin-bottom: 24px;">
+		<h2>Image-Guided Bronchoscopy Planning</h2>
+		<p>
+			Fraxinus is an open-source research platform for image-guided bronchoscopy, developed by
+			SINTEF Medical Technology in collaboration with St. Olavs Hospital, Trondheim University
+			Hospital, Norway. Built on top of <a href="https://custusx.pages.sintef.no/CustusX/" target="_blank">CustusX</a>,
+			Fraxinus guides the user through a streamlined pre-procedure workflow: CT data is imported
+			directly from a USB drive or disk, airways and surrounding anatomy are segmented
+			automatically, a route to the target lesion is planned, and the procedure is rehearsed
+			via virtual bronchoscopy and EBUS simulation — all in four steps.
+		</p>
+
+		<div class="disclaimer">
+			Fraxinus is a research tool. It is not intended for routine clinical use and is neither FDA nor CE approved.
+		</div>
+
+		<h3>Source Code</h3>
+		<p>
+			The source code is available on <a href="https://gitlab.sintef.no/custusx/Fraxinus" target="_blank">GitLab</a>.
+			A public mirror is also available on <a href="https://github.com/SINTEFMedTek/Fraxinus" target="_blank">GitHub</a>.
+			Bugs and feature requests are welcome on GitHub.
+		</p>
+
+		<h3>Contact</h3>
+		<div class="contact-block">
+			<p><strong>SINTEF Digital</strong></p>
+			<p>Department of Health Research</p>
+			<p>Medical Technology</p>
+			<p>P.O. Box 4760 Torgarden</p>
+			<p>NO-7465 Trondheim</p>
+			<p>Norway</p>
+			<p style="margin-top: 10px;">
+				Web: <a href="https://www.sintef.no/en/medical-technology/" target="_blank">https://www.sintef.no/en/medical-technology/</a>
+			</p>
+		</div>
+	</div>
+
+	<!-- ABOUT TAB -->
+	<div id="tab-about" class="tab-panel">
+		<h2>About Fraxinus</h2>
+		<p>
+			Fraxinus is a pre-procedure planning and simulation platform for bronchoscopy research,
+			built on top of <a href="https://custusx.pages.sintef.no/CustusX/" target="_blank">CustusX</a>.
+			It is developed by SINTEF Medical Technology in collaboration with St. Olavs Hospital,
+			Trondheim University Hospital, Norway, and is designed for use by expert personnel in a
+			clinical research setting.
+		</p>
+		<p>
+			The application is organized into four steps, accessed via the workflow icons in the top
+			toolbar. Fraxinus advances automatically to the next step when a task is completed, but
+			any previous step can be revisited at any time.
+		</p>
+
+		<h3>Workflow</h3>
+
+		<p><strong>1. Patient</strong><br>
+			The starting point for every session. Three options are available:
+		</p>
+		<ul>
+			<li><strong>Create new patient from USB</strong> — enter a patient name and Fraxinus
+				opens the file dialog with the USB drive pre-selected. After import, segmentation
+				starts automatically for the selected structures.</li>
+			<li><strong>Create new patient</strong> — enter a patient name and manually select the
+				CT data from disk. Select which anatomical structures to segment (see below), then
+				press <em>Run Segmentation</em>. Segmentation progress is shown inline in the same
+				panel.</li>
+			<li><strong>Load existing patient</strong> — reload a previously saved patient. If
+				airway centerlines already exist, Fraxinus skips directly to the Set Target step.</li>
+		</ul>
+		<figure class="workflow-figure">
+			<img class="workflow-img" src="img/new_patient_loadCT_segmentation.png" alt="Patient step showing the three entry buttons and inline segmentation structure selection">
+			<figcaption class="workflow-caption">The Patient step: create a new patient from USB, from disk, or load an existing one. Segmentation structures are selected inline before running.</figcaption>
+		</figure>
+		<p>
+			CT data is imported as a standard high-resolution Thorax CT in DICOM format. A PET series
+			and the corresponding PET CT can optionally be imported at the same time to support
+			metabolic target planning. When PET data is present, PET-to-CT registration runs
+			automatically as part of segmentation.
+		</p>
+		<p>
+			The following anatomical structures can be segmented from the CT. Airways and lungs are
+			always included; the remaining structures are optional:
+		</p>
+		<ul>
+			<li>Airways and lungs (mandatory)</li>
+			<li>Lymph nodes</li>
+			<li>Pulmonary system: heart, pulmonary veins, pulmonary trunk</li>
+			<li>Vena cava, aorta, spine</li>
+			<li>Small mediastinal organs: subcostal artery, esophagus, brachiocephalic veins, azygos</li>
+			<li>Tumors</li>
+			<li>Small vessels</li>
+			<li>Lung lobes</li>
+		</ul>
+		<p>
+			When segmentation completes, Fraxinus advances automatically to the Set Target step.
+		</p>
+		<p><strong>2. Set Target</strong><br>
+			Click in the CT to place a bronchoscopy target. The planned route from the trachea to the
+			target is computed automatically and shown as a red line in the 3D view. A list of detected
+			tumors and nodules (sorted by size) is available for quick target selection. If the target
+			lies beyond the automatically segmented airways, manual airway points can be added to
+			extend the route.
+		</p>
+		<figure class="workflow-figure">
+			<img class="workflow-img" src="img/set_target.jpg" alt="Set target: CT views with airway tree and tumour highlighted">
+			<figcaption class="workflow-caption">Set Target: the target tumour (yellow) is selected from the CT. The planned route through the airways is shown in the 3D view.</figcaption>
+		</figure>
+
+		<p><strong>3. Virtual Bronchoscopy</strong><br>
+			A virtual camera navigates the segmented airway tree from the trachea to the target,
+			providing an endoscopic fly-through view synchronized with orthogonal CT cross-sections and
+			a 3D overview. All segmented structures can be shown or hidden individually.
+		</p>
+		<p>
+			An <strong>EBUS simulator</strong> is also available within this step. A virtual
+			endobronchial ultrasound probe (depth, 4 cm) is swept along the airway wall following the planned route,
+			allowing the user to locate lymph nodes and other structures in a simulated ultrasound
+			sector view alongside the CT and 3D model.
+		</p>
+		<figure class="workflow-figure">
+			<img class="workflow-img" src="img/vb_flythrough.jpg" alt="Virtual bronchoscopy fly-through view with CT cross-sections and 3D airway tree">
+			<figcaption class="workflow-caption">Virtual Bronchoscopy: endoscopic fly-through view of the airways, synchronized with orthogonal CT cross-sections and a 3D airway overview.</figcaption>
+		</figure>
+		<figure class="workflow-figure">
+			<img class="workflow-img" src="img/ebus.jpg" alt="EBUS simulator: virtual ultrasound probe with highlighted lymph nodes">
+			<figcaption class="workflow-caption">EBUS Simulator: a virtual endobronchial ultrasound probe sweeps along the airway wall. Lymph nodes (green) and PET activity (yellow/red) are shown alongside the simulated ultrasound sector.</figcaption>
+		</figure>
+
+		<p><strong>4. Procedure Planning</strong><br>
+			A general-purpose planning view displaying all segmented structures simultaneously in both
+			2D cross-sections and a 3D scene. Useful for reviewing anatomy and discussing the procedure
+			approach before entering the bronchoscopy suite.
+		</p>
+		<figure class="workflow-figure">
+			<img class="workflow-img" src="img/planning.jpg" alt="Procedure planning: all segmented structures in 3D and 2D">
+			<figcaption class="workflow-caption">Procedure Planning: all segmented structures displayed simultaneously in a 3D scene and 2D cross-sections for pre-procedure review.</figcaption>
+		</figure>
+
+		<h3>License</h3>
+		<p>
+			Fraxinus is free to use for everyone under a BSD-3 license.
+		</p>
+
+		<div class="disclaimer">
+			Fraxinus is a research tool. It is not intended for use or certified for use in a normal
+			clinical setting. SINTEF Medical Technology does not take responsibility for its use in any way.
+		</div>
+
+		<h3>Videos</h3>
+		<p>
+			Clinical use cases and demonstrations are available on the
+			<a href="https://www.youtube.com/channel/UCcb08NvLcoWphEc360F5D6w" target="_blank">USIGT YouTube channel</a>.
+		</p>
+
+		<h3>Acknowledgements</h3>
+		<p>
+			Fraxinus is developed by SINTEF Medical Technology for St. Olavs Hospital, Trondheim
+			University Hospital, Norway. The project has received funding from the Norwegian Research
+			Council and several EU projects.
+		</p>
+		<p>
+			When publishing scientific work that uses Fraxinus, please cite the following publication:
+		</p>
+		<p class="citation">
+			Janne Beate Lervik Bakeng, Erlend Fagertun Hofstad, Ole Vegard Solberg, Jon Eiesland,
+			Geir Arne Tangen, Tore Amundsen, Thomas Langø, Ingerid Reinertsen, Tormod Selbekk,
+			Håkon Olav Leira.
+			<em>Using the CustusX toolkit to create an image guided bronchoscopy application: Fraxinus</em>,
+			PLOS ONE, 02/2019,
+			<a href="https://doi.org/10.1371/journal.pone.0211772" target="_blank">DOI: 10.1371/journal.pone.0211772</a>
+		</p>
+	</div>
+
+	<!-- DOCUMENTATION TAB -->
+	<div id="tab-documentation" class="tab-panel">
+		<h2>Documentation</h2>
+		<p>Select a type of documentation depending on your needs:</p>
+
+		<div class="doc-cards">
+			<div class="doc-card">
+				<a href="https://custusx.pages.sintef.no/Fraxinus/user_doc/" target="_blank">User Documentation</a>
+				<p>Guides and references for using Fraxinus in your research workflow.</p>
+			</div>
+			<div class="doc-card">
+				<a href="https://custusx.pages.sintef.no/Fraxinus/developer_doc/" target="_blank">Developer Documentation</a>
+				<p>API references, architecture overview, and instructions for extending Fraxinus.</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- DOWNLOADS TAB -->
+	<div id="tab-downloads" class="tab-panel">
+		<h2>Downloads</h2>
+		<p>
+			Fraxinus releases are published on GitLab. Each release includes installers and release
+			notes describing what has changed.
+		</p>
+
+		<div class="disclaimer">
+			Fraxinus is a research tool: It is not intended for normal clinical use, and is not FDA nor CE approved.
+		</div>
+
+		<div class="download-box">
+			<p>Download the latest Fraxinus release from GitLab:</p>
+			<a class="download-btn" href="https://gitlab.sintef.no/custusx/Fraxinus/-/releases" target="_blank">
+				View Releases on GitLab
+			</a>
+		</div>
+	</div>
+
+</div><!-- /wrapper -->
+
+<div id="footer">
+	&copy; SINTEF &mdash; Fraxinus is a research tool and is not intended for normal clinical use.
+</div>
+
+<script>
+	function showTab(name, link) {
+		document.querySelectorAll('.tab-panel').forEach(function(p) {
+			p.classList.remove('active');
+		});
+		document.querySelectorAll('#nav a').forEach(function(a) {
+			a.classList.remove('active');
+		});
+		document.getElementById('tab-' + name).classList.add('active');
+		link.classList.add('active');
+	}
+</script>
 
 </BODY>
 </HTML>
