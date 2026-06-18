@@ -425,10 +425,20 @@ void NewLoadPatientWidget::loadCTDataDialog()
 void NewLoadPatientWidget::loadCTDataDialogFinished()
 {
 	if(mLoadCTDialog)
+	{
 		mLoadCTDialog->deleteLater();
-	mLoadCTDialog = nullptr;
-	disconnect(mUSBButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataFromUSB);
-	disconnect(mHardDriveButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTData);
+		mLoadCTDialog = nullptr;
+	}
+	if(mUSBButton)
+	{
+		disconnect(mUSBButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataFromUSB);
+		mUSBButton = nullptr;
+	}
+	if(mHardDriveButton)
+	{
+		disconnect(mHardDriveButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTData);
+		mHardDriveButton = nullptr;
+	}
 }
 
 void NewLoadPatientWidget::loadCTDataFromUSB()

@@ -4,7 +4,7 @@ import platform
 
 import cx.build.cxComponents
 import cx.build.cxComponentAssembly
-from . import cxPrivateComponents
+from . import cxPublicComponents
 import cx.build.cxInstallData
 import cx.utils.cxSSH
 from . import cxCustusXFinder
@@ -24,7 +24,10 @@ class PrivateControlData(cx.build.cxInstallData.Common):
         self.publish_developer_documentation_target = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/developer_doc", user)
         self.publish_user_documentation_target      = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/user_doc", user)
         self.publish_coverage_info_target           = cx.utils.cxSSH.RemoteServerID(server, "uploads/fraxinus/gcov", user)
-        self.gitrepo_open_site_base = "https://github.com/SINTEFMedtek"
+        if self.git_use_https:
+            self.gitrepo_open_site_base = "https://gitlab.sintef.no/custusx"
+        else:
+            self.gitrepo_open_site_base = "git@gitlab.sintef.no:custusx"
         self.gitrepo_main_site_base = self.gitrepo_open_site_base
 
         self.system_base_name = "Fraxinus"
@@ -38,7 +41,7 @@ class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
         controlData = PrivateControlData()
         super(LibraryAssembly, self).__init__(controlData)
 
-        self.addComponent(cxPrivateComponents.Fraxinus())
+        self.addComponent(cxPublicComponents.Fraxinus())
         self.libraries.remove(self.custusx)
         self.addComponent(self.custusx)
 

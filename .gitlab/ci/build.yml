@@ -147,14 +147,14 @@
   - |
     if [ "$LIBS_READY" = "true" ]; then
       echo "Building Fraxinus components only..."
-      eval ./script/cxFraxinusPrivateInstaller.py -s --full -t Release --user_doc --developer_doc \
+      eval ./script/cxFraxinusInstaller.py -s --full -t Release --user_doc --developer_doc \
         --main_branch $CX_COMMIT \
         --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
         --build_folder CustusX=build_Release_FX \
-        components CustusX Fraxinus FraxinusTracking USSimulator
+        components CustusX Fraxinus
     else
       echo "Full build (all external libs + Fraxinus)..."
-      eval ./script/cxFraxinusPrivateInstaller.py -s --all --full -j 4 -t Release --user_doc --developer_doc \
+      eval ./script/cxFraxinusInstaller.py -s --all --full -j 4 -t Release --user_doc --developer_doc \
         --main_branch $CX_COMMIT \
         --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
         --build_folder CustusX=build_Release_FX

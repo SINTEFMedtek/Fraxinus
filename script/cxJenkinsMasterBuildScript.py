@@ -12,15 +12,15 @@
 
 import cxsetup.cxUpdateToLatestCustusX
 
-import cxsetup.cxPrivateComponentAssembly
+import cxsetup.cxPublicComponentAssembly
 import cx.script.cxJenkinsMasterBuildScript
 
 class Controller(cx.script.cxJenkinsMasterBuildScript.Controller):
     '''
     '''
     def __init__(self):
-        ''                
-        assembly = cxsetup.cxPrivateComponentAssembly.LibraryAssembly()
+        ''
+        assembly = cxsetup.cxPublicComponentAssembly.LibraryAssembly()
         super(Controller, self).__init__(assembly)
         
 if __name__ == '__main__':
