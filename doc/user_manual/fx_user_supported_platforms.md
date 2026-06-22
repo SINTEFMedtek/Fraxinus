@@ -14,4 +14,3 @@ and installers can be downloaded from the [releases page](https://gitlab.sintef.
 | Ubuntu 24.04 | Supported platform
 | Windows      | Limited support — can be built from source; no pre-built installer available yet
 
-Fraxinus may also work partially on macOS, but this requires building from source and is not officially supported.
