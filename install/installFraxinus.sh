@@ -4,18 +4,30 @@
 #
 # Fraxinus install script
 #
-# Download the Fraxinus release tarball and this script from the releases page:
-#   https://gitlab.sintef.no/custusx/Fraxinus/-/releases
+# Download this script from the releases page:
+#   https://gitlab.sintef.no/custusx/fraxinus/-/releases
 #
-# Place both files in the same folder, then run:
+# Then run:
 #   chmod +x installFraxinus.sh
 #   ./installFraxinus.sh
+#
+# The script downloads the Fraxinus release tarball automatically.
+# If the package registry requires authentication, set your GitLab token first:
+#   export GITLAB_TOKEN=your_personal_access_token
 #
 # A user password is required for installing system packages.
 #
 ##########################################################################################################
 
 set -e
+
+# ---------------------------------------------------------------------------
+# Version — set by CI for each release; empty when run from a local checkout
+# ---------------------------------------------------------------------------
+FRAXINUS_VERSION=""
+
+# GitLab project API base for package downloads
+GITLAB_PROJECT_URL="https://gitlab.sintef.no/api/v4/projects/custusx%2Ffraxinus"
 
 # ---------------------------------------------------------------------------
 # Detect Ubuntu version and select the correct Python
@@ -52,16 +64,49 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Find the Fraxinus release tarball
+# Find or download the Fraxinus release tarball
 # ---------------------------------------------------------------------------
-TARBALL=$(ls Fraxinus*.tar.gz 2>/dev/null | head -1)
-if [ -z "$TARBALL" ]; then
-    echo "ERROR: No Fraxinus*.tar.gz found in the current directory."
-    echo "Download the release tarball from:"
-    echo "  https://gitlab.sintef.no/custusx/Fraxinus/-/releases"
-    exit 1
+if [ -n "$FRAXINUS_VERSION" ]; then
+    case "$UBUNTU_VERSION" in
+        20.04) OS="Ubuntu2004" ;;
+        22.04) OS="Ubuntu2204" ;;
+        24.04) OS="Ubuntu2404" ;;
+        *)
+            echo "ERROR: Unsupported Ubuntu version: $UBUNTU_VERSION"
+            echo "Supported versions: 20.04, 22.04, 24.04"
+            exit 1
+            ;;
+    esac
+
+    TARBALL="Fraxinus-${OS}.tar.gz"
+    DOWNLOAD_URL="${GITLAB_PROJECT_URL}/packages/generic/Fraxinus/${FRAXINUS_VERSION}/${OS}/${TARBALL}"
+
+    echo "Downloading Fraxinus ${FRAXINUS_VERSION} for Ubuntu ${UBUNTU_VERSION}..."
+    WGET_ARGS=()
+    if [ -n "$GITLAB_TOKEN" ]; then
+        WGET_ARGS+=(--header "PRIVATE-TOKEN: $GITLAB_TOKEN")
+    fi
+    if ! wget "${WGET_ARGS[@]}" -O "$TARBALL" "$DOWNLOAD_URL"; then
+        echo ""
+        echo "ERROR: Download failed. URL: $DOWNLOAD_URL"
+        if [ -z "$GITLAB_TOKEN" ]; then
+            echo "If the package registry requires authentication, set your token first:"
+            echo "  export GITLAB_TOKEN=your_personal_access_token"
+            echo "  ./installFraxinus.sh"
+        fi
+        rm -f "$TARBALL"
+        exit 1
+    fi
+else
+    TARBALL=$(ls Fraxinus*.tar.gz 2>/dev/null | head -1)
+    if [ -z "$TARBALL" ]; then
+        echo "ERROR: No Fraxinus*.tar.gz found in the current directory."
+        echo "Download the versioned installer from the releases page:"
+        echo "  https://gitlab.sintef.no/custusx/fraxinus/-/releases"
+        exit 1
+    fi
+    echo "Using local tarball: $TARBALL"
 fi
-echo "Using tarball: $TARBALL"
 
 # ---------------------------------------------------------------------------
 # Unpack to ~/Fraxinus
