@@ -3,16 +3,28 @@ Installation {#installation}
 
 The easiest way to install is to use the installers from the [releases page](https://gitlab.sintef.no/custusx/fraxinus/-/releases). Check out the \ref supported_platforms.
 
-Windows installation
---------------------
+Ubuntu installation
+-------------------
 
-The Windows installer includes optional components for the inference engines used by Fraxinus:
+A shell installer script is available alongside the release tarball on the
+[releases page](https://gitlab.sintef.no/custusx/fraxinus/-/releases).
+Download both files, place them in the same folder, and run:
+
+    chmod +x installFraxinus.sh
+    ./installFraxinus.sh
+
+The script installs the required system packages and sets up the inference engines
+used for segmentation and registration:
 
 - **Raidionics** — deep learning segmentation of airways, lungs, lymph nodes, and other structures.
 - **TotalSegmentator** — additional anatomical segmentation models.
 - **Elastix** — image registration used for PET-to-CT alignment.
 
-These components can be selected during installation. An internet connection is required to download model weights during setup.
+Windows installation
+--------------------
+
+A Windows installer is planned but not yet published. Fraxinus can be built from source on Windows;
+see the developer documentation for instructions.
 
 Troubleshooting
 ---------------
