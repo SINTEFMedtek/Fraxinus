@@ -1,0 +1,704 @@
+<title>Fraxinus — JOSS Paper Draft</title>
+<style>
+  :root {
+    --ground:    #EEF1F5;
+    --surface:   #FFFFFF;
+    --text:      #1A2130;
+    --muted:     #6B7A99;
+    --accent:    #0F7A8C;
+    --accent-2:  #E8630A;
+    --border:    rgba(26, 33, 48, 0.09);
+
+    --font-mono: 'Courier New', Courier, monospace;
+    --font-body: Georgia, 'Times New Roman', serif;
+    --font-ui:   -apple-system, 'Segoe UI', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.78;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  .paper-header {
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  #airway-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .header-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2.5rem 2.5rem;
+  }
+
+  .journal-eyebrow {
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.7rem;
+  }
+
+  .paper-title {
+    font-family: var(--font-mono);
+    font-size: clamp(1.15rem, 2.8vw, 1.75rem);
+    font-weight: bold;
+    color: var(--text);
+    line-height: 1.28;
+    max-width: 580px;
+  }
+
+  /* ── Outer wrapper ── */
+  .outer {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2rem 5rem;
+  }
+
+  /* ── Paper card ── */
+  .paper-card {
+    background: var(--surface);
+    box-shadow:
+      0 1px 2px rgba(26, 33, 48, 0.06),
+      0 6px 20px rgba(26, 33, 48, 0.07);
+    border-radius: 2px;
+  }
+
+  /* ── Metadata ── */
+  .paper-meta {
+    padding: 2rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.4rem 3rem;
+  }
+
+  .meta-label {
+    font-family: var(--font-ui);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  .meta-value {
+    font-size: 0.87rem;
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  .tag-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.1rem;
+  }
+
+  .tag-list li {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--accent);
+    background: rgba(15, 122, 140, 0.08);
+    border: 1px solid rgba(15, 122, 140, 0.22);
+    padding: 0.12rem 0.5rem;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  /* ── Sections ── */
+  .paper-section {
+    padding: 2rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 0 1.5rem;
+    align-items: start;
+  }
+
+  .sec-num {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    padding-top: 0.18rem;
+    text-align: right;
+    letter-spacing: 0.02em;
+    opacity: 0.85;
+  }
+
+  .sec-body {}
+
+  .sec-heading {
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    font-weight: bold;
+    color: var(--text);
+    letter-spacing: 0.04em;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  .sec-body p {
+    font-size: 0.96rem;
+    color: var(--text);
+    margin-bottom: 0.95rem;
+  }
+
+  .sec-body p:last-child { margin-bottom: 0; }
+
+  /* Inline plugin name styling */
+  .code-ref {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--accent);
+    background: rgba(15, 122, 140, 0.07);
+    border: 1px solid rgba(15, 122, 140, 0.15);
+    padding: 0.05em 0.3em;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  /* External links */
+  a {
+    color: var(--accent-2);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* ── References ── */
+  .refs-section {
+    padding: 2rem 2.5rem 2rem calc(2.5rem + 3rem + 1.5rem);
+    background: rgba(238, 241, 245, 0.55);
+    border-top: 1px solid var(--border);
+  }
+
+  .refs-heading {
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 1.25rem;
+  }
+
+  .ref-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .ref-list li {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.52;
+    padding-left: 2.2rem;
+    position: relative;
+  }
+
+  .ref-list li .ref-num {
+    position: absolute;
+    left: 0;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--accent);
+    top: 0.05em;
+  }
+
+  .ref-list em { font-style: italic; }
+
+  /* ── Footer ── */
+  .site-footer {
+    margin-top: 0;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    font-family: var(--font-ui);
+    font-size: 0.77rem;
+    color: var(--muted);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 580px) {
+    .paper-header { height: 220px; }
+    .header-inner { padding: 0 1.5rem 1.75rem; }
+    .paper-meta { grid-template-columns: 1fr; padding: 1.5rem; }
+    .outer { padding: 0 1rem 4rem; }
+    .paper-section {
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 1.5rem;
+    }
+    .sec-num { text-align: left; margin-bottom: 0.4rem; }
+    .refs-section { padding: 1.5rem; }
+  }
+</style>
+
+<header class="paper-header">
+  <canvas id="airway-canvas" aria-hidden="true"></canvas>
+  <div class="header-inner">
+    <p class="journal-eyebrow">Journal of Open Source Software — Submission Draft</p>
+    <h1 class="paper-title">Fraxinus: An Open-Source Navigation System for Bronchoscopy Research</h1>
+  </div>
+</header>
+
+<div class="outer">
+<article class="paper-card">
+
+  <div class="paper-meta">
+    <div>
+      <span class="meta-label">Authors</span>
+      <p class="meta-value" style="line-height:1.8">
+        E.F. Hofstad<sup>1</sup> <a href="https://orcid.org/0009-0007-5927-7468" style="color:var(--accent);font-weight:400;font-size:0.8em">0009-0007-5927-7468</a><br>
+        O.V. Solberg<sup>1</sup> <a href="https://orcid.org/0009-0004-9488-3621" style="color:var(--accent);font-weight:400;font-size:0.8em">0009-0004-9488-3621</a><br>
+        T. Langø<sup>1,2</sup> <a href="https://orcid.org/0000-0002-2824-6120" style="color:var(--accent);font-weight:400;font-size:0.8em">0000-0002-2824-6120</a><br>
+        H.O. Leira<sup>3,4</sup> <a href="https://orcid.org/0000-0003-0845-3891" style="color:var(--accent);font-weight:400;font-size:0.8em">0000-0003-0845-3891</a>
+      </p>
+    </div>
+    <div>
+      <span class="meta-label">Affiliations</span>
+      <p class="meta-value">
+        <sup>1</sup> SINTEF Digital, Department of Health Research, Trondheim<br>
+        <sup>2</sup> National Research Center for Minimally Invasive and Image-Guided Diagnostics and Therapy, St. Olavs Hospital<br>
+        <sup>3</sup> Department of Thoracic Medicine, St. Olavs Hospital<br>
+        <sup>4</sup> Department of Circulation and Medical Imaging, NTNU
+      </p>
+    </div>
+    <div>
+      <span class="meta-label">Keywords</span>
+      <ul class="tag-list">
+        <li>bronchoscopy</li>
+        <li>image-guided navigation</li>
+        <li>airway segmentation</li>
+        <li>deep learning</li>
+        <li>virtual bronchoscopy</li>
+        <li>C++</li>
+        <li>Qt</li>
+      </ul>
+    </div>
+    <div>
+      <span class="meta-label">Repository &amp; License</span>
+      <p class="meta-value">
+        <a href="https://github.com/SINTEFMedTek/Fraxinus">github.com/SINTEFMedTek/Fraxinus</a><br>
+        BSD 3-Clause · Research use only
+      </p>
+    </div>
+  </div>
+
+  <!-- §1 Summary -->
+  <section class="paper-section">
+    <div class="sec-num">§1</div>
+    <div class="sec-body">
+      <h2 class="sec-heading">Summary</h2>
+      <p>
+        Fraxinus is an open-source, workflow-driven software system for bronchoscopy planning,
+        developed at SINTEF Medical Technology. Built on the CustusX image-guided therapy
+        platform [2], Fraxinus provides a complete pipeline for pre-procedural bronchoscopy
+        planning. The software orchestrates automatic multi-organ segmentation from CT images
+        using deep learning tools, computes routes through the airway tree to pulmonary
+        lesions, and supports virtual bronchoscopy visualization in both fly-through and
+        cut-plane modes.
+      </p>
+      <p>
+        A key feature of recent versions is the integration of deep learning-based
+        segmentation through Raidionics [8–11] and TotalSegmentator [12], enabling automatic
+        delineation of airways, lungs, lung lobes, lymph nodes, blood vessels, and tumor
+        candidates from a chest CT within minutes. The software is written in C++ with Qt
+        for the user interface and runs on Windows and Ubuntu. An earlier description of the
+        architecture appeared in Bakeng et al. (2019) [1]; the present paper covers the
+        substantially evolved open-source codebase.
+      </p>
+    </div>
+  </section>
+
+  <!-- §2 Statement of Need -->
+  <section class="paper-section">
+    <div class="sec-num">§2</div>
+    <div class="sec-body">
+      <h2 class="sec-heading">Statement of Need</h2>
+      <p>
+        Lung cancer is the leading cause of cancer-related death worldwide [3]. Flexible
+        bronchoscopy is a primary diagnostic tool for pulmonary lesions, but the diagnostic
+        yield for peripherally located, bronchoscopically non-visible tumors is as low as
+        15% with conventional bronchoscopy [4], compared with around 80% for centrally
+        visible lesions. Pre-procedural planning — computing routes through the airway tree
+        to the target lesion and rehearsing the procedure with virtual bronchoscopy — is a
+        key step in improving outcomes for peripheral lesions [5].
+      </p>
+      <p>
+        Open-source, full-pipeline tools for bronchoscopy planning are largely absent from
+        the literature and from public repositories.
+      </p>
+      <p>
+        Fraxinus addresses this gap by providing researchers and clinicians with a freely
+        available, feature-complete research platform that runs on commodity hardware.
+        It targets researchers in pulmonology, medical image analysis, and surgical
+        navigation, as well as clinical research teams who need a flexible, extensible
+        platform for bronchoscopy technique development and validation. The software is
+        intended for research use only and is not approved for routine clinical use.
+      </p>
+    </div>
+  </section>
+
+  <!-- §3 State of the Field -->
+  <section class="paper-section">
+    <div class="sec-num">§3</div>
+    <div class="sec-body">
+      <h2 class="sec-heading">State of the Field</h2>
+      <p>
+        Several open-source medical imaging platforms support partial bronchoscopy workflows.
+        3D Slicer [6] is widely used for airway segmentation (via extensions such as
+        SlicerAirwaySegmentation) and general virtual endoscopy, but it is a general-purpose
+        framework without a dedicated bronchoscopy workflow or intraoperative navigation
+        capability. MITK [7] offers broad imaging functionality without a bronchoscopy-specific
+        pipeline. Commercial platforms including LungVision (Body Vision Medical) and Auris Health's
+        Monarch Platform integrate robotic control but are proprietary.
+      </p>
+      <p>
+        Fraxinus is unique in combining in a single open-source package: (1) automated
+        AI-based segmentation of multiple anatomical structures from CT; (2) a guided,
+        step-by-step workflow tailored to bronchoscopy procedure planning; and (3) virtual
+        bronchoscopy visualization in both fly-through and cut-plane modes.
+      </p>
+    </div>
+  </section>
+
+  <!-- §4 Software Design -->
+  <section class="paper-section">
+    <div class="sec-num">§4</div>
+    <div class="sec-body">
+      <h2 class="sec-heading">Software Design</h2>
+      <p>
+        Fraxinus is implemented in C++ (C++14) using Qt 5 for the GUI, VTK for 3D
+        visualization, and ITK for image processing. It uses the CTK OSGi plugin framework [14],
+        inherited from CustusX, to separate concerns across three public plugins:
+      </p>
+      <p>
+        <span class="code-ref">org.custusx.fraxinus</span> provides the application entry
+        point, installer configuration, and setup logic for external AI tools — downloading
+        segmentation models and configuring Python virtual environments on first run.
+      </p>
+      <p>
+        <span class="code-ref">org.custusx.fraxinus.core.state</span> implements a finite
+        state machine that guides users through a sequential workflow: from new patient
+        creation and CT import, through automated segmentation and route planning, to virtual
+        bronchoscopy and procedure planning. Each state configures the application layout,
+        available controls, and automated actions appropriate to that step. This plugin also
+        orchestrates the multi-step segmentation pipeline, invoking Python-based AI tools as
+        subprocesses and importing results back into the patient session.
+      </p>
+      <p>
+        <span class="code-ref">org.custusx.fraxinus.widgets</span> contains all user-facing
+        interface components. Key widgets handle patient loading, DICOM import, segmented
+        structure visibility, target pinpointing in multi-planar views, virtual bronchoscopy
+        visualization, and procedure planning.
+      </p>
+      <p>
+        The segmentation pipeline automatically extracts airways, lungs, lung lobes, lymph
+        nodes, heart, major pulmonary vessels, and tumor candidates from a chest CT. Two deep
+        learning backends are supported: Raidionics [8–11], which provides organ-specific models
+        (<span class="code-ref">CT_Airways</span>, <span class="code-ref">CT_Lungs</span>,
+        <span class="code-ref">CT_LymphNodes</span>, <span class="code-ref">CT_Tumor</span>,
+        and others), and TotalSegmentator [12], which segments over 100 anatomical structures.
+        Deformable image registration via Elastix [13] enables fusion of PET and CT volumes
+        for combined metabolic and anatomical visualization.
+      </p>
+      <p>
+        Once the airway centerline is extracted, a route-to-target algorithm traces the
+        optimal path from the trachea to a clinician-specified lesion through the airway tree.
+      </p>
+      <p>
+        The system is built via a Python-based superbuild script
+        (<span class="code-ref">cxFraxinusInstaller.py</span>) managing all C++ library
+        dependencies (Qt, VTK, ITK, Eigen, OpenCV, OpenIGTLink, CTK, Boost) and Python
+        tool setup. Pre-built binary installers are provided for Windows and Ubuntu.
+      </p>
+    </div>
+  </section>
+
+  <!-- §5 Research Impact -->
+  <section class="paper-section">
+    <div class="sec-num">§5</div>
+    <div class="sec-body">
+      <h2 class="sec-heading">Research Impact</h2>
+      <p>
+        Fraxinus has been used in clinical research at St. Olavs Hospital (Trondheim, Norway),
+        supporting studies in bronchoscopy planning. An early description of the software
+        architecture appeared in Bakeng et al. (2019) [1]; the system has since been extended
+        with AI-based segmentation and multimodal registration.
+      </p>
+      <p>
+        The software serves both as a usable research tool and as a reference implementation
+        demonstrating how the CustusX platform can be specialized into a domain-specific
+        clinical application with a compact, focused codebase — Fraxinus comprises
+        approximately 1.7% of CustusX's source lines of code while providing a complete
+        clinical workflow. Sample CT phantom datasets are distributed alongside the software
+        to enable immediate evaluation without clinical data.
+      </p>
+    </div>
+  </section>
+
+  <!-- §6 AI Usage Disclosure -->
+  <section class="paper-section">
+    <div class="sec-num">§6</div>
+    <div class="sec-body">
+      <h2 class="sec-heading">AI Usage Disclosure</h2>
+      <p>
+        Generative AI tools were used to assist in drafting this manuscript. All
+        AI-assisted content has been reviewed, edited, and validated by the human authors,
+        who take full responsibility for the accuracy and completeness of the paper.
+      </p>
+    </div>
+  </section>
+
+  <!-- §7 Acknowledgements -->
+  <section class="paper-section">
+    <div class="sec-num">§7</div>
+    <div class="sec-body">
+      <h2 class="sec-heading">Acknowledgements</h2>
+      <p>
+        Development of Fraxinus has been supported by the Research Council of Norway,
+        the South-Eastern Norway Regional Health Authority, the Central Norway Regional
+        Health Authority, and SINTEF. We thank clinical staff at the Department of Thoracic
+        Medicine, St. Olavs Hospital, for procedural expertise and iterative testing
+        throughout development.
+      </p>
+    </div>
+  </section>
+
+  <!-- References -->
+  <div class="refs-section">
+    <h2 class="refs-heading">References</h2>
+    <ol class="ref-list">
+      <li>
+        <span class="ref-num">1.</span>
+        Bakeng, J.B.L. et al. (2019). Using the CustusX toolkit to create an image guided
+        bronchoscopy application: Fraxinus. <em>PLOS ONE</em> 14(2), e0211772.
+        doi:10.1371/journal.pone.0211772
+      </li>
+      <li>
+        <span class="ref-num">2.</span>
+        Askeland, C. et al. (2016). CustusX: an open-source research platform for
+        image-guided therapy. <em>Proc. SPIE Medical Imaging</em> 9786, 978612.
+        doi:10.1117/12.2216087
+      </li>
+      <li>
+        <span class="ref-num">3.</span>
+        Sung, H. et al. (2021). Global Cancer Statistics 2020: GLOBOCAN Estimates of
+        Incidence and Mortality Worldwide for 36 Cancers in 185 Countries.
+        <em>CA: A Cancer Journal for Clinicians</em> 71(3), 209–249.
+        doi:10.3322/caac.21660
+      </li>
+      <li>
+        <span class="ref-num">4.</span>
+        Chen, A. et al. (2007). The effect of physician specialty on bronchoscopy use
+        and diagnostic yield for lung cancer. <em>Chest</em> 131(6), 1806–1811.
+        doi:10.1378/chest.06-2982
+      </li>
+      <li>
+        <span class="ref-num">5.</span>
+        Pritchett, M.A. et al. (2017). Cone-Beam CT with Augmented Fluoroscopy Combined
+        with Electromagnetic Navigation Bronchoscopy for Biopsy of Pulmonary Nodules.
+        <em>Journal of Bronchology &amp; Interventional Pulmonology</em> 25(4), 274–282.
+        doi:10.1097/LBR.0000000000000399
+      </li>
+      <li>
+        <span class="ref-num">6.</span>
+        Fedorov, A. et al. (2012). 3D Slicer as an image computing platform for the
+        Quantitative Imaging Network. <em>Magnetic Resonance Imaging</em> 30(9), 1323–1341.
+        doi:10.1016/j.mri.2012.05.001
+      </li>
+      <li>
+        <span class="ref-num">7.</span>
+        Wolf, I. et al. (2005). The medical imaging interaction toolkit.
+        <em>Medical Image Analysis</em> 9(6), 594–604.
+        doi:10.1016/j.media.2005.04.005
+      </li>
+      <li>
+        <span class="ref-num">8.</span>
+        Bouget, D. et al. (2023). Raidionics: an open software for pre- and postoperative
+        central nervous system tumor segmentation and standardized reporting.
+        <em>Scientific Reports</em> 13, 14921. doi:10.1038/s41598-023-42048-7
+      </li>
+      <li>
+        <span class="ref-num">9.</span>
+        Bouget, D. et al. (2019). Semantic segmentation and detection of mediastinal lymph
+        nodes and anatomical structures in CT data for lung cancer staging.
+        <em>International Journal of Computer Assisted Radiology and Surgery</em> 14, 977–986.
+        doi:10.1007/s11548-019-01948-8
+      </li>
+      <li>
+        <span class="ref-num">10.</span>
+        Bouget, D. et al. (2022). Mediastinal lymph nodes segmentation using 3D convolutional
+        neural network ensembles and anatomical priors guiding.
+        <em>Computer Methods in Biomechanics and Biomedical Engineering: Imaging &amp; Visualization</em>.
+        doi:10.1080/21681163.2022.2043778
+      </li>
+      <li>
+        <span class="ref-num">11.</span>
+        Støverud, K.-H. et al. (2024). AeroPath: An airway segmentation benchmark dataset
+        with challenging pathology and baseline method.
+        <em>PLOS ONE</em> 19(10), e0311416. doi:10.1371/journal.pone.0311416
+      </li>
+      <li>
+        <span class="ref-num">12.</span>
+        Wasserthal, J. et al. (2023). TotalSegmentator: Robust Segmentation of 104
+        Anatomic Structures in CT Images. <em>Radiology: Artificial Intelligence</em>
+        5(5), e230024. doi:10.1148/ryai.230024
+      </li>
+      <li>
+        <span class="ref-num">13.</span>
+        Shamonin, D.P. et al. (2014). Fast Parallel Image Registration on CPU and GPU
+        for Diagnostic Classification of Alzheimer's Disease.
+        <em>Frontiers in Neuroinformatics</em> 7, 50. doi:10.3389/fninf.2013.00050
+      </li>
+      <li>
+        <span class="ref-num">14.</span>
+        Seibert, D. et al. (2010). The Common Toolkit (CTK).
+        <em>Proc. SPIE Medical Imaging</em> 7628, 762811. doi:10.1117/12.843786
+      </li>
+    </ol>
+  </div>
+
+</article>
+</div>
+
+<footer class="site-footer">
+  Fraxinus · Open Source · BSD 3-Clause · SINTEF Medical Technology ·
+  <a href="https://github.com/SINTEFMedTek/Fraxinus">GitHub</a> ·
+  <a href="https://www.custusx.org/fraxinus">custusx.org/fraxinus</a>
+</footer>
+
+<script>
+(function () {
+  var canvas = document.getElementById('airway-canvas');
+  var ctx = canvas.getContext('2d');
+  var branches = [];
+  var drawn = 0;
+  var raf = null;
+  var dpr = window.devicePixelRatio || 1;
+
+  function resize() {
+    var w = canvas.offsetWidth;
+    var h = canvas.offsetHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  // Build the full tree into the branches array using a deterministic
+  // pseudo-random perturbation (sin-based, no Math.random).
+  function buildTree(x, y, angle, len, depth, maxDepth, spread) {
+    if (depth > maxDepth || len < 2.5) { return; }
+
+    // Subtle angle perturbation keyed to depth and position
+    var jitter = Math.sin(x * 0.041 + depth * 2.7) * 0.09;
+    var ex = x + Math.cos(angle + jitter) * len;
+    var ey = y - Math.sin(angle + jitter) * len;
+
+    branches.push({
+      x1: x, y1: y, x2: ex, y2: ey,
+      depth: depth,
+      w: Math.max(0.4, (maxDepth - depth + 2) * 0.85),
+      a: Math.max(0.035, 0.18 - depth * 0.016)
+    });
+
+    var childLen = len * 0.73;
+    var childSpread = spread * 0.95;
+    buildTree(ex, ey, angle + spread, childLen, depth + 1, maxDepth, childSpread);
+    buildTree(ex, ey, angle - spread, childLen, depth + 1, maxDepth, childSpread);
+  }
+
+  function init() {
+    if (raf) { cancelAnimationFrame(raf); }
+    resize();
+
+    var w = canvas.offsetWidth;
+    var h = canvas.offsetHeight;
+
+    branches = [];
+    drawn = 0;
+
+    // Root: bottom-center, pointing straight up
+    buildTree(w * 0.5, h + 8, Math.PI / 2, h * 0.36, 0, 9, 0.40);
+
+    // Clear to ground color
+    ctx.fillStyle = '#EEF1F5';
+    ctx.fillRect(0, 0, w, h);
+
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      drawAll(w, h);
+    } else {
+      grow();
+    }
+  }
+
+  function drawBranch(b) {
+    ctx.strokeStyle = 'rgba(15,122,140,' + b.a + ')';
+    ctx.lineWidth = b.w;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(b.x1, b.y1);
+    ctx.lineTo(b.x2, b.y2);
+    ctx.stroke();
+  }
+
+  function drawAll(w, h) {
+    ctx.fillStyle = '#EEF1F5';
+    ctx.fillRect(0, 0, w, h);
+    for (var i = 0; i < branches.length; i++) { drawBranch(branches[i]); }
+  }
+
+  function grow() {
+    // Reveal ~1.5% of remaining branches per frame — smooth but not sluggish
+    var batch = Math.max(1, Math.ceil((branches.length - drawn) * 0.018));
+    var end = Math.min(drawn + batch, branches.length);
+    for (var i = drawn; i < end; i++) { drawBranch(branches[i]); }
+    drawn = end;
+    if (drawn < branches.length) {
+      raf = requestAnimationFrame(grow);
+    }
+  }
+
+  var rTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(rTimer);
+    rTimer = setTimeout(init, 160);
+  });
+
+  init();
+}());
+</script>
