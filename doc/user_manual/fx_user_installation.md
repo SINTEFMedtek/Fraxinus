@@ -6,11 +6,16 @@ The easiest way to install is to use the installers from the [releases page](htt
 Ubuntu installation
 -------------------
 
-A shell installer script is available alongside the release tarball on the
-[releases page](https://gitlab.sintef.no/custusx/fraxinus/-/releases).
-Download both files, place them in the same folder, and run:
+Download `installFraxinus.sh` from the
+[releases page](https://gitlab.sintef.no/custusx/fraxinus/-/releases) and run:
 
     chmod +x installFraxinus.sh
+    ./installFraxinus.sh
+
+The script downloads the Fraxinus release tarball automatically.
+If the package registry requires authentication, set your GitLab personal access token first:
+
+    export GITLAB_TOKEN=your_personal_access_token
     ./installFraxinus.sh
 
 The script installs the required system packages and sets up the inference engines
