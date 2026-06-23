@@ -116,7 +116,7 @@ if [ -d "Fraxinus_temp" ]; then
 fi
 mkdir Fraxinus_temp
 tar -xzf "$TARBALL" -C Fraxinus_temp
-FRAXINUS_PATH=$(ls Fraxinus_temp/Fraxinus/ | head -1)
+FRAXINUS_PATH=$(ls -d Fraxinus_temp/Fraxinus/Fraxinus_*/ 2>/dev/null | head -1 | xargs basename)
 mkdir -p ~/Fraxinus
 cp -r Fraxinus_temp/Fraxinus/* ~/Fraxinus/
 rm -rf Fraxinus_temp

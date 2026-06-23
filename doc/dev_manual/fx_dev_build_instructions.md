@@ -52,15 +52,39 @@ See the platform setup scripts for the complete list.
 
 ### Windows
 
-The Windows build environment requires *Visual Studio* and several additional tools.
-An updated build script for Windows is available under
-[script/cxsetup](https://gitlab.sintef.no/custusx/fraxinus/-/tree/develop/script/cxsetup).
-Follow the instructions in the README found there.
+Ubuntu is the primary development and test platform. Windows builds are not part of
+the continuous integration pipeline and may be less stable. That said, Fraxinus can
+be built on Windows using the same Python build script as on Ubuntu.
 
-After a successful build, use the `set_run_environment.bat` script in the build folder to start
-*Qt Creator* or launch *Fraxinus* directly:
+Install the following prerequisites before building:
 
-    set_run_environment.bat Fraxinus.exe
+- **Visual Studio 2022** with the **Desktop development with C++** workload.
+- **Qt 5.15.2 msvc2019\_64** — install via the Qt Online Installer to `D:\Qt` or `C:\Qt` (the default locations the build script searches).
+- **Ninja** — install via `winget install Ninja-build.Ninja` or from [ninja-build.org](https://ninja-build.org).
+
+The build script checks out CustusX automatically as its first step. Just run it directly —
+it also detects and initializes the Visual Studio environment automatically:
+
+    python .\script\cxFraxinusInstaller.py --full --all --build_type Release --user_doc
+
+The CustusX repository includes a PowerShell setup script `Setup-CustusX.ps1` that installs
+any missing tools (Ninja, GLEW) via winget and vcpkg. Run it **once** (as Administrator) after
+the first build has checked out CustusX. If script execution is blocked, first run:
+
+    Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+Then:
+
+    . ..\..\CX\CX\Setup-CustusX.ps1
+
+If Qt is not in a default location, pass `--qt-path`:
+
+    python .\script\cxFraxinusInstaller.py --full --all --build_type Release --qt-path "C:\Qt\5.15.2\msvc2019_64"
+
+After the build, use the generated `set_run_environment.bat` in the build folder
+to launch *Qt Creator* or *Fraxinus* with the correct DLL paths:
+
+    FX\build_Release\set_run_environment.bat Fraxinus.exe
 
 Inference engines
 -----------------
