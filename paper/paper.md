@@ -42,7 +42,7 @@ An earlier version of the Fraxinus architecture was described in [@bakeng2019fra
 
 # Statement of Need
 
-Lung cancer is the leading cause of cancer-related death worldwide [@sung2021cancer]. Flexible bronchoscopy is a primary diagnostic tool for pulmonary lesions, but the diagnostic yield for peripherally located, bronchoscopically non-visible tumors is as low as 15% with conventional bronchoscopy [@chen2007yield], compared with around 80% for centrally visible lesions. Pre-procedural planning — computing routes through the airway tree to the target lesion and rehearsing the procedure with virtual bronchoscopy — is a key step in improving outcomes for peripheral lesions [@pritchett2017nav].
+Lung cancer is the leading cause of cancer-related death worldwide [@sung2021cancer]. Flexible bronchoscopy is a primary diagnostic tool for pulmonary lesions, but the diagnostic yield for peripherally located, bronchoscopically non-visible tumors is as low as 14–20% for lesions smaller than 2 cm in the outer third of the lung [@chen2007yield; @dhillon2017bronchoscopy], compared with around 80% for centrally visible lesions. Pre-procedural planning — computing routes through the airway tree to the target lesion and rehearsing the procedure with virtual bronchoscopy (VBN) — is a key step in improving outcomes for peripheral lesions, with randomized controlled trials demonstrating a significantly higher diagnostic yield with VBN compared to standard bronchoscopy (80.4% vs. 67.0%; p=0.032) [@ishida2011vbn; @pritchett2017nav].
 
 Open-source, full-pipeline tools for bronchoscopy planning are largely absent from the literature and from public repositories.
 

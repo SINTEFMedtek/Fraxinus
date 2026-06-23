@@ -329,16 +329,14 @@
         planning. The software orchestrates automatic multi-organ segmentation from CT images
         using deep learning tools, computes routes through the airway tree to pulmonary
         lesions, and supports virtual bronchoscopy visualization in both fly-through and
-        cut-plane modes.
+        cut-plane modes. The software is written in C++ with Qt for the user interface and
+        runs on Windows and Ubuntu.
       </p>
       <p>
-        A key feature of recent versions is the integration of deep learning-based
-        segmentation through Raidionics [8–11] and TotalSegmentator [12], enabling automatic
-        delineation of airways, lungs, lung lobes, lymph nodes, blood vessels, and tumor
-        candidates from a chest CT within minutes. The software is written in C++ with Qt
-        for the user interface and runs on Windows and Ubuntu. An earlier description of the
-        architecture appeared in Bakeng et al. (2019) [1]; the present paper covers the
-        substantially evolved open-source codebase.
+        An earlier version of the Fraxinus architecture was described in Bakeng et al.
+        (2019) [1]. The present paper describes the substantially evolved open-source
+        codebase, which now integrates AI-driven multi-organ segmentation and deformable
+        image registration.
       </p>
     </div>
   </section>
@@ -352,10 +350,13 @@
         Lung cancer is the leading cause of cancer-related death worldwide [3]. Flexible
         bronchoscopy is a primary diagnostic tool for pulmonary lesions, but the diagnostic
         yield for peripherally located, bronchoscopically non-visible tumors is as low as
-        15% with conventional bronchoscopy [4], compared with around 80% for centrally
-        visible lesions. Pre-procedural planning — computing routes through the airway tree
-        to the target lesion and rehearsing the procedure with virtual bronchoscopy — is a
-        key step in improving outcomes for peripheral lesions [5].
+        14–20% for lesions smaller than 2 cm in the outer third of the lung [4, 5], compared
+        with around 80% for centrally visible lesions. Pre-procedural planning — computing
+        routes through the airway tree to the target lesion and rehearsing the procedure
+        with virtual bronchoscopy (VBN) — is a key step in improving outcomes for peripheral
+        lesions, with randomized controlled trials demonstrating a significantly higher
+        diagnostic yield with VBN compared to standard bronchoscopy (80.4% vs. 67.0%;
+        p=0.032) [6, 7].
       </p>
       <p>
         Open-source, full-pipeline tools for bronchoscopy planning are largely absent from
@@ -364,10 +365,7 @@
       <p>
         Fraxinus addresses this gap by providing researchers and clinicians with a freely
         available, feature-complete research platform that runs on commodity hardware.
-        It targets researchers in pulmonology, medical image analysis, and surgical
-        navigation, as well as clinical research teams who need a flexible, extensible
-        platform for bronchoscopy technique development and validation. The software is
-        intended for research use only and is not approved for routine clinical use.
+        It is intended for expert personnel in clinical research settings and is not approved for routine clinical use.
       </p>
     </div>
   </section>
@@ -379,7 +377,7 @@
       <h2 class="sec-heading">State of the Field</h2>
       <p>
         Several open-source medical imaging platforms support partial bronchoscopy workflows.
-        3D Slicer [6] is widely used for airway segmentation (via extensions such as
+        3D Slicer [8] is widely used for airway segmentation (via extensions such as
         SlicerAirwaySegmentation) and general virtual endoscopy, but it is a general-purpose
         framework without a dedicated bronchoscopy workflow or intraoperative navigation
         capability. MITK [7] offers broad imaging functionality without a bronchoscopy-specific
@@ -402,7 +400,7 @@
       <h2 class="sec-heading">Software Design</h2>
       <p>
         Fraxinus is implemented in C++ (C++14) using Qt 5 for the GUI, VTK for 3D
-        visualization, and ITK for image processing. It uses the CTK OSGi plugin framework [14],
+        visualization, and ITK for image processing. It uses the CTK OSGi plugin framework [16],
         inherited from CustusX, to separate concerns across three public plugins:
       </p>
       <p>
@@ -428,19 +426,19 @@
       <p>
         The segmentation pipeline automatically extracts airways, lungs, lung lobes, lymph
         nodes, heart, major pulmonary vessels, and tumor candidates from a chest CT. Two deep
-        learning backends are supported: Raidionics [8–11], which provides organ-specific models
+        learning backends are supported: Raidionics [10–13], which provides organ-specific models
         (<span class="code-ref">CT_Airways</span>, <span class="code-ref">CT_Lungs</span>,
         <span class="code-ref">CT_LymphNodes</span>, <span class="code-ref">CT_Tumor</span>,
-        and others), and TotalSegmentator [12], which segments over 100 anatomical structures.
-        Deformable image registration via Elastix [13] enables fusion of PET and CT volumes
+        and others), and TotalSegmentator [14], which can segment over 100 anatomical structures.
+        Deformable image registration via Elastix [15] enables fusion of PET and CT volumes
         for combined metabolic and anatomical visualization.
       </p>
       <p>
         Once the airway centerline is extracted, a route-to-target algorithm traces the
-        optimal path from the trachea to a clinician-specified lesion through the airway tree.
+        shortest path from the trachea to a clinician-specified lesion through the airway tree.
       </p>
       <p>
-        The system is built via a Python-based superbuild script
+        The system is built and distributed via a Python-based superbuild script
         (<span class="code-ref">cxFraxinusInstaller.py</span>) managing all C++ library
         dependencies (Qt, VTK, ITK, Eigen, OpenCV, OpenIGTLink, CTK, Boost) and Python
         tool setup. Pre-built binary installers are provided for Windows and Ubuntu.
@@ -460,12 +458,7 @@
         with AI-based segmentation and multimodal registration.
       </p>
       <p>
-        The software serves both as a usable research tool and as a reference implementation
-        demonstrating how the CustusX platform can be specialized into a domain-specific
-        clinical application with a compact, focused codebase — Fraxinus comprises
-        approximately 1.7% of CustusX's source lines of code while providing a complete
-        clinical workflow. Sample CT phantom datasets are distributed alongside the software
-        to enable immediate evaluation without clinical data.
+        The software is available at <a href="https://github.com/SINTEFMedTek/Fraxinus">github.com/SINTEFMedTek/Fraxinus</a> under the BSD 3-Clause License. Binary installers and sample phantom datasets are provided at <a href="https://custusx.pages.sintef.no/fraxinus/">custusx.pages.sintef.no/fraxinus/</a>. The codebase serves as a reference implementation for bronchoscopy planning research.
       </p>
     </div>
   </section>
@@ -529,63 +522,75 @@
       </li>
       <li>
         <span class="ref-num">5.</span>
+        Dhillon, S.S. &amp; Harris, K. (2017). Bronchoscopy for the diagnosis of peripheral
+        lung lesions. <em>Journal of Thoracic Disease</em> 9(S10), S1047–S1058.
+        doi:10.21037/jtd.2017.05.48
+      </li>
+      <li>
+        <span class="ref-num">6.</span>
+        Ishida, T. et al. (2011). Virtual bronchoscopic navigation combined with endobronchial
+        ultrasound to diagnose small peripheral pulmonary lesions: a randomised trial.
+        <em>Thorax</em> 66(12), 1072–1077. doi:10.1136/thx.2010.145490
+      </li>
+      <li>
+        <span class="ref-num">7.</span>
         Pritchett, M.A. et al. (2017). Cone-Beam CT with Augmented Fluoroscopy Combined
         with Electromagnetic Navigation Bronchoscopy for Biopsy of Pulmonary Nodules.
         <em>Journal of Bronchology &amp; Interventional Pulmonology</em> 25(4), 274–282.
         doi:10.1097/LBR.0000000000000399
       </li>
       <li>
-        <span class="ref-num">6.</span>
+        <span class="ref-num">8.</span>
         Fedorov, A. et al. (2012). 3D Slicer as an image computing platform for the
         Quantitative Imaging Network. <em>Magnetic Resonance Imaging</em> 30(9), 1323–1341.
         doi:10.1016/j.mri.2012.05.001
       </li>
       <li>
-        <span class="ref-num">7.</span>
+        <span class="ref-num">9.</span>
         Wolf, I. et al. (2005). The medical imaging interaction toolkit.
         <em>Medical Image Analysis</em> 9(6), 594–604.
         doi:10.1016/j.media.2005.04.005
       </li>
       <li>
-        <span class="ref-num">8.</span>
+        <span class="ref-num">10.</span>
         Bouget, D. et al. (2023). Raidionics: an open software for pre- and postoperative
         central nervous system tumor segmentation and standardized reporting.
         <em>Scientific Reports</em> 13, 14921. doi:10.1038/s41598-023-42048-7
       </li>
       <li>
-        <span class="ref-num">9.</span>
+        <span class="ref-num">11.</span>
         Bouget, D. et al. (2019). Semantic segmentation and detection of mediastinal lymph
         nodes and anatomical structures in CT data for lung cancer staging.
         <em>International Journal of Computer Assisted Radiology and Surgery</em> 14, 977–986.
         doi:10.1007/s11548-019-01948-8
       </li>
       <li>
-        <span class="ref-num">10.</span>
+        <span class="ref-num">12.</span>
         Bouget, D. et al. (2022). Mediastinal lymph nodes segmentation using 3D convolutional
         neural network ensembles and anatomical priors guiding.
         <em>Computer Methods in Biomechanics and Biomedical Engineering: Imaging &amp; Visualization</em>.
         doi:10.1080/21681163.2022.2043778
       </li>
       <li>
-        <span class="ref-num">11.</span>
+        <span class="ref-num">13.</span>
         Støverud, K.-H. et al. (2024). AeroPath: An airway segmentation benchmark dataset
         with challenging pathology and baseline method.
         <em>PLOS ONE</em> 19(10), e0311416. doi:10.1371/journal.pone.0311416
       </li>
       <li>
-        <span class="ref-num">12.</span>
+        <span class="ref-num">14.</span>
         Wasserthal, J. et al. (2023). TotalSegmentator: Robust Segmentation of 104
         Anatomic Structures in CT Images. <em>Radiology: Artificial Intelligence</em>
         5(5), e230024. doi:10.1148/ryai.230024
       </li>
       <li>
-        <span class="ref-num">13.</span>
+        <span class="ref-num">15.</span>
         Shamonin, D.P. et al. (2014). Fast Parallel Image Registration on CPU and GPU
         for Diagnostic Classification of Alzheimer's Disease.
         <em>Frontiers in Neuroinformatics</em> 7, 50. doi:10.3389/fninf.2013.00050
       </li>
       <li>
-        <span class="ref-num">14.</span>
+        <span class="ref-num">16.</span>
         Seibert, D. et al. (2010). The Common Toolkit (CTK).
         <em>Proc. SPIE Medical Imaging</em> 7628, 762811. doi:10.1117/12.843786
       </li>
