@@ -86,12 +86,36 @@ to launch *Qt Creator* or *Fraxinus* with the correct DLL paths:
 
     FX\build_Release\set_run_environment.bat Fraxinus.exe
 
-Inference engines
------------------
+### Practical information
+
+To start writing code, open the file
+
+    root_dir/CX/CX/CMakeLists.txt
+
+in *Qt Creator.* Make sure that the build folder(s) for your selected configuration(s) (Debug/Release)
+matches the build folder(s) in your build tree.
+
+You might need to rerun the build script and CMake to get everything working.
+
+## Running the tests
+
+The test suite can be run through the *Catch* executable, which is built as part of the superbuild.
+Run it with the `-h` argument to see the options. To run a specific test:
+
+    ./CX/build_Release/bin/Catch "test name"
+
+Note that the test name must be in quotes. Tests are tagged. To run all the unit tests:
+
+    ./CX/build_Release/bin/Catch [unit]~[hide]~[unstable]~[not_linux]
+
+See the CustusX developer documentation for a full description of the test suite.
+
+## Inference engines
 
 Fraxinus uses the following inference engines for segmentation and registration.
-These are not built from source; the Windows installer includes optional setup components for each.
-On Linux, they can be installed separately after building:
+These are not built from source. On Ubuntu they are set up by `installFraxinus.sh`.
+On Windows, the generated installer includes optional setup components for each
+(using the PowerShell scripts in `org.custusx.fraxinus/`):
 
 - **Raidionics** — deep learning segmentation (airways, lungs, lymph nodes, tumors, and more).
 - **TotalSegmentator** — additional anatomical segmentation models.
