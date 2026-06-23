@@ -79,7 +79,7 @@ Then:
 
 If Qt is not in a default location, pass `--qt-path`:
 
-    python .\script\cxFraxinusInstaller.py --full --all --build_type Release --qt-path "C:\Qt\5.15.2\msvc2019_64"
+    python .\script\cxFraxinusInstaller.py --full --all --build_type Release --user_doc --qt-path "C:\Qt\5.15.2\msvc2019_64"
 
 After the build, use the generated `set_run_environment.bat` in the build folder
 to launch *Qt Creator* or *Fraxinus* with the correct DLL paths:
