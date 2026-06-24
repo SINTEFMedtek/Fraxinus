@@ -85,9 +85,9 @@ If you use Fraxinus in your research, please cite:
 
 ## Contributing
 
-Bug reports and feature requests are welcome on
-[GitHub Issues](https://github.com/SINTEFMedTek/Fraxinus/issues).
 The source code is mirrored on [GitHub](https://github.com/SINTEFMedTek/Fraxinus).
+External users are welcome to submit bug reports and feature requests on
+[GitHub Issues](https://github.com/SINTEFMedTek/Fraxinus/issues).
 
 ## Contributors
 
