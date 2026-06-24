@@ -28,8 +28,9 @@ used for segmentation and registration:
 Windows installation
 --------------------
 
-A Windows installer is planned but not yet published. Fraxinus can be built from source on Windows;
-see the developer documentation for instructions.
+Download the Windows installer from the
+[releases page](https://gitlab.sintef.no/custusx/fraxinus/-/releases) and run it.
+Fraxinus can also be built from source on Windows; see the developer documentation for instructions.
 
 Troubleshooting
 ---------------

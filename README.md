@@ -35,9 +35,10 @@ segmentation, and [Elastix](https://elastix.lumc.nl/) for image registration.
 
 ## Getting Started
 
-Pre-built installers for Ubuntu 20.04, 22.04, and 24.04 are available on the
+Pre-built installers for Ubuntu 20.04, 22.04, 24.04, and Windows are available on the
 [releases page](https://gitlab.sintef.no/custusx/fraxinus/-/releases).
-Download `installFraxinus.sh` and run:
+
+On Ubuntu, download `installFraxinus.sh` and run:
 
 ```bash
 chmod +x installFraxinus.sh
