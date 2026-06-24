@@ -31,8 +31,3 @@ Windows installation
 Download the Windows installer from the
 [releases page](https://gitlab.sintef.no/custusx/fraxinus/-/releases) and run it.
 Fraxinus can also be built from source on Windows; see the developer documentation for instructions.
-
-Troubleshooting
----------------
-- Fraxinus uses OpenCL. If you get errors about OpenCL, e.g. "Missing OpenCL.dll", try installing the latest driver for your graphics card.
-- On Windows laptops with both integrated and dedicated graphics, Fraxinus must be set to run on the integrated graphics card to avoid crashes. See the in-app help for details.
