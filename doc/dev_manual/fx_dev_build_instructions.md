@@ -39,9 +39,8 @@ The following software must be installed prior to building *Fraxinus*.
 Several other libraries are part of the \ref dev_superbuild,
 and thus do not need to be installed separately.
 
-For convenience, setup scripts for some platforms are available in the
-repository. Look for your platform in
-[script/cxsetup](https://gitlab.sintef.no/custusx/fraxinus/-/tree/develop/script/cxsetup).
+For convenience, Ubuntu package setup scripts are available in the CustusX repository at
+[install/platforms/ubuntu](https://gitlab.sintef.no/custusx/CustusX/-/tree/develop/install/platforms/ubuntu).
 
 ### Linux
 
