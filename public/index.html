@@ -511,9 +511,14 @@
 		<h2>Downloads</h2>
 		<p>
 			Fraxinus releases are published on GitLab for Ubuntu 20.04, 22.04, and 24.04.
-			Each release includes a tarball and an installer script, along with release notes.
+			Each release includes <code>installFraxinus.sh</code> — a single installer script
+			that downloads Fraxinus and automatically sets up all required AI inference engines
+			(Raidionics, TotalSegmentator, Elastix) and models.
 			A Windows installer is planned for a future release.
 		</p>
+		<p>After downloading, run:</p>
+		<pre style="background:#eef1f8;border:1px solid #c8d4e8;padding:12px 16px;margin:12px 0;font-size:13px;">chmod +x installFraxinus.sh
+./installFraxinus.sh</pre>
 
 		<div class="disclaimer">
 			Fraxinus is a research tool: It is not intended for normal clinical use, and is not FDA nor CE approved.
