@@ -121,6 +121,45 @@ On Windows, the generated installer includes optional setup components for each
 - **TotalSegmentator** — additional anatomical segmentation models.
 - **Elastix** — image registration used for PET-to-CT alignment.
 
+## Creating a release {#creating_a_release}
+
+Fraxinus releases are built and published automatically by the CI pipeline when a Git tag is pushed.
+
+### CI pipeline overview
+
+The pipeline runs three parallel build jobs (`build-ubuntu20`, `build-ubuntu22`, `build-ubuntu24`),
+each producing a `Fraxinus*.tar.gz` package via CPack. The `deploy-tag` job then:
+
+1. Uploads each tarball to the GitLab Generic Package Registry under
+   `Fraxinus/<tag>/<OS>/Fraxinus-<OS>.tar.gz`, where `<OS>` is `Ubuntu2004`, `Ubuntu2204`, or `Ubuntu2404`.
+2. Takes `install/installFraxinus.sh` from the repository (where `FRAXINUS_VERSION` is empty),
+   replaces that variable with the tag name, and uploads the result as a single
+   `Fraxinus/<tag>/installFraxinus.sh` to the package registry.
+
+This means one installer script is published per release, covering all three Ubuntu platforms.
+The script detects the Ubuntu version at runtime and downloads the correct tarball automatically.
+
+### Triggering a release
+
+Push a Git tag to trigger the `deploy-tag` job:
+
+    git tag vYY.MM
+    git push origin vYY.MM
+
+### Adding the installer to the releases page
+
+After the pipeline completes, link the uploaded `installFraxinus.sh` as a release asset
+so users can find it on the [releases page](https://gitlab.sintef.no/custusx/fraxinus/-/releases).
+The package registry URL for the script is:
+
+    https://gitlab.sintef.no/api/v4/projects/custusx%2Ffraxinus/packages/generic/Fraxinus/vYY.MM/installFraxinus.sh
+
+If the project requires authentication to download packages, users must set a GitLab
+personal access token before running the script:
+
+    export GITLAB_TOKEN=your_personal_access_token
+    ./installFraxinus.sh
+
 ## Superbuild Folder Structure {#build_instructions_folder_structure}
 
 The default Fraxinus folder structure follows the same pattern as CustusX.
