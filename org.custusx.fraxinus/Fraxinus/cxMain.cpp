@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 	app.setWindowIcon(QIcon(":/icons/icons/Fraxinus.png"));
 	app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
-	cx::DataLocations::setWebsiteURL("http://www.custusx.org/fraxinus");
+	cx::DataLocations::setWebsiteURL("custusx.pages.sintef.no/Fraxinus/");
 
 	cx::Styles::setStyle();
 

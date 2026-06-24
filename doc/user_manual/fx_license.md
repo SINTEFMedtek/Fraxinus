@@ -27,6 +27,6 @@ Full license text:
 
     Contact:
 
-    http://www.sintef.no/sintef-teknologi-og-samfunn/helse/medtek/
-    http://www.sintef.no/projectweb/usigt/forskning/custusx-navigasjonssystem/
+    https://www.sintef.no/en/medical-technology/
+    https://custusx.pages.sintef.no/Fraxinus/
 
