@@ -10,8 +10,8 @@ developed at SINTEF Medical Technology in collaboration with St. Olavs Hospital,
 Trondheim University Hospital, Norway.
 
 Lung cancer is the leading cause of cancer-related death worldwide. Pre-procedural
-planning — computing a route through the airway tree to the target lesion and rehearsing
-the procedure virtually — is a key step in improving diagnostic outcomes for peripheral
+planning, computing a route through the airway tree to the target lesion and rehearsing
+the procedure virtually, is a key step in improving diagnostic outcomes for peripheral
 pulmonary lesions.
 
 Fraxinus provides a complete, open-source pipeline in four guided steps:
@@ -86,8 +86,8 @@ If you use Fraxinus in your research, please cite:
 ## Contributing
 
 Bug reports and feature requests are welcome on
-[GitLab Issues](https://gitlab.sintef.no/custusx/fraxinus/-/issues).
-A public mirror is available on [GitHub](https://github.com/SINTEFMedTek/Fraxinus).
+[GitHub Issues](https://github.com/SINTEFMedTek/Fraxinus/issues).
+The source code is mirrored on [GitHub](https://github.com/SINTEFMedTek/Fraxinus).
 
 ## Contributors
 
