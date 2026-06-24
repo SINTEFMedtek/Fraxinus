@@ -15,9 +15,18 @@ authors:
   - name: Ole Vegard Solberg
     orcid: 0009-0004-9488-3621
     affiliation: 1
+  - name: David Bouget
+    orcid: 0000-0002-5669-9514
+    affiliation: 1
   - name: Thomas Langø
     orcid: 0000-0002-2824-6120
     affiliation: 1, 2
+  - name: Hanne Sorger
+    orcid: 0000-0002-9968-3491
+    affiliation: 4, 5
+  - name: Arne Kildahl-Andersen
+    orcid: 0000-0002-3911-5222
+    affiliation: "3, 4"    
   - name: Håkon Olav Leira
     orcid: 0000-0003-0845-3891
     affiliation: "3, 4"
@@ -30,19 +39,22 @@ affiliations:
     index: 3
   - name: Department of Circulation and Medical Imaging, Faculty of Medicine and Health Sciences, Norwegian University of Science and Technology, 7030 Trondheim, Norway
   - index: 4
+  - name: Clinic of Medicine, Nord-Trøndelag Hospital Trust, Levanger Hospital, 7601 Levanger, Norway
+  - index: 5 
+  
 date: 22 June 2026
 bibliography: paper.bib
 ---
 
 # Summary
 
-Fraxinus is an open-source, workflow-driven software system for bronchoscopy planning, developed at SINTEF Medical Technology. Built on the CustusX image-guided therapy platform [@askeland2016custusx], Fraxinus provides a complete pipeline for pre-procedural bronchoscopy planning. The software orchestrates automatic multi-organ segmentation from CT images using deep learning tools, computes routes through the airway tree to pulmonary lesions, and supports virtual bronchoscopy visualization in both fly-through and cut-plane modes. The software is written in C++ with Qt for the user interface and runs on Windows and Ubuntu.
+Fraxinus is an open-source, workflow-driven software system for bronchoscopy planning, developed at SINTEF Medical Technology and St. Olavs hospital, Trondheim, Norway. Built on the CustusX image-guided therapy platform [@askeland2016custusx], Fraxinus provides a complete pipeline for pre-procedural bronchoscopy planning, with a primary focus on lung cancer staging and diagnosis. The software includes automatic multi-organ segmentation from CT images using deep learning tools, including PET-CT fusion for metabolically active lymph node visualization, computes routes through the airway tree to pulmonary lesions, and supports virtual bronchoscopy visualization. The software is written in C++ with Qt for the user interface and runs on Windows and Ubuntu. The platform runs on commodity hardware and supports both CPU and GPU execution allowing it to run on a modern laptop while remaining compatible with GPU acceleration where available.
 
 An earlier version of the Fraxinus architecture was described in [@bakeng2019fraxinus]. The present paper describes the substantially evolved open-source codebase, which now integrates AI-driven multi-organ segmentation and deformable image registration.
 
 # Statement of Need
 
-Lung cancer is the leading cause of cancer-related death worldwide [@sung2021cancer]. Flexible bronchoscopy is a primary diagnostic tool for pulmonary lesions, but the diagnostic yield for peripherally located, bronchoscopically non-visible tumors is as low as 14–20% for lesions smaller than 2 cm in the outer third of the lung [@chen2007yield; @dhillon2017bronchoscopy], compared with around 80% for centrally visible lesions. Pre-procedural planning — computing routes through the airway tree to the target lesion and rehearsing the procedure with virtual bronchoscopy (VBN) — is a key step in improving outcomes for peripheral lesions, with randomized controlled trials demonstrating a significantly higher diagnostic yield with VBN compared to standard bronchoscopy (80.4% vs. 67.0%; p=0.032) [@ishida2011vbn; @pritchett2017nav].
+Lung cancer is the leading cause of cancer-related mortality worldwide, accounting for approximately 1.8 million deaths annually [@bray2024globalcancer]. Flexible bronchoscopy is the primary diagnostic tool for pulmonary lesions, but the diagnostic yield for peripherally located, bronchoscopically non-visible tumors is as low as 14–20% for lesions smaller than 2 cm in the outer third of the lung [@chen2007yield; @dhillon2017bronchoscopy], compared with around 80% for centrally visible lesions. Pre-procedural planning — computing routes through the airway tree to the target lesion and rehearsing the procedure with virtual bronchoscopy (VB) raises the diagnostic yield substantially [@kops2023navigation].
 
 Open-source, full-pipeline tools for bronchoscopy planning are largely absent from the literature and from public repositories.
 
@@ -50,13 +62,15 @@ Fraxinus addresses this gap by providing researchers and clinicians with a freel
 
 # State of the Field
 
-Several open-source medical imaging platforms support partial bronchoscopy workflows. 3D Slicer [@fedorov2012slicer] is widely used for airway segmentation (via extensions such as SlicerAirwaySegmentation) and general virtual endoscopy, but it is a general-purpose framework without a dedicated bronchoscopy workflow or intraoperative navigation capability. MITK [@wolf2005mitk] similarly offers broad imaging functionality without a bronchoscopy-specific pipeline. Commercial platforms, including LungVision (Body Vision Medical) and Auris Health's Monarch Platform, integrate robotic control but are proprietary.
+Several open-source medical imaging platforms support partial bronchoscopy workflows. 3D Slicer [@fedorov2012slicer] is widely used for airway segmentation (via extensions such as SlicerAirwaySegmentation) and general virtual endoscopy, but it is a general-purpose framework without a dedicated bronchoscopy workflow or intraoperative navigation capability. MITK [@wolf2005mitk] similarly offers broad imaging functionality without a bronchoscopy-specific pipeline.
 
-Fraxinus is unique in combining in a single open-source package: (1) automated AI-based segmentation of multiple anatomical structures from CT; (2) a guided, step-by-step workflow tailored to bronchoscopy procedure planning; and (3) virtual bronchoscopy visualization in both fly-through and cut-plane modes.
+Commercial bronchoscopy navigation platforms (Medtronic superDimension, Intuitive Ion, J&J Monarch) offer strong mechanical reach through shape-sensing catheters and robotic actuation, with multicenter trials reporting high diagnostic yields for peripheral nodules [@murgu2025target; @ali2023robotic; @simoff2021ion]. However, they require proprietary hardware, cannot be independently inspected or extended, and are inaccessible to most research groups and resource-limited health systems.
+
+Fraxinus is unique in combining in a single open-source package: (1) automated AI-based segmentation of multiple anatomical structures from CT; (2) a guided, step-by-step workflow tailored to bronchoscopy procedure planning; and (3) virtual bronchoscopy visualization.
 
 # Software Design
 
-Fraxinus is implemented in C++ (C++14) using Qt 5 for the GUI, VTK for 3D visualization, and ITK for image processing. It uses the CTK OSGi plugin framework [@seibert2010ctk], inherited from CustusX, to separate concerns across three public plugins:
+Fraxinus is implemented in C++ using Qt for the GUI, VTK for 3D visualization and image processing. It uses the CTK OSGi plugin framework [@seibert2010ctk], inherited from CustusX, to separate concerns across three public plugins:
 
 **org.custusx.fraxinus** provides the application entry point, installer configuration, and setup logic for external AI tools (downloading models, configuring Python virtual environments).
 
@@ -71,8 +85,12 @@ Once the airway centerline is extracted, a route-to-target algorithm traces the 
 The system is built and distributed via a Python-based superbuild script (`cxFraxinusInstaller.py`) that manages all C++ library dependencies (Qt, VTK, ITK, Eigen, OpenCV, OpenIGTLink, CTK, Boost) and Python tool setup. Pre-built binary installers are provided for Windows and Ubuntu.
 
 # Research Impact
+The Fraxinus development originated from the doctoral thesis of Håkon Olav Leira (NTNU, 2012), and was formally published as Fraxinus in 2019 [@bakeng2019fraxinus]. The system has since been extended with AI-based segmentation and multimodal registration. Fraxinus has been tested and used in clinical research at totally eight hospitals in Norway, mainly at St. Olavs Hospital (Trondheim, Norway), supporting studies in bronchoscopy planning. 
 
-Fraxinus has been tested and used in clinical research at totally eight hospitals in Norway, mainly at St. Olavs Hospital (Trondheim, Norway), supporting studies in bronchoscopy planning. An early description of the software appeared in [@bakeng2019fraxinus]; the system has since been extended with AI-based segmentation and multimodal registration.
+The planning module in Fraxinus has also been included and validated through Sorger et al. (2017) [@sorger2017EBUS], who demonstrated feasibility of navigated EBUS bronchoscopy in humans. Kildahl-Andersen et al. (2024)[@kildahl-andersen2024PETEBUS] subsequently validated PET-CT-fused navigation in a human cohort.
+
+[Need reference to this]
+Perhaps the strongest indicator of the platform’s maturity is its adoption as the core navigation technology for two independent robotic bronchoscopy platforms, one developed by an external research group that independently selected the Fraxinus codebase as their navigational foundation. This adoption demonstrates that the software architecture is sufficiently robust, documented, and generalizable to serve as infrastructure for third-party development.
 
 The software is available at [https://github.com/SINTEFMedTek/Fraxinus](https://github.com/SINTEFMedTek/Fraxinus) under the BSD 3-Clause License. Binary installers and sample phantom datasets are provided at [https://custusx.pages.sintef.no/fraxinus/](https://custusx.pages.sintef.no/fraxinus/). The codebase serves as a reference implementation for bronchoscopy planning research.
 
@@ -81,7 +99,7 @@ The software is available at [https://github.com/SINTEFMedTek/Fraxinus](https://
 Generative AI tools were used to assist in drafting this manuscript. All AI-assisted content has been reviewed, edited, and validated by the human authors, who take full responsibility for the accuracy and completeness of the paper.
 
 # Acknowledgements
-
-Development of Fraxinus has been supported by the Research Council of Norway, the South-Eastern Norway Regional Health Authority, the Central Norway Regional Health Authority, and SINTEF. We thank clinical staff at the Department of Thoracic Medicine, St. Olavs Hospital, for procedural expertise and iterative testing throughout development.
+The authors thank the patients, clinical staff, and research colleagues at the Department of Thoracic Medicine, St. Olavs hospital, Trondheim, and at SINTEF Digital, Department of Health Research, who have contributed to Fraxinus with procedural expertise and iterative testing throughout development.
+Development of Fraxinus has been supported by the Norwegian National Research Center for Minimally Invasive and Image-Guided Diagnostics and Therapy (MiDT) at Center for Innovation, Medical Devices and Technology (SIMUT) at St. Olavs hospital, SINTEF Digital, the Norwegian Research Council, the Norwegian Cancer Society, the Liaison Committee between Central Norway Regional Health Authority and NTNU, and the EEA project IDEAR.
 
 # References
