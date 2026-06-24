@@ -9,11 +9,10 @@ Fraxinus is a pre-procedure planning and simulation platform for bronchoscopy re
 developed at SINTEF Medical Technology in collaboration with St. Olavs Hospital,
 Trondheim University Hospital, Norway.
 
-Lung cancer is the leading cause of cancer-related death worldwide. Conventional
-bronchoscopy has only around 15% diagnostic yield for peripheral pulmonary lesions,
-compared with around 80% for centrally visible ones. Pre-procedural planning — computing
-a route through the airway tree to the target lesion and rehearsing the procedure
-virtually — is a key step in improving outcomes.
+Lung cancer is the leading cause of cancer-related death worldwide. Pre-procedural
+planning — computing a route through the airway tree to the target lesion and rehearsing
+the procedure virtually — is a key step in improving diagnostic outcomes for peripheral
+pulmonary lesions.
 
 Fraxinus provides a complete, open-source pipeline in four guided steps:
 
