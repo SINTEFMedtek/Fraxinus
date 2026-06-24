@@ -21,9 +21,6 @@ authors:
   - name: Thomas Langø
     orcid: 0000-0002-2824-6120
     affiliation: 1, 2
-  - name: Hanne Sorger
-    orcid: 0000-0002-9968-3491
-    affiliation: 4, 5
   - name: Arne Kildahl-Andersen
     orcid: 0000-0002-3911-5222
     affiliation: "3, 4"    
@@ -38,9 +35,7 @@ affiliations:
   - name: Department of Thoracic Medicine, St. Olavs Hospital, 7030 Trondheim, Norway
     index: 3
   - name: Department of Circulation and Medical Imaging, Faculty of Medicine and Health Sciences, Norwegian University of Science and Technology, 7030 Trondheim, Norway
-  - index: 4
-  - name: Clinic of Medicine, Nord-Trøndelag Hospital Trust, Levanger Hospital, 7601 Levanger, Norway
-  - index: 5 
+    index: 4
   
 date: 22 June 2026
 bibliography: paper.bib
@@ -78,14 +73,16 @@ Fraxinus is implemented in C++ using Qt for the GUI, VTK for 3D visualization an
 
 **org.custusx.fraxinus.widgets** contains all user-facing interface components. Key widgets handle patient loading, DICOM import, segmented structure visibility, target pinpointing in multi-planar views, virtual bronchoscopy visualization, and procedure planning.
 
-The segmentation pipeline automatically extracts airways, lungs, lung lobes, lymph nodes, heart, major pulmonary vessels, and tumor candidates from a chest CT scan. Two deep learning backends are supported: Raidionics [@bouget2023raidionics; @bouget2019lymphnodes; @bouget2022mediastinal; @stoverud2024aeropath], which provides organ-specific models (CT_Airways, CT_Lungs, CT_LymphNodes, CT_Tumor, and others), and TotalSegmentator [@wasserthal2023totalsegmentator], which can segment over 100 anatomical structures. Deformable image registration via Elastix [@shamonin2014elastix] enables fusion of PET and CT volumes for combined metabolic and anatomical visualization.
+The segmentation pipeline automatically extracts airways, lungs, lung lobes, lymph nodes, heart, major pulmonary vessels, and tumor candidates from a chest CT scan. Two deep learning backends are supported: Raidionics [@bouget2023raidionics; @bouget2019lymphnodes; @bouget2022mediastinal; @stoverud2024aeropath], which provides organ-specific models (CT_Airways, CT_Lungs, CT_LymphNodes, CT_Tumor, and others), and TotalSegmentator [@wasserthal2023totalsegmentator], which can segment over 100 anatomical structures. Deformable image registration via Elastix [@klein2010elastix; @shamonin2014elastix] enables fusion of PET and CT volumes for combined metabolic and anatomical visualization.
 
-Once the airway centerline is extracted, a route-to-target algorithm traces the shortest path from the trachea to a clinician-specified lesion through the airway tree.
+Once the airway centerline is extracted, a route-to-target algorithm traces the shortest path from the trachea to a clinician-specified lesion through the airway tree. The resulting procedure planning view is shown in Figure 1.
 
 The system is built and distributed via a Python-based superbuild script (`cxFraxinusInstaller.py`) that manages all C++ library dependencies (Qt, VTK, ITK, Eigen, OpenCV, OpenIGTLink, CTK, Boost) and Python tool setup. Pre-built binary installers are provided for Windows and Ubuntu.
 
+![The Fraxinus procedure planning step. Left: Virtual bronchoscopy with the planned route overlaid on the airway surface and 2D CT sections with the target lesion highlighted. Right: 3D rendering of the segmented airway tree with lymph nodes (green) and tumours (yellow).](Fraxinus_1.png)
+
 # Research Impact
-The Fraxinus development originated from the doctoral thesis of Håkon Olav Leira (NTNU, 2012), and was formally published as Fraxinus in 2019 [@bakeng2019fraxinus]. The system has since been extended with AI-based segmentation and multimodal registration. Fraxinus has been tested and used in clinical research at totally eight hospitals in Norway, mainly at St. Olavs Hospital (Trondheim, Norway), supporting studies in bronchoscopy planning. 
+The Fraxinus development originated from the doctoral thesis of Håkon Olav Leira [@leira2012thesis], and was formally published as Fraxinus in 2019 [@bakeng2019fraxinus]. The system has since been extended with AI-based segmentation and multimodal registration. Fraxinus has been tested and used in clinical research at a total of eight hospitals in Norway, mainly at St. Olavs Hospital (Trondheim, Norway), supporting studies in bronchoscopy planning. 
 
 The planning module in Fraxinus has also been included and validated through Sorger et al. (2017) [@sorger2017EBUS], who demonstrated feasibility of navigated EBUS bronchoscopy in humans. Kildahl-Andersen et al. (2024)[@kildahl-andersen2024PETEBUS] subsequently validated PET-CT-fused navigation in a human cohort.
 
@@ -96,7 +93,7 @@ The software is available at [https://github.com/SINTEFMedTek/Fraxinus](https://
 
 # AI Usage Disclosure
 
-Generative AI tools were used to assist in drafting this manuscript. All AI-assisted content has been reviewed, edited, and validated by the human authors, who take full responsibility for the accuracy and completeness of the paper.
+Claude Sonnet 4.6 (Anthropic) was used to assist with drafting of manuscript text and compilation of the reference list. All AI-assisted content has been reviewed, edited, and validated by the human authors, who take full responsibility for the accuracy and completeness of the paper.
 
 # Acknowledgements
 The authors thank the patients, clinical staff, and research colleagues at the Department of Thoracic Medicine, St. Olavs hospital, Trondheim, and at SINTEF Digital, Department of Health Research, who have contributed to Fraxinus with procedural expertise and iterative testing throughout development.
