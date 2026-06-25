@@ -83,7 +83,7 @@ The system is built and distributed via a Python-based superbuild script (`cxFra
 
 # Research Impact
 
-The Fraxinus development originated from the doctoral thesis of Håkon Olav Leira in 2012 [@leira2012thesis], first presented at IPCAI/CARS 2015 (Barcelona, Spain) and formally published in 2019 [@bakeng2019fraxinus]. The system has since been extended with AI-based segmentation and multimodal registration. Fraxinus has been tested and used in clinical research at a total of eight hospitals in Norway, mainly at St. Olavs Hospital (Trondheim, Norway), supporting studies in bronchoscopy planning. 
+The Fraxinus development originated from the doctoral thesis of Håkon Olav Leira in 2012 [@leira2012thesis], first presented as Fraxinus at IPCAI/CARS 2015 (Barcelona, Spain) and formally published in 2019 [@bakeng2019fraxinus]. The system has since been extended with AI-based segmentation and multimodal registration. Fraxinus has been tested and used in clinical research at a total of eight hospitals in Norway, mainly at St. Olavs Hospital (Trondheim, Norway), supporting studies in bronchoscopy planning. 
 
 The planning module in Fraxinus has also been included and validated through Sorger et al. [@sorger2017EBUS], who demonstrated feasibility of navigated EBUS bronchoscopy in humans. Kildahl-Andersen et al. [@kildahl-andersen2024PETEBUS] subsequently validated PET-CT-fused navigation in a human cohort.
 
