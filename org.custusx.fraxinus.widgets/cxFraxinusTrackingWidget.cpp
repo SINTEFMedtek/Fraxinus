@@ -228,7 +228,7 @@ void FraxinusTrackingWidget::startUltrasoundSimulation()
 
 	mToolFilesComboBoxes[3]->setCurrentIndex(USProbeIndex);
 
-	if(mToolState <= Tool::tsCONFIGURED)
+	if(mToolState < Tool::tsCONFIGURED)
 	{
 		mTrackingService->setState(Tool::tsCONFIGURED);
 		connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::setUpEBUSToolAndStartTracking);
@@ -279,7 +279,7 @@ void FraxinusTrackingWidget::setUpEBUSToolAndStartTracking()
 		}
 	}
 
-	connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::trackingStarted);
+	emit trackingReady();
 	startTracking();
 }
 
@@ -300,12 +300,6 @@ void FraxinusTrackingWidget::stopUltrasoundSimulation()
 TrackingServicePtr FraxinusTrackingWidget::getTrackingService()
 {
 	return mTrackingService;
-}
-
-void FraxinusTrackingWidget::trackingStarted()
-{
-	disconnect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::trackingStarted);
-	emit trackingReady();
 }
 
 void FraxinusTrackingWidget::printTrackerConfiguration() //debug

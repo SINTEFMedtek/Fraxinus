@@ -75,7 +75,6 @@ private slots:
 	void startTrackingClickedSlot(bool);
 	void stopTrackingClickedSlot(bool);
 	void setUpEBUSToolAndStartTracking();
-	void trackingStarted();
 
 private:
 	TrackingServicePtr mTrackingService;
