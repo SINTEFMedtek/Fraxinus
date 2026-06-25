@@ -26,6 +26,8 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxProfile.h"
 #include "cxManualToolAdapter.h"
 #include "cxTool.h"
+#include "cxDummyTool.h"
+#include "cxProbeImpl.h"
 
 
 namespace cx {
@@ -42,6 +44,8 @@ FraxinusTrackingWidget::FraxinusTrackingWidget(VisServicesPtr services, Fraxinus
 	mEBUSProbeUid("EBUS_Bronchoscope_EXERA_III_Simulator"),
 	mEBUSProbeName("EBUS EXERA III Simulator"),
 	mEBUSProbeConfigurationName("WidthMaxDepth4"),
+	mEBUSInstrumentId("EBUS"),
+	mEBUSInstrumentScannerId("Olympus Exera III"),
 	mToolState(Tool::tsNONE)
 {
 	mTrackerConfiguration = mTrackingService->getConfiguration();
@@ -266,6 +270,17 @@ void FraxinusTrackingWidget::setUpEBUSToolAndStartTracking()
 		report("Manual tool imbued with properties from " + iter->first);
 		break;
 		}
+	}
+
+	if(!tool)
+	{
+		DummyToolPtr dummyTool(new DummyTool(mEBUSProbeName));
+		ProbeImplPtr probe = ProbeImpl::New(mEBUSInstrumentId, mEBUSInstrumentScannerId);
+		dummyTool->setProbeSector(probe);
+		manualToolAdapterPtr->setBase(dummyTool);
+		manualToolAdapterPtr->startEmittingContinuousPositions(100);
+		tool = dummyTool;
+		report("EBUS simulator: using probe config directly (no tracking hardware)");
 	}
 
 	if(tool)

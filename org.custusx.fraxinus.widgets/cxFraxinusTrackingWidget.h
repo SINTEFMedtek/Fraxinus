@@ -84,6 +84,8 @@ private:
 	QString mEBUSProbeUid;
 	QString mEBUSProbeName;
 	QString mEBUSProbeConfigurationName;
+	QString mEBUSInstrumentId;
+	QString mEBUSInstrumentScannerId;
 	int mNumberOfTools;
 	TrackerConfigurationPtr mTrackerConfiguration;
 	std::vector<QComboBox*> mToolFilesComboBoxes;
