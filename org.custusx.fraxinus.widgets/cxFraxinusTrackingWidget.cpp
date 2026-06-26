@@ -26,9 +26,6 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxProfile.h"
 #include "cxManualToolAdapter.h"
 #include "cxTool.h"
-#include "cxDummyTool.h"
-#include "cxProbeImpl.h"
-#include <QTimer>
 
 
 namespace cx {
@@ -45,8 +42,6 @@ FraxinusTrackingWidget::FraxinusTrackingWidget(VisServicesPtr services, Fraxinus
 	mEBUSProbeUid("EBUS_Bronchoscope_EXERA_III_Simulator"),
 	mEBUSProbeName("EBUS EXERA III Simulator"),
 	mEBUSProbeConfigurationName("WidthMaxDepth4"),
-	mEBUSInstrumentId("EBUS"),
-	mEBUSInstrumentScannerId("Olympus Exera III"),
 	mToolState(Tool::tsNONE)
 {
 	mTrackerConfiguration = mTrackingService->getConfiguration();
@@ -227,11 +222,16 @@ void FraxinusTrackingWidget::startUltrasoundSimulation()
 		return;
 	}
 
-	if(mToolState < Tool::tsCONFIGURED)
+	int USProbeIndex = mToolFilesComboBoxes[3]->findText(mEBUSProbeUid);
+	if(USProbeIndex < 0)
+		return;
+
+	mToolFilesComboBoxes[3]->setCurrentIndex(USProbeIndex);
+
+	if(mToolState <= Tool::tsCONFIGURED)
 	{
-		this->copyToolConfigFile("Fraxinus_EBUS_simulator.xml");
 		mTrackingService->setState(Tool::tsCONFIGURED);
-		QTimer::singleShot(0, this, [this]() { setUpEBUSToolAndStartTracking(); });
+		connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::setUpEBUSToolAndStartTracking);
 	}
 	else
 		setUpEBUSToolAndStartTracking();
@@ -251,6 +251,8 @@ TrackingSystemServicePtr FraxinusTrackingWidget::getIGSTKTrackingSystemService()
 
 void FraxinusTrackingWidget::setUpEBUSToolAndStartTracking()
 {
+	disconnect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::setUpEBUSToolAndStartTracking);
+
 	ManualToolAdapterPtr manualToolAdapterPtr = boost::static_pointer_cast<ManualToolAdapter>(mTrackingService->getManualTool());
 	ToolMap toolMap = mTrackingService->getTools();
 	ToolPtr tool;
@@ -266,17 +268,6 @@ void FraxinusTrackingWidget::setUpEBUSToolAndStartTracking()
 		}
 	}
 
-	if(!tool)
-	{
-		DummyToolPtr dummyTool(new DummyTool(mEBUSProbeName));
-		ProbeImplPtr probe = ProbeImpl::New(mEBUSInstrumentId, mEBUSInstrumentScannerId);
-		dummyTool->setProbeSector(probe);
-		manualToolAdapterPtr->setBase(dummyTool);
-		manualToolAdapterPtr->startEmittingContinuousPositions(100);
-		tool = dummyTool;
-		report("EBUS simulator: using probe config directly (no tracking hardware)");
-	}
-
 	if(tool)
 	{
 		ProbePtr probe = tool->getProbe();
@@ -288,7 +279,7 @@ void FraxinusTrackingWidget::setUpEBUSToolAndStartTracking()
 		}
 	}
 
-	emit trackingReady();
+	connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::trackingStarted);
 	startTracking();
 }
 
@@ -298,8 +289,9 @@ void FraxinusTrackingWidget::stopUltrasoundSimulation()
 		return;
 
 	stopTracking();
-	this->copyToolConfigFile("Fraxinus.xml");
+	mToolFilesComboBoxes[3]->setCurrentIndex(-1);
 	ManualToolAdapterPtr manualToolAdapterPtr = boost::static_pointer_cast<ManualToolAdapter>(mTrackingService->getManualTool());
+	manualToolAdapterPtr->setBase();
 	manualToolAdapterPtr->stopEmittingContinuousPositions();
 	manualToolAdapterPtr->setTooltipOffset(0);
 
@@ -308,6 +300,12 @@ void FraxinusTrackingWidget::stopUltrasoundSimulation()
 TrackingServicePtr FraxinusTrackingWidget::getTrackingService()
 {
 	return mTrackingService;
+}
+
+void FraxinusTrackingWidget::trackingStarted()
+{
+	disconnect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::trackingStarted);
+	emit trackingReady();
 }
 
 void FraxinusTrackingWidget::printTrackerConfiguration() //debug
