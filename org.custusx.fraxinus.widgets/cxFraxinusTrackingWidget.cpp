@@ -28,6 +28,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxTool.h"
 #include "cxDummyTool.h"
 #include "cxProbeImpl.h"
+#include <QTimer>
 
 
 namespace cx {
@@ -235,7 +236,7 @@ void FraxinusTrackingWidget::startUltrasoundSimulation()
 	if(mToolState < Tool::tsCONFIGURED)
 	{
 		mTrackingService->setState(Tool::tsCONFIGURED);
-		connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::setUpEBUSToolAndStartTracking);
+		QTimer::singleShot(0, this, [this]() { setUpEBUSToolAndStartTracking(); });
 	}
 	else
 		setUpEBUSToolAndStartTracking();
@@ -255,8 +256,6 @@ TrackingSystemServicePtr FraxinusTrackingWidget::getIGSTKTrackingSystemService()
 
 void FraxinusTrackingWidget::setUpEBUSToolAndStartTracking()
 {
-	disconnect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::setUpEBUSToolAndStartTracking);
-
 	ManualToolAdapterPtr manualToolAdapterPtr = boost::static_pointer_cast<ManualToolAdapter>(mTrackingService->getManualTool());
 	ToolMap toolMap = mTrackingService->getTools();
 	ToolPtr tool;
@@ -306,7 +305,6 @@ void FraxinusTrackingWidget::stopUltrasoundSimulation()
 	stopTracking();
 	mToolFilesComboBoxes[3]->setCurrentIndex(-1);
 	ManualToolAdapterPtr manualToolAdapterPtr = boost::static_pointer_cast<ManualToolAdapter>(mTrackingService->getManualTool());
-	manualToolAdapterPtr->setBase();
 	manualToolAdapterPtr->stopEmittingContinuousPositions();
 	manualToolAdapterPtr->setTooltipOffset(0);
 
