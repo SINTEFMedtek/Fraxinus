@@ -1,0 +1,7 @@
+<?xml version = "1.0"?>
+<configuration clinical_app="Bronchscopy">
+    <tracker type="aurora">
+        <toolfile reference="yes">../Tools/Shared/Reference_AURORA_port1/Reference_AURORA_port1.xml</toolfile>
+        <toolfile reference="no">../Tools/Bronchoscopy/EBUS_Bronchoscope_EXERA_III_Simulator/EBUS_Bronchoscope_EXERA_III_AURORA_Simulator.xml</toolfile>
+    </tracker>
+</configuration>

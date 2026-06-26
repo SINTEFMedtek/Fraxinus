@@ -227,14 +227,9 @@ void FraxinusTrackingWidget::startUltrasoundSimulation()
 		return;
 	}
 
-	int USProbeIndex = mToolFilesComboBoxes[3]->findText(mEBUSProbeUid);
-	if(USProbeIndex < 0)
-		return;
-
-	mToolFilesComboBoxes[3]->setCurrentIndex(USProbeIndex);
-
 	if(mToolState < Tool::tsCONFIGURED)
 	{
+		this->copyToolConfigFile("Fraxinus_EBUS_simulator.xml");
 		mTrackingService->setState(Tool::tsCONFIGURED);
 		QTimer::singleShot(0, this, [this]() { setUpEBUSToolAndStartTracking(); });
 	}
@@ -303,7 +298,7 @@ void FraxinusTrackingWidget::stopUltrasoundSimulation()
 		return;
 
 	stopTracking();
-	mToolFilesComboBoxes[3]->setCurrentIndex(-1);
+	this->copyToolConfigFile("Fraxinus.xml");
 	ManualToolAdapterPtr manualToolAdapterPtr = boost::static_pointer_cast<ManualToolAdapter>(mTrackingService->getManualTool());
 	manualToolAdapterPtr->stopEmittingContinuousPositions();
 	manualToolAdapterPtr->setTooltipOffset(0);
