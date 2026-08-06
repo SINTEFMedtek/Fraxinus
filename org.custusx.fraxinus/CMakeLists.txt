@@ -111,6 +111,14 @@ if(CX_WINDOWS)
 
 endif()
 
+if(CX_LINUX)
+  install(FILES
+    ${CMAKE_CURRENT_LIST_DIR}/Fraxinus.desktop
+    DESTINATION ${CX_INSTALL_ROOT_DIR})
+  install(FILES
+    ${CMAKE_CURRENT_LIST_DIR}/Fraxinus/icons/Fraxinus.png
+    DESTINATION ${CX_INSTALL_ROOT_DIR}/icons)
+endif()
 
 # add the application
 cx_add_optional_app_subdirectory("Fraxinus")

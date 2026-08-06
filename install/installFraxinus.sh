@@ -116,7 +116,6 @@ if [ -d "Fraxinus_temp" ]; then
 fi
 mkdir Fraxinus_temp
 tar -xzf "$TARBALL" -C Fraxinus_temp
-FRAXINUS_PATH=$(ls -d Fraxinus_temp/Fraxinus/Fraxinus_*/ 2>/dev/null | head -1 | xargs basename)
 mkdir -p ~/Fraxinus
 cp -r Fraxinus_temp/Fraxinus/* ~/Fraxinus/
 rm -rf Fraxinus_temp
@@ -213,11 +212,11 @@ fi
 # ---------------------------------------------------------------------------
 cd ~/Fraxinus
 if [ -f "Fraxinus.desktop" ]; then
-    EXEC_PATH="$HOME/Fraxinus/$FRAXINUS_PATH/Fraxinus"
-    ICON_PATH="$HOME/Fraxinus/$FRAXINUS_PATH/Icon/Fraxinus.icns"
-    sed -i "s|Icon=.*|Icon=$ICON_PATH|g" Fraxinus.desktop
-    sed -i "s|Path=.*|Path=$HOME/Fraxinus/$FRAXINUS_PATH|g" Fraxinus.desktop
+    EXEC_PATH="$HOME/Fraxinus/bin/Fraxinus"
+    ICON_PATH="$HOME/Fraxinus/icons/Fraxinus.png"
+    sed -i "s|Path=.*|Path=$HOME/Fraxinus/bin|g" Fraxinus.desktop
     sed -i "s|Exec=.*|Exec=$EXEC_PATH|g" Fraxinus.desktop
+    sed -i "s|Icon=.*|Icon=$ICON_PATH|g" Fraxinus.desktop
     cp Fraxinus.desktop ~/Desktop/
     gio set ~/Desktop/Fraxinus.desktop metadata::trusted true 2>/dev/null || true
     chmod +x ~/Desktop/Fraxinus.desktop
@@ -226,4 +225,4 @@ fi
 echo ""
 echo "---------- Fraxinus installation complete ----------"
 echo "Launch Fraxinus from the desktop shortcut or run:"
-echo "  $HOME/Fraxinus/$FRAXINUS_PATH/Fraxinus"
+echo "  $HOME/Fraxinus/bin/Fraxinus"
