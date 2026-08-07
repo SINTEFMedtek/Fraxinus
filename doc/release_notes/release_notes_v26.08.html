@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fraxinus release notes v26.08</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 960px; margin: 40px auto; color: #222; font-size: 14px; }
+  h1 { color: #2c3e50; margin-bottom: 4px; }
+  .subtitle { color: #666; margin-top: 0; margin-bottom: 8px; }
+  h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 4px; margin-top: 40px; }
+  h3 { color: #2c3e50; margin-top: 28px; margin-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  thead tr th { background: #3498db; color: white; padding: 8px 10px; text-align: left; }
+  td { padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; }
+  td.key { width: 100px; white-space: nowrap; }
+  td.summary { width: 32%; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  a { color: #2c7fb8; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .count { color: #888; font-size: 0.9em; margin-top: 4px; margin-bottom: 0; }
+  .internal { margin-top: 48px; padding-top: 16px; border-top: 1px solid #ddd; color: #aaa; font-size: 11px; }
+  .internal h3 { color: #aaa; font-size: 12px; margin-bottom: 6px; }
+  .internal ul { margin: 0; padding-left: 18px; }
+  .internal li { margin-bottom: 2px; }
+  @media print { a { color: #222; } }
+</style>
+</head>
+<body>
+<h1>Fraxinus release notes</h1>
+<h2>v26.08</h2>
+<p class="subtitle">Changes since v22.09</p>
+
+<h3>New Features</h3>
+<table>
+<thead><tr><th>Key</th><th>Summary</th><th>Release Note</th></tr></thead>
+<tbody>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/42" target="_blank">Fraxinus#42</a></td><td class="summary">Make self-extracting Fraxinus Ubuntu installer</td><td>Added a single-file Ubuntu installer script that downloads and sets up Fraxinus automatically.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/41" target="_blank">Fraxinus#41</a></td><td class="summary">Update public documentation</td><td>Updated the public Fraxinus website with current workflow description and screenshots.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/40" target="_blank">Fraxinus#40</a></td><td class="summary">Fraxinus public version</td><td>Fraxinus is now available as an open-source public version, with tracking-related code moved to a separate private component.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/37" target="_blank">Fraxinus#37</a></td><td class="summary">Layout option in Fraxinus VB</td><td>Added a virtual bronchoscopy layout option with larger VB + ACS + 3D views, and made the screenshot/video toolbar visible by default.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/26" target="_blank">Fraxinus#26</a></td><td class="summary">EBUS simulator add abdominal view</td><td>Added an abdominal 2D view to the EBUS simulator, to help identify lymph nodes in CT.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/13" target="_blank">Fraxinus#13</a></td><td class="summary">MDT widget</td><td>Added an MDT (multidisciplinary team meeting) widget and workflow, showing clinical variables and object colors read from a CSV file.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/21" target="_blank">Fraxinus#21</a></td><td class="summary">Improve data import flow and info in Fraxinus</td><td>Added informational dialogs when a patient is created, data is imported, and segmentation is completed, to make the import flow clearer.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/39" target="_blank">Fraxinus#39</a></td><td class="summary">Improvements in Fraxinus</td><td>Various Fraxinus usability improvements: square virtual bronchoscopy view, full centerline tree shown in VB, automatic CT/PET modality assignment on import, and a streamlined patient loading and segmentation workflow with inline progress.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/38" target="_blank">Fraxinus#38</a></td><td class="summary">Make simpler virtual camera rotation</td><td>Simplified automatic camera rotation in virtual bronchoscopy, based on the target's lobe location.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/34" target="_blank">Fraxinus#34</a></td><td class="summary">Simpler CT import in Fraxinus</td><td>Simplified the CT import and patient creation flow in Fraxinus with a streamlined dialog.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/35" target="_blank">Fraxinus#35</a></td><td class="summary">Make Fraxinus segmentations run on Windows</td><td>Raidionics and TotalSegmentator segmentation now also work on Windows.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/32" target="_blank">Fraxinus#32</a></td><td class="summary">Compile Fraxinus on Windows</td><td>Fraxinus can now be built and installed on Windows.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/24" target="_blank">Fraxinus#24</a></td><td class="summary">Smoothing of meshes in Fraxinus</td><td>Added configurable smoothing of segmented structure meshes, for smoother-looking and smaller models.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/20" target="_blank">Fraxinus#20</a></td><td class="summary">Integrate TotalSegmentator</td><td>Integrated TotalSegmentator for segmenting lung blood vessels and lung lobes.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/19" target="_blank">Fraxinus#19</a></td><td class="summary">Interactive tumor assessment</td><td>Added interactive review of segmented tumors and lung nodules: each detected lesion can be confirmed or rejected individually.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/18" target="_blank">Fraxinus#18</a></td><td class="summary">New tumor segmentation with Raidionics</td><td>Replaced the previous tumor segmentation (LungTumorMask) with a new AI model running in Raidionics.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/12" target="_blank">Fraxinus#12</a></td><td class="summary">EBUS simulator</td><td>Added an EBUS (endobronchial ultrasound) simulator, showing a simulated ultrasound sector from CT during virtual bronchoscopy.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/8" target="_blank">Fraxinus#8</a></td><td class="summary">Fraxinus fixes</td><td>Several virtual bronchoscopy improvements: show target and via points during navigation, display segmented structures in 2D view (previously 3D only), and switch to the post-processed airway model for smoother visualization.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/7" target="_blank">Fraxinus#7</a></td><td class="summary">Navigate VB with keys</td><td>Added keyboard shortcuts to navigate and control virtual bronchoscopy, including up/down angle adjustment.</td></tr>
+</tbody>
+</table>
+<p class="count">20 issues</p>
+
+<h3>Bugfixes</h3>
+<table>
+<thead><tr><th>Key</th><th>Summary</th><th>Release Note</th></tr></thead>
+<tbody>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/27" target="_blank">Fraxinus#27</a></td><td class="summary">Downsample CT image to 512x512</td><td>Fixed AI segmentation failures on high-resolution (1024x1024) CT images by automatically downsampling to 512x512 before segmentation.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/36" target="_blank">Fraxinus#36</a></td><td class="summary">Centerline generation in separate thread</td><td>Fixed the application freezing for about a minute during airway centerline generation, by moving the processing to a background thread.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/33" target="_blank">Fraxinus#33</a></td><td class="summary">Udate raidionics</td><td>Updated to a newer Raidionics AI segmentation version and fixed related batch-size and segmentation-order issues.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/25" target="_blank">Fraxinus#25</a></td><td class="summary">Correct export of centerlines</td><td>Fixed an incorrect coordinate system on exported airway centerlines, which caused misalignment when importing Fraxinus data into other systems.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/23" target="_blank">Fraxinus#23</a></td><td class="summary">Use nodule segmentation from TotalSegmentator in Fraxinus</td><td>Replaced the previous lung-nodule segmentation method with TotalSegmentator, removing a dependency-troubled component.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/16" target="_blank">Fraxinus#16</a></td><td class="summary">Limit automatic bronchoscope rotation</td><td>Limited automatic bronchoscope camera rotation to the first airway generations, since rotation further out was more distracting than helpful.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/6" target="_blank">Fraxinus#6</a></td><td class="summary">Disable center to tool in 2D</td><td>Disabled "center to tool" in 2D views for the Pinpoint and Procedure Planning workflows, since it caused 2D slices to jump distractingly when selecting a new position.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/5" target="_blank">Fraxinus#5</a></td><td class="summary">PET elastix registration fails</td><td>Fixed a mismatch between CT and PET-CT after PET/Elastix registration by tuning registration parameters.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/fraxinus/-/issues/3" target="_blank">Fraxinus#3</a></td><td class="summary">Fix bug in LungTumorMask</td><td>Fixed a GPU-related failure in lung tumor segmentation (LungTumorMask) by forcing it to run on CPU.</td></tr>
+<tr><td class="key"><a href="https://gitlab.sintef.no/custusx/custusx/-/issues/20" target="_blank">CustusX#20</a></td><td class="summary">GenericScriptFilter issues</td><td>Fixed script configuration file path handling for GenericScriptFilter in CustusS and Fraxinus.</td></tr>
+</tbody>
+</table>
+<p class="count">9 issues</p>
+
+<div class="internal">
+<h3>Internal changes not included in this release note (CI/build/tooling)</h3>
+<ul>
+<li>CustusX#14 &mdash; Make release builds</li>
+</ul>
+</div>
+
+</body>
+</html>
