@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxFraxinusVideoGeneratorWidget.h"
 #include "cxFraxinusEBUSSimulatorImplWidget.h"
 #include "cxAcquisitionServiceProxy.h"
+#include "cxFraxinusTrackingWidget.h"
 
 namespace cx
 {
@@ -64,6 +65,7 @@ std::vector<GUIExtenderService::CategorizedWidget> FraxinusWidgetsGUIExtenderSer
 	retval.push_back(GUIExtenderService::CategorizedWidget(new ProcedurePlanningWidget(services, NULL),"Fraxinus"));
 	retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusVideoGeneratorWidget(services, NULL),"Fraxinus"));
 	retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusEBUSSimulatorImplWidget(services, mContext, NULL),"Fraxinus"));
+	retval.push_back(GUIExtenderService::CategorizedWidget(new FraxinusTrackingWidget(services, nullptr),"Fraxinus"));
 
 	return retval;
 }
