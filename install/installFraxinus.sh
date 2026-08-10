@@ -116,8 +116,17 @@ if [ -d "Fraxinus_temp" ]; then
 fi
 mkdir Fraxinus_temp
 tar -xzf "$TARBALL" -C Fraxinus_temp
+# CPack's TGZ generator wraps the installed tree in a top-level directory named
+# after the package (e.g. Fraxinus_26.08-rc3_Ubuntu24.04/), so the Fraxinus/
+# folder isn't always directly under Fraxinus_temp/ -- search for it instead
+# of assuming a fixed depth.
+FRAXINUS_ROOT=$(find Fraxinus_temp -mindepth 1 -maxdepth 2 -type d -name Fraxinus | head -1)
+if [ -z "$FRAXINUS_ROOT" ]; then
+    echo "ERROR: Could not find a Fraxinus folder inside the extracted tarball."
+    exit 1
+fi
 mkdir -p ~/Fraxinus
-cp -r Fraxinus_temp/Fraxinus/* ~/Fraxinus/
+cp -r "$FRAXINUS_ROOT"/* ~/Fraxinus/
 rm -rf Fraxinus_temp
 
 cd ~/Fraxinus
