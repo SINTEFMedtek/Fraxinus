@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fraxinus - Image-Guided Bronchoscopy</title>
+<link rel="icon" type="image/png" href="Fraxinus.png">
 <style>
 	* {
 		box-sizing: border-box;
@@ -319,9 +320,10 @@
 
 		<h3>Source Code</h3>
 		<p>
-			The source code is available on <a href="https://gitlab.sintef.no/custusx/Fraxinus" target="_blank">GitLab</a>.
-			A public mirror is also available on <a href="https://github.com/SINTEFMedTek/Fraxinus" target="_blank">GitHub</a>.
-			Bugs and feature requests are welcome on GitHub.
+			The source code is available on <a href="https://gitlab.sintef.no/custusx/Fraxinus" target="_blank">GitLab</a>
+			and mirrored on <a href="https://github.com/SINTEFMedTek/Fraxinus" target="_blank">GitHub</a>.
+			External users are welcome to submit bug reports and feature requests on
+			<a href="https://github.com/SINTEFMedTek/Fraxinus/issues" target="_blank">GitHub Issues</a>.
 		</p>
 
 		<h3>Contact</h3>
@@ -510,9 +512,15 @@
 	<div id="tab-downloads" class="tab-panel">
 		<h2>Downloads</h2>
 		<p>
-			Fraxinus releases are published on GitLab. Each release includes installers and release
-			notes describing what has changed.
+			Fraxinus releases are published on GitLab for Ubuntu 20.04, 22.04, and 24.04.
+			Each release includes <code>installFraxinus.sh</code> — a single installer script
+			that downloads Fraxinus and automatically sets up all required AI inference engines
+			(Raidionics, TotalSegmentator, Elastix) and models.
+			A Windows installer is also available on the releases page.
 		</p>
+		<p>After downloading, run:</p>
+		<pre style="background:#eef1f8;border:1px solid #c8d4e8;padding:12px 16px;margin:12px 0;font-size:13px;">chmod +x installFraxinus.sh
+./installFraxinus.sh</pre>
 
 		<div class="disclaimer">
 			Fraxinus is a research tool: It is not intended for normal clinical use, and is not FDA nor CE approved.

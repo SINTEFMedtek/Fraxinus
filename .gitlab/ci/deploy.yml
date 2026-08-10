@@ -20,11 +20,24 @@
           echo "WARNING: no Fraxinus*.tar.gz in $DIR, skipping."
           continue
         fi
+        # Upload under the original CPack filename
         curl \
           --header "JOB-TOKEN: $CI_JOB_TOKEN" \
           --upload-file "$DIR/$INSTALLER_FILE" \
           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Fraxinus/$VERSION/$OS/$INSTALLER_FILE"
+        # Also upload under a predictable alias so installFraxinus.sh can construct the URL
+        curl \
+          --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+          --upload-file "$DIR/$INSTALLER_FILE" \
+          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Fraxinus/$VERSION/$OS/Fraxinus-${OS}.tar.gz"
       done
+    # Upload install script with version baked in so users get a single-file installer
+    - sed "s/^FRAXINUS_VERSION=.*/FRAXINUS_VERSION=\"${VERSION}\"/" install/installFraxinus.sh > /tmp/installFraxinus.sh
+    - |
+      curl \
+        --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+        --upload-file /tmp/installFraxinus.sh \
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Fraxinus/$VERSION/installFraxinus.sh"
 
 deploy-commit:
   extends: .deploy

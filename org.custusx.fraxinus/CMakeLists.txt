@@ -40,6 +40,14 @@ function(cxsetup_install_documentation_files)
     set(DOC_FOLDER "${SOURCE_DIR}/doc/user_manual")
     cx_doc_define_user_docs("${DOC_FOLDER}")
     set_property(GLOBAL PROPERTY CX_DOC_USER_MAINPAGE_OVERRIDE "${DOC_FOLDER}/Fraxinus_doc_mainpage.md")
+
+    # Replace CustusX shared pages with Fraxinus-specific versions
+    cx_doc_exclude_user_page("${CustusX_SOURCE_DIR}/doc/shared_manual/cx_user_supported_platforms.md")
+    cx_doc_exclude_user_page("${CustusX_SOURCE_DIR}/doc/shared_manual/installation/cx_user_installation.md")
+
+    # Add Fraxinus developer documentation and replace CustusX build instructions
+    cx_doc_define_dev_docs("${SOURCE_DIR}/doc/dev_manual")
+    cx_doc_exclude_dev_page("${CustusX_SOURCE_DIR}/doc/dev_manual/cx_dev_build_instructions.md")
 endfunction()
 
 

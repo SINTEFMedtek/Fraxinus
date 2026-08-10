@@ -5,7 +5,7 @@ Fraxinus User Documentation {#mainpage}
 
 # Fraxinus user manual
 
-Fraxinus is a planning software for research in bronchoscopy based on CustusX (https://www.custusx.org).
+Fraxinus is a planning software for research in bronchoscopy based on [CustusX](https://custusx.pages.sintef.no/CustusX/).
 
 The use of the Fraxinus software and the required hardware is described in the \subpage fx_manual.
 
@@ -14,7 +14,7 @@ The use of the Fraxinus software and the required hardware is described in the \
 *Fraxinus is not certified for normal clinical use.*
 
 Fraxinus is intended for use by expert personnel in conjunction with clinical research.
-See https://www.custusx.org/fraxinus.
+See [Fraxinus home page](https://custusx.pages.sintef.no/Fraxinus/).
 
 For the general limitations of the CustusX software, see the \ref safety_requirement for restrictions.
 The system must only be used on properly configured and calibrated hardware.
