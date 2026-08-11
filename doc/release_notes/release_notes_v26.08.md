@@ -8,7 +8,7 @@ _Changes since v22.09_
 |---|---|---|
 | [CustusX#30](https://gitlab.sintef.no/custusx/custusx/-/issues/30) | Ubuntu 24.04 support | Fraxinus now builds and runs on Ubuntu 24.04 (in addition to Ubuntu 20.04 and 22.04). VTK is updated to 9.6.1 and ITK to 5.4.5. |
 | [Fraxinus#42](https://gitlab.sintef.no/custusx/fraxinus/-/issues/42) | Single-file Ubuntu installer | Added a single-file Ubuntu installer script (installFraxinus.sh) that downloads and sets up Fraxinus automatically. |
-| [Fraxinus#40](https://gitlab.sintef.no/custusx/fraxinus/-/issues/40) | Fraxinus public version | Fraxinus is now available as an open-source public version, with tracking-related code moved to a separate private component. |
+| [Fraxinus#40](https://gitlab.sintef.no/custusx/fraxinus/-/issues/40) | Fraxinus public version | Fraxinus is now fully open-source. Previously private code has been moved to a separate private component. |
 | [Fraxinus#39](https://gitlab.sintef.no/custusx/fraxinus/-/issues/39) | Usability improvements | Various Fraxinus usability improvements: square virtual bronchoscopy view, full centerline tree shown in VB, automatic CT/PET modality assignment on import, and a streamlined patient loading and segmentation workflow with inline progress. |
 | [Fraxinus#38](https://gitlab.sintef.no/custusx/fraxinus/-/issues/38) | Simplified virtual camera rotation | Simplified automatic camera rotation in virtual bronchoscopy, based on the target's lobe location. |
 | [Fraxinus#37](https://gitlab.sintef.no/custusx/fraxinus/-/issues/37) | New virtual bronchoscopy layout | Added a virtual bronchoscopy layout option with larger VB + ACS + 3D views, and made the screenshot/video toolbar visible by default. |
