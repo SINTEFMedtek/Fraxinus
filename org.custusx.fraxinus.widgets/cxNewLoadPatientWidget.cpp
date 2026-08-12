@@ -426,6 +426,7 @@ void NewLoadPatientWidget::loadCTDataDialogFinished()
 {
 	if(mLoadCTDialog)
 	{
+		mLoadCTDialog->hide();
 		mLoadCTDialog->deleteLater();
 		mLoadCTDialog = nullptr;
 	}
