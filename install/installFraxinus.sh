@@ -139,11 +139,11 @@ if command -v elastix > /dev/null 2>&1; then
     echo "Elastix is already installed, skipping."
 else
     echo "Installing Elastix $ELASTIX_VERSION..."
-    wget "https://github.com/SuperElastix/elastix/releases/download/${ELASTIX_VERSION}/elastix-${ELASTIX_VERSION}-linux.zip"
-    unzip -o "elastix-${ELASTIX_VERSION}-linux.zip" -d elastix
+    wget "https://github.com/SuperElastix/elastix/releases/download/${ELASTIX_VERSION}/elastix-${ELASTIX_VERSION}-ubuntu.zip"
+    unzip -o "elastix-${ELASTIX_VERSION}-ubuntu.zip" -d elastix
     chmod +x elastix/bin/elastix elastix/bin/transformix
     cp elastix/lib/libANNlib* elastix/bin/ 2>/dev/null || true
-    rm "elastix-${ELASTIX_VERSION}-linux.zip"
+    rm "elastix-${ELASTIX_VERSION}-ubuntu.zip"
     echo '' >> ~/.bashrc
     echo '# Path to Elastix installation' >> ~/.bashrc
     echo 'export PATH=$HOME/Fraxinus/elastix/bin:$PATH' >> ~/.bashrc
