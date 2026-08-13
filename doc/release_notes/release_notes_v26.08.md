@@ -15,6 +15,7 @@ _Changes since v22.09_
 | [Fraxinus#35](https://gitlab.sintef.no/custusx/fraxinus/-/issues/35) | AI segmentations on Windows | Raidionics and TotalSegmentator AI segmentations now also work on Windows. |
 | [Fraxinus#34](https://gitlab.sintef.no/custusx/fraxinus/-/issues/34) | Simplified CT import | Simplified the CT import and patient creation flow in Fraxinus with a streamlined dialog. |
 | [Fraxinus#32](https://gitlab.sintef.no/custusx/fraxinus/-/issues/32) | Windows support | Fraxinus can now be built and installed on Windows. |
+| [CustusX#42](https://gitlab.sintef.no/custusx/custusx/-/issues/42) | Windows installer | A pre-built Windows installer is now published on the releases page. The open-source Windows build uses IGSTK for tracking. |
 | [Fraxinus#26](https://gitlab.sintef.no/custusx/fraxinus/-/issues/26) | EBUS simulator abdominal view | Added an abdominal 2D view to the EBUS simulator, to help identify lymph nodes in CT. |
 | [Fraxinus#24](https://gitlab.sintef.no/custusx/fraxinus/-/issues/24) | Smoothed segmentation meshes | Added configurable smoothing of segmented structure meshes, for smoother-looking and smaller models. |
 | [Fraxinus#22](https://gitlab.sintef.no/custusx/fraxinus/-/issues/22) | Optional gray application style | Added an optional gray application style for all applications, activated with `-style gray` on the command line. |
@@ -48,6 +49,7 @@ _Changes since v22.09_
 | Key | Summary | Release Note |
 |---|---|---|
 | [CustusX#30](https://gitlab.sintef.no/custusx/custusx/-/issues/30) | Tracking on Ubuntu 24.04 | Tracking hardware support is not available in the open-source Fraxinus build on Ubuntu 24.04. |
+| [CustusX#42](https://gitlab.sintef.no/custusx/custusx/-/issues/42) | Windows testing coverage | The Windows build is new and has not been as thoroughly tested and verified as the Ubuntu builds. Ubuntu remains the primary, best-tested platform. |
 
 <details>
 <summary>Internal changes not included above (CI/build/tooling)</summary>

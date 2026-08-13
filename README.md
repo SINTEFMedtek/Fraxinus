@@ -36,7 +36,9 @@ segmentation, and [Elastix](https://elastix.lumc.nl/) for image registration.
 ## Install
 
 Pre-built installers for Ubuntu 20.04, 22.04, 24.04, and Windows are available on the
-[releases page](https://gitlab.sintef.no/custusx/fraxinus/-/releases).
+[releases page](https://gitlab.sintef.no/custusx/fraxinus/-/releases). Ubuntu is the
+primary, most thoroughly tested platform. The Windows installer uses IGSTK for
+tracking and has not been as extensively tested and verified as the Ubuntu builds.
 
 On Ubuntu, download `installFraxinus.sh` and run:
 
