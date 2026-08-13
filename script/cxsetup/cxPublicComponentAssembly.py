@@ -2,6 +2,7 @@
 
 import os
 import platform
+import sys
 
 import cx.build.cxComponents
 import cx.build.cxComponentAssembly
@@ -35,6 +36,15 @@ class PrivateControlData(cx.build.cxInstallData.Common):
         self.mBuildIGSTK = self._igstk_supported() # Build with IGSK tracking for Ubuntu 20 and 22
 
     def _igstk_supported(self):
+        # --igstk/--skip_igstk are registered generically for every installer in
+        # cx.build.cxInstallData.Common.fillParser(), but that parsing happens after
+        # LibraryAssembly.__init__ has already picked oldVTK/ITK/IGSTK vs the new
+        # VTK/ITK based on mBuildIGSTK, so an explicit CLI flag must be honoured here
+        # too (checked against sys.argv directly, ahead of the normal parser).
+        if '--igstk' in sys.argv:
+            return True
+        if '--skip_igstk' in sys.argv:
+            return False
         # CI sets BUILD_IGSTK explicitly; honour it so the Python installer
         # stays in sync with the shell-side IGSTK_LIBS / tarball selection.
         build_igstk = os.environ.get('BUILD_IGSTK', '').lower()
