@@ -80,11 +80,11 @@ create-release:
       # filepath enables the permalink/latest/downloads/installFraxinus.sh shortcut,
       # so the README install command doesn't need updating on every release.
       LINKS=$(jq -n --arg url "$INSTALL_URL" \
-        '[{name: "Fraxinus installer script (all Ubuntu versions)", url: $url, link_type: "package", filepath: "installFraxinus.sh"}]')
+        '[{name: "Fraxinus installer script (all Ubuntu versions)", url: $url, link_type: "package", filepath: "/installFraxinus.sh"}]')
 
       DESCRIPTION=$(jq -Rs . < "$NOTES_MD")
 
-      curl --fail --request POST --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+      curl --fail-with-body --request POST --header "JOB-TOKEN: $CI_JOB_TOKEN" \
         --header "Content-Type: application/json" \
         --data "$(jq -n --arg tag "$CI_COMMIT_TAG" --argjson links "$LINKS" --argjson desc "$DESCRIPTION" \
           '{tag_name: $tag, name: $tag, description: $desc, assets: {links: $links}}')" \
