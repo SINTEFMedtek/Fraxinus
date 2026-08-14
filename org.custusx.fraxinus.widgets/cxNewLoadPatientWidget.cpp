@@ -67,8 +67,7 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	mCheckBoxLymphNodes->setChecked(false);
 	mStatusLabelLymphNodes = new QLabel("~2 min");
 
-	mCheckBoxHeart = new QCheckBox("Pulmonary System");
-	mCheckBoxHeart->setToolTip("Heart, Pulmonary Veins, Pulmonary Trunk");
+	mCheckBoxHeart = new QCheckBox("Heart");
 	mCheckBoxHeart->setChecked(false);
 	mStatusLabelHeart = new QLabel("~4 min");
 
@@ -85,7 +84,8 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	mCheckBoxTumors->setChecked(false);
 	mStatusLabelTumors = new QLabel("~5 min");
 
-	mCheckBoxLungVessels = new QCheckBox("Small Vessels");
+	mCheckBoxLungVessels = new QCheckBox("Pulmonary arteries and veins");
+	mCheckBoxLungVessels->setToolTip("Pulmonary Arteries, Pulmonary Veins");
 	mCheckBoxLungVessels->setChecked(false);
 	mStatusLabelLungVessels = new QLabel("~5 min");
 
@@ -340,7 +340,7 @@ void NewLoadPatientWidget::updateSegmentationCheckBoxes()
 		setPending(mStatusLabelTumors, "~5 min");
 	}
 
-	if(patientValid && mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
+	if(patientValid && mServices->patient()->getData<Mesh>(otPULMONARY_ARTERIES))
 		setDone(mCheckBoxLungVessels, mStatusLabelLungVessels);
 	else
 	{
