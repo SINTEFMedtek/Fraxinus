@@ -164,7 +164,7 @@ void FraxinusSegmentations::createSelectSegmentationBox()
 	connect(mCancelbutton, &QPushButton::clicked, this, &FraxinusSegmentations::cancel);
 	
 	QVBoxLayout* checkBoxLayout = new QVBoxLayout;
-	for (LUNG_STRUCTURES key : {lsAIRWAYS, lsLYMPH_NODES, lsHEART, lsMEDIUM_ORGANS, lsSMALL_ORGANS, lsTUMOR, lsLUNG_VESSELS, lsLOBE})
+	for (LUNG_STRUCTURES key : {lsAIRWAYS, lsLYMPH_NODES, lsHEART, lsMEDIUM_ORGANS, lsSMALL_ORGANS, lsTUMOR, lsPULMONARY_ARTERIES_VEINS, lsLOBE})
 		if (QCheckBox* cb = mCheckBoxes.value(key, nullptr))
 			checkBoxLayout->addWidget(cb);
 	checkBoxLayout->addWidget(mCheckBoxSelectAll);
@@ -214,13 +214,13 @@ void FraxinusSegmentations::updateSelectSegmentationBox()
 	cbAirways->setDisabled(true);
 
 	setupCheckBox(lsLYMPH_NODES,   "Lymph Nodes",             kMinLymphNodes,   bool(mServices->patient()->getData<Mesh>(otLYMPH_NODES))  || mLymphNodesProcessed,   QString());
-	setupCheckBox(lsHEART,         "Pulmonary System",         kMinHeart,        bool(mServices->patient()->getData<Mesh>(otHEART))        || mHeartProcessed,
-	              "Heart, Pulmonary Veins, Pulmonary Trunk");
+	setupCheckBox(lsHEART,         "Heart",                    kMinHeart,        bool(mServices->patient()->getData<Mesh>(otHEART))        || mHeartProcessed,       QString());
 	setupCheckBox(lsMEDIUM_ORGANS, "Vena Cava, Aorta, Spine", kMinMediumOrgans, bool(mServices->patient()->getData<Mesh>(otSPINE))        || mMediumOrgansProcessed, QString());
 	setupCheckBox(lsSMALL_ORGANS,  "Small Mediastinal Organs", kMinSmallOrgans,  bool(mServices->patient()->getData<Mesh>(otESOPHAGUS))    || mSmallOrgansProcessed,
 	              "Subcarinal Artery, Esophagus, Brachiocephalic Veins, Azygos");
 	setupCheckBox(lsTUMOR,         "Tumors",                   kMinTumors,       bool(mServices->patient()->getData<Mesh>(otTUMOR))        || mTumorsProcessed,       QString());
-	setupCheckBox(lsLUNG_VESSELS,  "Small Vessels",            kMinLungVessels,  bool(mServices->patient()->getData<Mesh>(otLUNG_VESSELS)) || mLungVesselsProcessed,  QString());
+	setupCheckBox(lsPULMONARY_ARTERIES_VEINS, "Pulmonary Arteries and Veins", kMinLungVessels, bool(mServices->patient()->getData<Mesh>(otPULMONARY_ARTERIES)) || mLungVesselsProcessed,
+	              "Pulmonary Arteries, Pulmonary Veins");
 	setupCheckBox(lsLOBE,          "Lung Lobes",               kMinLungLobes,    bool(mServices->patient()->getData<Mesh>(otLOBE_LUL))     || mLungLobesProcessed,    QString());
 
 	if (!mCheckBoxSelectAll)
@@ -242,7 +242,7 @@ void FraxinusSegmentations::imageSelected()
 		return cb && cb->isChecked();
 	};
 	mSegmentAirways      = isChecked(lsAIRWAYS);
-	mSegmentLungVessels  = isChecked(lsLUNG_VESSELS);
+	mSegmentLungVessels  = isChecked(lsPULMONARY_ARTERIES_VEINS);
 	mSegmentLungLobes    = isChecked(lsLOBE);
 	mSegmentLymphNodes   = isChecked(lsLYMPH_NODES);
 	mSegmentHeart        = isChecked(lsHEART);
@@ -404,11 +404,11 @@ QGridLayout* FraxinusSegmentations::buildProcessingInfoLayout()
 		addRow(lsCENTERLINES, "Airways centerlines", 0,           false, done);
 	}
 	if (mSegmentLungVessels)
-		addRow(lsLUNG_VESSELS,   "Small vessels",             kMinLungVessels,  false, bool(mServices->patient()->getData<Mesh>(otLUNG_VESSELS)));
+		addRow(lsPULMONARY_ARTERIES_VEINS, "Pulmonary arteries and veins", kMinLungVessels, false, bool(mServices->patient()->getData<Mesh>(otPULMONARY_ARTERIES)));
 	if (mSegmentLymphNodes)
 		addRow(lsLYMPH_NODES,    "Lymph Nodes",               kMinLymphNodes,   true,  bool(mServices->patient()->getData<Mesh>(otLYMPH_NODES)));
 	if (mSegmentHeart)
-		addRow(lsHEART,          "Pulmonary System",           kMinHeart,        true,  bool(mServices->patient()->getData<Mesh>(otHEART)));
+		addRow(lsHEART,          "Heart",                      kMinHeart,        true,  bool(mServices->patient()->getData<Mesh>(otHEART)));
 	if (mSegmentMediumOrgans)
 		addRow(lsMEDIUM_ORGANS,  "Vena Cava, Aorta, Spine",   kMinMediumOrgans, true,  bool(mServices->patient()->getData<Mesh>(otSPINE)));
 	if (mSegmentSmallOrgans)
@@ -517,7 +517,7 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	if(!image)
 		return;
 
-	if(mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
+	if(mServices->patient()->getData<Mesh>(otPULMONARY_ARTERIES))
 		mLungVesselsProcessed = true;
 	if(mServices->patient()->getData<Mesh>(otLOBE_LUL))
 		mLungLobesProcessed = true;
@@ -551,11 +551,11 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 	}
 	else if(!mLungVesselsProcessed && mSegmentLungVessels)
 	{
-		mActiveTimerWidget = mTimerWidgets.value(lsLUNG_VESSELS, nullptr);
+		mActiveTimerWidget = mTimerWidgets.value(lsPULMONARY_ARTERIES_VEINS, nullptr);
 		if(mActiveTimerWidget)
 			mActiveTimerWidget->start();
 		scriptFilter->setParameterFilePath(DataLocations::getFilterScriptsPath() + "python_LungVessels.ini");
-		mCurrentSegmentationType = lsLUNG_VESSELS;
+		mCurrentSegmentationType = lsPULMONARY_ARTERIES_VEINS;
 		mLungVesselsProcessed = true;
 		input[0]->setValue(image->getUid());
 	}
@@ -828,7 +828,7 @@ void FraxinusSegmentations::pythonFinishedSlot()
 
 	if(mCurrentSegmentationType == lsLOBE && (mSegmentLungVessels || mSegmentTumors))
 		this->performPythonSegmentation(mServices->patient()->getImage(imCT, istCOPY));
-	else if(mCurrentSegmentationType == lsLUNG_VESSELS && mSegmentTumors)
+	else if(mCurrentSegmentationType == lsPULMONARY_ARTERIES_VEINS && mSegmentTumors)
 		this->performPythonSegmentation(this->mServices->patient()->getImage(imCT, istCOPY));
 	else
 		this->performMLSegmentation(mServices->patient()->getImage(imCT, istCOPY));
@@ -1242,8 +1242,6 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 				mHeartProcessed = true;
 			stopTimer(otHEART);
 			setMeshName(otHEART);
-			setMeshName(otPULMONARY_VEINS);
-			setMeshName(otPULMONARY_TRUNK);
 		}
 		if(mSegmentMediumOrgans)
 		{
@@ -1276,10 +1274,12 @@ void FraxinusSegmentations::checkIfSegmentationSucceeded()
 		mNodulesProcessed = true;
 		stopTimer(otNODULES, true);
 	}
-	else if(mCurrentSegmentationType == lsLUNG_VESSELS)
+	else if(mCurrentSegmentationType == lsPULMONARY_ARTERIES_VEINS)
 	{
 		mLungVesselsProcessed = true;
-		setMeshNameAndStopTimer(otLUNG_VESSELS);
+		stopTimer(otPULMONARY_ARTERIES);
+		setMeshName(otPULMONARY_ARTERIES);
+		setMeshName(otPULMONARY_VEINS);
 	}
 	else if(mCurrentSegmentationType == lsLOBE)
 	{
@@ -1350,8 +1350,6 @@ DisplayTimerWidget* FraxinusSegmentations::getTimer(ORGAN_TYPE target)
 	case otLYMPH_NODES:
 		key = lsLYMPH_NODES; break;
 	case otHEART:
-	case otPULMONARY_VEINS:
-	case otPULMONARY_TRUNK:
 		key = lsHEART; break;
 	case otVENA_CAVA:
 	case otAORTIC_ARCH:
@@ -1368,8 +1366,9 @@ DisplayTimerWidget* FraxinusSegmentations::getTimer(ORGAN_TYPE target)
 		key = lsTUMOR; break;
 	case otNODULES:
 		key = lsNODULES; break;
-	case otLUNG_VESSELS:
-		key = lsLUNG_VESSELS; break;
+	case otPULMONARY_ARTERIES:
+	case otPULMONARY_VEINS:
+		key = lsPULMONARY_ARTERIES_VEINS; break;
 	case otLOBE_LUL:
 	case otLOBE_LLL:
 	case otLOBE_RUL:
@@ -1390,8 +1389,6 @@ QProgressBar* FraxinusSegmentations::getProgressBar(LUNG_STRUCTURES type)
 	switch (type)
 	{
 	case lsLUNG:            return mProgressBars.value(lsAIRWAYS, nullptr);
-	case lsPULMONARY_VEINS:
-	case lsPULMONARY_TRUNK: return mProgressBars.value(lsHEART, nullptr);
 	case lsVENA_CAVA:
 	case lsAORTA:
 	case lsSPINE:           return mProgressBars.value(lsMEDIUM_ORGANS, nullptr);

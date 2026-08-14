@@ -197,8 +197,9 @@ cd TotalSegmentator
 $PYTHON_CMD -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
-pip install TotalSegmentator
+pip install --upgrade TotalSegmentator
 totalseg_download_weights -t total
+totalseg_download_weights -t total_fast
 totalseg_download_weights -t lung_vessels
 totalseg_download_weights -t lung_nodules
 deactivate
