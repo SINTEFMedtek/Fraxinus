@@ -179,6 +179,8 @@
       <span>David Bouget<sup>1</sup><a class="orcid-link" href="https://orcid.org/0000-0002-5669-9514" title="ORCID"><svg class="orcid-icon" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><circle cx="128" cy="128" r="128" fill="#A6CE39"/><path d="M86 186H70V79h16v107zm-8-121a10 10 0 110-20 10 10 0 010 20zm108 121h-16v-52c0-12-.3-28-17-28-17 0-20 14-20 27v53h-16V79h15v15c2-4 7-8 15-8 15 0 39 10 39 45v55z" fill="white"/></svg></a>,</span>
       <span>Thomas Lang&#248;<sup>1,2</sup><a class="orcid-link" href="https://orcid.org/0000-0002-2824-6120" title="ORCID"><svg class="orcid-icon" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><circle cx="128" cy="128" r="128" fill="#A6CE39"/><path d="M86 186H70V79h16v107zm-8-121a10 10 0 110-20 10 10 0 010 20zm108 121h-16v-52c0-12-.3-28-17-28-17 0-20 14-20 27v53h-16V79h15v15c2-4 7-8 15-8 15 0 39 10 39 45v55z" fill="white"/></svg></a>,</span>
       <span>Arne Kildahl-Andersen<sup>3,4</sup><a class="orcid-link" href="https://orcid.org/0000-0002-3911-5222" title="ORCID"><svg class="orcid-icon" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><circle cx="128" cy="128" r="128" fill="#A6CE39"/><path d="M86 186H70V79h16v107zm-8-121a10 10 0 110-20 10 10 0 010 20zm108 121h-16v-52c0-12-.3-28-17-28-17 0-20 14-20 27v53h-16V79h15v15c2-4 7-8 15-8 15 0 39 10 39 45v55z" fill="white"/></svg></a>,</span>
+      <span>Hanne Sorger<sup>4,5</sup><a class="orcid-link" href="https://orcid.org/0000-0002-9968-3491" title="ORCID"><svg class="orcid-icon" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><circle cx="128" cy="128" r="128" fill="#A6CE39"/><path d="M86 186H70V79h16v107zm-8-121a10 10 0 110-20 10 10 0 010 20zm108 121h-16v-52c0-12-.3-28-17-28-17 0-20 14-20 27v53h-16V79h15v15c2-4 7-8 15-8 15 0 39 10 39 45v55z" fill="white"/></svg></a>,</span>
+      <span>Tore Amundsen<sup>3,4</sup><a class="orcid-link" href="https://orcid.org/0000-0002-4714-1949" title="ORCID"><svg class="orcid-icon" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><circle cx="128" cy="128" r="128" fill="#A6CE39"/><path d="M86 186H70V79h16v107zm-8-121a10 10 0 110-20 10 10 0 010 20zm108 121h-16v-52c0-12-.3-28-17-28-17 0-20 14-20 27v53h-16V79h15v15c2-4 7-8 15-8 15 0 39 10 39 45v55z" fill="white"/></svg></a>,</span>
       <span>H&#229;kon Olav Leira<sup>3,4</sup><a class="orcid-link" href="https://orcid.org/0000-0003-0845-3891" title="ORCID"><svg class="orcid-icon" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><circle cx="128" cy="128" r="128" fill="#A6CE39"/><path d="M86 186H70V79h16v107zm-8-121a10 10 0 110-20 10 10 0 010 20zm108 121h-16v-52c0-12-.3-28-17-28-17 0-20 14-20 27v53h-16V79h15v15c2-4 7-8 15-8 15 0 39 10 39 45v55z" fill="white"/></svg></a></span>
     </div>
     <div class="affil-list">
@@ -186,6 +188,7 @@
       <span><sup>2</sup> National Research Center for Minimally Invasive and Image-Guided Diagnostics and Therapy, St. Olavs Hospital, 7030 Trondheim, Norway</span>
       <span><sup>3</sup> Department of Thoracic Medicine, St. Olavs Hospital, 7030 Trondheim, Norway</span>
       <span><sup>4</sup> Department of Circulation and Medical Imaging, Faculty of Medicine and Health Sciences, Norwegian University of Science and Technology, 7030 Trondheim, Norway</span>
+      <span><sup>5</sup> Clinic of Medicine, Nord-Tr&#248;ndelag Hospital Trust, Levanger Hospital, 7601 Levanger, Norway</span>
     </div>
   </div>
 
@@ -228,8 +231,9 @@
         pipeline for pre-procedural bronchoscopy planning, with a primary focus on lung cancer
         staging and diagnosis. Key capabilities include automatic multi-organ segmentation from
         CT images using deep learning, PET-CT fusion for metabolically active lymph node
-        visualization, route computation through the airway tree to pulmonary lesions, and
-        virtual bronchoscopy. The software is written in C++ with Qt for the user interface
+        visualization, route computation through the airway tree to pulmonary lesions, virtual
+        bronchoscopy, and an endobronchial ultrasound (EBUS) simulator for rehearsing navigated
+        lymph node sampling. The software is written in C++ with Qt for the user interface
         and runs on Windows and Ubuntu. The platform runs on commodity hardware and supports
         both CPU and GPU execution, allowing it to run on a modern laptop while remaining
         compatible with GPU acceleration where available.
@@ -248,7 +252,7 @@
         diagnostic tool for pulmonary lesions, but the diagnostic yield for peripherally
         located, bronchoscopically non-visible tumors is as low as 14&#8211;20% for lesions
         smaller than 2 cm in the outer third of the lung [<a href="#ref4">4</a>, <a href="#ref5">5</a>], compared with around
-        80% for centrally visible lesions. Pre-procedural planning by computing routes through
+        80% for centrally visible lesions [<a href="#ref25">25</a>]. Pre-procedural planning by computing routes through
         the airway tree to the target lesion and rehearsing the procedure with virtual
         bronchoscopy (VB) raises the diagnostic yield substantially [<a href="#ref6">6</a>].
       </p>
@@ -309,7 +313,9 @@
         <strong><code>org.custusx.fraxinus.widgets</code></strong> contains all user-facing
         interface components. Key widgets handle patient loading, DICOM import, segmented
         structure visibility, target pinpointing in multi-planar views, virtual bronchoscopy
-        visualization, and procedure planning.
+        visualization with an integrated EBUS simulator that renders
+        a simulated ultrasound sector from the CT to rehearse navigated lymph node sampling, and
+        procedure planning.
       </p>
       <p>
         The segmentation pipeline automatically extracts airways, lungs, lung lobes, lymph
@@ -431,6 +437,7 @@
           <li id="ref22"><span class="ref-num">22.</span> Kildahl-Andersen, A. et al. (2024). Navigated ultrasound bronchoscopy with integrated positron emission tomography &#8212; a human feasibility study. <em>PLOS ONE</em>, 19(8), e0305785. <a href="https://doi.org/10.1371/journal.pone.0305785">doi:10.1371/journal.pone.0305785</a></li>
           <li id="ref23"><span class="ref-num">23.</span> Chen, X.-Y. et al. (2023). Design of a Teleoperated Robotic Bronchoscopy System for Peripheral Pulmonary Lesion Biopsy. arXiv:2306.09598. <a href="https://doi.org/10.48550/arXiv.2306.09598">doi:10.48550/arXiv.2306.09598</a></li>
           <li id="ref24"><span class="ref-num">24.</span> Gruionu, L.G. et al. (2024). Design and Technical Feasibility Testing of a Medical Robot for Flexible Catheter Navigation Inside the Lung Airways. <em>bioRxiv</em> (preprint). <a href="https://doi.org/10.1101/2024.05.01.592024">doi:10.1101/2024.05.01.592024</a></li>
+          <li id="ref25"><span class="ref-num">25.</span> Rivera, M.P. et al. (2013). Establishing the Diagnosis of Lung Cancer: Diagnosis and Management of Lung Cancer, 3rd ed: American College of Chest Physicians Evidence-Based Clinical Practice Guidelines. <em>Chest</em>, 143(5), e142S&#8211;e165S. <a href="https://doi.org/10.1378/chest.12-2353">doi:10.1378/chest.12-2353</a></li>
         </ol>
       </div>
 
