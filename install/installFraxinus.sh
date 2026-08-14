@@ -234,4 +234,4 @@ fi
 echo ""
 echo "---------- Fraxinus installation complete ----------"
 echo "Launch Fraxinus from the desktop shortcut or run:"
-echo "  $HOME/Fraxinus/bin/Fraxinus"
+echo "  cd $HOME/Fraxinus/bin && ./Fraxinus"
