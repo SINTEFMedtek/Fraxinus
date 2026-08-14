@@ -14,8 +14,13 @@ default:
   image: gitlab.sintef.no:5050/custusx/custusx/custusx-build-ubuntu2004:26.04.02
 
 stages:
-  - build
-  - test
+  # Platforms build+test serially (24 -> 22 -> 20) to reduce concurrent runner load.
+  - build-24
+  - test-24
+  - build-22
+  - test-22
+  - build-20
+  - test-20
   - deploy
 
 variables:
