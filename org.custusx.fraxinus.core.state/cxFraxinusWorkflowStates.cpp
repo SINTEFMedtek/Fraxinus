@@ -539,25 +539,20 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 	if(subClavianArt)
 		SubclavianObjects.push_back(subClavianArt);
 	
-	std::vector<DataPtr> smallVesselsObjects;
-	MeshPtr smallVessels = mServices->patient()->getData<Mesh>(otLUNG_VESSELS);
-	if(smallVessels)
-		smallVesselsObjects.push_back(smallVessels);
-	
+	std::vector<DataPtr> pulmonaryArteriesObjects;
+	MeshPtr pulmonaryArteries = mServices->patient()->getData<Mesh>(otPULMONARY_ARTERIES);
+	if(pulmonaryArteries)
+		pulmonaryArteriesObjects.push_back(pulmonaryArteries);
+
+	std::vector<DataPtr> pulmonaryVeinsObjects;
+	MeshPtr pulmonaryVeins = mServices->patient()->getData<Mesh>(otPULMONARY_VEINS);
+	if(pulmonaryVeins)
+		pulmonaryVeinsObjects.push_back(pulmonaryVeins);
+
 	std::vector<DataPtr> heartObjects;
 	MeshPtr heart = mServices->patient()->getData<Mesh>(otHEART);
 	if(heart)
 		heartObjects.push_back(heart);
-
-	std::vector<DataPtr> pulmonaryVeinObjects;
-	MeshPtr pulmonaryVeins = mServices->patient()->getData<Mesh>(otPULMONARY_VEINS);
-	if(pulmonaryVeins)
-		pulmonaryVeinObjects.push_back(pulmonaryVeins);
-	
-	std::vector<DataPtr> pulmonaryTrunkObjects;
-	MeshPtr pulmonaryTrunk = mServices->patient()->getData<Mesh>(otPULMONARY_TRUNK);
-	if(pulmonaryTrunk)
-		pulmonaryTrunkObjects.push_back(pulmonaryTrunk);
 
 	std::vector<DataPtr> esophagusObjects;
 	MeshPtr esophagus = mServices->patient()->getData<Mesh>(otESOPHAGUS);
@@ -578,8 +573,10 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 		widget->addObject(lsLYMPH_NODES, object);
 	for(DataPtr object : spineObjects)
 		widget->addObject(lsSPINE, object);
-	for(DataPtr object : smallVesselsObjects)
-		widget->addObject(lsLUNG_VESSELS, object);
+	for(DataPtr object : pulmonaryArteriesObjects)
+		widget->addObject(lsPULMONARY_ARTERIES, object);
+	for(DataPtr object : pulmonaryVeinsObjects)
+		widget->addObject(lsPULMONARY_VEINS, object);
 	for(DataPtr object : VenaCavaObjects)
 		widget->addObject(lsVENA_CAVA, object);
 	for(DataPtr object : AzygosObjects)
@@ -590,10 +587,6 @@ void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSel
 		widget->addObject(lsSUBCLAVIAN_ARTERY, object);
 	for(DataPtr object : heartObjects)
 		widget->addObject(lsHEART, object);
-	for(DataPtr object : pulmonaryVeinObjects)
-		widget->addObject(lsPULMONARY_VEINS, object);
-	for(DataPtr object : pulmonaryTrunkObjects)
-		widget->addObject(lsPULMONARY_TRUNK, object);
 	for(DataPtr object : esophagusObjects)
 		widget->addObject(lsESOPHAGUS, object);
 
