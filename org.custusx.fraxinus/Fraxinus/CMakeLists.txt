@@ -44,7 +44,25 @@ if(APPLE)
     add_executable(Fraxinus MACOSX_BUNDLE ${SOURCES} ) #APPLE
 else(APPLE)
     if(CX_WINDOWS)
-        add_executable(Fraxinus ${SOURCES} CustusX.rc) #WINDOWS
+        # CustusX.rc only references a local .ico file, but adding it as a normal
+        # source of the Fraxinus target (CMake's native RC-language handling) makes
+        # it inherit the target's entire aggregated include-directory list (every
+        # linked VTK/ITK/CTK/... module), same as any .cpp file. Unlike cl.exe,
+        # rc.exe has no response-file fallback for long command lines, so once
+        # enough dependencies are linked in (e.g. the private plugins) this trips
+        # Windows' ~32767-char command-line limit ("CreateProcess failed...
+        # command line too long"). Compile it via a plain custom command instead,
+        # so it only ever sees the two paths it actually needs.
+        set(CX_RC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/CustusX.rc")
+        set(CX_RES_FILE "${CMAKE_CURRENT_BINARY_DIR}/CustusX.res")
+        add_custom_command(
+            OUTPUT ${CX_RES_FILE}
+            COMMAND ${CMAKE_RC_COMPILER} /fo ${CX_RES_FILE} ${CX_RC_FILE}
+            DEPENDS ${CX_RC_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/icons/Fraxinus.ico"
+            COMMENT "Compiling CustusX.rc"
+            VERBATIM
+        )
+        add_executable(Fraxinus ${SOURCES} ${CX_RES_FILE}) #WINDOWS
         set_target_properties(Fraxinus PROPERTIES LINK_FLAGS    "/MANIFESTUAC:\"level='asInvoker' uiAccess='false'\"")
     else()
         add_executable(Fraxinus ${SOURCES} ) #LINUX
