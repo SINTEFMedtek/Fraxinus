@@ -786,8 +786,13 @@ void PatientWorkflowState::onExit(QEvent * event)
 		           this, &PatientWorkflowState::onExistingPatientLoaded);
 	}
 	if(mFraxinusSegmentations)
+	{
 		disconnect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished,
 		           this, &PatientWorkflowState::segmentationFinished);
+		if(mNewLoadPatientWidget)
+			disconnect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished,
+			           mNewLoadPatientWidget, &NewLoadPatientWidget::segmentationFinished);
+	}
 	WorkflowState::onExit(event);
 }
 
@@ -821,6 +826,8 @@ void PatientWorkflowState::runSegmentation()
 	if (!loadWidget)
 		return;
 
+	loadWidget->segmentationStarted();
+
 	if (!mFraxinusSegmentations)
 		mFraxinusSegmentations = FraxinusSegmentationsPtr(new FraxinusSegmentations(mRegServices));
 
@@ -839,6 +846,8 @@ void PatientWorkflowState::runSegmentation()
 
 	connect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished,
 	        this, &PatientWorkflowState::segmentationFinished, Qt::UniqueConnection);
+	connect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished,
+	        loadWidget, &NewLoadPatientWidget::segmentationFinished, Qt::UniqueConnection);
 }
 
 void PatientWorkflowState::setImportWorkflowState(ImportWorkflowState* state)

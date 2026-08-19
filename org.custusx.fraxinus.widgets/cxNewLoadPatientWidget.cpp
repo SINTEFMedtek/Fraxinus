@@ -36,23 +36,23 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	this->setObjectName(this->getWidgetName());
 	this->setWindowTitle("Create or select patient");
 
-	QPushButton* newButton = new QPushButton("&Create new patient");
+	QPushButton* newButton = new QPushButton("  &Create new patient");
 	const QSize BUTTON_SIZE = QSize(1, 80);
 	newButton->setMinimumSize(BUTTON_SIZE);
 	newButton->setIcon(QIcon(":/icons/icons/add.svg"));
 	connect(newButton, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatient);
 
-	QPushButton* newButtonFromUSB = new QPushButton("&Create new patient from USB");
+	QPushButton* newButtonFromUSB = new QPushButton("  &Create new patient from USB\n  and run segmentation");
 	newButtonFromUSB->setMinimumSize(BUTTON_SIZE);
 	newButtonFromUSB->setIcon(QIcon(":/icons/icons/add.svg"));
 	connect(newButtonFromUSB, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatientFromUSB);
 
-	QPushButton* loadButton = new QPushButton("&Load existing patient");
+	QPushButton* loadButton = new QPushButton("  &Load existing patient");
 	loadButton->setMinimumSize(BUTTON_SIZE);
 	loadButton->setIcon(QIcon(":/icons/icons/select.svg"));
 	connect(loadButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadPatient);
 
-	mSelectCTDataButton = new QPushButton("&Select CT data");
+	mSelectCTDataButton = new QPushButton("  &Select CT data");
 	mSelectCTDataButton->setIcon(QIcon(":/icons/icons/import.svg"));
 	mSelectCTDataButton->setEnabled(false);
 	connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataDialog);
@@ -132,6 +132,9 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->addSpacing(50);
+	layout->addWidget(segmentationGroup);
+	layout->addWidget(mRunSegmentationButton);
+	layout->addSpacing(50);
 	layout->addWidget(newButtonFromUSB);
 	layout->addSpacing(25);
 	layout->addWidget(newButton);
@@ -140,9 +143,7 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	layout->addSpacing(50);
 
 	layout->addWidget(mSelectCTDataButton);
-	layout->addSpacing(10);
-	layout->addWidget(segmentationGroup);
-	layout->addWidget(mRunSegmentationButton);
+
 
 	mProcessingInfoGroup = new QGroupBox("Segmentation status");
 	mProcessingInfoGroup->setVisible(false);
@@ -271,7 +272,19 @@ void NewLoadPatientWidget::updateRunSegmentationButton()
 {
 	bool ctLoaded = mServices->patient()->getImage(imCT, istTHORAX_CT) != nullptr;
 	bool patientValid = mServices->patient()->isPatientValid();
-	mRunSegmentationButton->setEnabled(ctLoaded && patientValid);
+	mRunSegmentationButton->setEnabled(ctLoaded && patientValid && !mSegmentationRunning);
+}
+
+void NewLoadPatientWidget::segmentationStarted()
+{
+	mSegmentationRunning = true;
+	mRunSegmentationButton->setEnabled(false);
+}
+
+void NewLoadPatientWidget::segmentationFinished()
+{
+	mSegmentationRunning = false;
+	this->updateRunSegmentationButton();
 }
 
 void NewLoadPatientWidget::updateSegmentationCheckBoxes()

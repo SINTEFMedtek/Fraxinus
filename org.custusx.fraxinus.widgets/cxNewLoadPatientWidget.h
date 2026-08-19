@@ -64,6 +64,10 @@ public:
 	bool isLungVesselsChecked() const;
 	bool isLungLobesChecked() const;
 
+public slots:
+	void segmentationStarted();
+	void segmentationFinished();
+
 private slots:
 	void createNewPatient();
 	void createNewPatientFromUSB();
@@ -122,6 +126,7 @@ private:
 	bool mThoraxCTLoaded = false;
 	bool mPETLoaded = false;
 	bool mSkipDataLoadedInfo = false;
+	bool mSegmentationRunning = false;
 };
 
 }
