@@ -1074,7 +1074,9 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	if(!targetPoint && pinPointWidget)
 	{
-		pinPointWidget->createPointMetric();
+		// Auto-created fallback (no target set yet): seed it inside the CT volume rather
+		// than at the active tool's tip, which has no meaningful position at this point.
+		pinPointWidget->createPointMetricAtImageCenter();
 		targetPoint = this->getTargetPoint();
 	}
 

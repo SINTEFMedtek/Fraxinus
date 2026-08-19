@@ -63,6 +63,7 @@ public:
 	StructuresSelectionWidget* getStructuresSelectionWidget();
 	TumorInformationWidget* getTumorInformationWidget();
 	void createPointMetric();
+	void createPointMetricAtImageCenter();
 	void addAirwayMetric();
 	void deleteLastAirwayMetric();
 	bool getAirwayPointsOption();
