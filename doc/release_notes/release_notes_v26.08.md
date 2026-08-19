@@ -42,7 +42,7 @@ _Changes since v22.09_
 | [Fraxinus#6](https://gitlab.sintef.no/custusx/fraxinus/-/issues/6) | 2D view jumping during target selection | Disabled "center to tool" in 2D views for the Pinpoint and Procedure Planning workflows, since it caused 2D slices to jump distractingly when selecting a new position. |
 | [Fraxinus#5](https://gitlab.sintef.no/custusx/fraxinus/-/issues/5) | PET elastix registration misalignment | Fixed a mismatch between CT and PET-CT after PET/Elastix registration by tuning registration parameters. |
 | [Fraxinus#3](https://gitlab.sintef.no/custusx/fraxinus/-/issues/3) | Tumor segmentation failure on new GPU hardware | Fixed a GPU-related failure in lung tumor segmentation (LungTumorMask) by forcing it to run on CPU. |
-| [CustusX#20](https://gitlab.sintef.no/custusx/custusx/-/issues/20) | GenericScriptFilter path handling | Fixed script configuration file path handling for GenericScriptFilter in CustusS and Fraxinus. |
+| [CustusX#20](https://gitlab.sintef.no/custusx/custusx/-/issues/20) | GenericScriptFilter path handling | Fixed script configuration file path handling for GenericScriptFilter in CustusX and Fraxinus. |
 
 ## Known Issues
 
