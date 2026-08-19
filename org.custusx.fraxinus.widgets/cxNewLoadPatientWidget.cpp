@@ -129,6 +129,8 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	        this, &NewLoadPatientWidget::updateSegmentationCheckBoxes);
 	connect(mServices->patient().get(), &PatientModelService::patientChanged,
 	        this, &NewLoadPatientWidget::updateSegmentationCheckBoxes);
+	connect(mServices->patient().get(), &PatientModelService::patientChanged,
+	        this, &NewLoadPatientWidget::segmentationFinished);
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->addSpacing(50);
