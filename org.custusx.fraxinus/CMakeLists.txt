@@ -77,14 +77,17 @@ if(CX_WINDOWS)
 
   install(FILES
     ${CMAKE_CURRENT_LIST_DIR}/installRaidionics.ps1
+    ${CMAKE_CURRENT_LIST_DIR}/FraxinusInstallHelpers.ps1
     DESTINATION .
     COMPONENT RaidionicsSetup)
   install(FILES
     ${CMAKE_CURRENT_LIST_DIR}/installTotalsegmentator.ps1
+    ${CMAKE_CURRENT_LIST_DIR}/FraxinusInstallHelpers.ps1
     DESTINATION .
     COMPONENT TotalSegSetup)
   install(FILES
     ${CMAKE_CURRENT_LIST_DIR}/installElastix.ps1
+    ${CMAKE_CURRENT_LIST_DIR}/FraxinusInstallHelpers.ps1
     DESTINATION .
     COMPONENT ElastixSetup)
 
