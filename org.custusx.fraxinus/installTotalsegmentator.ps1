@@ -66,16 +66,26 @@ try {
     # ---------------------------
     # 7) Install TotalSegmentator
     # ---------------------------
+    # Pinned: TotalSegmentator has changed its CLI between releases (e.g. the
+    # weights downloader moved from `python -m totalsegmentator.download_weights`
+    # to the totalseg_download_weights console script), which silently broke
+    # this installer. Bump this deliberately, and re-check the download-weights
+    # invocation below, when updating.
+    $TotalSegmentatorVersion = "2.18.0"
     Invoke-FraxinusStep -Description "Installing TotalSegmentator" -Action {
-        & $VenvPython -m pip install TotalSegmentator
+        & $VenvPython -m pip install "TotalSegmentator==$TotalSegmentatorVersion"
     }
 
     # ---------------------------
     # 8) Download weights
     # ---------------------------
+    # `python -m totalsegmentator.download_weights` was removed in newer
+    # TotalSegmentator releases; the weights downloader is now the
+    # totalseg_download_weights console script installed into the venv.
+    $DownloadWeights = Join-Path $venvDir "Scripts\totalseg_download_weights.exe"
     foreach ($task in @('total', 'lung_vessels', 'lung_nodules')) {
         Invoke-FraxinusStep -Description "Downloading TotalSegmentator weights ($task)" -Action {
-            & $VenvPython -m totalsegmentator.download_weights -t $task
+            & $DownloadWeights -t $task
         }
     }
 

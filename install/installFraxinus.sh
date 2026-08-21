@@ -197,7 +197,12 @@ cd TotalSegmentator
 $PYTHON_CMD -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
-pip install --upgrade TotalSegmentator
+# Pinned: TotalSegmentator has changed its CLI between releases (e.g. the
+# weights downloader moved from `python -m totalsegmentator.download_weights`
+# to the totalseg_download_weights console script), which silently broke the
+# Windows installer. Bump this deliberately, and re-check the
+# totalseg_download_weights invocation below, when updating.
+pip install "TotalSegmentator==2.18.0"
 totalseg_download_weights -t total
 totalseg_download_weights -t total_fast
 totalseg_download_weights -t lung_vessels
