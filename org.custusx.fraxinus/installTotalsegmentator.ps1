@@ -58,9 +58,16 @@ try {
     # ---------------------------
     # 6) Install CUDA-enabled PyTorch
     # ---------------------------
-    # For CUDA 11.8 wheels (works on most Windows GPUs, safe default)
+    # For CUDA 11.8 wheels (works on most Windows GPUs, safe default).
+    # torchvision must be installed together with torch from this same index:
+    # TotalSegmentator (via timm) pulls in torchvision as a transitive
+    # dependency, and if it isn't already present, pip resolves it (and can
+    # silently upgrade torch along with it) from the default PyPI index
+    # instead, producing a torch/torchvision pair that don't share a build -
+    # which fails at runtime with "RuntimeError: operator torchvision::nms
+    # does not exist" as soon as a segmentation is actually run.
     Invoke-FraxinusStep -Description "Installing CUDA-enabled PyTorch (GPU support)" -Action {
-        & $VenvPython -m pip install torch --index-url https://download.pytorch.org/whl/cu118
+        & $VenvPython -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
     }
 
     # ---------------------------
