@@ -16,6 +16,13 @@ macro(cxsetup_install_decorate_generators)
         set_property(GLOBAL PROPERTY CPACK_RESOURCE_FILE_WELCOME "${SOURCE_DIR}/doc/install_text/install_welcome.txt")
         set_property(GLOBAL PROPERTY CPACK_RESOURCE_FILE_README "${SOURCE_DIR}/doc/install_text/install_readme.rtf")
         set_property(GLOBAL PROPERTY CPACK_RESOURCE_FILE_LICENSE "${CX_LICENSE_FILE}")
+
+        # Override the CustusX defaults set in cx_install_initialize_customizable_properties()
+        # so the Fraxinus installer/uninstaller show the Fraxinus icon, not CustusX's.
+        set_property(GLOBAL PROPERTY CPACK_PACKAGE_ICON "${SOURCE_DIR}/Fraxinus/icons/Fraxinus.png")
+        if(CX_WINDOWS)
+                set_property(GLOBAL PROPERTY CPACK_NSIS_MUI_ICON "${SOURCE_DIR}/Fraxinus/icons\\\\Fraxinus.ico")
+        endif()
 endmacro()
 
 ###############################################################################
