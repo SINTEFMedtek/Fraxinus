@@ -115,8 +115,8 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	segLayout->addWidget(mCheckBoxTumors,       segRow, 0); segLayout->addWidget(mStatusLabelTumors,       segRow, 1); segRow++;
 	segLayout->addWidget(mCheckBoxLungVessels,  segRow, 0); segLayout->addWidget(mStatusLabelLungVessels,  segRow, 1); segRow++;
 	segLayout->addWidget(mCheckBoxLungLobes,    segRow, 0); segLayout->addWidget(mStatusLabelLungLobes,    segRow, 1);
-	QGroupBox* segmentationGroup = new QGroupBox("Segmentation");
-	segmentationGroup->setLayout(segLayout);
+	mSegmentationGroup = new QGroupBox("Segmentation");
+	mSegmentationGroup->setLayout(segLayout);
 
 	mRunSegmentationButton = new QPushButton("Run Segmentation");
 	mRunSegmentationButton->setIcon(QIcon(":/icons/icons/processing.svg"));
@@ -132,24 +132,23 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	connect(mServices->patient().get(), &PatientModelService::patientChanged,
 	        this, &NewLoadPatientWidget::segmentationFinished);
 
-	QVBoxLayout* layout = new QVBoxLayout(this);
-	layout->addSpacing(50);
-	layout->addWidget(segmentationGroup);
-	layout->addWidget(mRunSegmentationButton);
-	layout->addSpacing(50);
-	layout->addWidget(newButtonFromUSB);
-	layout->addSpacing(25);
-	layout->addWidget(newButton);
-	layout->addSpacing(25);
-	layout->addWidget(loadButton);
-	layout->addSpacing(50);
-
-	layout->addWidget(mSelectCTDataButton);
-
-
 	mProcessingInfoGroup = new QGroupBox("Segmentation status");
 	mProcessingInfoGroup->setVisible(false);
+
+	QVBoxLayout* layout = new QVBoxLayout(this);
+	layout->addSpacing(10);
+	layout->addWidget(mSegmentationGroup);
 	layout->addWidget(mProcessingInfoGroup);
+	layout->addWidget(mRunSegmentationButton);
+	layout->addSpacing(20);
+	layout->addWidget(newButtonFromUSB);
+	layout->addSpacing(10);
+	layout->addWidget(newButton);
+	layout->addSpacing(10);
+	layout->addWidget(loadButton);
+	layout->addSpacing(10);
+
+	layout->addWidget(mSelectCTDataButton);
 
 	layout->addStretch();
 
@@ -281,12 +280,15 @@ void NewLoadPatientWidget::segmentationStarted()
 {
 	mSegmentationRunning = true;
 	mRunSegmentationButton->setEnabled(false);
+	mSegmentationGroup->setVisible(false);
 }
 
 void NewLoadPatientWidget::segmentationFinished()
 {
 	mSegmentationRunning = false;
 	this->updateRunSegmentationButton();
+	mProcessingInfoGroup->setVisible(false);
+	mSegmentationGroup->setVisible(true);
 }
 
 void NewLoadPatientWidget::updateSegmentationCheckBoxes()

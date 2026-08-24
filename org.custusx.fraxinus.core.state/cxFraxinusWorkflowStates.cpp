@@ -785,14 +785,11 @@ void PatientWorkflowState::onExit(QEvent * event)
 		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::existingPatientLoaded,
 		           this, &PatientWorkflowState::onExistingPatientLoaded);
 	}
-	if(mFraxinusSegmentations)
-	{
-		disconnect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished,
-		           this, &PatientWorkflowState::segmentationFinished);
-		if(mNewLoadPatientWidget)
-			disconnect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished,
-			           mNewLoadPatientWidget, &NewLoadPatientWidget::segmentationFinished);
-	}
+	// Deliberately NOT disconnecting mFraxinusSegmentations::segmentationFinished here:
+	// segmentation keeps running in the background across tab switches, and this is the
+	// only signal that tells this state (and the widget) it has completed. Disconnecting
+	// it on exit left the widget stuck showing "Segmentation status" and the Run
+	// Segmentation button disabled forever if the user switched tabs while it was running.
 	WorkflowState::onExit(event);
 }
 

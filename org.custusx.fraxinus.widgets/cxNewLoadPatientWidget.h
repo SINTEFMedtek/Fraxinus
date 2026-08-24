@@ -121,6 +121,7 @@ private:
 	QLabel* mStatusLabelLungVessels = nullptr;
 	QLabel* mStatusLabelLungLobes = nullptr;
 	QPushButton* mRunSegmentationButton = nullptr;
+	QGroupBox* mSegmentationGroup = nullptr;
 	QGroupBox* mProcessingInfoGroup = nullptr;
 
 	bool mThoraxCTLoaded = false;
