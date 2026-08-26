@@ -21,7 +21,12 @@ macro(cxsetup_install_decorate_generators)
         # so the Fraxinus installer/uninstaller show the Fraxinus icon, not CustusX's.
         set_property(GLOBAL PROPERTY CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/Fraxinus/icons/Fraxinus.png")
         if(CX_WINDOWS)
+                # NSIS's File instruction (used to embed MUI_HEADERIMAGE_BITMAP) needs a
+                # backslash right before the filename, same as cx_install_initialize_customizable_properties()
+                # does for CustusX's own icons - an all-forward-slash path fails with
+                # "no files found" even though the file exists.
                 set_property(GLOBAL PROPERTY CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/Fraxinus/icons\\\\Fraxinus.ico")
+                set_property(GLOBAL PROPERTY CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/Fraxinus/icons\\\\Fraxinus.png")
         endif()
 endmacro()
 
