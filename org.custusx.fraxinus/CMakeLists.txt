@@ -106,7 +106,11 @@ if(CX_WINDOWS)
   # Add components and labels
   set(CPACK_COMPONENTS_ALL Core RaidionicsSetup TotalSegSetup ElastixSetup)
 
-  set(CPACK_NSIS_DISPLAY_NAME_CORE              "Fraxinus Core")
+  if(CX_FRAXINUS_PRIVATE)
+    set(CPACK_NSIS_DISPLAY_NAME_CORE            "FraxinusExcelsior Core")
+  else()
+    set(CPACK_NSIS_DISPLAY_NAME_CORE            "Fraxinus Core")
+  endif()
   set(CPACK_NSIS_DISPLAY_NAME_RAIDIONICSSETUP   "Raidionics Setup")
   set(CPACK_NSIS_DISPLAY_NAME_TOTALSEGSETUP     "TotalSegmentator Setup")
   set(CPACK_NSIS_DISPLAY_NAME_ELASTIXSETUP      "Elastix Setup")
