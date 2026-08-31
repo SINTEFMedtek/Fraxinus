@@ -4,8 +4,12 @@
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference    = 'SilentlyContinue'
+. (Join-Path $PSScriptRoot "FraxinusInstallHelpers.ps1")
+$logPath = Start-FraxinusInstallLog -Name "Raidionics"
 
 function Log { param($m) ; Write-Host $m }
+
+try {
 
 # -------------------- Resolve safe home folder --------------------
 $UserHome = $env:USERPROFILE
@@ -47,29 +51,29 @@ if (Test-Path $VenvPath) {
     Remove-Item -Recurse -Force $VenvPath -ErrorAction SilentlyContinue
 }
 
-Log "Creating venv..."
-if ($Python.EndsWith(" -3")) {
-    & py.exe -3 -m venv "$VenvPath"
-} else {
-    & "$Python" -m venv "$VenvPath"
+Invoke-FraxinusStep -Description "Creating venv" -Action {
+    if ($Python.EndsWith(" -3")) {
+        & py.exe -3 -m venv "$VenvPath"
+    } else {
+        & "$Python" -m venv "$VenvPath"
+    }
 }
-if ($LASTEXITCODE -ne 0) { throw "venv creation failed" }
 
 $VenvPython = Join-Path $VenvPath 'Scripts\python.exe'
 if (-not (Test-Path $VenvPython)) { throw "Venv Python missing" }
 
 # -------------------- pip installs --------------------
-Log "Upgrading pip..."
-& "$VenvPython" -m pip install --upgrade pip setuptools wheel
-if ($LASTEXITCODE -ne 0) { throw "pip upgrade failed" }
+Invoke-FraxinusStep -Description "Upgrading pip" -Action {
+    & "$VenvPython" -m pip install --upgrade pip setuptools wheel
+}
 
-Log "Installing raidionics-rads-lib..."
-& "$VenvPython" -m pip install git+https://github.com/dbouget/raidionics-rads-lib.git@v1.2.0
-if ($LASTEXITCODE -ne 0) { throw "rads-lib install failed" }
+Invoke-FraxinusStep -Description "Installing raidionics-rads-lib" -Action {
+    & "$VenvPython" -m pip install git+https://github.com/dbouget/raidionics-rads-lib.git@v1.2.0
+}
 
-Log "Installing onnxruntime-gpu..."
-& "$VenvPython" -m pip install onnxruntime-gpu==1.23
-if ($LASTEXITCODE -ne 0) { throw "onnxruntime install failed" }
+Invoke-FraxinusStep -Description "Installing onnxruntime-gpu" -Action {
+    & "$VenvPython" -m pip install onnxruntime-gpu==1.23
+}
 
 # -------------------- ZIP extraction utilities --------------------
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -122,8 +126,9 @@ foreach ($m in $Models) {
     $url = $Repo + $m
     $zipFile = Join-Path $ModelsRoot $m
 
-    Log "Downloading $m ..."
-    Invoke-WebRequest -Uri $url -OutFile $zipFile -UseBasicParsing
+    Invoke-FraxinusStep -Description "Downloading $m" -Action {
+        Invoke-WebRequest -Uri $url -OutFile $zipFile -UseBasicParsing
+    }
 
     if (-not (Is-ZipFile $zipFile)) { throw "Invalid ZIP: $zipFile" }
 
@@ -139,3 +144,15 @@ Log " Raidionics installation complete"
 Log "==============================================="
 
 exit 0
+
+} catch {
+    Write-Host ""
+    Write-Host "==============================================="
+    Write-Host "  Raidionics setup FAILED"
+    Write-Host "  $($_.Exception.Message)"
+    Write-Host "  See log: $logPath"
+    Write-Host "==============================================="
+    exit 1
+} finally {
+    Stop-Transcript | Out-Null
+}

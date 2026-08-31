@@ -16,6 +16,18 @@ macro(cxsetup_install_decorate_generators)
         set_property(GLOBAL PROPERTY CPACK_RESOURCE_FILE_WELCOME "${SOURCE_DIR}/doc/install_text/install_welcome.txt")
         set_property(GLOBAL PROPERTY CPACK_RESOURCE_FILE_README "${SOURCE_DIR}/doc/install_text/install_readme.rtf")
         set_property(GLOBAL PROPERTY CPACK_RESOURCE_FILE_LICENSE "${CX_LICENSE_FILE}")
+
+        # Override the CustusX defaults set in cx_install_initialize_customizable_properties()
+        # so the Fraxinus installer/uninstaller show the Fraxinus icon, not CustusX's.
+        set_property(GLOBAL PROPERTY CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/Fraxinus/icons/Fraxinus.png")
+        if(CX_WINDOWS)
+                # NSIS's File instruction (used to embed MUI_HEADERIMAGE_BITMAP) needs a
+                # backslash right before the filename, same as cx_install_initialize_customizable_properties()
+                # does for CustusX's own icons - an all-forward-slash path fails with
+                # "no files found" even though the file exists.
+                set_property(GLOBAL PROPERTY CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/Fraxinus/icons\\\\Fraxinus.ico")
+                set_property(GLOBAL PROPERTY CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/Fraxinus/icons\\\\Fraxinus.png")
+        endif()
 endmacro()
 
 ###############################################################################
@@ -77,21 +89,28 @@ if(CX_WINDOWS)
 
   install(FILES
     ${CMAKE_CURRENT_LIST_DIR}/installRaidionics.ps1
+    ${CMAKE_CURRENT_LIST_DIR}/FraxinusInstallHelpers.ps1
     DESTINATION .
     COMPONENT RaidionicsSetup)
   install(FILES
     ${CMAKE_CURRENT_LIST_DIR}/installTotalsegmentator.ps1
+    ${CMAKE_CURRENT_LIST_DIR}/FraxinusInstallHelpers.ps1
     DESTINATION .
     COMPONENT TotalSegSetup)
   install(FILES
     ${CMAKE_CURRENT_LIST_DIR}/installElastix.ps1
+    ${CMAKE_CURRENT_LIST_DIR}/FraxinusInstallHelpers.ps1
     DESTINATION .
     COMPONENT ElastixSetup)
 
   # Add components and labels
   set(CPACK_COMPONENTS_ALL Core RaidionicsSetup TotalSegSetup ElastixSetup)
 
-  set(CPACK_NSIS_DISPLAY_NAME_CORE              "Fraxinus Core")
+  if(CX_FRAXINUS_PRIVATE)
+    set(CPACK_NSIS_DISPLAY_NAME_CORE            "FraxinusExcelsior Core")
+  else()
+    set(CPACK_NSIS_DISPLAY_NAME_CORE            "Fraxinus Core")
+  endif()
   set(CPACK_NSIS_DISPLAY_NAME_RAIDIONICSSETUP   "Raidionics Setup")
   set(CPACK_NSIS_DISPLAY_NAME_TOTALSEGSETUP     "TotalSegmentator Setup")
   set(CPACK_NSIS_DISPLAY_NAME_ELASTIXSETUP      "Elastix Setup")
@@ -111,6 +130,14 @@ if(CX_WINDOWS)
 
 endif()
 
+if(CX_LINUX)
+  install(FILES
+    ${CMAKE_CURRENT_LIST_DIR}/Fraxinus.desktop
+    DESTINATION ${CX_INSTALL_ROOT_DIR})
+  install(FILES
+    ${CMAKE_CURRENT_LIST_DIR}/Fraxinus/icons/Fraxinus.png
+    DESTINATION ${CX_INSTALL_ROOT_DIR}/icons)
+endif()
 
 # add the application
 cx_add_optional_app_subdirectory("Fraxinus")

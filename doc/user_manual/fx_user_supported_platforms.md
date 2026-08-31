@@ -15,6 +15,7 @@ Ubuntu is the primary development and test platform and is built and tested cont
 | Ubuntu 24.04 | Supported platform
 | Windows      | Supported platform — installer available on the releases page
 
-Windows builds are not part of the continuous integration pipeline and may be less
-stable than Ubuntu builds. See the developer documentation for build instructions.
+Windows builds are not part of the continuous integration pipeline and have not been
+as thoroughly tested and verified as the Ubuntu builds. The open-source Windows
+installer uses IGSTK for tracking. See the developer documentation for build instructions.
 

@@ -116,9 +116,17 @@ if [ -d "Fraxinus_temp" ]; then
 fi
 mkdir Fraxinus_temp
 tar -xzf "$TARBALL" -C Fraxinus_temp
-FRAXINUS_PATH=$(ls -d Fraxinus_temp/Fraxinus/Fraxinus_*/ 2>/dev/null | head -1 | xargs basename)
+# CPack's TGZ generator wraps the installed tree in a top-level directory named
+# after the package (e.g. Fraxinus_26.08-rc3_Ubuntu24.04/), so the Fraxinus/
+# folder isn't always directly under Fraxinus_temp/ -- search for it instead
+# of assuming a fixed depth.
+FRAXINUS_ROOT=$(find Fraxinus_temp -mindepth 1 -maxdepth 2 -type d -name Fraxinus | head -1)
+if [ -z "$FRAXINUS_ROOT" ]; then
+    echo "ERROR: Could not find a Fraxinus folder inside the extracted tarball."
+    exit 1
+fi
 mkdir -p ~/Fraxinus
-cp -r Fraxinus_temp/Fraxinus/* ~/Fraxinus/
+cp -r "$FRAXINUS_ROOT"/* ~/Fraxinus/
 rm -rf Fraxinus_temp
 
 cd ~/Fraxinus
@@ -131,11 +139,11 @@ if command -v elastix > /dev/null 2>&1; then
     echo "Elastix is already installed, skipping."
 else
     echo "Installing Elastix $ELASTIX_VERSION..."
-    wget "https://github.com/SuperElastix/elastix/releases/download/${ELASTIX_VERSION}/elastix-${ELASTIX_VERSION}-linux.zip"
-    unzip -o "elastix-${ELASTIX_VERSION}-linux.zip" -d elastix
+    wget "https://github.com/SuperElastix/elastix/releases/download/${ELASTIX_VERSION}/elastix-${ELASTIX_VERSION}-ubuntu.zip"
+    unzip -o "elastix-${ELASTIX_VERSION}-ubuntu.zip" -d elastix
     chmod +x elastix/bin/elastix elastix/bin/transformix
     cp elastix/lib/libANNlib* elastix/bin/ 2>/dev/null || true
-    rm "elastix-${ELASTIX_VERSION}-linux.zip"
+    rm "elastix-${ELASTIX_VERSION}-ubuntu.zip"
     echo '' >> ~/.bashrc
     echo '# Path to Elastix installation' >> ~/.bashrc
     echo 'export PATH=$HOME/Fraxinus/elastix/bin:$PATH' >> ~/.bashrc
@@ -189,7 +197,12 @@ cd TotalSegmentator
 $PYTHON_CMD -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
-pip install --upgrade TotalSegmentator
+# Pinned: TotalSegmentator has changed its CLI between releases (e.g. the
+# weights downloader moved from `python -m totalsegmentator.download_weights`
+# to the totalseg_download_weights console script), which silently broke the
+# Windows installer. Bump this deliberately, and re-check the
+# totalseg_download_weights invocation below, when updating.
+pip install "TotalSegmentator==2.18.0"
 totalseg_download_weights -t total
 totalseg_download_weights -t total_fast
 totalseg_download_weights -t lung_vessels
@@ -214,11 +227,11 @@ fi
 # ---------------------------------------------------------------------------
 cd ~/Fraxinus
 if [ -f "Fraxinus.desktop" ]; then
-    EXEC_PATH="$HOME/Fraxinus/$FRAXINUS_PATH/Fraxinus"
-    ICON_PATH="$HOME/Fraxinus/$FRAXINUS_PATH/Icon/Fraxinus.icns"
-    sed -i "s|Icon=.*|Icon=$ICON_PATH|g" Fraxinus.desktop
-    sed -i "s|Path=.*|Path=$HOME/Fraxinus/$FRAXINUS_PATH|g" Fraxinus.desktop
+    EXEC_PATH="$HOME/Fraxinus/bin/Fraxinus"
+    ICON_PATH="$HOME/Fraxinus/icons/Fraxinus.png"
+    sed -i "s|Path=.*|Path=$HOME/Fraxinus/bin|g" Fraxinus.desktop
     sed -i "s|Exec=.*|Exec=$EXEC_PATH|g" Fraxinus.desktop
+    sed -i "s|Icon=.*|Icon=$ICON_PATH|g" Fraxinus.desktop
     cp Fraxinus.desktop ~/Desktop/
     gio set ~/Desktop/Fraxinus.desktop metadata::trusted true 2>/dev/null || true
     chmod +x ~/Desktop/Fraxinus.desktop
@@ -227,4 +240,4 @@ fi
 echo ""
 echo "---------- Fraxinus installation complete ----------"
 echo "Launch Fraxinus from the desktop shortcut or run:"
-echo "  $HOME/Fraxinus/$FRAXINUS_PATH/Fraxinus"
+echo "  cd $HOME/Fraxinus/bin && ./Fraxinus"

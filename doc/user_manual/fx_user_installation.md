@@ -12,6 +12,11 @@ Download `installFraxinus.sh` from the
     chmod +x installFraxinus.sh
     ./installFraxinus.sh
 
+Alternatively, install directly via `curl`:
+
+    sudo apt install curl -y  # optional, if curl is not already installed
+    curl -fsSL https://gitlab.sintef.no/custusx/fraxinus/-/releases/permalink/latest/downloads/installFraxinus.sh | bash
+
 The script downloads the Fraxinus release tarball automatically.
 If the package registry requires authentication, set your GitLab personal access token first:
 

@@ -785,9 +785,11 @@ void PatientWorkflowState::onExit(QEvent * event)
 		disconnect(mNewLoadPatientWidget, &NewLoadPatientWidget::existingPatientLoaded,
 		           this, &PatientWorkflowState::onExistingPatientLoaded);
 	}
-	if(mFraxinusSegmentations)
-		disconnect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished,
-		           this, &PatientWorkflowState::segmentationFinished);
+	// Deliberately NOT disconnecting mFraxinusSegmentations::segmentationFinished here:
+	// segmentation keeps running in the background across tab switches, and this is the
+	// only signal that tells this state (and the widget) it has completed. Disconnecting
+	// it on exit left the widget stuck showing "Segmentation status" and the Run
+	// Segmentation button disabled forever if the user switched tabs while it was running.
 	WorkflowState::onExit(event);
 }
 
@@ -821,6 +823,8 @@ void PatientWorkflowState::runSegmentation()
 	if (!loadWidget)
 		return;
 
+	loadWidget->segmentationStarted();
+
 	if (!mFraxinusSegmentations)
 		mFraxinusSegmentations = FraxinusSegmentationsPtr(new FraxinusSegmentations(mRegServices));
 
@@ -839,6 +843,8 @@ void PatientWorkflowState::runSegmentation()
 
 	connect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished,
 	        this, &PatientWorkflowState::segmentationFinished, Qt::UniqueConnection);
+	connect(mFraxinusSegmentations.get(), &FraxinusSegmentations::segmentationFinished,
+	        loadWidget, &NewLoadPatientWidget::segmentationFinished, Qt::UniqueConnection);
 }
 
 void PatientWorkflowState::setImportWorkflowState(ImportWorkflowState* state)
@@ -1065,7 +1071,9 @@ void PinpointWorkflowState::onEntry(QEvent * event)
 	PointMetricPtr targetPoint = this->getTargetPoint();
 	if(!targetPoint && pinPointWidget)
 	{
-		pinPointWidget->createPointMetric();
+		// Auto-created fallback (no target set yet): seed it inside the CT volume rather
+		// than at the active tool's tip, which has no meaningful position at this point.
+		pinPointWidget->createPointMetricAtImageCenter();
 		targetPoint = this->getTargetPoint();
 	}
 

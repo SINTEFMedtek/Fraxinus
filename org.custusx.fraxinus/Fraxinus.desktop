@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Fraxinus
+Comment=Image-guided navigation and bronchoscopy planning
+Exec=Fraxinus
+Icon=Fraxinus
+Path=
+Terminal=false
+Categories=Science;Education;Graphics;
