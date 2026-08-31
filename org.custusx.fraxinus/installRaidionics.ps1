@@ -17,8 +17,8 @@ if (-not $UserHome -or -not (Test-Path $UserHome)) {
     throw "USERPROFILE cannot be resolved."
 }
 
-$VenvRoot   = Join-Path $UserHome 'Fraxinus_settings\virtualEnvironments'
-$ModelsRoot = Join-Path $UserHome 'Fraxinus_settings\models\raidionics_models'
+$VenvRoot   = Join-Path $UserHome 'Fraxinus\virtualEnvironments'
+$ModelsRoot = Join-Path $UserHome 'Fraxinus\models\raidionics_models'
 
 New-Item -ItemType Directory -Force -Path $VenvRoot   | Out-Null
 New-Item -ItemType Directory -Force -Path $ModelsRoot | Out-Null

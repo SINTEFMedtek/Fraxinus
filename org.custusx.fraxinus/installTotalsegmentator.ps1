@@ -8,7 +8,7 @@ try {
     # ---------------------------
     # 1) Paths
     # ---------------------------
-    $rootBase  = Join-Path $HOME "Fraxinus_settings\virtualEnvironments"
+    $rootBase  = Join-Path $HOME "Fraxinus\virtualEnvironments"
     $toolBase  = Join-Path $rootBase "TotalSegmentator"
     $segDir    = Join-Path $toolBase "segmentations"
     $venvDir   = Join-Path $toolBase "venv"
