@@ -32,6 +32,27 @@ endmacro()
 
 ###############################################################################
 #
+# Pull a pinned version string out of one of the install*.ps1 scripts, by
+# matching a line of the form `$<PS1_VAR_NAME> = "<value>"` (single or double
+# quotes). Used to keep the NSIS pre-check logic and the actual pip/git/download
+# pin in installRaidionics.ps1 / installTotalsegmentator.ps1 / installElastix.ps1
+# from drifting apart.
+#
+###############################################################################
+function(cxsetup_extract_ps1_version SCRIPT_FILE PS1_VAR_NAME OUT_VERSION)
+  file(STRINGS "${SCRIPT_FILE}" _matched_lines REGEX "[$]${PS1_VAR_NAME}[ \t]*=")
+  if(_matched_lines)
+    list(GET _matched_lines 0 _line)
+    string(REGEX REPLACE ".*=[ \t]*['\"]([^'\"]+)['\"].*" "\\1" _version "${_line}")
+    set(${OUT_VERSION} "${_version}" PARENT_SCOPE)
+  else()
+    message(WARNING "cxsetup_extract_ps1_version: could not find \$${PS1_VAR_NAME} in ${SCRIPT_FILE}")
+    set(${OUT_VERSION} "unknown" PARENT_SCOPE)
+  endif()
+endfunction()
+
+###############################################################################
+#
 # Install all configuration files
 #
 ###############################################################################
@@ -80,10 +101,15 @@ endif()
 
 if(CX_WINDOWS)
 
-  # Ensure NSIS can access the custom include file
+  # Ensure NSIS can access the custom include files
   configure_file(
 	${CMAKE_CURRENT_LIST_DIR}/FraxinusPostInstall.nsh
     ${CMAKE_BINARY_DIR}/FraxinusPostInstall.nsh
+    COPYONLY
+  )
+  configure_file(
+	${CMAKE_CURRENT_LIST_DIR}/FraxinusPostUninstall.nsh
+    ${CMAKE_BINARY_DIR}/FraxinusPostUninstall.nsh
     COPYONLY
   )
 
@@ -103,30 +129,62 @@ if(CX_WINDOWS)
     DESTINATION .
     COMPONENT ElastixSetup)
 
-  # Add components and labels
-  set(CPACK_COMPONENTS_ALL Core RaidionicsSetup TotalSegSetup ElastixSetup)
+  # Add components and labels.
+  #
+  # NOTE: these must be relayed as GLOBAL PROPERTYs, not plain set(), and picked
+  # back up in CX/CMake/cxSetupAdditionalNSISWindowsComponents.cmake just before
+  # include(CPack) runs (in CX/CMake/cxInstallCustusX.cmake). This directory is a
+  # sibling of, not an ancestor of, the scope include(CPack) runs in, so a plain
+  # set() here never reaches it -- the same reason CPACK_PACKAGE_ICON etc. above
+  # use set_property(GLOBAL PROPERTY ...) instead of set(). Without this, CPack
+  # still discovers the components themselves (auto-detected from the install()
+  # COMPONENT names below), but every display-name/description override here is
+  # silently dropped -- which is why the NSIS component page's tooltips were
+  # blank despite these being "set" correctly.
+  set_property(GLOBAL PROPERTY CPACK_COMPONENTS_ALL Core RaidionicsSetup TotalSegSetup ElastixSetup)
 
   if(CX_FRAXINUS_PRIVATE)
-    set(CPACK_NSIS_DISPLAY_NAME_CORE            "FraxinusExcelsior Core")
+    set_property(GLOBAL PROPERTY CPACK_COMPONENT_CORE_DISPLAY_NAME "FraxinusExcelsior Core")
   else()
-    set(CPACK_NSIS_DISPLAY_NAME_CORE            "Fraxinus Core")
+    set_property(GLOBAL PROPERTY CPACK_COMPONENT_CORE_DISPLAY_NAME "Fraxinus Core")
   endif()
-  set(CPACK_NSIS_DISPLAY_NAME_RAIDIONICSSETUP   "Raidionics Setup")
-  set(CPACK_NSIS_DISPLAY_NAME_TOTALSEGSETUP     "TotalSegmentator Setup")
-  set(CPACK_NSIS_DISPLAY_NAME_ELASTIXSETUP      "Elastix Setup")
+  set_property(GLOBAL PROPERTY CPACK_COMPONENT_CORE_DESCRIPTION "Core application files")
 
-  set(CPACK_COMPONENT_RAIDIONICSSETUP_DISPLAY_NAME   "Raidionics setup")
-  set(CPACK_COMPONENT_RAIDIONICSSETUP_DESCRIPTION    "Setup a Raidionics venv and download/unpack model files")
+  # Kept to one short sentence each: the NSIS components-page description box
+  # is a fixed-size static control with no scrollbar, so longer text risks
+  # being clipped rather than wrapping. It also only wraps at whitespace, not
+  # at '/' or '\', so a long unbroken path (e.g. a full nested install path)
+  # just runs past the edge and gets clipped instead of wrapping -- keep any
+  # path short enough to read as a single "word". Paths use forward slashes
+  # rather than backslashes -- still readable as a Windows path in tooltip
+  # text, but a literal backslash here (e.g. \F, \T) trips CMake's "Invalid
+  # escape sequence" dev warning when CPack's own generated CPackConfig.cmake
+  # is re-parsed by cpack.exe (harmless, but noisy in the build log).
+  set_property(GLOBAL PROPERTY CPACK_COMPONENT_RAIDIONICSSETUP_DISPLAY_NAME "Raidionics setup")
+  set_property(GLOBAL PROPERTY CPACK_COMPONENT_RAIDIONICSSETUP_DESCRIPTION  "Slow - opens a console window. Installs into your shared Fraxinus folder.")
 
-  set(CPACK_COMPONENT_TOTALSEGSETUP_DISPLAY_NAME     "TotalSegmentator setup")
-  set(CPACK_COMPONENT_TOTALSEGSETUP_DESCRIPTION      "Create a venv and download weights")
+  set_property(GLOBAL PROPERTY CPACK_COMPONENT_TOTALSEGSETUP_DISPLAY_NAME "TotalSegmentator setup")
+  set_property(GLOBAL PROPERTY CPACK_COMPONENT_TOTALSEGSETUP_DESCRIPTION  "Slow - opens a console window. Installs into your shared Fraxinus folder.")
 
-  set(CPACK_COMPONENT_ELASTIXSETUP_DISPLAY_NAME     "Elastix setup")
-  set(CPACK_COMPONENT_ELASTIXSETUP_DESCRIPTION      "Install Elastix")
+  set_property(GLOBAL PROPERTY CPACK_COMPONENT_ELASTIXSETUP_DISPLAY_NAME "Elastix setup")
+  set_property(GLOBAL PROPERTY CPACK_COMPONENT_ELASTIXSETUP_DESCRIPTION  "Opens a console window. Installs to C:/Elastix.")
 
   # Show details checkbox and route plugin output to the log window
-  set(CPACK_NSIS_ENABLE_LOG ON)
-  #set(CPACK_NSIS_LOG_FILE "$LOCALAPPDATA/Fraxinus/Logs") #TODO: Use?
+  set_property(GLOBAL PROPERTY CPACK_NSIS_ENABLE_LOG ON)
+
+  # Pinned versions of each optional external tool, read straight out of the
+  # matching install*.ps1 script (single source of truth -- the same value
+  # that script actually installs). Relayed as GLOBAL PROPERTYs the same way
+  # as the component descriptions above, and substituted into NSIS.template.in
+  # as @CPACK_FRAX_..._VERSION@ so Function .onInit can tell an already
+  # up-to-date component apart from one that needs a (re)install; see
+  # installed_version.txt written by each script on success.
+  cxsetup_extract_ps1_version("${CMAKE_CURRENT_LIST_DIR}/installRaidionics.ps1" RaidionicsVersion _raidionicsVersion)
+  cxsetup_extract_ps1_version("${CMAKE_CURRENT_LIST_DIR}/installTotalsegmentator.ps1" TotalSegmentatorVersion _totalSegVersion)
+  cxsetup_extract_ps1_version("${CMAKE_CURRENT_LIST_DIR}/installElastix.ps1" ElastixVersion _elastixVersion)
+  set_property(GLOBAL PROPERTY CPACK_FRAX_RAIDIONICS_VERSION "${_raidionicsVersion}")
+  set_property(GLOBAL PROPERTY CPACK_FRAX_TOTALSEG_VERSION "${_totalSegVersion}")
+  set_property(GLOBAL PROPERTY CPACK_FRAX_ELASTIX_VERSION "${_elastixVersion}")
 
 endif()
 

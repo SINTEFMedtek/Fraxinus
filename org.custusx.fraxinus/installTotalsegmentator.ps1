@@ -97,7 +97,14 @@ try {
     }
 
     # ---------------------------
-    # 9) Summary
+    # 9) Write version marker
+    # ---------------------------
+    # Read by the NSIS installer (Function .onInit in NSIS.template.in) to
+    # decide whether to pre-uncheck this component's checkbox next install.
+    Set-Content -Path (Join-Path $toolBase 'installed_version.txt') -Value $TotalSegmentatorVersion -NoNewline
+
+    # ---------------------------
+    # 10) Summary
     # ---------------------------
     Write-Host ""
     Write-Host "==============================================="

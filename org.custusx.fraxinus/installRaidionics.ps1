@@ -67,8 +67,12 @@ Invoke-FraxinusStep -Description "Upgrading pip" -Action {
     & "$VenvPython" -m pip install --upgrade pip setuptools wheel
 }
 
+# Pinned: also read by CMake (org.custusx.fraxinus/CMakeLists.txt,
+# cxsetup_extract_ps1_version) to fill in the NSIS installer's version-check
+# marker below. Keep this variable name and quoting style if it moves.
+$RaidionicsVersion = "v1.2.0"
 Invoke-FraxinusStep -Description "Installing raidionics-rads-lib" -Action {
-    & "$VenvPython" -m pip install git+https://github.com/dbouget/raidionics-rads-lib.git@v1.2.0
+    & "$VenvPython" -m pip install "git+https://github.com/dbouget/raidionics-rads-lib.git@$RaidionicsVersion"
 }
 
 Invoke-FraxinusStep -Description "Installing onnxruntime-gpu" -Action {
@@ -138,6 +142,11 @@ foreach ($m in $Models) {
     Log "Delete $m after extraction"
 	Remove-Item -Force "$zipFile"
 }
+
+# -------------------- Write version marker --------------------
+# Read by the NSIS installer (Function .onInit in NSIS.template.in) to decide
+# whether to pre-uncheck this component's checkbox on the next install.
+Set-Content -Path (Join-Path $VenvPath 'installed_version.txt') -Value $RaidionicsVersion -NoNewline
 
 Log "==============================================="
 Log " Raidionics installation complete"
