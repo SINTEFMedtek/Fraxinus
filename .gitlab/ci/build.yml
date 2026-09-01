@@ -5,7 +5,7 @@
     - if [ $CI_COMMIT_TAG ]; then CX_COMMIT=$CI_COMMIT_TAG; else CX_COMMIT=${CI_COMMIT_BRANCH:-$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}; fi
 
 .build-variables:
-  stage: build
+  # stage is set per-platform job below, to serialize platform builds.
   variables:
     OS: OS
     BASE_DIR: /builds/Fraxinus/$OS
@@ -42,6 +42,15 @@
     - .create-installer
   before_script:
   - ls $BASE_DIR
+  # Manual escape hatch: set FORCE_CLEAN_APP_BUILD=true (CI/CD > Run pipeline variables)
+  # to wipe this runner's incrementally-reused build tree and force a from-scratch rebuild.
+  # Does not touch the external-libs cache/sentinel below. Useful when a runner's
+  # persistent build tree is suspected stale (e.g. didn't pick up a downstream fix).
+  - |
+    if [ "$FORCE_CLEAN_APP_BUILD" = "true" ]; then
+      echo "FORCE_CLEAN_APP_BUILD set - wiping $BUILD_DIR for a clean rebuild"
+      rm -rf $BUILD_DIR
+    fi
   - !reference [.set-cx-commit, script]
   # Set IGSTK variant variables. Must come first so cleanup below is conditional.
   # No IGSTK_FLAG: PrivateControlData auto-detects via /etc/os-release (Ubuntu 20/22 → on,
@@ -176,6 +185,7 @@
 
 build-ubuntu20:
   extends: .reuse-build
+  stage: build-20
   image: $IMAGE_UBUNTU2004
   variables:
     OS: Ubuntu2004
@@ -184,6 +194,7 @@ build-ubuntu20:
 
 build-ubuntu22:
   extends: .reuse-build
+  stage: build-22
   image: $IMAGE_UBUNTU2204
   variables:
     OS: Ubuntu2204
@@ -192,6 +203,7 @@ build-ubuntu22:
 
 build-ubuntu24:
   extends: .reuse-build
+  stage: build-24
   image: $IMAGE_UBUNTU2404
   variables:
     OS: Ubuntu2404

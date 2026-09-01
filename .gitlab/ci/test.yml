@@ -1,7 +1,6 @@
 # Test stage templates and jobs
 
-.old-test-job:   # This job runs the Unit + Integration tests
-  stage: test    # It only starts when the job in the build stage completes successfully.
+.old-test-job:   # This job runs the Unit + Integration tests, unused legacy template
   script:
     - echo "Running unit tests... "
     - !reference [.set-cx-commit, script]
@@ -18,7 +17,8 @@
       junit: test_results/*junit.xml
 
 .test-job:   # This job runs the Unit + Integration tests
-  stage: test    # It only starts when the job in the build stage completes successfully.
+  # stage is set per-platform job below, to serialize platform builds; it only
+  # starts when the matching platform's build job completes successfully.
   extends: .build-variables
   script:
     - echo "Running unit tests... "
@@ -50,6 +50,7 @@
 
 test-ubuntu20:
   extends: .test-job
+  stage: test-20
   needs: ["build-ubuntu20"]
   image: $IMAGE_UBUNTU2004
   variables:
@@ -57,6 +58,7 @@ test-ubuntu20:
 
 test-ubuntu22:
   extends: .test-job
+  stage: test-22
   needs: ["build-ubuntu22"]
   image: $IMAGE_UBUNTU2204
   variables:
@@ -64,6 +66,7 @@ test-ubuntu22:
 
 test-ubuntu24:
   extends: .test-job
+  stage: test-24
   needs: ["build-ubuntu24"]
   image: $IMAGE_UBUNTU2404
   variables:

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
+import os
 import platform
+import sys
 
 import cx.build.cxComponents
 import cx.build.cxComponentAssembly
@@ -31,6 +33,39 @@ class PrivateControlData(cx.build.cxInstallData.Common):
         self.gitrepo_main_site_base = self.gitrepo_open_site_base
 
         self.system_base_name = "Fraxinus"
+        self.mBuildIGSTK = self._igstk_supported() # Build with IGSK tracking for Ubuntu 20 and 22
+
+    def _igstk_supported(self):
+        # --igstk/--skip_igstk are registered generically for every installer in
+        # cx.build.cxInstallData.Common.fillParser(), but that parsing happens after
+        # LibraryAssembly.__init__ has already picked oldVTK/ITK/IGSTK vs the new
+        # VTK/ITK based on mBuildIGSTK, so an explicit CLI flag must be honoured here
+        # too (checked against sys.argv directly, ahead of the normal parser).
+        if '--igstk' in sys.argv:
+            return True
+        if '--skip_igstk' in sys.argv:
+            return False
+        # CI sets BUILD_IGSTK explicitly; honour it so the Python installer
+        # stays in sync with the shell-side IGSTK_LIBS / tarball selection.
+        build_igstk = os.environ.get('BUILD_IGSTK', '').lower()
+        if build_igstk == 'true':
+            return True
+        if build_igstk in ('false', '0'):
+            return False
+        # Fall back to OS detection for local builds where BUILD_IGSTK is not set.
+        if platform.system() != 'Linux':
+            return False
+        try:
+            with open('/etc/os-release') as f:
+                for line in f:
+                    if line.startswith('VERSION_ID='):
+                        version_id = float(line.strip().split('=')[1].strip('"'))
+                        return version_id < 24.0
+        except Exception as e:
+            print('WARNING: _igstk_supported: could not read /etc/os-release (%s), defaulting IGSTK to off.' % e)
+            return False
+        print('WARNING: _igstk_supported: VERSION_ID not found in /etc/os-release, defaulting IGSTK to off.')
+        return False
 
 class LibraryAssembly(cx.build.cxComponentAssembly.LibraryAssembly):
     '''

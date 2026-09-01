@@ -64,6 +64,10 @@ public:
 	bool isLungVesselsChecked() const;
 	bool isLungLobesChecked() const;
 
+public slots:
+	void segmentationStarted();
+	void segmentationFinished();
+
 private slots:
 	void createNewPatient();
 	void createNewPatientFromUSB();
@@ -117,11 +121,13 @@ private:
 	QLabel* mStatusLabelLungVessels = nullptr;
 	QLabel* mStatusLabelLungLobes = nullptr;
 	QPushButton* mRunSegmentationButton = nullptr;
+	QGroupBox* mSegmentationGroup = nullptr;
 	QGroupBox* mProcessingInfoGroup = nullptr;
 
 	bool mThoraxCTLoaded = false;
 	bool mPETLoaded = false;
 	bool mSkipDataLoadedInfo = false;
+	bool mSegmentationRunning = false;
 };
 
 }

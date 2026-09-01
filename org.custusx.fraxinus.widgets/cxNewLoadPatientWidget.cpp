@@ -36,23 +36,23 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	this->setObjectName(this->getWidgetName());
 	this->setWindowTitle("Create or select patient");
 
-	QPushButton* newButton = new QPushButton("&Create new patient");
+	QPushButton* newButton = new QPushButton("  &Create new patient");
 	const QSize BUTTON_SIZE = QSize(1, 80);
 	newButton->setMinimumSize(BUTTON_SIZE);
 	newButton->setIcon(QIcon(":/icons/icons/add.svg"));
 	connect(newButton, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatient);
 
-	QPushButton* newButtonFromUSB = new QPushButton("&Create new patient from USB");
+	QPushButton* newButtonFromUSB = new QPushButton("  &Create new patient from USB\n  and run segmentation");
 	newButtonFromUSB->setMinimumSize(BUTTON_SIZE);
 	newButtonFromUSB->setIcon(QIcon(":/icons/icons/add.svg"));
 	connect(newButtonFromUSB, &QPushButton::clicked, this, &NewLoadPatientWidget::createNewPatientFromUSB);
 
-	QPushButton* loadButton = new QPushButton("&Load existing patient");
+	QPushButton* loadButton = new QPushButton("  &Load existing patient");
 	loadButton->setMinimumSize(BUTTON_SIZE);
 	loadButton->setIcon(QIcon(":/icons/icons/select.svg"));
 	connect(loadButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadPatient);
 
-	mSelectCTDataButton = new QPushButton("&Select CT data");
+	mSelectCTDataButton = new QPushButton("  &Select CT data");
 	mSelectCTDataButton->setIcon(QIcon(":/icons/icons/import.svg"));
 	mSelectCTDataButton->setEnabled(false);
 	connect(mSelectCTDataButton, &QPushButton::clicked, this, &NewLoadPatientWidget::loadCTDataDialog);
@@ -67,8 +67,7 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	mCheckBoxLymphNodes->setChecked(false);
 	mStatusLabelLymphNodes = new QLabel("~2 min");
 
-	mCheckBoxHeart = new QCheckBox("Pulmonary System");
-	mCheckBoxHeart->setToolTip("Heart, Pulmonary Veins, Pulmonary Trunk");
+	mCheckBoxHeart = new QCheckBox("Heart");
 	mCheckBoxHeart->setChecked(false);
 	mStatusLabelHeart = new QLabel("~4 min");
 
@@ -85,7 +84,8 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	mCheckBoxTumors->setChecked(false);
 	mStatusLabelTumors = new QLabel("~5 min");
 
-	mCheckBoxLungVessels = new QCheckBox("Small Vessels");
+	mCheckBoxLungVessels = new QCheckBox("Pulmonary arteries and veins");
+	mCheckBoxLungVessels->setToolTip("Pulmonary Arteries, Pulmonary Veins");
 	mCheckBoxLungVessels->setChecked(false);
 	mStatusLabelLungVessels = new QLabel("~5 min");
 
@@ -115,8 +115,8 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	segLayout->addWidget(mCheckBoxTumors,       segRow, 0); segLayout->addWidget(mStatusLabelTumors,       segRow, 1); segRow++;
 	segLayout->addWidget(mCheckBoxLungVessels,  segRow, 0); segLayout->addWidget(mStatusLabelLungVessels,  segRow, 1); segRow++;
 	segLayout->addWidget(mCheckBoxLungLobes,    segRow, 0); segLayout->addWidget(mStatusLabelLungLobes,    segRow, 1);
-	QGroupBox* segmentationGroup = new QGroupBox("Segmentation");
-	segmentationGroup->setLayout(segLayout);
+	mSegmentationGroup = new QGroupBox("Segmentation");
+	mSegmentationGroup->setLayout(segLayout);
 
 	mRunSegmentationButton = new QPushButton("Run Segmentation");
 	mRunSegmentationButton->setIcon(QIcon(":/icons/icons/processing.svg"));
@@ -129,24 +129,26 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	        this, &NewLoadPatientWidget::updateSegmentationCheckBoxes);
 	connect(mServices->patient().get(), &PatientModelService::patientChanged,
 	        this, &NewLoadPatientWidget::updateSegmentationCheckBoxes);
-
-	QVBoxLayout* layout = new QVBoxLayout(this);
-	layout->addSpacing(50);
-	layout->addWidget(newButtonFromUSB);
-	layout->addSpacing(25);
-	layout->addWidget(newButton);
-	layout->addSpacing(25);
-	layout->addWidget(loadButton);
-	layout->addSpacing(50);
-
-	layout->addWidget(mSelectCTDataButton);
-	layout->addSpacing(10);
-	layout->addWidget(segmentationGroup);
-	layout->addWidget(mRunSegmentationButton);
+	connect(mServices->patient().get(), &PatientModelService::patientChanged,
+	        this, &NewLoadPatientWidget::segmentationFinished);
 
 	mProcessingInfoGroup = new QGroupBox("Segmentation status");
 	mProcessingInfoGroup->setVisible(false);
+
+	QVBoxLayout* layout = new QVBoxLayout(this);
+	layout->addSpacing(10);
+	layout->addWidget(mSegmentationGroup);
 	layout->addWidget(mProcessingInfoGroup);
+	layout->addWidget(mRunSegmentationButton);
+	layout->addSpacing(20);
+	layout->addWidget(newButtonFromUSB);
+	layout->addSpacing(10);
+	layout->addWidget(newButton);
+	layout->addSpacing(10);
+	layout->addWidget(loadButton);
+	layout->addSpacing(10);
+
+	layout->addWidget(mSelectCTDataButton);
 
 	layout->addStretch();
 
@@ -271,7 +273,22 @@ void NewLoadPatientWidget::updateRunSegmentationButton()
 {
 	bool ctLoaded = mServices->patient()->getImage(imCT, istTHORAX_CT) != nullptr;
 	bool patientValid = mServices->patient()->isPatientValid();
-	mRunSegmentationButton->setEnabled(ctLoaded && patientValid);
+	mRunSegmentationButton->setEnabled(ctLoaded && patientValid && !mSegmentationRunning);
+}
+
+void NewLoadPatientWidget::segmentationStarted()
+{
+	mSegmentationRunning = true;
+	mRunSegmentationButton->setEnabled(false);
+	mSegmentationGroup->setVisible(false);
+}
+
+void NewLoadPatientWidget::segmentationFinished()
+{
+	mSegmentationRunning = false;
+	this->updateRunSegmentationButton();
+	mProcessingInfoGroup->setVisible(false);
+	mSegmentationGroup->setVisible(true);
 }
 
 void NewLoadPatientWidget::updateSegmentationCheckBoxes()
@@ -340,7 +357,7 @@ void NewLoadPatientWidget::updateSegmentationCheckBoxes()
 		setPending(mStatusLabelTumors, "~5 min");
 	}
 
-	if(patientValid && mServices->patient()->getData<Mesh>(otLUNG_VESSELS))
+	if(patientValid && mServices->patient()->getData<Mesh>(otPULMONARY_ARTERIES))
 		setDone(mCheckBoxLungVessels, mStatusLabelLungVessels);
 	else
 	{
@@ -426,6 +443,7 @@ void NewLoadPatientWidget::loadCTDataDialogFinished()
 {
 	if(mLoadCTDialog)
 	{
+		mLoadCTDialog->hide();
 		mLoadCTDialog->deleteLater();
 		mLoadCTDialog = nullptr;
 	}

@@ -14,6 +14,7 @@
 #include "cxDistanceMetric.h"
 #include "cxVisServices.h"
 #include "cxPatientModelService.h"
+#include "cxImage.h"
 #include "cxSessionStorageService.h"
 #include "cxSpaceProvider.h"
 #include "cxLogger.h"
@@ -220,6 +221,22 @@ void PinpointWidget::createPointMetric()
 	CoordinateSystem ref = CoordinateSystem::reference();
 	QColor color = QColor(0, 0, 250, 255);
 	Vector3D p_ref = mServices->spaceProvider()->getActiveToolTipPoint(ref, true);
+
+	mMetricManager->addPoint(p_ref, ref, mTargetMetricUid, color);
+
+	this->setNameOfPointMetric();
+}
+
+// Used for the initial, automatically created target point: the active tool has no
+// meaningful tip position yet at that point (no tracking hardware / not yet placed by
+// the user), so seed it inside the CT volume instead of wherever the tool happens to be.
+void PinpointWidget::createPointMetricAtImageCenter()
+{
+	CoordinateSystem ref = CoordinateSystem::reference();
+	QColor color = QColor(0, 0, 250, 255);
+	ImagePtr ctImage = mServices->patient()->getImage(imCT, istTHORAX_CT);
+	Vector3D p_ref = ctImage ? ctImage->get_rMd().coord(ctImage->boundingBox().center())
+	                         : mServices->spaceProvider()->getActiveToolTipPoint(ref, true);
 
 	mMetricManager->addPoint(p_ref, ref, mTargetMetricUid, color);
 
