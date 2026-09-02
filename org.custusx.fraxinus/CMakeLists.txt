@@ -161,10 +161,10 @@ if(CX_WINDOWS)
   # escape sequence" dev warning when CPack's own generated CPackConfig.cmake
   # is re-parsed by cpack.exe (harmless, but noisy in the build log).
   set_property(GLOBAL PROPERTY CPACK_COMPONENT_RAIDIONICSSETUP_DISPLAY_NAME "Raidionics setup")
-  set_property(GLOBAL PROPERTY CPACK_COMPONENT_RAIDIONICSSETUP_DESCRIPTION  "Slow - opens a console window. Installs into your shared Fraxinus folder.")
+  set_property(GLOBAL PROPERTY CPACK_COMPONENT_RAIDIONICSSETUP_DESCRIPTION  "Slow - opens a console window. Installs into the shared Fraxinus folder in your user folder.")
 
   set_property(GLOBAL PROPERTY CPACK_COMPONENT_TOTALSEGSETUP_DISPLAY_NAME "TotalSegmentator setup")
-  set_property(GLOBAL PROPERTY CPACK_COMPONENT_TOTALSEGSETUP_DESCRIPTION  "Slow - opens a console window. Installs into your shared Fraxinus folder.")
+  set_property(GLOBAL PROPERTY CPACK_COMPONENT_TOTALSEGSETUP_DESCRIPTION  "Slow - opens a console window. Installs into the shared Fraxinus folder in your user folder.")
 
   set_property(GLOBAL PROPERTY CPACK_COMPONENT_ELASTIXSETUP_DISPLAY_NAME "Elastix setup")
   set_property(GLOBAL PROPERTY CPACK_COMPONENT_ELASTIXSETUP_DESCRIPTION  "Opens a console window. Installs to C:/Elastix.")
