@@ -291,21 +291,8 @@ ImagePtr FraxinusWorkflowState::createCopiedImage(ImagePtr originalImage) const
 
 ImagePtr FraxinusWorkflowState::copyAndResampleImageTo512x512(ImagePtr inputImage) const
 {
-	vtkImageDataPtr vtkImageGrayscale =  inputImage->getGrayScaleVtkImageData();
-	if(!vtkImageGrayscale)
-		return inputImage;
-
-	double* spacing = vtkImageGrayscale->GetSpacing();
-	int* dim = vtkImageGrayscale->GetDimensions();
-
-	Vector3D newSpacing;
-	newSpacing[0] = (double) dim[0]/512 * spacing[0];
-	newSpacing[1] = (double) dim[1]/512 * spacing[1];
-	newSpacing[2] = spacing[2];
-
-	ImagePtr imageCopied =  resampleImage(mServices->patient(), inputImage, newSpacing, inputImage->getUid()+"_copy", inputImage->getName()+"_copy");
-
-	return imageCopied;
+	return resampleImageToMaxInPlaneResolution(mServices->patient(), inputImage, 512,
+												inputImage->getUid()+"_copy", inputImage->getName()+"_copy");
 }
 
 
