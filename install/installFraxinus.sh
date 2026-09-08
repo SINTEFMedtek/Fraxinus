@@ -127,6 +127,14 @@ if [ -z "$FRAXINUS_ROOT" ]; then
     echo "ERROR: Could not find a Fraxinus folder inside the extracted tarball."
     exit 1
 fi
+# The new version is extracted above, so it's safe to now wipe any old
+# install: ~/Fraxinus/Fraxinus is pure install payload for this app (no user
+# state -- venvs/models/Patients live at the ~/Fraxinus family-folder level,
+# shared with FraxinusExcelsior's own ~/Fraxinus/FraxinusExcelsior, and must
+# not be touched here). A full wipe of just this app's subfolder avoids stale
+# files from a previous version (e.g. an old/renamed plugin .so) lingering
+# and getting loaded alongside the new set.
+rm -rf ~/Fraxinus/Fraxinus
 mkdir -p ~/Fraxinus/Fraxinus
 cp -r "$FRAXINUS_ROOT"/* ~/Fraxinus/Fraxinus/
 rm -rf Fraxinus_temp
