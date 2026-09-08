@@ -50,9 +50,14 @@ esac
 
 # ---------------------------------------------------------------------------
 # Install system packages
+#
+# libglew-dev: Fraxinus deliberately does not bundle GLEW into the release
+# package (see gp_resolved_file_type_override() in CMake/cxInstallUtilities.cmake)
+# since it must match the system's own OpenGL/driver stack, so it has to come
+# from the system instead.
 # ---------------------------------------------------------------------------
 sudo apt-get -y update
-sudo apt-get -y install libpcre2-16-0 libdouble-conversion3 git wget unzip
+sudo apt-get -y install libglew-dev libpcre2-16-0 libdouble-conversion3 git wget unzip
 
 if [ "$NEED_DEADSNAKES" = true ]; then
     sudo apt-get -y install software-properties-common
