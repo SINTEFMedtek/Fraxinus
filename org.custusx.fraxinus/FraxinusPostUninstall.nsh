@@ -5,7 +5,7 @@
 ; between Fraxinus and FraxinusExcelsior when both are installed, so removing
 ; them is opt-in only, never automatic.
 
-MessageBox MB_YESNO|MB_ICONQUESTION "Also remove the downloaded AI models, Python virtual environments, and Elastix (several GB)?$\r$\n$\r$\nThese are shared with Fraxinus/FraxinusExcelsior if both are installed on this machine - removing them here removes them for both.$\r$\n$\r$\nThis cannot be undone, and re-installing later means re-running the slow setup steps again." IDYES fxpu_remove_extras IDNO fxpu_keep_extras
+MessageBox MB_YESNO|MB_ICONQUESTION "Also remove the downloaded AI models, Python virtual environments, and Elastix (several GB)?$\r$\n$\r$\nThese are shared with Fraxinus/FraxinusExcelsior if both are installed on this machine - removing them here removes them for both.$\r$\n$\r$\nThis cannot be undone, and re-installing later means re-running the slow setup steps again." /SD IDNO IDYES fxpu_remove_extras IDNO fxpu_keep_extras
 
 fxpu_remove_extras:
   DetailPrint "Removing $PROFILE\Fraxinus\virtualEnvironments"
