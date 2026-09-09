@@ -142,6 +142,7 @@ if(CX_WINDOWS)
   # silently dropped -- which is why the NSIS component page's tooltips were
   # blank despite these being "set" correctly.
   set_property(GLOBAL PROPERTY CPACK_COMPONENTS_ALL Core RaidionicsSetup TotalSegSetup ElastixSetup)
+  set_property(GLOBAL PROPERTY CPACK_FRAX_FAMILY_FOLDER_NAME "${CX_FAMILY_FOLDER_NAME}")
 
   if(CX_FRAXINUS_PRIVATE)
     set_property(GLOBAL PROPERTY CPACK_COMPONENT_CORE_DISPLAY_NAME "FraxinusExcelsior Core")

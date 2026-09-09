@@ -41,7 +41,7 @@ fxpi_skip_elastix:
 ; Report any failures to the user, since these console windows close
 ; immediately and the exit codes above are otherwise easy to miss.
 StrCmp $R8 "" fxpi_no_failures
-  MessageBox MB_ICONEXCLAMATION|MB_OK "The following optional Fraxinus component(s) failed to set up correctly:$\r$\n$\r$\n$R8$\r$\nFraxinus will still run, but the related feature(s) may not work until this is fixed.$\r$\n$\r$\nSee the log files under $PROFILE\Fraxinus\install_logs\ for details, or try re-running the corresponding install script manually from $INSTDIR."
+  MessageBox MB_ICONEXCLAMATION|MB_OK "The following optional Fraxinus component(s) failed to set up correctly:$\r$\n$\r$\n$R8$\r$\nFraxinus will still run, but the related feature(s) may not work until this is fixed.$\r$\n$\r$\nSee the log files under $PROFILE\${CX_FAMILY_FOLDER_NAME}\install_logs\ for details, or try re-running the corresponding install script manually from $INSTDIR."
 fxpi_no_failures:
 
 ; ================= End Fraxinus post-install =================

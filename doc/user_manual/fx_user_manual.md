@@ -83,8 +83,8 @@ step you can go to any of the other steps.
 In this step you can create a new or load an old patient. There is also a button to *Restore factory settings*.
 If you change some settings in the program which you are not able to undo, or the program for some reason
 starts to behave badly, you can use this button to return the program to its original state.
-This button deletes the folder *Fraxinus_settings* in your home folder. If anything seems to be wrong with
-the program, deleting this folder and starting it again might help.
+This button deletes the folder *Fraxinus_settings* inside the *Fraxinus* folder in your home folder. If anything
+seems to be wrong with the program, deleting this folder and starting it again might help.
 
 ### Import {#description_import}
 
@@ -220,7 +220,7 @@ Fraxinus default settings.
 
 To enable the menu bar with all the options from CustusX: open the file
 
-    C:\Users\your_user_name\Fraxinus_settings\profiles\Bronchoscopy\settings\settings.ini
+    C:\Users\your_user_name\Fraxinus\Fraxinus_settings\profiles\Bronchoscopy\settings\settings.ini
 
 where you must use the *your_user_name* you have on your computer. Change *showMenuBar=false*
 to *showMenuBar=true*. Then start the program. One thing this enables is e.g. import of the lung volume
