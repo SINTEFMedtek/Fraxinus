@@ -50,9 +50,14 @@ esac
 
 # ---------------------------------------------------------------------------
 # Install system packages
+#
+# libglew-dev: Fraxinus deliberately does not bundle GLEW into the release
+# package (see gp_resolved_file_type_override() in CMake/cxInstallUtilities.cmake)
+# since it must match the system's own OpenGL/driver stack, so it has to come
+# from the system instead.
 # ---------------------------------------------------------------------------
 sudo apt-get -y update
-sudo apt-get -y install libpcre2-16-0 libdouble-conversion3 git wget unzip
+sudo apt-get -y install libglew-dev libpcre2-16-0 libdouble-conversion3 git wget unzip
 
 if [ "$NEED_DEADSNAKES" = true ]; then
     sudo apt-get -y install software-properties-common
@@ -109,7 +114,9 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Unpack to ~/Fraxinus
+# Unpack to ~/Fraxinus/Fraxinus (~/Fraxinus is the shared family folder --
+# venvs/models/Patients live there too, alongside FraxinusExcelsior's own
+# ~/Fraxinus/FraxinusExcelsior app folder when that's installed)
 # ---------------------------------------------------------------------------
 if [ -d "Fraxinus_temp" ]; then
     rm -rf Fraxinus_temp
@@ -125,20 +132,31 @@ if [ -z "$FRAXINUS_ROOT" ]; then
     echo "ERROR: Could not find a Fraxinus folder inside the extracted tarball."
     exit 1
 fi
-mkdir -p ~/Fraxinus
-cp -r "$FRAXINUS_ROOT"/* ~/Fraxinus/
+# The new version is extracted above, so it's safe to now wipe any old
+# install: ~/Fraxinus/Fraxinus is pure install payload for this app (no user
+# state -- venvs/models/Patients live at the ~/Fraxinus family-folder level,
+# shared with FraxinusExcelsior's own ~/Fraxinus/FraxinusExcelsior, and must
+# not be touched here). A full wipe of just this app's subfolder avoids stale
+# files from a previous version (e.g. an old/renamed plugin .so) lingering
+# and getting loaded alongside the new set.
+rm -rf ~/Fraxinus/Fraxinus
+mkdir -p ~/Fraxinus/Fraxinus
+cp -r "$FRAXINUS_ROOT"/* ~/Fraxinus/Fraxinus/
 rm -rf Fraxinus_temp
 
-cd ~/Fraxinus
+cd ~/Fraxinus/Fraxinus
 
 # ---------------------------------------------------------------------------
-# Install Elastix
+# Install Elastix (shared across the Fraxinus family, like the virtual
+# environments/models below)
 # ---------------------------------------------------------------------------
 ELASTIX_VERSION="5.3.0"
 if command -v elastix > /dev/null 2>&1; then
     echo "Elastix is already installed, skipping."
 else
     echo "Installing Elastix $ELASTIX_VERSION..."
+    mkdir -p ~/Fraxinus
+    cd ~/Fraxinus
     wget "https://github.com/SuperElastix/elastix/releases/download/${ELASTIX_VERSION}/elastix-${ELASTIX_VERSION}-ubuntu.zip"
     unzip -o "elastix-${ELASTIX_VERSION}-ubuntu.zip" -d elastix
     chmod +x elastix/bin/elastix elastix/bin/transformix
@@ -149,10 +167,11 @@ else
     echo 'export PATH=$HOME/Fraxinus/elastix/bin:$PATH' >> ~/.bashrc
     echo 'export LD_LIBRARY_PATH=$HOME/Fraxinus/elastix/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
     source ~/.bashrc
+    cd ~/Fraxinus/Fraxinus
 fi
 
 # ---------------------------------------------------------------------------
-# Download Raidionics AI models
+# Download Raidionics AI models (shared across the Fraxinus family)
 # ---------------------------------------------------------------------------
 RAIDIONICS_MODELS_URL="https://github.com/raidionics/Raidionics-models/releases/download/v1.3.0-rc/"
 RAIDIONICS_MODELS=(
@@ -165,8 +184,8 @@ RAIDIONICS_MODELS=(
     "Raidionics-CT_Tumor-v13.zip"
 )
 
-mkdir -p ~/Fraxinus_settings/models/raidionics_models
-cd ~/Fraxinus_settings/models/raidionics_models/
+mkdir -p ~/Fraxinus/models/raidionics_models
+cd ~/Fraxinus/models/raidionics_models/
 
 for MODEL in "${RAIDIONICS_MODELS[@]}"; do
     echo "Downloading $MODEL..."
@@ -178,10 +197,10 @@ for MODEL in "${RAIDIONICS_MODELS[@]}"; do
 done
 
 # ---------------------------------------------------------------------------
-# Create virtual Python environments
+# Create virtual Python environments (shared across the Fraxinus family)
 # ---------------------------------------------------------------------------
-mkdir -p ~/Fraxinus_settings/virtualEnvironments
-cd ~/Fraxinus_settings/virtualEnvironments
+mkdir -p ~/Fraxinus/virtualEnvironments
+cd ~/Fraxinus/virtualEnvironments
 
 echo "Creating Raidionics virtual environment..."
 rm -rf raidionicsVenv
@@ -225,11 +244,11 @@ fi
 # ---------------------------------------------------------------------------
 # Install desktop launcher
 # ---------------------------------------------------------------------------
-cd ~/Fraxinus
+cd ~/Fraxinus/Fraxinus
 if [ -f "Fraxinus.desktop" ]; then
-    EXEC_PATH="$HOME/Fraxinus/bin/Fraxinus"
-    ICON_PATH="$HOME/Fraxinus/icons/Fraxinus.png"
-    sed -i "s|Path=.*|Path=$HOME/Fraxinus/bin|g" Fraxinus.desktop
+    EXEC_PATH="$HOME/Fraxinus/Fraxinus/bin/Fraxinus"
+    ICON_PATH="$HOME/Fraxinus/Fraxinus/icons/Fraxinus.png"
+    sed -i "s|Path=.*|Path=$HOME/Fraxinus/Fraxinus/bin|g" Fraxinus.desktop
     sed -i "s|Exec=.*|Exec=$EXEC_PATH|g" Fraxinus.desktop
     sed -i "s|Icon=.*|Icon=$ICON_PATH|g" Fraxinus.desktop
     cp Fraxinus.desktop ~/Desktop/
@@ -237,7 +256,21 @@ if [ -f "Fraxinus.desktop" ]; then
     chmod +x ~/Desktop/Fraxinus.desktop
 fi
 
+# ---------------------------------------------------------------------------
+# Desktop shortcut to the (shared, family-level) Patients folder
+# ---------------------------------------------------------------------------
+mkdir -p ~/Fraxinus/Patients
+cat > ~/Desktop/Fraxinus_Patients.desktop <<EOF
+[Desktop Entry]
+Type=Link
+Name=Fraxinus Patients
+Icon=folder
+URL=$HOME/Fraxinus/Patients
+EOF
+gio set ~/Desktop/Fraxinus_Patients.desktop metadata::trusted true 2>/dev/null || true
+chmod +x ~/Desktop/Fraxinus_Patients.desktop
+
 echo ""
 echo "---------- Fraxinus installation complete ----------"
 echo "Launch Fraxinus from the desktop shortcut or run:"
-echo "  cd $HOME/Fraxinus/bin && ./Fraxinus"
+echo "  cd $HOME/Fraxinus/Fraxinus/bin && ./Fraxinus"

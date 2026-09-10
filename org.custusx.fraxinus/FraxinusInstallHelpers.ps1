@@ -9,7 +9,11 @@
 # as soon as the script exits.
 function Start-FraxinusInstallLog {
     param([Parameter(Mandatory)][string]$Name)
-    $logDir = Join-Path $env:USERPROFILE 'Fraxinus_settings\install_logs'
+    # Shared family folder (see CX_FAMILY_FOLDER_NAME) -- these venv/model
+    # installs are shared between Fraxinus and FraxinusExcelsior, so their
+    # setup logs live at the family level too, not under either app's own
+    # per-app settings folder.
+    $logDir = Join-Path $env:USERPROFILE 'Fraxinus\install_logs'
     New-Item -ItemType Directory -Force -Path $logDir | Out-Null
     $logPath = Join-Path $logDir "$Name.log"
     Start-Transcript -Path $logPath -Append | Out-Null

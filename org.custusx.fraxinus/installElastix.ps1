@@ -5,7 +5,12 @@ $ErrorActionPreference = "Stop"
 $logPath = Start-FraxinusInstallLog -Name "Elastix"
 
 try {
-    $ZipUrl     = "https://github.com/SuperElastix/elastix/releases/download/5.3.0/elastix-5.3.0-windows.zip"
+    # Pinned: also read by CMake (org.custusx.fraxinus/CMakeLists.txt,
+    # cxsetup_extract_ps1_version) to fill in the NSIS installer's
+    # version-check marker below. Keep this variable name and quoting style
+    # if it moves.
+    $ElastixVersion = "5.3.0"
+    $ZipUrl     = "https://github.com/SuperElastix/elastix/releases/download/$ElastixVersion/elastix-$ElastixVersion-windows.zip"
     $ZipPath    = Join-Path $env:TEMP "elastix.zip"
     $InstallDir = "C:\Elastix"
 
@@ -26,6 +31,10 @@ try {
     } else {
         Write-Host "Elastix already in USER PATH."
     }
+
+    # Read by the NSIS installer (Function .onInit in NSIS.template.in) to
+    # decide whether to pre-uncheck this component's checkbox next install.
+    Set-Content -Path (Join-Path $InstallDir 'installed_version.txt') -Value $ElastixVersion -NoNewline
 
     Write-Host ""
     Write-Host "==============================================="
