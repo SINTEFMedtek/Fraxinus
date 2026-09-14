@@ -10,7 +10,7 @@ set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/..)
 ###############################################################################
 macro(cxsetup_install_decorate_generators)
 
-        set(CX_LICENSE_FILE "${SOURCE_DIR}/doc/License.txt")
+        set(CX_LICENSE_FILE "${SOURCE_DIR}/License.txt")
         set_property(GLOBAL PROPERTY CX_LICENSE_FILE "${CX_LICENSE_FILE}")
 
         set_property(GLOBAL PROPERTY CPACK_RESOURCE_FILE_WELCOME "${SOURCE_DIR}/doc/install_text/install_welcome.txt")
