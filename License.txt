@@ -1,4 +1,4 @@
-BSD-3-Clause
+BSD 3-Clause License
 
 Copyright (c) 2008-2026, St. Olav's University Hospital and SINTEF Digital, Department of Health Research
 All rights reserved.
