@@ -90,25 +90,23 @@ create-release:
       LINKS=$(jq -n --arg url "$INSTALL_URL" \
         '[{name: "Fraxinus installer script (all Ubuntu versions)", url: $url, link_type: "package", filepath: "/installFraxinus.sh"}]')
 
-      # release_notes_test.md links to the actual latest stable release via a
-      # {{LATEST_STABLE_RELEASE_URL}} placeholder rather than GitLab's own
-      # permalink/latest: that orders purely by released_at with no special
-      # casing for pre-release tags, so once this RC's own release exists,
-      # permalink/latest would point right back at it. Resolve the real
-      # latest non-RC release via the API and substitute it in; falls back to
-      # permalink/latest itself if none is found yet (e.g. the very first
-      # release ever created happens to be an RC). A no-op substitution for
-      # any notes file that doesn't contain the placeholder (i.e. every real,
-      # per-version release notes file).
-      LATEST_STABLE_URL="${CI_PROJECT_URL}/-/releases/permalink/latest"
-      RESOLVED_URL=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases?order_by=released_at&sort=desc&per_page=20" \
-        | jq -r '[.[] | select(.tag_name | test("-rc[0-9]+$") | not)][0]._links.self // empty')
-      if [ -n "$RESOLVED_URL" ]; then
-        LATEST_STABLE_URL="$RESOLVED_URL"
-      fi
+      DESCRIPTION=$(jq -Rs . < "$NOTES_MD")
 
-      DESCRIPTION=$(sed "s|{{LATEST_STABLE_RELEASE_URL}}|$LATEST_STABLE_URL|" "$NOTES_MD" | jq -Rs .)
+      # GitLab's permalink/latest orders releases purely by released_at, with
+      # no special-casing for pre-release tags -- so an rc tag's own release
+      # would otherwise become "latest" the moment it's created, breaking the
+      # README's curl-install-latest one-liner for everyone until the real
+      # release follows. Backdate an rc release to just before the current
+      # latest non-rc release instead: it still gets its own release page,
+      # just never outranks the real latest release.
+      BACKDATE=""
+      if echo "$CI_COMMIT_TAG" | grep -qE -- '-rc[0-9]+$'; then
+        BACKDATE=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases?order_by=released_at&sort=desc&per_page=20" \
+          | jq -r '[.[] | select(.tag_name | test("-rc[0-9]+$") | not)]
+                    | (.[0].released_at // empty) | sub("\\.[0-9]+Z$"; "Z")
+                    | fromdateiso8601 - 60 | todateiso8601')
+      fi
 
       # Not --fail-with-body: a retried pipeline (e.g. after fixing an unrelated
       # failure elsewhere) re-runs this job even though the release from an
@@ -119,8 +117,9 @@ create-release:
       HTTP_CODE=$(curl -s -o /tmp/release_response.json -w "%{http_code}" \
         --request POST --header "JOB-TOKEN: $CI_JOB_TOKEN" \
         --header "Content-Type: application/json" \
-        --data "$(jq -n --arg tag "$CI_COMMIT_TAG" --argjson links "$LINKS" --argjson desc "$DESCRIPTION" \
-          '{tag_name: $tag, name: $tag, description: $desc, assets: {links: $links}}')" \
+        --data "$(jq -n --arg tag "$CI_COMMIT_TAG" --argjson links "$LINKS" --argjson desc "$DESCRIPTION" --arg backdate "$BACKDATE" \
+          '{tag_name: $tag, name: $tag, description: $desc, assets: {links: $links}}
+           + (if $backdate != "" then {released_at: $backdate} else {} end)')" \
         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases")
 
       if [ "$HTTP_CODE" = "409" ]; then
