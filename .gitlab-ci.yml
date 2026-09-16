@@ -14,6 +14,7 @@ default:
   image: gitlab.sintef.no:5050/custusx/custusx/custusx-build-ubuntu2004:26.04.02
 
 stages:
+  - test-python
   # Platforms build+test serially (24 -> 22 -> 20) to reduce concurrent runner load.
   - build-24
   - test-24
@@ -29,6 +30,7 @@ variables:
   IMAGE_UBUNTU2404: "gitlab.sintef.no:5050/custusx/custusx/custusx-build-ubuntu2404:26.04.02"
 
 include:
+  - local: '.gitlab/ci/test-python.yml'
   - local: '.gitlab/ci/build.yml'
   - local: '.gitlab/ci/test.yml'
   - local: '.gitlab/ci/deploy.yml'
