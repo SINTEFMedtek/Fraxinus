@@ -1,3 +1,4 @@
+from __future__ import print_function
 #####################################################
 # 
 # Used by both CustusX and applications built on top of it (wrapper applications).
@@ -5,7 +6,6 @@
 #
 #####################################################
 
-from __future__ import print_function
 import os.path
 import os
 import sys
@@ -16,6 +16,9 @@ import shutil
 
 def returnCode():
     return 0
+
+def localChangesCode():
+    return 2
 
 def runShell(cmd, path):
     '''
@@ -40,6 +43,8 @@ def runShell(cmd, path):
         return out.strip()
     if "error: The following untracked working tree files would be overwritten" in err:
         return returnCode()
+    if "local changes to the following files would be overwritten" in err:
+        return localChangesCode()
     return None
 
 def getBranchForRepo(path, fallback=None):
@@ -89,12 +94,14 @@ class RepoHandler(object):
             return
         pathfound = os.path.exists(self.repo_path)
         if pathfound:
-          print("Not a git repo, removing folder and contents of %s." % self.repo_path)
-          shutil.rmtree(self.repo_path)
-        
+            print("Not a git repo, removing folder and contents of %s." % self.repo_path)
+
         print('*** %s will be cloned in [%s]' % (self.getName(), self.root_path))
         doprompt = not (self.silent or args.silent_mode)
         self._promptToContinue(doprompt)
+
+        if pathfound:
+            shutil.rmtree(self.repo_path)
 
         self._cloneWithRetry()
 
@@ -133,7 +140,7 @@ class RepoHandler(object):
         - if main_branch is set, use that, else:
         -   try the default and fallback branches
         '''
-        runShell('git fetch', self.repo_path)
+        runShell('git fetch --prune', self.repo_path)
 
         tag = self.args.git_tag
         if tag:
@@ -142,20 +149,45 @@ class RepoHandler(object):
                 exit("tag checkout failed")
             return
         
-        branches = [self.args.main_branch, 
+        branches = [self.args.main_branch,
                     self.default_branch,
                     self.fallback_branch]
         branches = self.cleanBranchList(branches)
 
-        print('Checkout+pull {} to the first existing branch in list [{}]'.format(self.getName(), ','.join(branches)))
-        
+        print('Checkout {} to the first existing branch in list [{}]'.format(self.getName(), ','.join(branches)))
+
         for branch in branches:
+            # A local branch of this name can exist (e.g. left over from an
+            # earlier run on a long-lived build machine or CI runner) even
+            # after its remote counterpart has been deleted or renamed. Don't
+            # trust it just because `git checkout <branch>` trivially succeeds
+            # against it -- verify the remote branch is still there first
+            # (reliable right after the --prune fetch above).
+            is_branch = runShell('git rev-parse --verify refs/remotes/origin/%s' % branch, self.repo_path) is not None
+            # main_branch can also be a tag name (e.g. a tag-triggered CI
+            # build passes its own tag as the ref to check other repos out
+            # to) -- those never exist under refs/remotes/origin/, so fall
+            # back to checking for a tag of that name.
+            is_tag = (not is_branch) and runShell('git rev-parse --verify refs/tags/%s' % branch, self.repo_path) is not None
+            if not (is_branch or is_tag):
+                continue
             result = runShell('git checkout %s' % branch, self.repo_path)
             self.checkSuccess(result)
-            if result is not None:
-                result = runShell('git pull origin %s' % branch, self.repo_path)
-                self.checkSuccess(result)
-                break
+            if result is localChangesCode():
+                # Warned already via checkSuccess(); this branch didn't work,
+                # but don't abort the whole build over it -- try the next
+                # candidate instead, same as any other checkout failure.
+                continue
+            if result is None:
+                continue
+            if is_branch:
+                # Merge in any new remote commits instead of resetting to
+                # origin -- a local commit made here but not yet pushed (e.g.
+                # a release-branch fix or merge queued up before the next
+                # `git push`) must survive this sync rather than silently
+                # vanish the next time this repo gets synced.
+                self.checkSuccess(runShell('git merge origin/%s' % branch, self.repo_path))
+            break
 
     def checkSuccess(self, gitResult):
         if gitResult is returnCode():
@@ -170,6 +202,16 @@ class RepoHandler(object):
             print('- delete the folder containing the above mentioned files and the CustusX build folder.')
             print('- run the script again.')
             sys.exit(1)
+        if gitResult is localChangesCode():
+            print('----------------------------------------------------------------------------')
+            print('|                                     ^                                    |')
+            print('|      You have uncommitted local changes in %s' % self.repo_path)
+            print('----------------------------------------------------------------------------')
+            print('===== Could not switch %s to the branch/commit this build wanted =====' % self.getName())
+            print('Your uncommitted changes were NOT touched or discarded -- git refused to')
+            print('check out over them. Continuing the build with whatever is already checked')
+            print('out there, which may not be what you expect. If that turns out wrong,')
+            print('commit, stash, or discard your local changes in %s and re-run.' % self.repo_path)
 
     def cleanBranchList(self, branches):
         retval = []
@@ -204,5 +246,5 @@ class RepoHandler(object):
     
     def _promptToContinue(self, do_it):
         if do_it:
-            raw_input("\nPress enter to continue or ctrl-C to quit:")
+            input("\nPress enter to continue or ctrl-C to quit:")
     
