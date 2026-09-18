@@ -4,6 +4,7 @@
   stage: deploy
   extends: .build-variables
   environment: production
+  interruptible: false
   variables:
     VERSION: ${CI_COMMIT_SHORT_SHA}
   script:
@@ -60,6 +61,7 @@ create-release:
   stage: deploy
   image: alpine:latest
   needs: ["deploy-tag"]
+  interruptible: false
   rules:
     - if: '$CI_COMMIT_TAG != null'
   script:
@@ -166,6 +168,7 @@ pages:
   stage: deploy
   extends: .build-variables
   environment: production
+  interruptible: false
   variables:
     OS: Ubuntu2004
   script:
