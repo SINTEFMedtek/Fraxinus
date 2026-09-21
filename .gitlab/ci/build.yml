@@ -134,22 +134,25 @@
   - |
     if [ -n "$MISSING_LIBS" ]; then
       echo "Building missing external libs from source:$MISSING_LIBS"
+      # Build and publish libraries one at a time -- not one combined build
+      # for all of $MISSING_LIBS followed by one combined upload pass. A
+      # fast-to-build library would otherwise sit unpublished for the entire
+      # time a slow one (VTK) is still compiling, even though nothing about
+      # the upload actually depends on that wait -- and the whole point of
+      # publishing to CX's shared registry is for other projects (or CX's own
+      # next run) to reuse it as soon as possible.
       for LIB in $MISSING_LIBS; do
         rm -rf $BASE_DIR/$LIB
-      done
-      eval ./script/cxFraxinusInstaller.py -s --full -j 4 -t Release \
-        --main_branch $CX_COMMIT \
-        --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
-        components $MISSING_LIBS
-      # Guarded the same way as the lookup above: on a cold BASE_DIR (first-ever
-      # run), building just these external-lib components never checks out
-      # CustusX, so cxLibVersionHash.py still won't exist here -- skip caching
-      # for now rather than hard-failing the job right after the expensive
-      # from-scratch build; the next run (once CustusX is checked out below)
-      # will be able to cache normally.
-      if [ -f "$CX_SOURCE_PATH/install/cx/build/cxLibVersionHash.py" ]; then
-        echo "Uploading newly-built libs..."
-        for LIB in $MISSING_LIBS; do
+        eval ./script/cxFraxinusInstaller.py -s --full -j 4 -t Release \
+          --main_branch $CX_COMMIT \
+          --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
+          components $LIB
+        # Guarded the same way as the lookup above: on a cold BASE_DIR
+        # (first-ever run), building just an external-lib component never
+        # checks out CustusX, so cxLibVersionHash.py still won't exist here --
+        # skip caching this one library rather than hard-failing the job; the
+        # next run (once CustusX is checked out below) will cache normally.
+        if [ -f "$CX_SOURCE_PATH/install/cx/build/cxLibVersionHash.py" ]; then
           LIB_HASH=$(python3 "$CX_SOURCE_PATH/install/cx/build/cxLibVersionHash.py" "$LIB" $CX_IGSTK_FLAG)
           LIB_VERSION="${LIB}-${OS}-${CX_IGSTK_VARIANT}-${IMAGE_TAG}-${LIB_HASH}"
           # Publish to CX's shared custusx-external-lib registry (not just our
@@ -171,10 +174,10 @@
             curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file /tmp/$OWN_LIB_FILE "$OWN_LIB_URL" || true
           fi
           echo "$LIB_VERSION" > "$BASE_DIR/.lib_version_${LIB}"
-        done
-      else
-        echo "CustusX not yet checked out locally -- skipping lib caching this run."
-      fi
+        else
+          echo "  $LIB: CustusX not yet checked out locally -- skipping lib caching this run."
+        fi
+      done
     fi
   - |
     echo "Building Fraxinus..."
