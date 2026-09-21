@@ -209,3 +209,97 @@ build-ubuntu24:
   variables:
     OS: Ubuntu2404
     BASE_DIR: /builds/Ubuntu2404
+
+# Keeps only the KEEP_VERSIONS newest packages per library/OS/variant group in
+# the fraxinus-external-lib registry -- our own fallback for whatever CX's
+# custusx-external-lib registry doesn't have yet (see build.yml's per-library
+# lookup). Deletes a whole group outright, regardless of KEEP_VERSIONS, if its
+# prefix no longer matches a live job's current Docker image tag/IGSTK
+# variant (CustusX#50's identical cleanup-old-external-libs explains why that
+# extra check exists: a plain keep-N-per-group rotation never notices a
+# permanently abandoned prefix, e.g. after a Docker image bump). Run on a
+# schedule (e.g. weekly) to prevent unbounded accumulation. Also available as
+# a manual job.
+cleanup-old-external-libs:
+  stage: build
+  image: $IMAGE_UBUNTU2404
+  variables:
+    KEEP_VERSIONS: "1"
+  script:
+    - |
+      python3 << 'PYEOF'
+      import json, os, sys
+      import urllib.request, urllib.error
+      from collections import defaultdict
+
+      api   = os.environ['CI_API_V4_URL']
+      proj  = os.environ['CI_PROJECT_ID']
+      token = os.environ['CI_JOB_TOKEN']
+      keep  = int(os.environ.get('KEEP_VERSIONS', '1'))
+      pkg_name = 'fraxinus-external-lib'
+
+      def sanitize_image_tag(image):
+          return image.rsplit('/', 1)[-1].replace(':', '_')
+
+      valid_image_tags = {
+          sanitize_image_tag(os.environ['IMAGE_UBUNTU2004']),
+          sanitize_image_tag(os.environ['IMAGE_UBUNTU2204']),
+          sanitize_image_tag(os.environ['IMAGE_UBUNTU2404']),
+      }
+
+      def is_current_format(prefix):
+          for tag in valid_image_tags:
+              suffix = '-' + tag
+              if prefix.endswith(suffix) and prefix[:-len(suffix)].endswith(('-plain', '-igstk')):
+                  return True
+          return False
+
+      def api_request(path, method='GET'):
+          req = urllib.request.Request(
+              f'{api}/projects/{proj}/{path}',
+              headers={'JOB-TOKEN': token},
+              method=method)
+          with urllib.request.urlopen(req) as r:
+              body = r.read()
+              return json.loads(body) if body else None
+
+      packages, page = [], 1
+      while True:
+          batch = api_request(f'packages?package_name={pkg_name}&per_page=100&page={page}')
+          if not batch:
+              break
+          packages.extend(batch)
+          if len(batch) < 100:
+              break
+          page += 1
+      print(f'Found {len(packages)} package(s) named "{pkg_name}"')
+
+      groups = defaultdict(list)
+      for p in packages:
+          prefix = p['version'].rsplit('-', 1)[0]
+          groups[prefix].append(p)
+
+      deleted = 0
+      for prefix, pkgs in sorted(groups.items()):
+          pkgs.sort(key=lambda p: p['created_at'], reverse=True)
+          if is_current_format(prefix):
+              kept = [p['version'] for p in pkgs[:keep]]
+              print(f'{prefix}: keeping {kept}')
+              to_remove = pkgs[keep:]
+          else:
+              print(f'{prefix}: stale format/image tag, deleting all {len(pkgs)} version(s)')
+              to_remove = pkgs
+          for old in to_remove:
+              try:
+                  api_request(f'packages/{old["id"]}', method='DELETE')
+                  print(f'  Deleted {old["version"]} (id={old["id"]})')
+                  deleted += 1
+              except urllib.error.HTTPError as e:
+                  print(f'  WARNING: failed to delete {old["version"]}: {e}', file=sys.stderr)
+
+      print(f'Done. Deleted {deleted} old package(s).')
+      PYEOF
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - when: manual
+      allow_failure: true
