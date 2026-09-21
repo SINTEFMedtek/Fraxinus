@@ -148,14 +148,28 @@
       # from-scratch build; the next run (once CustusX is checked out below)
       # will be able to cache normally.
       if [ -f "$CX_SOURCE_PATH/install/cx/build/cxLibVersionHash.py" ]; then
-        echo "Uploading newly-built libs to own Package Registry for future runs..."
+        echo "Uploading newly-built libs..."
         for LIB in $MISSING_LIBS; do
           LIB_HASH=$(python3 "$CX_SOURCE_PATH/install/cx/build/cxLibVersionHash.py" "$LIB" $CX_IGSTK_FLAG)
           LIB_VERSION="${LIB}-${OS}-${CX_IGSTK_VARIANT}-${IMAGE_TAG}-${LIB_HASH}"
-          LIB_FILE="fx-external-lib-${LIB}-${OS}-${CX_IGSTK_VARIANT}.tar.gz"
-          LIB_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/fraxinus-external-lib/${LIB_VERSION}/${LIB_FILE}"
-          ( cd $BASE_DIR && tar -czf /tmp/$LIB_FILE --exclude='*/CMakeFiles' --exclude='*/.git' $LIB )
-          curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file /tmp/$LIB_FILE "$LIB_URL" || true
+          # Publish to CX's shared custusx-external-lib registry (not just our
+          # own), so every other project building this same OS/variant/hash --
+          # including CX's own next build -- can reuse it instead of each
+          # rebuilding independently. Needs CX's project to allow this
+          # project's CI_JOB_TOKEN to write to it (Settings > CI/CD > Job
+          # token permissions) -- granted for the whole custusx group.
+          CX_LIB_FILE="cx-external-lib-${LIB}-${OS}-${CX_IGSTK_VARIANT}.tar.gz"
+          CX_LIB_URL="${CI_API_V4_URL}/projects/${CX_REGISTRY_PROJECT}/packages/generic/custusx-external-lib/${LIB_VERSION}/${CX_LIB_FILE}"
+          ( cd $BASE_DIR && tar -czf /tmp/$CX_LIB_FILE --exclude='*/CMakeFiles' --exclude='*/.git' $LIB )
+          if curl --fail --silent --show-error --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file /tmp/$CX_LIB_FILE "$CX_LIB_URL"; then
+            echo "  $LIB: published to CX's shared registry."
+          else
+            echo "  $LIB: publish to CX's registry failed, falling back to our own."
+            OWN_LIB_FILE="fx-external-lib-${LIB}-${OS}-${CX_IGSTK_VARIANT}.tar.gz"
+            OWN_LIB_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/fraxinus-external-lib/${LIB_VERSION}/${OWN_LIB_FILE}"
+            ( cd $BASE_DIR && tar -czf /tmp/$OWN_LIB_FILE --exclude='*/CMakeFiles' --exclude='*/.git' $LIB )
+            curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file /tmp/$OWN_LIB_FILE "$OWN_LIB_URL" || true
+          fi
           echo "$LIB_VERSION" > "$BASE_DIR/.lib_version_${LIB}"
         done
       else
