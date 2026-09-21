@@ -106,8 +106,16 @@ create-release:
       INSTALL_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/Fraxinus/${CI_COMMIT_TAG}/installFraxinus.sh"
       # filepath enables the permalink/latest/downloads/installFraxinus.sh shortcut,
       # so the README install command doesn't need updating on every release.
-      LINKS=$(jq -n --arg url "$INSTALL_URL" \
-        '[{name: "Fraxinus installer script (all Ubuntu versions)", url: $url, link_type: "package", filepath: "/installFraxinus.sh"}]')
+      # A second link with the same underlying url but a version-suffixed
+      # filepath gives anyone downloading manually (rather than via the
+      # curl-latest one-liner) a distinctly-named file per release, so
+      # re-downloading a different version doesn't collide with (or get
+      # silently browser-renamed alongside) an earlier download -- CustusX#46.
+      LINKS=$(jq -n --arg url "$INSTALL_URL" --arg tag "${CI_COMMIT_TAG}" \
+        '[
+          {name: "Fraxinus installer script (all Ubuntu versions)", url: $url, link_type: "package", filepath: "/installFraxinus.sh"},
+          {name: ("Fraxinus installer script, " + $tag + " (all Ubuntu versions)"), url: $url, link_type: "package", filepath: ("/installFraxinus-" + $tag + ".sh")}
+        ]')
 
       DESCRIPTION=$(jq -Rs . < "$NOTES_MD")
 
