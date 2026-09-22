@@ -39,23 +39,36 @@
     - mkdir -p $CX_SOURCE_PATH/package_artefacts
     - cp -R $OS/package_artefacts/Fraxinus*.tar.gz $CX_SOURCE_PATH/package_artefacts/
     - ls $CX_SOURCE_PATH/package_artefacts  2> /dev/null
-    # CustusX#46: capture the test command's exit code instead of letting a
-    # nonzero exit (e.g. 42 for failing-but-not-crashed Catch tests) abort the
-    # script here - that would skip the copy below and leave the junit report
-    # (and therefore the GitLab Tests tab / artifact) empty for every failing
-    # run. Re-raise it at the end so allow_failure.exit_codes still applies.
-    - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx; TEST_EXIT_CODE=$?
-    # CustusX#46: copy to $GIT_CLONE_PATH, not $CI_PROJECT_DIR - artifact
-    # paths are resolved by the runner relative to GIT_CLONE_PATH (.build-
-    # variables overrides it), and depending on CI_PROJECT_DIR to have been
-    # re-derived to match it exactly is one indirection too many; using our
-    # own already-set variable removes the ambiguity entirely. Also: on
-    # these persistent runners, the destination test_results can already
-    # exist from a previous run - `cp -R SRC DEST/` then copies SRC *inside*
-    # an existing DEST (test_results/test_results/*junit.xml) instead of
-    # merging into it, which is why the artifact glob below found nothing on
-    # the first real run of this fix. `SRC/.` copies SRC's contents into
-    # DEST regardless of whether DEST already existed.
+    # CustusX#46: GitLab's shell executor runs each script line under `set
+    # -e` (errexit) - `cmd; TEST_EXIT_CODE=$?` as a single line does NOT
+    # protect against that: errexit fires the instant `cmd` itself returns
+    # nonzero (e.g. 42 for failing-but-not-crashed Catch tests), aborting
+    # the whole line - and therefore the whole script, since GitLab treats
+    # that as the line's own exit code - *before* the assignment ever runs.
+    # That's what silently dropped the copy below (and therefore the junit
+    # report / GitLab Tests tab / artifact) on every actually-failing run:
+    # not a wrong destination path, but the copy step never executing at
+    # all. `if cmd; then ...; else ...; fi` is exempt from errexit (POSIX
+    # explicitly excludes an if/while/until condition), so this is the
+    # correct way to capture a command's exit code without also failing
+    # the line - then the copy step below is what actually re-raises it,
+    # via `exit $TEST_EXIT_CODE`, once the copy has had a chance to run.
+    - |
+      if xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx; then
+        TEST_EXIT_CODE=0
+      else
+        TEST_EXIT_CODE=$?
+      fi
+    # Copy to $GIT_CLONE_PATH, not $CI_PROJECT_DIR - artifact paths are
+    # resolved by the runner relative to GIT_CLONE_PATH (.build-variables
+    # overrides it), and depending on CI_PROJECT_DIR to have been re-derived
+    # to match it exactly is one indirection too many; using our own
+    # already-set variable removes the ambiguity entirely. Also: on these
+    # persistent runners, the destination test_results can already exist
+    # from a previous run - `cp -R SRC DEST/` then copies SRC *inside* an
+    # existing DEST (test_results/test_results/*junit.xml) instead of
+    # merging into it. `SRC/.` copies SRC's contents into DEST regardless
+    # of whether DEST already existed.
     - mkdir -p ${GIT_CLONE_PATH}/test_results && cp -R $CX_SOURCE_PATH/test_results/. ${GIT_CLONE_PATH}/test_results/
     - exit $TEST_EXIT_CODE
   # Exit code 42 (cx.build.cxTestRunner.CATCH_TEST_FAILURE_EXIT_CODE) means the
