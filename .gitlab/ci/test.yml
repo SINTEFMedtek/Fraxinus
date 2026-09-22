@@ -45,7 +45,13 @@
     # (and therefore the GitLab Tests tab / artifact) empty for every failing
     # run. Re-raise it at the end so allow_failure.exit_codes still applies.
     - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx; TEST_EXIT_CODE=$?
-    - cp -R $CX_SOURCE_PATH/test_results ${CI_PROJECT_DIR}/test_results/
+    # CustusX#46: on these persistent runners, ${CI_PROJECT_DIR}/test_results
+    # can already exist from a previous run - `cp -R SRC DEST/` then copies
+    # SRC *inside* an existing DEST (test_results/test_results/*junit.xml)
+    # instead of merging into it, which is why the artifact glob below found
+    # nothing on the first real run of this fix. `SRC/.` copies SRC's
+    # contents into DEST regardless of whether DEST already existed.
+    - mkdir -p ${CI_PROJECT_DIR}/test_results && cp -R $CX_SOURCE_PATH/test_results/. ${CI_PROJECT_DIR}/test_results/
     - exit $TEST_EXIT_CODE
   # Exit code 42 (cx.build.cxTestRunner.CATCH_TEST_FAILURE_EXIT_CODE) means the
   # Catch tests ran to completion but some assertions failed/crashed - show the
