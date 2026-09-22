@@ -51,6 +51,16 @@
       rm -rf $BUILD_DIR
     fi
   - !reference [.set-cx-commit, script]
+  # CustusX#46: cheap checkout-only pass (no configure/make) so
+  # $CX_SOURCE_PATH/install/cx/build/cxLibVersionHash.py exists before the
+  # per-library cache lookup below, which requires it to even compute what
+  # to look up. Without this, a cold BASE_DIR (first run on a runner, or an
+  # ephemeral/non-persistent one) always treats every library as a cache
+  # miss and does a full from-scratch build, even when CX's own
+  # build-external-libs-* jobs already published fresh packages for this
+  # exact OS/variant/hash - reproduced on FraxinusExcelsior's build-ubuntu20
+  # (IGSTK variant) job.
+  - eval ./script/cxFraxinusInstaller.py -s --checkout --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx components CustusX
   # Set IGSTK variant variables. Must come first so cleanup below is conditional.
   # No IGSTK_FLAG: PrivateControlData auto-detects via /etc/os-release (Ubuntu 20/22 → on,
   # Ubuntu 24 → off), which is always correct for the Docker images in use.
