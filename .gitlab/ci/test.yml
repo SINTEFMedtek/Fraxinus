@@ -39,8 +39,21 @@
     - mkdir -p $CX_SOURCE_PATH/package_artefacts
     - cp -R $OS/package_artefacts/Fraxinus*.tar.gz $CX_SOURCE_PATH/package_artefacts/
     - ls $CX_SOURCE_PATH/package_artefacts  2> /dev/null
-    - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
+    # CustusX#46: capture the test command's exit code instead of letting a
+    # nonzero exit (e.g. 42 for failing-but-not-crashed Catch tests) abort the
+    # script here - that would skip the copy below and leave the junit report
+    # (and therefore the GitLab Tests tab / artifact) empty for every failing
+    # run. Re-raise it at the end so allow_failure.exit_codes still applies.
+    - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx; TEST_EXIT_CODE=$?
     - cp -R $CX_SOURCE_PATH/test_results ${CI_PROJECT_DIR}/test_results/
+    - exit $TEST_EXIT_CODE
+  # Exit code 42 (cx.build.cxTestRunner.CATCH_TEST_FAILURE_EXIT_CODE) means the
+  # Catch tests ran to completion but some assertions failed/crashed - show the
+  # job as an orange "warning" in the pipeline instead of solid green, without
+  # blocking the pipeline/merge. Any other non-zero exit is a real build/install
+  # failure and still hard-fails the job as before. (CustusX#46; ported from CX/CX.)
+  allow_failure:
+    exit_codes: 42
   artifacts:
     when: always
     name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}
