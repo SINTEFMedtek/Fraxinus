@@ -32,6 +32,7 @@ _Changes since v26.08_
 
 - CustusX#43 — Windows build object-file paths were close to Windows' 260-char MAX_PATH limit; shortened the default Windows release build root to restore margin
 - CustusX#44 — Fraxinus and FraxinusExcelsior now share venvs/models/Patients under a common family folder on both Linux and Windows
-- CustusX#46 — Various Python release-tooling fixes and test coverage (git sync robustness, release tagging, CI)
+- CustusX#46 — Various Python release-tooling fixes and test coverage (git sync robustness, release tagging, CI); `syncToGitRef()` no longer fails merging on a reused CI runner with no git identity configured
+- CustusX#50 — Reworked external-libs CI caching into independently-published, per-library packages instead of one all-or-nothing combined package, with cleanup of orphaned/old packages and separated plain/igstk cache keys to fix a wrong-VTK_DIR CMake error
 
 </details>
