@@ -17,8 +17,9 @@
       junit: test_results/*junit.xml
 
 .test-job:   # This job runs the Unit + Integration tests
-  # stage is set per-platform job below, to serialize platform builds; it only
-  # starts when the matching platform's build job completes successfully.
+  # needs: (set per-platform job below) makes each test job start as soon as
+  # its matching platform's build job completes, without waiting for the
+  # whole build stage (i.e. all three platform builds) to finish first.
   extends: .build-variables
   script:
     - echo "Running unit tests... "
@@ -38,8 +39,45 @@
     - mkdir -p $CX_SOURCE_PATH/package_artefacts
     - cp -R $OS/package_artefacts/Fraxinus*.tar.gz $CX_SOURCE_PATH/package_artefacts/
     - ls $CX_SOURCE_PATH/package_artefacts  2> /dev/null
-    - xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx
-    - cp -R $CX_SOURCE_PATH/test_results ${CI_PROJECT_DIR}/test_results/
+    # CustusX#46: GitLab's shell executor runs each script line under `set
+    # -e` (errexit) - `cmd; TEST_EXIT_CODE=$?` as a single line does NOT
+    # protect against that: errexit fires the instant `cmd` itself returns
+    # nonzero (e.g. 42 for failing-but-not-crashed Catch tests), aborting
+    # the whole line - and therefore the whole script, since GitLab treats
+    # that as the line's own exit code - *before* the assignment ever runs.
+    # That's what silently dropped the copy below (and therefore the junit
+    # report / GitLab Tests tab / artifact) on every actually-failing run:
+    # not a wrong destination path, but the copy step never executing at
+    # all. `if cmd; then ...; else ...; fi` is exempt from errexit (POSIX
+    # explicitly excludes an if/while/until condition), so this is the
+    # correct way to capture a command's exit code without also failing
+    # the line - then the copy step below is what actually re-raises it,
+    # via `exit $TEST_EXIT_CODE`, once the copy has had a chance to run.
+    - |
+      if xvfb-run ./script/cxJenkinsMasterBuildScript.py --test_package --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx; then
+        TEST_EXIT_CODE=0
+      else
+        TEST_EXIT_CODE=$?
+      fi
+    # Copy to $GIT_CLONE_PATH, not $CI_PROJECT_DIR - artifact paths are
+    # resolved by the runner relative to GIT_CLONE_PATH (.build-variables
+    # overrides it), and depending on CI_PROJECT_DIR to have been re-derived
+    # to match it exactly is one indirection too many; using our own
+    # already-set variable removes the ambiguity entirely. Also: on these
+    # persistent runners, the destination test_results can already exist
+    # from a previous run - `cp -R SRC DEST/` then copies SRC *inside* an
+    # existing DEST (test_results/test_results/*junit.xml) instead of
+    # merging into it. `SRC/.` copies SRC's contents into DEST regardless
+    # of whether DEST already existed.
+    - mkdir -p ${GIT_CLONE_PATH}/test_results && cp -R $CX_SOURCE_PATH/test_results/. ${GIT_CLONE_PATH}/test_results/
+    - exit $TEST_EXIT_CODE
+  # Exit code 42 (cx.build.cxTestRunner.CATCH_TEST_FAILURE_EXIT_CODE) means the
+  # Catch tests ran to completion but some assertions failed/crashed - show the
+  # job as an orange "warning" in the pipeline instead of solid green, without
+  # blocking the pipeline/merge. Any other non-zero exit is a real build/install
+  # failure and still hard-fails the job as before. (CustusX#46; ported from CX/CX.)
+  allow_failure:
+    exit_codes: 42
   artifacts:
     when: always
     name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}
@@ -50,7 +88,7 @@
 
 test-ubuntu20:
   extends: .test-job
-  stage: test-20
+  stage: test
   needs: ["build-ubuntu20"]
   image: $IMAGE_UBUNTU2004
   variables:
@@ -58,7 +96,7 @@ test-ubuntu20:
 
 test-ubuntu22:
   extends: .test-job
-  stage: test-22
+  stage: test
   needs: ["build-ubuntu22"]
   image: $IMAGE_UBUNTU2204
   variables:
@@ -66,7 +104,7 @@ test-ubuntu22:
 
 test-ubuntu24:
   extends: .test-job
-  stage: test-24
+  stage: test
   needs: ["build-ubuntu24"]
   image: $IMAGE_UBUNTU2404
   variables:

@@ -144,7 +144,11 @@ void StateServiceImpl::changeDefaultSettings()
 
 	this->fillDefault("backgroundColor", QColor("black"));
 	this->fillDefault("TrackingPositionFilter/enabled", false);
+#ifdef CX_BUILD_FRAXINUS_PRIVATE
+	this->fillDefault("Gui/showMenuBar", true);
+#else
 	this->fillDefault("Gui/showMenuBar", false);
+#endif
 	this->fillDefault("View/clinicalView", "Radiological");
 	this->fillDefault("View/shadingOn", false);
 	this->fillDefault("View/showMetricNamesInCorner", true);

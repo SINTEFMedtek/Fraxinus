@@ -5,7 +5,6 @@
     - if [ $CI_COMMIT_TAG ]; then CX_COMMIT=$CI_COMMIT_TAG; else CX_COMMIT=${CI_COMMIT_BRANCH:-$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}; fi
 
 .build-variables:
-  # stage is set per-platform job below, to serialize platform builds.
   variables:
     OS: OS
     BASE_DIR: /builds/Fraxinus/$OS
@@ -52,6 +51,16 @@
       rm -rf $BUILD_DIR
     fi
   - !reference [.set-cx-commit, script]
+  # CustusX#46: cheap checkout-only pass (no configure/make) so
+  # $CX_SOURCE_PATH/install/cx/build/cxLibVersionHash.py exists before the
+  # per-library cache lookup below, which requires it to even compute what
+  # to look up. Without this, a cold BASE_DIR (first run on a runner, or an
+  # ephemeral/non-persistent one) always treats every library as a cache
+  # miss and does a full from-scratch build, even when CX's own
+  # build-external-libs-* jobs already published fresh packages for this
+  # exact OS/variant/hash - reproduced on FraxinusExcelsior's build-ubuntu20
+  # (IGSTK variant) job.
+  - eval ./script/cxFraxinusInstaller.py -s --checkout --main_branch $CX_COMMIT --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx components CustusX
   # Set IGSTK variant variables. Must come first so cleanup below is conditional.
   # No IGSTK_FLAG: PrivateControlData auto-detects via /etc/os-release (Ubuntu 20/22 → on,
   # Ubuntu 24 → off), which is always correct for the Docker images in use.
@@ -60,132 +69,147 @@
   # works across both platforms — relying on auto-detection is simpler and safe.
   - |
     if [ "${BUILD_IGSTK}" = "true" ]; then
-      IGSTK_SUFFIX="igstk"
       IGSTK_LIBS="eigen VTK ITK IGSTK OpenCV OpenIGTLink CTK OpenIGTLinkIO OpenCLUtilityLibrary QHttpServer"
+      # CustusX's own per-library CI cache (CustusX#50) keys packages by this
+      # exact variant string ("plain"/"igstk").
+      CX_IGSTK_VARIANT="igstk"
+      CX_IGSTK_FLAG="--igstk"
     else
-      IGSTK_SUFFIX="noigstk"
       IGSTK_LIBS="eigen VTK ITK OpenCV OpenIGTLink CTK OpenIGTLinkIO OpenCLUtilityLibrary QHttpServer"
+      CX_IGSTK_VARIANT="plain"
+      CX_IGSTK_FLAG=""
       rm -rf $BASE_DIR/IGSTK  # not used in this build; remove stale dir from old agents
     fi
   - rm -rf $BUILD_DIR  # always clean the app build dir before rebuilding
   - IMAGE_TAG=$(echo $CI_JOB_IMAGE | sed 's|.*/||' | tr ':' '_')
-  - export PREFIX="${OS}-${IMAGE_TAG}-${IGSTK_SUFFIX}"
-  - CX_PACKAGE_NAME="custusx-external-libs"
-  - CX_PACKAGE_FILE="cx-external-libs-${OS}-${IGSTK_SUFFIX}.tar.gz"
-  - FX_PACKAGE_NAME="fraxinus-external-libs"
-  - FX_PACKAGE_FILE="fx-external-libs-${OS}-${IGSTK_SUFFIX}.tar.gz"
-  # Query CX Package Registry for the latest package matching this OS/image/variant.
-  # A prefix query avoids hashing a local CX clone that may be at a different commit
-  # than when CX published the package, which would cause a version-key mismatch.
-  - echo "Querying CX Package Registry for ${PREFIX}..."
+  # Per-library cache check, mirroring CustusX's own build.yml (CustusX#50): each
+  # library is tried independently instead of one combined package (the combined
+  # "custusx-external-libs" package CX used to publish no longer exists -- CX
+  # moved to per-library "custusx-external-lib" packages), so an unrelated
+  # library's version bump doesn't force every other library to be re-downloaded
+  # or rebuilt too. Checked against two registries in order: (1) CustusX's own
+  # custusx-external-lib registry -- FX builds the exact same pinned libraries
+  # CX does, so reuse whatever CX has already built+published for this
+  # OS/image/variant; (2) this project's own fraxinus-external-lib registry,
+  # for whatever CX hasn't published yet (e.g. FX's CX checkout is ahead of
+  # CX's last published packages). Both use the same version key (a hash of the
+  # resolved component class, via CX's own cxLibVersionHash.py), since it
+  # identifies the same library content regardless of which project hosts it.
+  # Requires a CX checkout to already exist locally (true on any warm/persistent
+  # runner); on a cold BASE_DIR (first-ever run) there's nothing to hash against
+  # yet, so every library falls through to a from-scratch build below, same as
+  # before.
   - |
-    CX_PACKAGE_VERSION=$(python3 << 'PYEOF'
-    import json, sys, os, urllib.request, urllib.error
-    try:
-        api = os.environ['CI_API_V4_URL']
-        token = os.environ['CI_JOB_TOKEN']
-        prefix = os.environ['PREFIX'] + '-'
-        req = urllib.request.Request(
-            f'{api}/projects/{os.environ["CX_REGISTRY_PROJECT"]}/packages?package_name=custusx-external-libs&per_page=100',
-            headers={'JOB-TOKEN': token})
-        with urllib.request.urlopen(req) as r:
-            pkgs = json.loads(r.read())
-        m = [p for p in pkgs if p['version'].startswith(prefix)]
-        m.sort(key=lambda p: p['created_at'], reverse=True)
-        print(m[0]['version'] if m else '', end='')
-    except Exception as e:
-        sys.stderr.write(str(e) + '\n')
-    PYEOF
-    )
-    echo "Latest CX package: ${CX_PACKAGE_VERSION:-none}"
-  # Try to use prebuilt libs: local cache first, then CX registry, then FX registry, then full rebuild.
-  # All cd $BASE_DIR calls use subshells to keep the working directory at CI_PROJECT_DIR.
-  - |
-    LIBS_READY=false
-    if [ -n "$CX_PACKAGE_VERSION" ]; then
-      LIBS_SENTINEL="$BASE_DIR/.lib_version_${CX_PACKAGE_VERSION}"
-      if [ -f "$LIBS_SENTINEL" ]; then
-        echo "Lib cache hit: $LIBS_SENTINEL"
-        LIBS_READY=true
-      else
-        CX_PACKAGE_URL="${CI_API_V4_URL}/projects/custusx%2FCustusX/packages/generic/${CX_PACKAGE_NAME}/${CX_PACKAGE_VERSION}/${CX_PACKAGE_FILE}"
-        HTTP_CODE=$(curl -s -o /tmp/$CX_PACKAGE_FILE -w "%{http_code}" \
-          --header "JOB-TOKEN: $CI_JOB_TOKEN" "$CX_PACKAGE_URL")
-        if [ "$HTTP_CODE" = "200" ]; then
-          echo "Downloaded CX prebuilt libs (${CX_PACKAGE_VERSION}), extracting to $BASE_DIR..."
-          ( cd $BASE_DIR && rm -rf $IGSTK_LIBS && tar -xzf /tmp/$CX_PACKAGE_FILE )
-          rm -f $BASE_DIR/.lib_version_*
-          touch "$LIBS_SENTINEL"
-          LIBS_READY=true
-        else
-          echo "CX download failed (HTTP $HTTP_CODE)"
+    MISSING_LIBS=""
+    for LIB in $IGSTK_LIBS; do
+      SENTINEL="$BASE_DIR/.lib_version_${LIB}"
+      LIB_READY=false
+      if [ -f "$CX_SOURCE_PATH/install/cx/build/cxLibVersionHash.py" ]; then
+        LIB_HASH=$(python3 "$CX_SOURCE_PATH/install/cx/build/cxLibVersionHash.py" "$LIB" $CX_IGSTK_FLAG)
+        LIB_VERSION="${LIB}-${OS}-${CX_IGSTK_VARIANT}-${IMAGE_TAG}-${LIB_HASH}"
+        if [ -f "$SENTINEL" ] && [ "$(cat "$SENTINEL")" = "$LIB_VERSION" ]; then
+          echo "  $LIB: local cache hit ($LIB_VERSION)."
+          LIB_READY=true
         fi
-      fi
-    fi
-  - |
-    if [ "$LIBS_READY" = "false" ]; then
-      LIBS_HASH=""
-      if [ -f "$CX_SOURCE_PATH/install/cx/build/cxComponents.py" ]; then
-        LIBS_HASH=$(sha256sum $CX_SOURCE_PATH/install/cx/build/cxComponents.py | awk '{print $1}' | cut -c1-16)
-      fi
-      if [ -n "$LIBS_HASH" ]; then
-        FX_PACKAGE_VERSION="${OS}-${IMAGE_TAG}-${IGSTK_SUFFIX}-${LIBS_HASH}"
-        FX_PACKAGE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${FX_PACKAGE_NAME}/${FX_PACKAGE_VERSION}/${FX_PACKAGE_FILE}"
-        LIBS_SENTINEL="$BASE_DIR/.lib_version_${FX_PACKAGE_VERSION}"
-        if [ -f "$LIBS_SENTINEL" ]; then
-          echo "Lib cache hit: $LIBS_SENTINEL"
-          LIBS_READY=true
-        else
-          echo "Checking FX Package Registry for ${FX_PACKAGE_VERSION}..."
-          HTTP_CODE=$(curl -s -o /tmp/$FX_PACKAGE_FILE -w "%{http_code}" \
-            --header "JOB-TOKEN: $CI_JOB_TOKEN" "$FX_PACKAGE_URL")
+        if [ "$LIB_READY" = "false" ]; then
+          CX_LIB_FILE="cx-external-lib-${LIB}-${OS}-${CX_IGSTK_VARIANT}.tar.gz"
+          CX_LIB_URL="${CI_API_V4_URL}/projects/${CX_REGISTRY_PROJECT}/packages/generic/custusx-external-lib/${LIB_VERSION}/${CX_LIB_FILE}"
+          echo "  $LIB: checking CX registry for ${LIB_VERSION}..."
+          HTTP_CODE=$(curl -s -o /tmp/$CX_LIB_FILE -w "%{http_code}" --header "JOB-TOKEN: $CI_JOB_TOKEN" "$CX_LIB_URL")
           if [ "$HTTP_CODE" = "200" ]; then
-            echo "Downloaded FX prebuilt libs, extracting to $BASE_DIR..."
-            ( cd $BASE_DIR && rm -rf $IGSTK_LIBS && tar -xzf /tmp/$FX_PACKAGE_FILE )
-            rm -f $BASE_DIR/.lib_version_*
-            touch "$LIBS_SENTINEL"
-            LIBS_READY=true
-          else
-            echo "Not in FX registry (HTTP $HTTP_CODE), will build from scratch."
+            echo "  $LIB: downloaded from CX registry."
+            ( cd $BASE_DIR && rm -rf $LIB && tar -xzf /tmp/$CX_LIB_FILE )
+            echo "$LIB_VERSION" > "$SENTINEL"
+            LIB_READY=true
           fi
         fi
-      else
-        echo "CX source not yet available, will build from scratch."
+        if [ "$LIB_READY" = "false" ]; then
+          OWN_LIB_FILE="fx-external-lib-${LIB}-${OS}-${CX_IGSTK_VARIANT}.tar.gz"
+          OWN_LIB_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/fraxinus-external-lib/${LIB_VERSION}/${OWN_LIB_FILE}"
+          echo "  $LIB: checking own registry for ${LIB_VERSION}..."
+          HTTP_CODE=$(curl -s -o /tmp/$OWN_LIB_FILE -w "%{http_code}" --header "JOB-TOKEN: $CI_JOB_TOKEN" "$OWN_LIB_URL")
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "  $LIB: downloaded from own registry."
+            ( cd $BASE_DIR && rm -rf $LIB && tar -xzf /tmp/$OWN_LIB_FILE )
+            echo "$LIB_VERSION" > "$SENTINEL"
+            LIB_READY=true
+          fi
+        fi
       fi
+      if [ "$LIB_READY" = "false" ]; then
+        MISSING_LIBS="$MISSING_LIBS $LIB"
+      fi
+    done
+    echo "Libraries to build from source:$MISSING_LIBS"
+  - |
+    if [ -n "$MISSING_LIBS" ]; then
+      echo "Building missing external libs from source:$MISSING_LIBS"
+      # Build and publish libraries one at a time -- not one combined build
+      # for all of $MISSING_LIBS followed by one combined upload pass. A
+      # fast-to-build library would otherwise sit unpublished for the entire
+      # time a slow one (VTK) is still compiling, even though nothing about
+      # the upload actually depends on that wait -- and the whole point of
+      # publishing to CX's shared registry is for other projects (or CX's own
+      # next run) to reuse it as soon as possible.
+      for LIB in $MISSING_LIBS; do
+        rm -rf $BASE_DIR/$LIB
+        eval ./script/cxFraxinusInstaller.py -s --full -j 4 -t Release \
+          --main_branch $CX_COMMIT \
+          --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
+          components $LIB
+        # Guarded the same way as the lookup above: on a cold BASE_DIR
+        # (first-ever run), building just an external-lib component never
+        # checks out CustusX, so cxLibVersionHash.py still won't exist here --
+        # skip caching this one library rather than hard-failing the job; the
+        # next run (once CustusX is checked out below) will cache normally.
+        if [ -f "$CX_SOURCE_PATH/install/cx/build/cxLibVersionHash.py" ]; then
+          LIB_HASH=$(python3 "$CX_SOURCE_PATH/install/cx/build/cxLibVersionHash.py" "$LIB" $CX_IGSTK_FLAG)
+          LIB_VERSION="${LIB}-${OS}-${CX_IGSTK_VARIANT}-${IMAGE_TAG}-${LIB_HASH}"
+          # Publish to CX's shared custusx-external-lib registry (not just our
+          # own), so every other project building this same OS/variant/hash --
+          # including CX's own next build -- can reuse it instead of each
+          # rebuilding independently. Needs CX's project to allow this
+          # project's CI_JOB_TOKEN to write to it (Settings > CI/CD > Job
+          # token permissions) -- granted for the whole custusx group.
+          CX_LIB_FILE="cx-external-lib-${LIB}-${OS}-${CX_IGSTK_VARIANT}.tar.gz"
+          CX_LIB_URL="${CI_API_V4_URL}/projects/${CX_REGISTRY_PROJECT}/packages/generic/custusx-external-lib/${LIB_VERSION}/${CX_LIB_FILE}"
+          ( cd $BASE_DIR && tar -czf /tmp/$CX_LIB_FILE --exclude='*/CMakeFiles' --exclude='*/.git' $LIB )
+          if curl --fail --silent --show-error --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file /tmp/$CX_LIB_FILE "$CX_LIB_URL"; then
+            echo "  $LIB: published to CX's shared registry."
+          else
+            echo "  $LIB: publish to CX's registry failed, falling back to our own."
+            OWN_LIB_FILE="fx-external-lib-${LIB}-${OS}-${CX_IGSTK_VARIANT}.tar.gz"
+            OWN_LIB_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/fraxinus-external-lib/${LIB_VERSION}/${OWN_LIB_FILE}"
+            ( cd $BASE_DIR && tar -czf /tmp/$OWN_LIB_FILE --exclude='*/CMakeFiles' --exclude='*/.git' $LIB )
+            curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file /tmp/$OWN_LIB_FILE "$OWN_LIB_URL" || true
+          fi
+          echo "$LIB_VERSION" > "$BASE_DIR/.lib_version_${LIB}"
+        else
+          echo "  $LIB: CustusX not yet checked out locally -- skipping lib caching this run."
+        fi
+      done
     fi
   - |
-    if [ "$LIBS_READY" = "true" ]; then
-      echo "Building Fraxinus components only..."
-      eval ./script/cxFraxinusInstaller.py -s --full -t Release --user_doc --developer_doc \
-        --main_branch $CX_COMMIT \
-        --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
-        --build_folder CustusX=build_Release_FX \
-        components CustusX Fraxinus
-    else
-      echo "Full build (all external libs + Fraxinus)..."
-      eval ./script/cxFraxinusInstaller.py -s --all --full -j 4 -t Release --user_doc --developer_doc \
-        --main_branch $CX_COMMIT \
-        --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
-        --build_folder CustusX=build_Release_FX
-      echo "Uploading libs to FX Package Registry for future runs..."
-      LIBS_HASH=$(sha256sum $CX_SOURCE_PATH/install/cx/build/cxComponents.py | awk '{print $1}' | cut -c1-16)
-      PACKAGE_VERSION="${OS}-${IMAGE_TAG}-${IGSTK_SUFFIX}-${LIBS_HASH}"
-      FX_PACKAGE_FILE="fx-external-libs-${OS}-${IGSTK_SUFFIX}.tar.gz"
-      FX_PACKAGE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${FX_PACKAGE_NAME}/${PACKAGE_VERSION}/${FX_PACKAGE_FILE}"
-      LIBS_SENTINEL="$BASE_DIR/.lib_version_${PACKAGE_VERSION}"
-      ( cd $BASE_DIR && tar -czf /tmp/$FX_PACKAGE_FILE \
-        --exclude='*/CMakeFiles' \
-        --exclude='*/.git' \
-        $IGSTK_LIBS )
-      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-        --upload-file /tmp/$FX_PACKAGE_FILE "$FX_PACKAGE_URL" || true
-      rm -f $BASE_DIR/.lib_version_*
-      touch "$LIBS_SENTINEL"
-    fi
+    echo "Building Fraxinus..."
+    eval ./script/cxFraxinusInstaller.py -s --full -t Release --user_doc --developer_doc \
+      --main_branch $CX_COMMIT \
+      --gitrepo_main_site_base https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sintef.no/custusx \
+      --build_folder CustusX=build_Release_FX \
+      components CustusX Fraxinus
+
+# Shared by all three platform build jobs below so only one builds at a time
+# (they'd otherwise all be eligible to run concurrently, since they're in the
+# same stage and don't depend on each other) -- reduces concurrent runner load
+# without needing a separate stage per platform. Which platform goes first is
+# not guaranteed, just that they never overlap.
+.serialize-platform-build:
+  resource_group: fx-platform-build
 
 build-ubuntu20:
-  extends: .reuse-build
-  stage: build-20
+  extends:
+    - .reuse-build
+    - .serialize-platform-build
+  stage: build
   image: $IMAGE_UBUNTU2004
   variables:
     OS: Ubuntu2004
@@ -193,8 +217,10 @@ build-ubuntu20:
     BASE_DIR: /builds/Ubuntu2004igstk
 
 build-ubuntu22:
-  extends: .reuse-build
-  stage: build-22
+  extends:
+    - .reuse-build
+    - .serialize-platform-build
+  stage: build
   image: $IMAGE_UBUNTU2204
   variables:
     OS: Ubuntu2204
@@ -202,9 +228,118 @@ build-ubuntu22:
     BASE_DIR: /builds/Ubuntu2204igstk
 
 build-ubuntu24:
-  extends: .reuse-build
-  stage: build-24
+  extends:
+    - .reuse-build
+    - .serialize-platform-build
+  stage: build
   image: $IMAGE_UBUNTU2404
   variables:
     OS: Ubuntu2404
     BASE_DIR: /builds/Ubuntu2404
+
+# Keeps only the KEEP_VERSIONS newest packages per library/OS/variant group in
+# the fraxinus-external-lib registry -- our own fallback for whatever CX's
+# custusx-external-lib registry doesn't have yet (see build.yml's per-library
+# lookup). Deletes a whole group outright, regardless of KEEP_VERSIONS, if its
+# prefix no longer matches a live job's current Docker image tag/IGSTK
+# variant (CustusX#50's identical cleanup-old-external-libs explains why that
+# extra check exists: a plain keep-N-per-group rotation never notices a
+# permanently abandoned prefix, e.g. after a Docker image bump). Run on a
+# schedule (e.g. weekly) to prevent unbounded accumulation. Also available as
+# a manual job.
+cleanup-old-external-libs:
+  stage: build
+  image: $IMAGE_UBUNTU2404
+  variables:
+    KEEP_VERSIONS: "1"
+  script:
+    - |
+      python3 << 'PYEOF'
+      import json, os, sys
+      import urllib.request, urllib.error
+      from collections import defaultdict
+
+      api   = os.environ['CI_API_V4_URL']
+      proj  = os.environ['CI_PROJECT_ID']
+      token = os.environ['CI_JOB_TOKEN']
+      keep  = int(os.environ.get('KEEP_VERSIONS', '1'))
+      pkg_name = 'fraxinus-external-lib'
+
+      def sanitize_image_tag(image):
+          return image.rsplit('/', 1)[-1].replace(':', '_')
+
+      valid_image_tags = {
+          sanitize_image_tag(os.environ['IMAGE_UBUNTU2004']),
+          sanitize_image_tag(os.environ['IMAGE_UBUNTU2204']),
+          sanitize_image_tag(os.environ['IMAGE_UBUNTU2404']),
+      }
+
+      def is_current_format(prefix):
+          for tag in valid_image_tags:
+              suffix = '-' + tag
+              if prefix.endswith(suffix) and prefix[:-len(suffix)].endswith(('-plain', '-igstk')):
+                  return True
+          return False
+
+      def api_request(path, method='GET'):
+          req = urllib.request.Request(
+              f'{api}/projects/{proj}/{path}',
+              headers={'JOB-TOKEN': token},
+              method=method)
+          with urllib.request.urlopen(req) as r:
+              body = r.read()
+              return json.loads(body) if body else None
+
+      packages, page = [], 1
+      while True:
+          batch = api_request(f'packages?package_name={pkg_name}&per_page=100&page={page}')
+          if not batch:
+              break
+          packages.extend(batch)
+          if len(batch) < 100:
+              break
+          page += 1
+      print(f'Found {len(packages)} package(s) named "{pkg_name}"')
+
+      # Defense in depth: re-verify locally that every returned package is
+      # actually named pkg_name, never trusting the API's package_name filter
+      # alone to scope what gets deleted below. This registry also holds the
+      # real Fraxinus release installer (under its own distinct package name)
+      # -- this job must never be able to reach it, regardless of any future
+      # API/filter quirk.
+      mismatched = [p for p in packages if p.get('name') != pkg_name]
+      if mismatched:
+          print(f'ERROR: API returned {len(mismatched)} package(s) not named "{pkg_name}" -- aborting without deleting anything.', file=sys.stderr)
+          for p in mismatched:
+              print(f'  unexpected: name={p.get("name")!r} version={p.get("version")!r} id={p.get("id")}', file=sys.stderr)
+          sys.exit(1)
+
+      groups = defaultdict(list)
+      for p in packages:
+          prefix = p['version'].rsplit('-', 1)[0]
+          groups[prefix].append(p)
+
+      deleted = 0
+      for prefix, pkgs in sorted(groups.items()):
+          pkgs.sort(key=lambda p: p['created_at'], reverse=True)
+          if is_current_format(prefix):
+              kept = [p['version'] for p in pkgs[:keep]]
+              print(f'{prefix}: keeping {kept}')
+              to_remove = pkgs[keep:]
+          else:
+              print(f'{prefix}: stale format/image tag, deleting all {len(pkgs)} version(s)')
+              to_remove = pkgs
+          for old in to_remove:
+              try:
+                  api_request(f'packages/{old["id"]}', method='DELETE')
+                  print(f'  Deleted {old["version"]} (id={old["id"]})')
+                  deleted += 1
+              except urllib.error.HTTPError as e:
+                  print(f'  WARNING: failed to delete {old["version"]}: {e}', file=sys.stderr)
+
+      print(f'Done. Deleted {deleted} old package(s).')
+      PYEOF
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - when: manual
+      allow_failure: true

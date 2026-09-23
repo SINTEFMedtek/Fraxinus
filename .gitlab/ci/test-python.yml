@@ -1,0 +1,24 @@
+# script/cxsetup/cxRepoHandler.py is a physical copy of CX's own
+# install/cx/utils/cxRepoHandler.py (see that file's docstring for why it's
+# duplicated rather than imported). A fix landing in one copy but not the
+# other is exactly how this repo's copy silently ran without a since-fixed
+# bug for a while during the v26.09 release -- warn (without blocking the
+# pipeline, since some divergence between the two copies predates this
+# check and may be intentional) whenever the copies stop matching CX's
+# develop branch.
+check-cxRepoHandler-drift:
+  stage: test-python
+  allow_failure: true
+  script:
+    - |
+      set -e
+      CANONICAL_URL="https://gitlab.sintef.no/custusx/CustusX/-/raw/develop/install/cx/utils/cxRepoHandler.py"
+      curl -fsSL "$CANONICAL_URL" -o /tmp/canonical_cxRepoHandler.py
+      if ! diff -u /tmp/canonical_cxRepoHandler.py script/cxsetup/cxRepoHandler.py; then
+        echo ""
+        echo "*** script/cxsetup/cxRepoHandler.py has drifted from CX's canonical"
+        echo "*** install/cx/utils/cxRepoHandler.py (develop branch, diff above)."
+        echo "*** If CX has a fix this copy is missing, port it here too."
+        exit 1
+      fi
+      echo "script/cxsetup/cxRepoHandler.py matches CX's develop branch."

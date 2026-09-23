@@ -22,6 +22,24 @@
 set -e
 
 # ---------------------------------------------------------------------------
+# Retry a download a few times before giving up -- a single transient
+# network/DNS hiccup shouldn't require rerunning the whole install script.
+# ---------------------------------------------------------------------------
+download_with_retry() {
+    local attempt
+    for attempt in 1 2 3 4 5; do
+        if wget "$@"; then
+            return 0
+        fi
+        if [ "$attempt" -lt 5 ]; then
+            echo "Download attempt $attempt failed, retrying in 5s..."
+            sleep 5
+        fi
+    done
+    return 1
+}
+
+# ---------------------------------------------------------------------------
 # Version — set by CI for each release; empty when run from a local checkout
 # ---------------------------------------------------------------------------
 FRAXINUS_VERSION=""
@@ -30,23 +48,28 @@ FRAXINUS_VERSION=""
 GITLAB_PROJECT_URL="https://gitlab.sintef.no/api/v4/projects/custusx%2Ffraxinus"
 
 # ---------------------------------------------------------------------------
-# Detect Ubuntu version and select the correct Python
+# Detect Ubuntu version
 # ---------------------------------------------------------------------------
 UBUNTU_VERSION=$(lsb_release -rs 2>/dev/null || echo "unknown")
 echo "Detected Ubuntu version: $UBUNTU_VERSION"
 
+# Ubuntu 22.04+ ships a suitable Python natively. 20.04 is no longer supported:
+# its python3 (3.8) is too old, and the deadsnakes PPA no longer publishes the
+# python3.10 we used to install from there (CustusX#51).
 case "$UBUNTU_VERSION" in
     20.04)
-        # Ubuntu 20.04 ships Python 3.8; install 3.10 from deadsnakes
-        PYTHON_CMD="python3.10"
-        NEED_DEADSNAKES=true
+        echo "ERROR: Ubuntu 20.04 is no longer supported (CustusX#51). Please use Ubuntu 22.04 or 24.04."
+        exit 1
         ;;
+    22.04) OS="Ubuntu2204" ;;
+    24.04) OS="Ubuntu2404" ;;
     *)
-        # Ubuntu 22.04+ ships a suitable Python natively
-        PYTHON_CMD="python3"
-        NEED_DEADSNAKES=false
+        echo "ERROR: Unsupported Ubuntu version: $UBUNTU_VERSION"
+        echo "Supported versions: 22.04, 24.04"
+        exit 1
         ;;
 esac
+PYTHON_CMD="python3"
 
 # ---------------------------------------------------------------------------
 # Install system packages
@@ -59,30 +82,12 @@ esac
 sudo apt-get -y update
 sudo apt-get -y install libglew-dev libpcre2-16-0 libdouble-conversion3 git wget unzip
 
-if [ "$NEED_DEADSNAKES" = true ]; then
-    sudo apt-get -y install software-properties-common
-    sudo add-apt-repository ppa:deadsnakes/ppa -y
-    sudo apt-get -y update
-    sudo apt-get -y install python3.10-venv
-else
-    sudo apt-get -y install python3-venv
-fi
+sudo apt-get -y install python3-venv
 
 # ---------------------------------------------------------------------------
 # Find or download the Fraxinus release tarball
 # ---------------------------------------------------------------------------
 if [ -n "$FRAXINUS_VERSION" ]; then
-    case "$UBUNTU_VERSION" in
-        20.04) OS="Ubuntu2004" ;;
-        22.04) OS="Ubuntu2204" ;;
-        24.04) OS="Ubuntu2404" ;;
-        *)
-            echo "ERROR: Unsupported Ubuntu version: $UBUNTU_VERSION"
-            echo "Supported versions: 20.04, 22.04, 24.04"
-            exit 1
-            ;;
-    esac
-
     TARBALL="Fraxinus-${OS}.tar.gz"
     DOWNLOAD_URL="${GITLAB_PROJECT_URL}/packages/generic/Fraxinus/${FRAXINUS_VERSION}/${OS}/${TARBALL}"
 
@@ -91,7 +96,7 @@ if [ -n "$FRAXINUS_VERSION" ]; then
     if [ -n "$GITLAB_TOKEN" ]; then
         WGET_ARGS+=(--header "PRIVATE-TOKEN: $GITLAB_TOKEN")
     fi
-    if ! wget "${WGET_ARGS[@]}" -O "$TARBALL" "$DOWNLOAD_URL"; then
+    if ! download_with_retry "${WGET_ARGS[@]}" -O "$TARBALL" "$DOWNLOAD_URL"; then
         echo ""
         echo "ERROR: Download failed. URL: $DOWNLOAD_URL"
         if [ -z "$GITLAB_TOKEN" ]; then
@@ -110,6 +115,20 @@ else
         echo "  https://gitlab.sintef.no/custusx/fraxinus/-/releases"
         exit 1
     fi
+    # Local dev/CI builds encode the OS as e.g. "_Ubuntu22.04" (with a dot);
+    # tagged releases encode it as "-Ubuntu2204" (no dot, matching $OS above).
+    # Refuse a tarball built for a different Ubuntu version outright -- used
+    # silently, it installs fine but fails at runtime with a confusing
+    # missing-.so error (e.g. a 20.04 build's libGLEW.so.2.1 vs 22.04's
+    # libGLEW.so.2.2), long after a clear error here would have helped.
+    case "$TARBALL" in
+        *"$OS"*|*"Ubuntu${UBUNTU_VERSION}"*) ;;
+        *)
+            echo "ERROR: $TARBALL does not look like it was built for Ubuntu $UBUNTU_VERSION."
+            echo "Remove it and place a Fraxinus*${OS}*.tar.gz build here instead, then re-run."
+            exit 1
+            ;;
+    esac
     echo "Using local tarball: $TARBALL"
 fi
 
@@ -157,7 +176,7 @@ else
     echo "Installing Elastix $ELASTIX_VERSION..."
     mkdir -p ~/Fraxinus
     cd ~/Fraxinus
-    wget "https://github.com/SuperElastix/elastix/releases/download/${ELASTIX_VERSION}/elastix-${ELASTIX_VERSION}-ubuntu.zip"
+    download_with_retry "https://github.com/SuperElastix/elastix/releases/download/${ELASTIX_VERSION}/elastix-${ELASTIX_VERSION}-ubuntu.zip"
     unzip -o "elastix-${ELASTIX_VERSION}-ubuntu.zip" -d elastix
     chmod +x elastix/bin/elastix elastix/bin/transformix
     cp elastix/lib/libANNlib* elastix/bin/ 2>/dev/null || true
@@ -189,7 +208,7 @@ cd ~/Fraxinus/models/raidionics_models/
 
 for MODEL in "${RAIDIONICS_MODELS[@]}"; do
     echo "Downloading $MODEL..."
-    if wget -N "${RAIDIONICS_MODELS_URL}${MODEL}"; then
+    if download_with_retry -N "${RAIDIONICS_MODELS_URL}${MODEL}"; then
         unzip -o "$MODEL"
     else
         echo "WARNING: Failed to download $MODEL."
@@ -216,6 +235,15 @@ cd TotalSegmentator
 $PYTHON_CMD -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
+# Pinned: TotalSegmentator depends on fury<2, which depends on dipy without a
+# version pin of its own. dipy dropped prebuilt wheels for cp310 as of 1.12.0
+# (source-only there), which forces a from-source build that needs Cython/meson
+# and Python dev headers -- headers deadsnakes no longer ships for focal at all,
+# so that build can't succeed on Ubuntu 20.04. Installing dipy first pins it to
+# 1.11.0, the newest release with prebuilt wheels for cp310 (22.04 native) and
+# cp312 (24.04 native), so the plain TotalSegmentator install below (no
+# --upgrade) leaves this already-satisfied version alone.
+pip install "dipy==1.11.0"
 # Pinned: TotalSegmentator has changed its CLI between releases (e.g. the
 # weights downloader moved from `python -m totalsegmentator.download_weights`
 # to the totalseg_download_weights console script), which silently broke the
@@ -243,7 +271,17 @@ fi
 
 # ---------------------------------------------------------------------------
 # Install desktop launcher
+#
+# xdg-user-dirs localizes the Desktop folder's name (e.g. ~/Skrivebord on a
+# Norwegian install), so ~/Desktop doesn't reliably exist -- ask xdg-user-dir
+# for the real path instead of hardcoding it, falling back to ~/Desktop if
+# xdg-user-dirs isn't set up at all.
 # ---------------------------------------------------------------------------
+DESKTOP_DIR="$(xdg-user-dir DESKTOP 2>/dev/null || true)"
+if [ -z "$DESKTOP_DIR" ]; then
+    DESKTOP_DIR="$HOME/Desktop"
+fi
+
 cd ~/Fraxinus/Fraxinus
 if [ -f "Fraxinus.desktop" ]; then
     EXEC_PATH="$HOME/Fraxinus/Fraxinus/bin/Fraxinus"
@@ -251,24 +289,30 @@ if [ -f "Fraxinus.desktop" ]; then
     sed -i "s|Path=.*|Path=$HOME/Fraxinus/Fraxinus/bin|g" Fraxinus.desktop
     sed -i "s|Exec=.*|Exec=$EXEC_PATH|g" Fraxinus.desktop
     sed -i "s|Icon=.*|Icon=$ICON_PATH|g" Fraxinus.desktop
-    cp Fraxinus.desktop ~/Desktop/
-    gio set ~/Desktop/Fraxinus.desktop metadata::trusted true 2>/dev/null || true
-    chmod +x ~/Desktop/Fraxinus.desktop
+    if [ -d "$DESKTOP_DIR" ]; then
+        cp Fraxinus.desktop "$DESKTOP_DIR/"
+        gio set "$DESKTOP_DIR/Fraxinus.desktop" metadata::trusted true 2>/dev/null || true
+        chmod +x "$DESKTOP_DIR/Fraxinus.desktop"
+    else
+        echo "NOTE: no Desktop folder found at $DESKTOP_DIR -- skipping desktop launcher shortcut."
+    fi
 fi
 
 # ---------------------------------------------------------------------------
 # Desktop shortcut to the (shared, family-level) Patients folder
 # ---------------------------------------------------------------------------
 mkdir -p ~/Fraxinus/Patients
-cat > ~/Desktop/Fraxinus_Patients.desktop <<EOF
+if [ -d "$DESKTOP_DIR" ]; then
+    cat > "$DESKTOP_DIR/Fraxinus_Patients.desktop" <<EOF
 [Desktop Entry]
 Type=Link
 Name=Fraxinus Patients
 Icon=folder
 URL=$HOME/Fraxinus/Patients
 EOF
-gio set ~/Desktop/Fraxinus_Patients.desktop metadata::trusted true 2>/dev/null || true
-chmod +x ~/Desktop/Fraxinus_Patients.desktop
+    gio set "$DESKTOP_DIR/Fraxinus_Patients.desktop" metadata::trusted true 2>/dev/null || true
+    chmod +x "$DESKTOP_DIR/Fraxinus_Patients.desktop"
+fi
 
 echo ""
 echo "---------- Fraxinus installation complete ----------"

@@ -38,7 +38,7 @@ class PrivateControlData(cx.build.cxInstallData.Common):
     def _igstk_supported(self):
         # --igstk/--skip_igstk are registered generically for every installer in
         # cx.build.cxInstallData.Common.fillParser(), but that parsing happens after
-        # LibraryAssembly.__init__ has already picked oldVTK/ITK/IGSTK vs the new
+        # LibraryAssembly.__init__ has already picked VTK92/ITK4/IGSTK vs the new
         # VTK/ITK based on mBuildIGSTK, so an explicit CLI flag must be honoured here
         # too (checked against sys.argv directly, ahead of the normal parser).
         if '--igstk' in sys.argv:
