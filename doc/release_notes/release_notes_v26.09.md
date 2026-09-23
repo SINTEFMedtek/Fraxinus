@@ -18,6 +18,10 @@ Nothing is moved or deleted automatically. Your old folders are left as they wer
 - **Patients:** copy the contents of each old profile folder (e.g. `~/Patients/Bronchoscopy`) into the matching new one (e.g. `~/Fraxinus/Patients/Bronchoscopy`). Each patient is a folder ending in `.cx3`, e.g. `2017-09-29_10-07_Bronchoscopy_4.cx3`, containing `custusdoc.xml` and subfolders such as `Images` and `Logs`. Copy whole `.cx3` folders. After that they show up in the **Load existing patient** list. That list can't browse to other folders, so copying them over is the only way to reach old patients from within Fraxinus.
 - **Settings:** copy the contents of the old `~/Fraxinus_settings` folder (e.g. `profiles`, `settings`) into the new `~/Fraxinus/Fraxinus_settings` folder, replacing what v26.09 created there. If the old folder has a `virtualEnvironments` folder, don't copy it: Python environments stop working once moved, and they now live in `~/Fraxinus/virtualEnvironments`, where they are set up again when needed (on Windows, by the installer's optional components).
 
+## Ubuntu 20.04 is no longer supported
+
+([CustusX#51](https://gitlab.sintef.no/custusx/custusx/-/issues/51)) Starting with v26.09, no Fraxinus installer is provided for Ubuntu 20.04, and the Ubuntu install script stops with an error on 20.04. Ubuntu 20.04 has reached its end of standard support, and the Python 3.10 that the AI/segmentation tools need can no longer be installed there. Please use Ubuntu 22.04 or 24.04.
+
 ## New Features
 
 | Key | Summary | Release Note |

@@ -48,23 +48,21 @@ FRAXINUS_VERSION=""
 GITLAB_PROJECT_URL="https://gitlab.sintef.no/api/v4/projects/custusx%2Ffraxinus"
 
 # ---------------------------------------------------------------------------
-# Detect Ubuntu version and select the correct Python
+# Detect Ubuntu version
 # ---------------------------------------------------------------------------
 UBUNTU_VERSION=$(lsb_release -rs 2>/dev/null || echo "unknown")
 echo "Detected Ubuntu version: $UBUNTU_VERSION"
 
+# Ubuntu 22.04+ ships a suitable Python natively. 20.04 is no longer supported:
+# its python3 (3.8) is too old, and the deadsnakes PPA no longer publishes the
+# python3.10 we used to install from there (CustusX#51).
 case "$UBUNTU_VERSION" in
     20.04)
-        # Ubuntu 20.04 ships Python 3.8; install 3.10 from deadsnakes
-        PYTHON_CMD="python3.10"
-        NEED_DEADSNAKES=true
-        ;;
-    *)
-        # Ubuntu 22.04+ ships a suitable Python natively
-        PYTHON_CMD="python3"
-        NEED_DEADSNAKES=false
+        echo "ERROR: Ubuntu 20.04 is no longer supported (CustusX#51). Please use Ubuntu 22.04 or 24.04."
+        exit 1
         ;;
 esac
+PYTHON_CMD="python3"
 
 # ---------------------------------------------------------------------------
 # Install system packages
@@ -77,26 +75,18 @@ esac
 sudo apt-get -y update
 sudo apt-get -y install libglew-dev libpcre2-16-0 libdouble-conversion3 git wget unzip
 
-if [ "$NEED_DEADSNAKES" = true ]; then
-    sudo apt-get -y install software-properties-common
-    sudo add-apt-repository ppa:deadsnakes/ppa -y
-    sudo apt-get -y update
-    sudo apt-get -y install python3.10-venv
-else
-    sudo apt-get -y install python3-venv
-fi
+sudo apt-get -y install python3-venv
 
 # ---------------------------------------------------------------------------
 # Find or download the Fraxinus release tarball
 # ---------------------------------------------------------------------------
 if [ -n "$FRAXINUS_VERSION" ]; then
     case "$UBUNTU_VERSION" in
-        20.04) OS="Ubuntu2004" ;;
         22.04) OS="Ubuntu2204" ;;
         24.04) OS="Ubuntu2404" ;;
         *)
             echo "ERROR: Unsupported Ubuntu version: $UBUNTU_VERSION"
-            echo "Supported versions: 20.04, 22.04, 24.04"
+            echo "Supported versions: 22.04, 24.04"
             exit 1
             ;;
     esac

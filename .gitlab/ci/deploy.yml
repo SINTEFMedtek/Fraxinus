@@ -10,7 +10,8 @@
   script:
     - echo "Deploying application..."
     - |
-      for OS in Ubuntu2004 Ubuntu2204 Ubuntu2404; do
+      # No Ubuntu 20.04 installer any more (CustusX#51), although build-ubuntu20 still runs.
+      for OS in Ubuntu2204 Ubuntu2404; do
         DIR="$CI_PROJECT_DIR/$OS/package_artefacts"
         if [ ! -d "$DIR" ]; then
           echo "WARNING: no artifacts for $OS, skipping."
