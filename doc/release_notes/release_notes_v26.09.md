@@ -2,6 +2,22 @@
 
 _Changes since v26.08_
 
+## Important: the patient and settings folders have moved
+
+Fraxinus now keeps all its data under a single `Fraxinus` folder in your home folder (`~` on Linux/macOS, `C:\Users\` + your user name on Windows).
+
+| | v26.08 and earlier | v26.09 |
+|---|---|---|
+| Patients | `~/Patients/Bronchoscopy` | `~/Fraxinus/Patients/Bronchoscopy` |
+| Settings | `~/Fraxinus_settings` | `~/Fraxinus/Fraxinus_settings` |
+
+(`Bronchoscopy` is the default profile. If you have used other profiles, each one has its own subfolder next to it, in both places.)
+
+Nothing is moved or deleted automatically. Your old folders are left as they were, and v26.09 starts with an empty patient list and default settings. If you want your old data in the new locations, close Fraxinus first, then copy it over yourself:
+
+- **Patients:** copy the contents of each old profile folder (e.g. `~/Patients/Bronchoscopy`) into the matching new one (e.g. `~/Fraxinus/Patients/Bronchoscopy`). Each patient is a folder ending in `.cx3`, e.g. `2017-09-29_10-07_Bronchoscopy_4.cx3`, containing `custusdoc.xml` and subfolders such as `Images` and `Logs`. Copy whole `.cx3` folders. After that they show up in the **Load existing patient** list. That list can't browse to other folders, so copying them over is the only way to reach old patients from within Fraxinus.
+- **Settings:** copy the contents of the old `~/Fraxinus_settings` folder (e.g. `profiles`, `settings`) into the new `~/Fraxinus/Fraxinus_settings` folder, replacing what v26.09 created there. If the old folder has a `virtualEnvironments` folder, don't copy it: Python environments stop working once moved, and they now live in `~/Fraxinus/virtualEnvironments`, where they are set up again when needed (on Windows, by the installer's optional components).
+
 ## New Features
 
 | Key | Summary | Release Note |
