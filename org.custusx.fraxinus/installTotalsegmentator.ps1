@@ -79,6 +79,19 @@ try {
     # this installer. Bump this deliberately, and re-check the download-weights
     # invocation below, when updating.
     $TotalSegmentatorVersion = "2.18.0"
+
+    # Pinned, but only on Python 3.10: TotalSegmentator depends on dipy (directly,
+    # and via fury<2) without a version pin. dipy 1.12.0 still allows Python 3.10
+    # but ships no cp310 wheel, so pip would build it from source (needs a C
+    # compiler, Cython and meson). 1.11.0 is the newest release with a cp310
+    # wheel. The environment marker makes pip skip this entirely on newer Pythons
+    # (whichever one is on PATH), where 1.11.0 may have no wheel at all (e.g.
+    # cp314) while the unpinned newest dipy does. Same pin as installFraxinus.sh
+    # and CX's cxCreateVenv.sh, which only run on 22.04 (cp310) / 24.04 (cp312).
+    Invoke-FraxinusStep -Description "Pinning dipy for Python 3.10" -Action {
+        & $VenvPython -m pip install "dipy==1.11.0; python_version < '3.11'"
+    }
+
     Invoke-FraxinusStep -Description "Installing TotalSegmentator" -Action {
         & $VenvPython -m pip install "TotalSegmentator==$TotalSegmentatorVersion"
     }
