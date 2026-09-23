@@ -61,6 +61,13 @@ case "$UBUNTU_VERSION" in
         echo "ERROR: Ubuntu 20.04 is no longer supported (CustusX#51). Please use Ubuntu 22.04 or 24.04."
         exit 1
         ;;
+    22.04) OS="Ubuntu2204" ;;
+    24.04) OS="Ubuntu2404" ;;
+    *)
+        echo "ERROR: Unsupported Ubuntu version: $UBUNTU_VERSION"
+        echo "Supported versions: 22.04, 24.04"
+        exit 1
+        ;;
 esac
 PYTHON_CMD="python3"
 
@@ -81,16 +88,6 @@ sudo apt-get -y install python3-venv
 # Find or download the Fraxinus release tarball
 # ---------------------------------------------------------------------------
 if [ -n "$FRAXINUS_VERSION" ]; then
-    case "$UBUNTU_VERSION" in
-        22.04) OS="Ubuntu2204" ;;
-        24.04) OS="Ubuntu2404" ;;
-        *)
-            echo "ERROR: Unsupported Ubuntu version: $UBUNTU_VERSION"
-            echo "Supported versions: 22.04, 24.04"
-            exit 1
-            ;;
-    esac
-
     TARBALL="Fraxinus-${OS}.tar.gz"
     DOWNLOAD_URL="${GITLAB_PROJECT_URL}/packages/generic/Fraxinus/${FRAXINUS_VERSION}/${OS}/${TARBALL}"
 
@@ -118,6 +115,20 @@ else
         echo "  https://gitlab.sintef.no/custusx/fraxinus/-/releases"
         exit 1
     fi
+    # Local dev/CI builds encode the OS as e.g. "_Ubuntu22.04" (with a dot);
+    # tagged releases encode it as "-Ubuntu2204" (no dot, matching $OS above).
+    # Refuse a tarball built for a different Ubuntu version outright -- used
+    # silently, it installs fine but fails at runtime with a confusing
+    # missing-.so error (e.g. a 20.04 build's libGLEW.so.2.1 vs 22.04's
+    # libGLEW.so.2.2), long after a clear error here would have helped.
+    case "$TARBALL" in
+        *"$OS"*|*"Ubuntu${UBUNTU_VERSION}"*) ;;
+        *)
+            echo "ERROR: $TARBALL does not look like it was built for Ubuntu $UBUNTU_VERSION."
+            echo "Remove it and place a Fraxinus*${OS}*.tar.gz build here instead, then re-run."
+            exit 1
+            ;;
+    esac
     echo "Using local tarball: $TARBALL"
 fi
 
