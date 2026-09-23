@@ -251,7 +251,17 @@ fi
 
 # ---------------------------------------------------------------------------
 # Install desktop launcher
+#
+# xdg-user-dirs localizes the Desktop folder's name (e.g. ~/Skrivebord on a
+# Norwegian install), so ~/Desktop doesn't reliably exist -- ask xdg-user-dir
+# for the real path instead of hardcoding it, falling back to ~/Desktop if
+# xdg-user-dirs isn't set up at all.
 # ---------------------------------------------------------------------------
+DESKTOP_DIR="$(xdg-user-dir DESKTOP 2>/dev/null)"
+if [ -z "$DESKTOP_DIR" ]; then
+    DESKTOP_DIR="$HOME/Desktop"
+fi
+
 cd ~/Fraxinus/Fraxinus
 if [ -f "Fraxinus.desktop" ]; then
     EXEC_PATH="$HOME/Fraxinus/Fraxinus/bin/Fraxinus"
@@ -259,24 +269,30 @@ if [ -f "Fraxinus.desktop" ]; then
     sed -i "s|Path=.*|Path=$HOME/Fraxinus/Fraxinus/bin|g" Fraxinus.desktop
     sed -i "s|Exec=.*|Exec=$EXEC_PATH|g" Fraxinus.desktop
     sed -i "s|Icon=.*|Icon=$ICON_PATH|g" Fraxinus.desktop
-    cp Fraxinus.desktop ~/Desktop/
-    gio set ~/Desktop/Fraxinus.desktop metadata::trusted true 2>/dev/null || true
-    chmod +x ~/Desktop/Fraxinus.desktop
+    if [ -d "$DESKTOP_DIR" ]; then
+        cp Fraxinus.desktop "$DESKTOP_DIR/"
+        gio set "$DESKTOP_DIR/Fraxinus.desktop" metadata::trusted true 2>/dev/null || true
+        chmod +x "$DESKTOP_DIR/Fraxinus.desktop"
+    else
+        echo "NOTE: no Desktop folder found at $DESKTOP_DIR -- skipping desktop launcher shortcut."
+    fi
 fi
 
 # ---------------------------------------------------------------------------
 # Desktop shortcut to the (shared, family-level) Patients folder
 # ---------------------------------------------------------------------------
 mkdir -p ~/Fraxinus/Patients
-cat > ~/Desktop/Fraxinus_Patients.desktop <<EOF
+if [ -d "$DESKTOP_DIR" ]; then
+    cat > "$DESKTOP_DIR/Fraxinus_Patients.desktop" <<EOF
 [Desktop Entry]
 Type=Link
 Name=Fraxinus Patients
 Icon=folder
 URL=$HOME/Fraxinus/Patients
 EOF
-gio set ~/Desktop/Fraxinus_Patients.desktop metadata::trusted true 2>/dev/null || true
-chmod +x ~/Desktop/Fraxinus_Patients.desktop
+    gio set "$DESKTOP_DIR/Fraxinus_Patients.desktop" metadata::trusted true 2>/dev/null || true
+    chmod +x "$DESKTOP_DIR/Fraxinus_Patients.desktop"
+fi
 
 echo ""
 echo "---------- Fraxinus installation complete ----------"
