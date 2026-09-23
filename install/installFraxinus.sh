@@ -277,7 +277,7 @@ fi
 # for the real path instead of hardcoding it, falling back to ~/Desktop if
 # xdg-user-dirs isn't set up at all.
 # ---------------------------------------------------------------------------
-DESKTOP_DIR="$(xdg-user-dir DESKTOP 2>/dev/null)"
+DESKTOP_DIR="$(xdg-user-dir DESKTOP 2>/dev/null || true)"
 if [ -z "$DESKTOP_DIR" ]; then
     DESKTOP_DIR="$HOME/Desktop"
 fi
