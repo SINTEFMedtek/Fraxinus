@@ -224,6 +224,15 @@ cd TotalSegmentator
 $PYTHON_CMD -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
+# Pinned: TotalSegmentator depends on fury<2, which depends on dipy without a
+# version pin of its own. dipy dropped prebuilt wheels for cp310 as of 1.12.0
+# (source-only there), which forces a from-source build that needs Cython/meson
+# and Python dev headers -- headers deadsnakes no longer ships for focal at all,
+# so that build can't succeed on Ubuntu 20.04. Installing dipy first pins it to
+# 1.11.0, the newest release with prebuilt wheels for cp310 (22.04 native) and
+# cp312 (24.04 native), so the plain TotalSegmentator install below (no
+# --upgrade) leaves this already-satisfied version alone.
+pip install "dipy==1.11.0"
 # Pinned: TotalSegmentator has changed its CLI between releases (e.g. the
 # weights downloader moved from `python -m totalsegmentator.download_weights`
 # to the totalseg_download_weights console script), which silently broke the
