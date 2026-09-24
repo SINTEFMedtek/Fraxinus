@@ -126,9 +126,10 @@ Fraxinus releases are built and published automatically by the CI pipeline when 
 
 ### CI pipeline overview
 
-The pipeline runs three parallel build jobs (`build-ubuntu20`, `build-ubuntu22`, `build-ubuntu24`),
-each producing a `Fraxinus*.tar.gz` package via CPack. Ubuntu 20.04 is no longer supported, so
-`build-ubuntu20`'s package is not published (CustusX#51). The `deploy-tag` job then:
+The pipeline runs two build jobs (`build-ubuntu22`, `build-ubuntu24`), each producing a
+`Fraxinus*.tar.gz` package via CPack. Ubuntu 20.04 is no longer supported (CustusX#51): the
+`build-ubuntu20` job is disabled by a leading dot in its name, and can be enabled again by
+removing it. The `deploy-tag` job then:
 
 1. Uploads each tarball to the GitLab Generic Package Registry under
    `Fraxinus/<tag>/<OS>/Fraxinus-<OS>.tar.gz`, where `<OS>` is `Ubuntu2204` or `Ubuntu2404`.
