@@ -10,7 +10,7 @@
   script:
     - echo "Deploying application..."
     - |
-      # No Ubuntu 20.04 installer any more (CustusX#51), although build-ubuntu20 still runs.
+      # No Ubuntu 20.04 installer any more (CustusX#51), and build-ubuntu20 is disabled.
       for OS in Ubuntu2204 Ubuntu2404; do
         DIR="$CI_PROJECT_DIR/$OS/package_artefacts"
         if [ ! -d "$DIR" ]; then
@@ -201,7 +201,8 @@ pages:
   environment: production
   interruptible: false
   variables:
-    OS: Ubuntu2004
+    OS: Ubuntu2404
+    GIT_CLONE_PATH: /builds/Fraxinus/pages/FX/FX
   script:
     - mv $OS/package_artefacts/html_pure/ public/user_doc/
     - mv $OS/package_artefacts/html_dev/ public/developer_doc/
