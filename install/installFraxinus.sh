@@ -108,7 +108,11 @@ if [ -n "$FRAXINUS_VERSION" ]; then
         exit 1
     fi
 else
-    TARBALL=$(ls Fraxinus*.tar.gz 2>/dev/null | head -1)
+    # -t: if more than one matching tarball is sitting here (e.g. an old one
+    # left over from before an OS upgrade, or from a previous manual
+    # download), prefer the most recently modified one over an arbitrary
+    # alphabetical pick.
+    TARBALL=$(ls -t Fraxinus*.tar.gz 2>/dev/null | head -1)
     if [ -z "$TARBALL" ]; then
         echo "ERROR: No Fraxinus*.tar.gz found in the current directory."
         echo "Download the versioned installer from the releases page:"
