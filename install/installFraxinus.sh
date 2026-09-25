@@ -180,7 +180,13 @@ else
     echo "Installing Elastix $ELASTIX_VERSION..."
     mkdir -p ~/Fraxinus
     cd ~/Fraxinus
-    download_with_retry "https://github.com/SuperElastix/elastix/releases/download/${ELASTIX_VERSION}/elastix-${ELASTIX_VERSION}-ubuntu.zip"
+    # -O with the exact expected filename: without it, a retry after a
+    # network blip interrupts the first attempt won't overwrite the partial
+    # file wget already wrote -- wget instead saves the successful retry as
+    # "...zip.1", download_with_retry reports success, and the unzip line
+    # below then fails against the missing/empty original, aborting the
+    # whole install under set -e (the opposite of what this retry is for).
+    download_with_retry -O "elastix-${ELASTIX_VERSION}-ubuntu.zip" "https://github.com/SuperElastix/elastix/releases/download/${ELASTIX_VERSION}/elastix-${ELASTIX_VERSION}-ubuntu.zip"
     unzip -o "elastix-${ELASTIX_VERSION}-ubuntu.zip" -d elastix
     chmod +x elastix/bin/elastix elastix/bin/transformix
     cp elastix/lib/libANNlib* elastix/bin/ 2>/dev/null || true
@@ -324,7 +330,7 @@ if [ -d "$DESKTOP_DIR" ]; then
 Type=Application
 Name=Fraxinus Patients
 Icon=folder
-Exec=$XDG_OPEN_PATH $HOME/Fraxinus/Patients
+Exec="$XDG_OPEN_PATH" "$HOME/Fraxinus/Patients"
 Terminal=false
 EOF
     # chmod before gio set -- see the comment on the app shortcut above.
