@@ -68,7 +68,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxBranchList.h"
 #include "cxRouteToTarget.h"
 #include "cxAirwaysFromCenterline.h"
-#include "cxMetricManager.h"
 #include "cxNewLoadPatientWidget.h"
 #include "cxImageAlgorithms.h"
 #include <QGroupBox>
@@ -1213,15 +1212,11 @@ void PinpointWorkflowState::showTargetPoint(bool show)
 
 void PinpointWorkflowState::showViaPoints(bool show)
 {
-	PinpointWidget* pinPointWidget = this->getPinpointWidget();
-	if(!pinPointWidget)
-		return;
-	MetricManagerPtr metricManager = pinPointWidget->getMetricManager();
-	if(!metricManager)
-		return;
-	std::map<QString, PointMetricPtr> airwayMetrics = metricManager->getPointMetrics(pinPointWidget->getExtraAirwayMetricUid());
+	std::map<QString, PointMetricPtr> airwayMetrics = mServices->patient()->getDataOfTypeWithUidContaining<PointMetric>(RouteToTargetFilter::getExtraAirwayPointUidPrefix());
 	for (const std::map<QString, PointMetricPtr>::value_type& item : airwayMetrics)
+	{
 		this->showPointMetric(item.second, show);
+	}
 }
 
 void PinpointWorkflowState::showPointMetric(PointMetricPtr point, bool show)
