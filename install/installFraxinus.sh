@@ -108,7 +108,11 @@ if [ -n "$FRAXINUS_VERSION" ]; then
         exit 1
     fi
 else
-    TARBALL=$(ls Fraxinus*.tar.gz 2>/dev/null | head -1)
+    # -t: if more than one matching tarball is sitting here (e.g. an old one
+    # left over from before an OS upgrade, or from a previous manual
+    # download), prefer the most recently modified one over an arbitrary
+    # alphabetical pick.
+    TARBALL=$(ls -t Fraxinus*.tar.gz 2>/dev/null | head -1)
     if [ -z "$TARBALL" ]; then
         echo "ERROR: No Fraxinus*.tar.gz found in the current directory."
         echo "Download the versioned installer from the releases page:"
@@ -176,7 +180,13 @@ else
     echo "Installing Elastix $ELASTIX_VERSION..."
     mkdir -p ~/Fraxinus
     cd ~/Fraxinus
-    download_with_retry "https://github.com/SuperElastix/elastix/releases/download/${ELASTIX_VERSION}/elastix-${ELASTIX_VERSION}-ubuntu.zip"
+    # -O with the exact expected filename: without it, a retry after a
+    # network blip interrupts the first attempt won't overwrite the partial
+    # file wget already wrote -- wget instead saves the successful retry as
+    # "...zip.1", download_with_retry reports success, and the unzip line
+    # below then fails against the missing/empty original, aborting the
+    # whole install under set -e (the opposite of what this retry is for).
+    download_with_retry -O "elastix-${ELASTIX_VERSION}-ubuntu.zip" "https://github.com/SuperElastix/elastix/releases/download/${ELASTIX_VERSION}/elastix-${ELASTIX_VERSION}-ubuntu.zip"
     unzip -o "elastix-${ELASTIX_VERSION}-ubuntu.zip" -d elastix
     chmod +x elastix/bin/elastix elastix/bin/transformix
     cp elastix/lib/libANNlib* elastix/bin/ 2>/dev/null || true
@@ -291,8 +301,13 @@ if [ -f "Fraxinus.desktop" ]; then
     sed -i "s|Icon=.*|Icon=$ICON_PATH|g" Fraxinus.desktop
     if [ -d "$DESKTOP_DIR" ]; then
         cp Fraxinus.desktop "$DESKTOP_DIR/"
-        gio set "$DESKTOP_DIR/Fraxinus.desktop" metadata::trusted true 2>/dev/null || true
+        # chmod before gio set: GNOME's desktop trust check only takes the
+        # metadata::trusted flag into account for a file that's already
+        # executable, so setting it first (against a not-yet-executable
+        # freshly-copied file) doesn't stick -- Nautilus then renders it as
+        # an untrusted/invalid launcher (broken icon, raw filename as label).
         chmod +x "$DESKTOP_DIR/Fraxinus.desktop"
+        gio set "$DESKTOP_DIR/Fraxinus.desktop" metadata::trusted true 2>/dev/null || true
     else
         echo "NOTE: no Desktop folder found at $DESKTOP_DIR -- skipping desktop launcher shortcut."
     fi
@@ -300,18 +315,27 @@ fi
 
 # ---------------------------------------------------------------------------
 # Desktop shortcut to the (shared, family-level) Patients folder
+#
+# Type=Application + an absolute Exec path, not Type=Link -- Ubuntu's GNOME
+# Shell desktop-icons extension (which renders desktop icons, not Nautilus
+# itself) rejects Type=Link entries outright ("Broken Desktop File") and also
+# rejects a bare command name in Exec= (e.g. "xdg-open", relying on $PATH)
+# with the same error, needing the executable's absolute path instead.
 # ---------------------------------------------------------------------------
 mkdir -p ~/Fraxinus/Patients
+XDG_OPEN_PATH="$(command -v xdg-open || echo /usr/bin/xdg-open)"
 if [ -d "$DESKTOP_DIR" ]; then
     cat > "$DESKTOP_DIR/Fraxinus_Patients.desktop" <<EOF
 [Desktop Entry]
-Type=Link
+Type=Application
 Name=Fraxinus Patients
 Icon=folder
-URL=$HOME/Fraxinus/Patients
+Exec="$XDG_OPEN_PATH" "$HOME/Fraxinus/Patients"
+Terminal=false
 EOF
-    gio set "$DESKTOP_DIR/Fraxinus_Patients.desktop" metadata::trusted true 2>/dev/null || true
+    # chmod before gio set -- see the comment on the app shortcut above.
     chmod +x "$DESKTOP_DIR/Fraxinus_Patients.desktop"
+    gio set "$DESKTOP_DIR/Fraxinus_Patients.desktop" metadata::trusted true 2>/dev/null || true
 fi
 
 echo ""
