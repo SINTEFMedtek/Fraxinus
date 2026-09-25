@@ -295,8 +295,13 @@ if [ -f "Fraxinus.desktop" ]; then
     sed -i "s|Icon=.*|Icon=$ICON_PATH|g" Fraxinus.desktop
     if [ -d "$DESKTOP_DIR" ]; then
         cp Fraxinus.desktop "$DESKTOP_DIR/"
-        gio set "$DESKTOP_DIR/Fraxinus.desktop" metadata::trusted true 2>/dev/null || true
+        # chmod before gio set: GNOME's desktop trust check only takes the
+        # metadata::trusted flag into account for a file that's already
+        # executable, so setting it first (against a not-yet-executable
+        # freshly-copied file) doesn't stick -- Nautilus then renders it as
+        # an untrusted/invalid launcher (broken icon, raw filename as label).
         chmod +x "$DESKTOP_DIR/Fraxinus.desktop"
+        gio set "$DESKTOP_DIR/Fraxinus.desktop" metadata::trusted true 2>/dev/null || true
     else
         echo "NOTE: no Desktop folder found at $DESKTOP_DIR -- skipping desktop launcher shortcut."
     fi
@@ -314,8 +319,9 @@ Name=Fraxinus Patients
 Icon=folder
 URL=$HOME/Fraxinus/Patients
 EOF
-    gio set "$DESKTOP_DIR/Fraxinus_Patients.desktop" metadata::trusted true 2>/dev/null || true
+    # chmod before gio set -- see the comment on the app shortcut above.
     chmod +x "$DESKTOP_DIR/Fraxinus_Patients.desktop"
+    gio set "$DESKTOP_DIR/Fraxinus_Patients.desktop" metadata::trusted true 2>/dev/null || true
 fi
 
 echo ""
