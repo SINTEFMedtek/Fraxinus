@@ -137,7 +137,7 @@ removing it. The `deploy-tag` job then:
    replaces that variable with the tag name, and uploads the result as a single
    `Fraxinus/<tag>/installFraxinus.sh` to the package registry.
 
-This means one installer script is published per release, covering all three Ubuntu platforms.
+This means one installer script is published per release, covering both Ubuntu platforms.
 The script detects the Ubuntu version at runtime and downloads the correct tarball automatically.
 
 ### Triggering a release
