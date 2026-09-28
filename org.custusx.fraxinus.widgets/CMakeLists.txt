@@ -142,5 +142,5 @@ target_include_directories(${PROJECT_NAME}
 )
 
 
-#add_subdirectory(testing)
+add_subdirectory(testing)
 

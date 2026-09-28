@@ -13,6 +13,7 @@
 #include <QAction>
 #include <QDialog>
 #include <QLabel>
+#include <QSignalBlocker>
 #include <QTextEdit>
 
 #include "cxApplication.h"
@@ -96,6 +97,10 @@ NewLoadPatientWidget::NewLoadPatientWidget(QWidget *parent, VisServicesPtr servi
 	mCheckBoxSelectAll = new QCheckBox("Select all");
 	mCheckBoxSelectAll->setChecked(false);
 	connect(mCheckBoxSelectAll, &QCheckBox::toggled, this, &NewLoadPatientWidget::selectAll);
+	for (QCheckBox* checkBox : this->getOptionalSegmentationCheckBoxes())
+	{
+		connect(checkBox, &QCheckBox::toggled, this, &NewLoadPatientWidget::updateSelectAllCheckBox);
+	}
 
 	QGridLayout* segLayout = new QGridLayout();
 	segLayout->setColumnStretch(0, 1);
@@ -372,24 +377,53 @@ void NewLoadPatientWidget::updateSegmentationCheckBoxes()
 		mCheckBoxLungLobes->setDisabled(false);
 		setPending(mStatusLabelLungLobes, "~5 min");
 	}
+
+	this->updateSelectAllCheckBox();
 }
 
 void NewLoadPatientWidget::selectAll(bool checked)
 {
-	if(mCheckBoxLymphNodes->isEnabled())
-		mCheckBoxLymphNodes->setChecked(checked);
-	if(mCheckBoxHeart->isEnabled())
-		mCheckBoxHeart->setChecked(checked);
-	if(mCheckBoxMediumOrgans->isEnabled())
-		mCheckBoxMediumOrgans->setChecked(checked);
-	if(mCheckBoxSmallOrgans->isEnabled())
-		mCheckBoxSmallOrgans->setChecked(checked);
-	if(mCheckBoxTumors->isEnabled())
-		mCheckBoxTumors->setChecked(checked);
-	if(mCheckBoxLungVessels->isEnabled())
-		mCheckBoxLungVessels->setChecked(checked);
-	if(mCheckBoxLungLobes->isEnabled())
-		mCheckBoxLungLobes->setChecked(checked);
+	for (QCheckBox* checkBox : this->getOptionalSegmentationCheckBoxes())
+	{
+		if (checkBox->isEnabled())
+		{
+			checkBox->setChecked(checked);
+		}
+	}
+}
+
+void NewLoadPatientWidget::updateSelectAllCheckBox()
+{
+	std::vector<QCheckBox*> checkBoxes = this->getOptionalSegmentationCheckBoxes();
+	bool anyEnabled = false;
+	for (QCheckBox* checkBox : checkBoxes)
+	{
+		anyEnabled = anyEnabled || checkBox->isEnabled();
+	}
+	QSignalBlocker blocker(mCheckBoxSelectAll);
+	mCheckBoxSelectAll->setChecked(allEnabledChecked(checkBoxes));
+	mCheckBoxSelectAll->setEnabled(anyEnabled);
+}
+
+bool NewLoadPatientWidget::allEnabledChecked(const std::vector<QCheckBox*>& checkBoxes)
+{
+	bool anyEnabled = false;
+	bool allChecked = true;
+	for (QCheckBox* checkBox : checkBoxes)
+	{
+		if (checkBox->isEnabled())
+		{
+			anyEnabled = true;
+			allChecked = allChecked && checkBox->isChecked();
+		}
+	}
+	return anyEnabled && allChecked;
+}
+
+std::vector<QCheckBox*> NewLoadPatientWidget::getOptionalSegmentationCheckBoxes() const
+{
+	return {mCheckBoxLymphNodes, mCheckBoxHeart, mCheckBoxMediumOrgans, mCheckBoxSmallOrgans,
+			mCheckBoxTumors, mCheckBoxLungVessels, mCheckBoxLungLobes};
 }
 
 bool NewLoadPatientWidget::isAirwaysChecked() const { return mCheckBoxAirways->isChecked(); }
