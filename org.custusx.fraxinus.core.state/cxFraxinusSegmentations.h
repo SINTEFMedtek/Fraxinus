@@ -74,9 +74,19 @@ protected:
 	bool mSegmentLungLobes = false;
 	//bool mSegmentNodules = false;
 	bool mRegisterPET = false;
+	bool mAirwaysProcessed = false;
+	bool mLungVesselsProcessed = false;
+	bool mLungLobesProcessed = false;
+	bool mNodulesProcessed = false;
+	bool mTumorsProcessed = false;
+	bool mLymphNodesProcessed = false;
+	bool mHeartProcessed = false;
+	bool mMediumOrgansProcessed = false;
+	bool mSmallOrgansProcessed = false;
 
 	QStringList getRaidionicsOutputClasses(bool startTimers = true);
 	void setElastixParameters();
+	void resetProcessedFlags();
 
 public slots:
 	void updateSelectSegmentationBox();
@@ -129,15 +139,6 @@ private:
 	DisplayTimerWidget* mActiveTimerWidget = nullptr;
 	QMap<LUNG_STRUCTURES, QCheckBox*> mCheckBoxes;
 	QCheckBox* mCheckBoxSelectAll = nullptr;
-	bool mAirwaysProcessed = false;
-	bool mLungVesselsProcessed = false;
-	bool mLungLobesProcessed = false;
-	bool mNodulesProcessed = false;
-	bool mTumorsProcessed = false;
-	bool mLymphNodesProcessed = false;
-	bool mHeartProcessed = false;
-	bool mMediumOrgansProcessed = false;
-	bool mSmallOrgansProcessed = false;
 	LUNG_STRUCTURES mCurrentSegmentationType;
 	BranchListPtr mBranchList;
 	ElastixManagerPtr mElastixManager;

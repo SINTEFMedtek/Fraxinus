@@ -101,9 +101,14 @@ void FraxinusSegmentations::patientChanged()
 		return;
 
 	mBranchList.reset();
+	this->resetProcessedFlags();
+}
 
+void FraxinusSegmentations::resetProcessedFlags()
+{
 	mAirwaysProcessed = false;
 	mLungVesselsProcessed = false;
+	mLungLobesProcessed = false;
 	mNodulesProcessed = false;
 	mTumorsProcessed = false;
 	mLymphNodesProcessed = false;
