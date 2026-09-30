@@ -48,6 +48,8 @@ Nothing is moved or deleted automatically. Your old folders are left as they wer
 |---|---|---|
 | [CustusX#30](https://gitlab.sintef.no/custusx/custusx/-/issues/30) | Tracking on Ubuntu 24.04 | Tracking hardware support is not available in the open-source Fraxinus build on Ubuntu 24.04. |
 | [CustusX#42](https://gitlab.sintef.no/custusx/custusx/-/issues/42) | Windows testing coverage | The Windows build has not been as thoroughly tested and verified as the Ubuntu builds. Ubuntu remains the primary, best-tested platform. |
+| [Fraxinus#47](https://gitlab.sintef.no/custusx/fraxinus/-/issues/47) | Lung lobes missing for later patients | If Lung Lobes is selected for more than one patient in the same session, lung lobes are only created for the first one. Restart Fraxinus before working with a new patient. |
+| [Fraxinus#46](https://gitlab.sintef.no/custusx/fraxinus/-/issues/46) | "Select all" out of sync | After switching patient, "Select all" can be ticked while the structures are not, so it needs two clicks. Restarting Fraxinus avoids this too. |
 
 <details>
 <summary>Internal changes not included above (CI/build/tooling)</summary>
