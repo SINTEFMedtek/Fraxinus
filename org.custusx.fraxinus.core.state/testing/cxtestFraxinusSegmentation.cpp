@@ -10,6 +10,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 =========================================================================*/
 
 #include "catch.hpp"
+#include <vector>
 #include <QFileInfo>
 #include "cxFraxinusSegmentations.h"
 #include "cxRegServices.h"
@@ -29,6 +30,16 @@ public:
 	QStringList testGetRaidionicsOutputClasses()
 	{
 		return getRaidionicsOutputClasses(false);
+	}
+	std::vector<bool*> processedFlags()
+	{
+		return {&mAirwaysProcessed, &mLungVesselsProcessed, &mLungLobesProcessed, &mNodulesProcessed,
+				&mTumorsProcessed, &mLymphNodesProcessed, &mHeartProcessed, &mMediumOrgansProcessed,
+				&mSmallOrgansProcessed};
+	}
+	void testResetProcessedFlags()
+	{
+		resetProcessedFlags();
 	}
 	int setSingleTargetSegmentations()
 	{
@@ -66,6 +77,22 @@ TEST_CASE("FraxinusSegmentations: getFilterScriptsPath", "[unit]")
 	
 	QString iniFilePath = scriptFilePath + "python_LungVessels.ini";
 	CHECK(QFileInfo::exists(iniFilePath));
+}
+
+TEST_CASE("FraxinusSegmentations: resetProcessedFlags() resets every processed flag", "[unit]")
+{
+	TestFraxinusSegmentations segmentations;
+	for (bool* flag : segmentations.processedFlags())
+	{
+		*flag = true;
+	}
+
+	segmentations.testResetProcessedFlags();
+
+	for (bool* flag : segmentations.processedFlags())
+	{
+		CHECK_FALSE(*flag);
+	}
 }
 
 TEST_CASE("FraxinusSegmentations: getRaidionicsOutputClasses", "[unit]")
