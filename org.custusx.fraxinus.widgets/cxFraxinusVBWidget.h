@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
+#include <memory>
 #include "cxVBWidget.h"
 #include "cxStructuresSelectionWidget.h"
 #include "cxViewSelectionWidget.h"
@@ -47,7 +48,7 @@ class QMainWindow;
 
 namespace cx {
 
-typedef boost::shared_ptr<class Data> DataPtr;
+typedef std::shared_ptr<class Data> DataPtr;
 class FraxinusEBUSSimulatorWidget;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusVBWidget : public VBWidget

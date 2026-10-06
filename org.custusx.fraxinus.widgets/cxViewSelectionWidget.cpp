@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxViewSelectionWidget.h"
+#include <memory>
 #include <QButtonGroup>
 #include <QRadioButton>
 #include <QApplication>
@@ -158,7 +159,7 @@ void ViewSelectionWidget::setAirwayOpacity(bool opacity)
 
 	foreach(DataPtr object, mTubeViewObjects)
 	{
-		MeshPtr mesh = boost::dynamic_pointer_cast<Mesh>(object);
+		MeshPtr mesh = std::dynamic_pointer_cast<Mesh>(object);
 		if(mesh)
 		{
 			QColor color = mesh->getColor();

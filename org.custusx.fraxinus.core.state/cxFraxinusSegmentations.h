@@ -13,6 +13,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #define CXFRAXINUSSEGMENTATIONS_H
 
 #include "org_custusx_fraxinus_core_state_Export.h"
+#include <memory>
 
 #include <QDialog>
 #include <QCheckBox>
@@ -27,9 +28,9 @@ class QProgressBar;
 
 namespace cx
 {
-typedef boost::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
-typedef boost::shared_ptr<class BinaryThinningImageFilter3DFilter> BinaryThinningImageFilter3DFilterPtr;
-typedef boost::shared_ptr<class GenericScriptFilter> GenericScriptFilterPtr;
+typedef std::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
+typedef std::shared_ptr<class BinaryThinningImageFilter3DFilter> BinaryThinningImageFilter3DFilterPtr;
+typedef std::shared_ptr<class GenericScriptFilter> GenericScriptFilterPtr;
 class DisplayTimerWidget;
 
 class org_custusx_fraxinus_core_state_EXPORT FraxinusSegmentations : public QObject

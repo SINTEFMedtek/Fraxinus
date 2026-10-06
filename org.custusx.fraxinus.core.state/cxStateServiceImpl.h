@@ -34,12 +34,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CXSTATESERVICEIMPL_H
 
 #include "org_custusx_fraxinus_core_state_Export.h"
+#include <memory>
 #include "cxStateService.h"
 
 namespace cx
 {
-typedef boost::shared_ptr<class ApplicationStateMachine> ApplicationStateMachinePtr;
-typedef boost::shared_ptr<class WorkflowStateMachine> WorkflowStateMachinePtr;
+typedef std::shared_ptr<class ApplicationStateMachine> ApplicationStateMachinePtr;
+typedef std::shared_ptr<class WorkflowStateMachine> WorkflowStateMachinePtr;
 
 
 /**

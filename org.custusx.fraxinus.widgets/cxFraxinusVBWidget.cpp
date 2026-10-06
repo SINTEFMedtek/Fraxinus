@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxFraxinusVBWidget.h"
+#include <memory>
 #include <QButtonGroup>
 #include <QGroupBox>
 #include <QKeyEvent>
@@ -149,7 +150,7 @@ void FraxinusVBWidget::updateAirwaysOpacity(double cameraPositionInPercent)
 
 	foreach(DataPtr object, mTubeViewObjects)
 	{
-		MeshPtr mesh = boost::dynamic_pointer_cast<Mesh>(object);
+		MeshPtr mesh = std::dynamic_pointer_cast<Mesh>(object);
 		if(mesh)
 		{
 			QColor color = mesh->getColor();

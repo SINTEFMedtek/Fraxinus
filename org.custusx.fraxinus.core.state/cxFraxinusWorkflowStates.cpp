@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxFraxinusWorkflowStates.h"
+#include <memory>
 #include <QApplication>
 #include <QMainWindow>
 #include <vtkPolyData.h>
@@ -84,7 +85,7 @@ FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QStrin
 
 ViewServicePtr FraxinusWorkflowState::viewService()
 {
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 	if(services)
 		return services->view();
 	else
@@ -637,7 +638,7 @@ void FraxinusWorkflowState::setupProcedurePlanningWidget(std::vector<unsigned in
 
 void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 {
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 	RouteToTargetFilterPtr routeToTargetFilter = RouteToTargetFilterPtr(new RouteToTargetFilter(services, makeRouteInformationFile));
 	std::vector<SelectDataStringPropertyBasePtr> input = routeToTargetFilter->getInputTypes();
 	routeToTargetFilter->getOutputTypes();

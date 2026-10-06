@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxTypeConversions.h"
 #include "cxRequestEnterStateTransition.h"
 #include "cxWorkflowState.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include "cxViewService.h"
 #include "cxFraxinusSegmentations.h"
 
@@ -53,9 +53,9 @@ class QMainWindow;
 
 namespace cx
 {
-typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
-typedef boost::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
-typedef boost::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
+typedef std::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
+typedef std::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
+typedef std::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
 class NewLoadPatientWidget;
 class FraxinusVBWidget;
 class PinpointWidget;

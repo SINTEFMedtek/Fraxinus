@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
+#include <memory>
 #include "cxBaseWidget.h"
 #include "cxForwardDeclarations.h"
 
@@ -42,9 +43,9 @@ class QPushButton;
 
 namespace cx {
 
-	typedef boost::shared_ptr<class StringPropertySelectPointMetric> StringPropertySelectPointMetricPtr;
-	typedef boost::shared_ptr<class StringPropertySelectMesh> StringPropertySelectMeshPtr;
-	typedef boost::shared_ptr<class StringPropertySelectTool> StringPropertySelectToolPtr;
+	typedef std::shared_ptr<class StringPropertySelectPointMetric> StringPropertySelectPointMetricPtr;
+	typedef std::shared_ptr<class StringPropertySelectMesh> StringPropertySelectMeshPtr;
+	typedef std::shared_ptr<class StringPropertySelectTool> StringPropertySelectToolPtr;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusRobotWidget : public BaseWidget
 {
