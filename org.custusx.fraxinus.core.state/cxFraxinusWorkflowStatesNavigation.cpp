@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxFraxinusWorkflowStatesNavigation.h"
+#include <memory>
 #include <QApplication>
 #include <QMainWindow>
 #include "cxStateService.h"

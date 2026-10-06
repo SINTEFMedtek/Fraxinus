@@ -13,6 +13,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #define CXFRAXINUSSEGMENTATIONS_H
 
 #include "org_custusx_fraxinus_core_state_Export.h"
+#include <memory>
 
 #include <QDialog>
 #include <QCheckBox>

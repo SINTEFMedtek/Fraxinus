@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxStructuresSelectionWidget.h"
+#include <memory>
 #include <QGroupBox>
 #include <QVBoxLayout>
 #include <QPushButton>

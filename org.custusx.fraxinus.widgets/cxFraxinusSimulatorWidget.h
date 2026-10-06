@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
+#include <memory>
 #include "cxBaseWidget.h"
 #include "cxFraxinusNavigationWidget.h"
 #include "cxFraxinusTrackingWidget.h"

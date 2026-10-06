@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxFraxinusVideoGeneratorWidget.h"
+#include <memory>
 #include <QButtonGroup>
 #include <QGroupBox>
 #include <QKeyEvent>

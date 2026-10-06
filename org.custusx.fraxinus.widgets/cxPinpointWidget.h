@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PINPOINTWIDGET_H
 
 #include "org_custusx_fraxinus_widgets_Export.h"
+#include <memory>
 #include "cxBaseWidget.h"
 #include "cxStructuresSelectionWidget.h"
 #include "cxTumorInformationWidget.h"

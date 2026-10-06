@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxViewSelectionWidget.h"
+#include <memory>
 #include <QButtonGroup>
 #include <QRadioButton>
 #include <QApplication>

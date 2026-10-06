@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CXSTATESERVICEIMPL_H
 
 #include "org_custusx_fraxinus_core_state_Export.h"
+#include <memory>
 #include "cxStateService.h"
 
 namespace cx

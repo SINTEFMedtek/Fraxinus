@@ -1,4 +1,5 @@
 #include "cxPinpointWidget.h"
+#include <memory>
 
 #include <QPushButton>
 #include <QLineEdit>
