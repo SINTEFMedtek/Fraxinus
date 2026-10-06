@@ -36,12 +36,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "org_custusx_fraxinus_core_state_Export.h"
 
 #include <QObject>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "cxWorkflowStateMachine.h"
 
 namespace cx
 {
-typedef boost::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
+typedef std::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 class FraxinusWorkflowState;
 
 static const QStringList profilesWithTracking(){
@@ -112,7 +112,7 @@ private:
 
 };
 
-typedef boost::shared_ptr<FraxinusWorkflowStateMachine> CustusXWorkflowStateMachinePtr;
+typedef std::shared_ptr<FraxinusWorkflowStateMachine> CustusXWorkflowStateMachinePtr;
 }
 
 #endif /* CXCUSTUSXWORKFLOWSTATEMACHINE_H_ */

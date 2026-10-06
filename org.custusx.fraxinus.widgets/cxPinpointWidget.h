@@ -46,9 +46,9 @@ class QDomElement;
 
 namespace cx {
 
-typedef boost::shared_ptr<class MetricManager> MetricManagerPtr;
-typedef boost::shared_ptr<class PointMetric> PointMetricPtr;
-typedef boost::shared_ptr<class VisServices> VisServicesPtr;
+typedef std::shared_ptr<class MetricManager> MetricManagerPtr;
+typedef std::shared_ptr<class PointMetric> PointMetricPtr;
+typedef std::shared_ptr<class VisServices> VisServicesPtr;
 
 class org_custusx_fraxinus_widgets_EXPORT PinpointWidget : public BaseWidget
 {

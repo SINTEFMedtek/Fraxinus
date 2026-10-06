@@ -61,7 +61,7 @@ private:
 	ctkPluginContext* mContext;
 
 };
-typedef boost::shared_ptr<FraxinusWidgetsGUIExtenderService> FraxinusWidgetsGUIExtenderServicePtr;
+typedef std::shared_ptr<FraxinusWidgetsGUIExtenderService> FraxinusWidgetsGUIExtenderServicePtr;
 
 } /* namespace cx */
 

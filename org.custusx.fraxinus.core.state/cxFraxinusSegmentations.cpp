@@ -537,7 +537,7 @@ void FraxinusSegmentations::performPythonSegmentation(ImagePtr image)
 		return;
 	}
 
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 
 	GenericScriptFilterPtr scriptFilter = GenericScriptFilterPtr(new GenericScriptFilter(services));
 	std::vector <cx::SelectDataStringPropertyBasePtr> input = scriptFilter->getInputTypes();
@@ -654,7 +654,7 @@ void FraxinusSegmentations::performMLSegmentation(ImagePtr image)
 	if(!image)
 		return;
 	
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 	//dialog.show();
 	
 	GenericScriptFilterPtr scriptFilter = GenericScriptFilterPtr(new GenericScriptFilter(services));
@@ -945,7 +945,7 @@ void FraxinusSegmentations::postProcessAirwaysSlot()
 	setMeshNameAndType(airwayWalls, otAIRWAYS_ENHANCED);
 
 	//Apply color varition
-	VisServicesPtr visServices = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr visServices = std::static_pointer_cast<VisServices>(mServices);
 	ColorVariationFilterPtr coloringFilter = ColorVariationFilterPtr(new ColorVariationFilter(visServices));
 	double globaleVariance = 50.0;
 	double localeVariance = 5.0;
@@ -1005,7 +1005,7 @@ void FraxinusSegmentations::postProcessTumors()
 	if(!baseImage)
 		return;
 
-	VisServicesPtr visServices = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr visServices = std::static_pointer_cast<VisServices>(mServices);
 	IslandsFilterPtr islandsFilter = IslandsFilterPtr(new IslandsFilter(visServices));
 	QString uid = baseImage->getUid() + "_Tumors_Islands%1";
 	QString name = baseImage->getName()+" Tumors Islands%1";
@@ -1148,7 +1148,7 @@ void FraxinusSegmentations::setNumberAndSizeToTumorVolumes(std::vector<MeshPtr> 
 
 void FraxinusSegmentations::generateCenterline()
 {//using BinaryThinningImageFilter3DFilter
-	VisServicesPtr visServices = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr visServices = std::static_pointer_cast<VisServices>(mServices);
 	mBinaryThinningImageFilter3DFilter.reset(new BinaryThinningImageFilter3DFilter(visServices));
 	std::vector<SelectDataStringPropertyBasePtr> input = mBinaryThinningImageFilter3DFilter->getInputTypes();
 	mBinaryThinningImageFilter3DFilter->getOutputTypes(); //Needed to create output types

@@ -47,7 +47,7 @@ class QMainWindow;
 
 namespace cx {
 
-typedef boost::shared_ptr<class Data> DataPtr;
+typedef std::shared_ptr<class Data> DataPtr;
 class FraxinusEBUSSimulatorWidget;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusVBWidget : public VBWidget

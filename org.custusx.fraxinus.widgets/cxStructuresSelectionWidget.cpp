@@ -206,7 +206,7 @@ void StructuresSelectionWidget::addObject(LUNG_STRUCTURES name, DataPtr object)
 	mSelectableStructuresMap.insert(name, structure);
 
 	if(name == lsPET_REGISTERED)
-		this->setPETImage(boost::dynamic_pointer_cast<Image>(object));
+		this->setPETImage(std::dynamic_pointer_cast<Image>(object));
 }
 
 void StructuresSelectionWidget::setPETImage(ImagePtr image)

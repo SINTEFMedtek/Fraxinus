@@ -51,9 +51,9 @@ class QMainWindow;
 namespace cx {
 class RecordTrackingWidget;
 class WidgetObscuredListener;
-typedef boost::shared_ptr<class StringPropertySelectMesh> StringPropertySelectMeshPtr;
-typedef boost::shared_ptr<class BronchoscopyRegistration> BronchoscopyRegistrationPtr;
-typedef boost::shared_ptr<class BranchList> BranchListPtr;
+typedef std::shared_ptr<class StringPropertySelectMesh> StringPropertySelectMeshPtr;
+typedef std::shared_ptr<class BronchoscopyRegistration> BronchoscopyRegistrationPtr;
+typedef std::shared_ptr<class BranchList> BranchListPtr;
 typedef std::vector< Eigen::Matrix4d > M4Vector;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusSimulatorWidget : public BaseWidget

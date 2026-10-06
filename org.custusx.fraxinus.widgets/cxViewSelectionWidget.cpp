@@ -158,7 +158,7 @@ void ViewSelectionWidget::setAirwayOpacity(bool opacity)
 
 	foreach(DataPtr object, mTubeViewObjects)
 	{
-		MeshPtr mesh = boost::dynamic_pointer_cast<Mesh>(object);
+		MeshPtr mesh = std::dynamic_pointer_cast<Mesh>(object);
 		if(mesh)
 		{
 			QColor color = mesh->getColor();

@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace cx {
 
-typedef boost::shared_ptr<class MetricManager> MetricManagerPtr;
+typedef std::shared_ptr<class MetricManager> MetricManagerPtr;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusVideoGeneratorWidget : public VBWidget
 {

@@ -27,9 +27,9 @@ class QProgressBar;
 
 namespace cx
 {
-typedef boost::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
-typedef boost::shared_ptr<class BinaryThinningImageFilter3DFilter> BinaryThinningImageFilter3DFilterPtr;
-typedef boost::shared_ptr<class GenericScriptFilter> GenericScriptFilterPtr;
+typedef std::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
+typedef std::shared_ptr<class BinaryThinningImageFilter3DFilter> BinaryThinningImageFilter3DFilterPtr;
+typedef std::shared_ptr<class GenericScriptFilter> GenericScriptFilterPtr;
 class DisplayTimerWidget;
 
 class org_custusx_fraxinus_core_state_EXPORT FraxinusSegmentations : public QObject

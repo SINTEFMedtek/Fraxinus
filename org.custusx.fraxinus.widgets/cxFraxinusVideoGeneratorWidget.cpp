@@ -132,7 +132,7 @@ void FraxinusVideoGeneratorWidget::navigateNextRoute()
 	Eigen::Vector3d endPositionInBranch = mEndPositions[0];
 	mEndPositions.erase(mEndPositions.begin());
 	DataPtr data = mServices->patient()->getData(mTargetUid);
-	PointMetricPtr targetPoint = boost::dynamic_pointer_cast<PointMetric>(data);
+	PointMetricPtr targetPoint = std::dynamic_pointer_cast<PointMetric>(data);
 	if(!targetPoint)
 	{
 		disconnect(this, &VBWidget::cameraAtEndPosition, this, &FraxinusVideoGeneratorWidget::navigateNextRoute);
