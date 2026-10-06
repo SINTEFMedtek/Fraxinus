@@ -88,7 +88,7 @@
       CX_IGSTK_VARIANT="igstk"
       CX_IGSTK_FLAG="--igstk"
     else
-      IGSTK_LIBS="eigen VTK ITK OpenCV OpenIGTLink CTK OpenIGTLinkIO OpenCLUtilityLibrary QHttpServer"
+      IGSTK_LIBS="eigen VTK OpenCV OpenIGTLink CTK OpenIGTLinkIO OpenCLUtilityLibrary QHttpServer"
       CX_IGSTK_VARIANT="plain"
       CX_IGSTK_FLAG=""
       rm -rf $BASE_DIR/IGSTK  # not used in this build; remove stale dir from old agents
