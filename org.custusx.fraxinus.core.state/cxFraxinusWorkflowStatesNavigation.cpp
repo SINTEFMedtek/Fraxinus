@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxFraxinusWorkflowStatesNavigation.h"
+#include <memory>
 #include <QApplication>
 #include <QMainWindow>
 #include "cxStateService.h"
@@ -95,7 +96,7 @@ bool TrackingWorkflowState::canEnter() const
 
 void TrackingWorkflowState::addDataToView()
 {
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 
 	//Assuming 3D
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);
@@ -175,7 +176,7 @@ bool RegistrationWorkflowState::canEnter() const
 
 void RegistrationWorkflowState::addDataToView()
 {
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 	
 	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
 	MeshPtr airwaysTubesCenterline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
@@ -256,7 +257,7 @@ void NavigationWorkflowState::onEntry(QEvent * event)
 			structureSelectionWidget->onEntry();
 	}
 
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 	CameraControlPtr camera_control = services->view()->getCameraControl();
 	if(camera_control)
 	{
@@ -296,7 +297,7 @@ void NavigationWorkflowState::setupFraxinusNavigationWidget(int flyThrough3DView
 		fraxinusNavigationWidget->setViewGroupNumber(flyThrough3DViewGroupNumber);
 	}
 
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 	if(services)
 		services->view()->zoomCamera3D(flyThrough3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
 }
@@ -310,7 +311,7 @@ bool NavigationWorkflowState::canEnter() const
 
 void NavigationWorkflowState::addDataToView()
 {
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 
 	ImagePtr ctImage = this->getCTImage();
 	MeshPtr routeToTarget = this->getRouteToTarget();
@@ -437,7 +438,7 @@ bool SimulatorWorkflowState::canEnter() const
 
 void SimulatorWorkflowState::addDataToView()
 {
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 
 	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
 	MeshPtr airwaysTubesCenterline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
@@ -543,7 +544,7 @@ bool RobotWorkflowState::canEnter() const
 
 void RobotWorkflowState::addDataToView()
 {
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 
 	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);
 	MeshPtr routeToTarget = this->getRouteToTarget();
@@ -642,7 +643,7 @@ bool MDTWorkflowState::canEnter() const
 
 void MDTWorkflowState::addDataToView()
 {
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 
 	ViewGroupDataPtr viewGroup0_3D = services->view()->getGroup(m3DViewGroupNumber);
 	MeshPtr airwaysTubes = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED);

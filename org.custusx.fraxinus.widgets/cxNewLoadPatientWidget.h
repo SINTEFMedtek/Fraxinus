@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "org_custusx_fraxinus_widgets_Export.h"
 #include "cxBaseWidget.h"
+#include <vector>
 #include <QKeyEvent>
 #include "cxForwardDeclarations.h"
 
@@ -64,6 +65,8 @@ public:
 	bool isLungVesselsChecked() const;
 	bool isLungLobesChecked() const;
 
+	static bool allEnabledChecked(const std::vector<QCheckBox*>& checkBoxes);
+
 public slots:
 	void segmentationStarted();
 	void segmentationFinished();
@@ -82,6 +85,7 @@ private slots:
 	void selectAll(bool checked);
 	void updateRunSegmentationButton();
 	void updateSegmentationCheckBoxes();
+	void updateSelectAllCheckBox();
 
 signals:
 	void dataImportCompleted();
@@ -92,6 +96,7 @@ private:
 	void enableImportDataButton();
 	void loadCTData(bool fromUSB = false);
 	void dataAddedOrRemoved();
+	std::vector<QCheckBox*> getOptionalSegmentationCheckBoxes() const;
 
 	VisServicesPtr mServices;
 	QPushButton* mSelectCTDataButton = nullptr;

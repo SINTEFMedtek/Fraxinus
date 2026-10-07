@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
+#include <memory>
 #include "cxStructuresSelectionWidget.h"
 #include "cxFraxinusPatientOrientationWidget.h"
 #include "cxBaseWidget.h"
@@ -49,7 +50,7 @@ class QComboBox;
 
 namespace cx
 {
-typedef boost::shared_ptr<class TrackingSystemBronchoscopyService> TrackingSystemBronchoscopyServicePtr;
+typedef std::shared_ptr<class TrackingSystemBronchoscopyService> TrackingSystemBronchoscopyServicePtr;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusNavigationWidget : public BaseWidget
 {

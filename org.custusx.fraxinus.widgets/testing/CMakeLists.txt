@@ -1,22 +1,38 @@
+# =========================================================================
+# This file is part of CustusX, an Image Guided Therapy Application.
+#
+# Copyright (c) SINTEF Department of Medical Technology.
+# All rights reserved.
+#
+# CustusX is released under a BSD 3-Clause license.
+#
+# See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt) for details.
+# =========================================================================
 
 if(BUILD_TESTING)
-    set(CX_TEST_CATCH_ORG_CUSTUSX_EXAMPLE_MOC_SOURCE_FILES
+
+    set(CXTEST_SOURCES_TO_MOC
     )
-    set(CX_TEST_CATCH_ORG_CUSTUSX_EXAMPLE_SOURCE_FILES
-        ${CX_TEST_CATCH_ORG_CUSTUSX_EXAMPLE_MOC_SOURCE_FILES}
-        cxtestExamplePlugin.cpp
+    set(CXTEST_PLUGINWIDGETS_SOURCES
+        cxtestNewLoadPatientWidget.cpp
+        cxtestExportDummyClassForLinkingOnWindowsInLibWithoutExportedClass.cpp
     )
 
-    qt5_wrap_cpp(CX_TEST_CATCH_ORG_CUSTUSX_EXAMPLE_MOC_SOURCE_FILES ${CX_TEST_CATCH_ORG_CUSTUSX_EXAMPLE_MOC_SOURCE_FILES})
-    add_library(cxtest_org_custusx_example ${CX_TEST_CATCH_ORG_CUSTUSX_EXAMPLE_SOURCE_FILES} ${CX_TEST_CATCH_ORG_CUSTUSX_EXAMPLE_MOC_SOURCE_FILES})
+    qt5_wrap_cpp(CXTEST_SOURCES_TO_MOC ${CXTEST_SOURCES_TO_MOC})
+    add_library(cxtest_org_custusx_fraxinus_widgets ${CXTEST_PLUGINWIDGETS_SOURCES} ${CXTEST_SOURCES_TO_MOC})
     include(GenerateExportHeader)
-    generate_export_header(cxtest_org_custusx_example)
-    target_include_directories(cxtest_org_custusx_example
+    generate_export_header(cxtest_org_custusx_fraxinus_widgets)
+    target_include_directories(cxtest_org_custusx_fraxinus_widgets
         PUBLIC
         .
         ${CMAKE_CURRENT_BINARY_DIR}
     )
-    target_link_libraries(cxtest_org_custusx_example PRIVATE org_custusx_example cxCatch)
-    cx_add_tests_to_catch(cxtest_org_custusx_example)
+    target_link_libraries(cxtest_org_custusx_fraxinus_widgets
+        PRIVATE
+        org_custusx_fraxinus_widgets
+        cxCatch
+        cxtestUtilities
+    )
+    cx_add_tests_to_catch(cxtest_org_custusx_fraxinus_widgets)
 
 endif(BUILD_TESTING)

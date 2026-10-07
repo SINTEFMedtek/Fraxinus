@@ -1,4 +1,5 @@
 #include "cxPinpointWidget.h"
+#include <memory>
 
 #include <QPushButton>
 #include <QLineEdit>
@@ -10,6 +11,7 @@
 
 #include "cxApplication.h"
 #include "cxMetricManager.h"
+#include "cxRouteToTargetFilterService.h"
 #include "cxPointMetric.h"
 #include "cxDistanceMetric.h"
 #include "cxVisServices.h"
@@ -131,7 +133,7 @@ QString PinpointWidget::getViaPointMetricUid()
 
 QString PinpointWidget::getExtraAirwayMetricUid()
 {
-	return "AirwayPoint";
+	return RouteToTargetFilter::getExtraAirwayPointUidPrefix();
 }
 
 QString PinpointWidget::getEndoscopeMetricUid()
@@ -154,7 +156,7 @@ void PinpointWidget::setTargetMetric()
 	if(!mServices->patient()->getData(this->getEndoscopeMetricUid()))
 		this->createEndoscopeMetric();
 
-	DistanceMetricPtr distanceMetric = boost::dynamic_pointer_cast<DistanceMetric>(mServices->patient()->getData(this->getDistanceMetricUid()));
+	DistanceMetricPtr distanceMetric = std::dynamic_pointer_cast<DistanceMetric>(mServices->patient()->getData(this->getDistanceMetricUid()));
 	if(!distanceMetric)
 		this->createDistanceMetric();
 	else if(!distanceMetric->isValid())
@@ -256,11 +258,11 @@ void PinpointWidget::addAirwayMetric()
 void PinpointWidget::deleteLastAirwayMetric()
 {
 	std::map<QString, PointMetricPtr> airwayMetrics = mMetricManager->getPointMetrics(mAirwayPointMetricUid);
-	if(airwayMetrics.empty())
-		return;
-	std::map<QString, PointMetricPtr>::iterator it = airwayMetrics.end();
-	--it;
-	mServices->patient()->removeData(it->first);
+	QString lastUid = RouteToTargetFilter::getLastExtraAirwayPointUid(airwayMetrics);
+	if(!lastUid.isEmpty())
+	{
+		mServices->patient()->removeData(lastUid);
+	}
 }
 
 void PinpointWidget::createEndoscopeMetric()
@@ -285,7 +287,7 @@ void PinpointWidget::createDistanceMetric()
 void PinpointWidget::updateCoordinateOfPointMetric(QString pointMetricName)
 {
 	DataPtr data = mServices->patient()->getData(pointMetricName);
-	PointMetricPtr point = boost::dynamic_pointer_cast<PointMetric>(data);
+	PointMetricPtr point = std::dynamic_pointer_cast<PointMetric>(data);
 	if(!point)
 		return;
 

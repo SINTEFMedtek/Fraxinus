@@ -40,6 +40,7 @@ Nothing is moved or deleted automatically. Your old folders are left as they wer
 | [CustusX#46](https://gitlab.sintef.no/custusx/custusx/-/issues/46) | Scrolling a view only worked over its scrollbar | Scrolling a view now works from anywhere inside it, not just directly on the scrollbar — for example the structures-selection widget shown after a segmentation finishes, which previously only responded to the mouse wheel exactly over its own scrollbar. Scrolling over a dropdown/spin box/slider/tab bar still changes its value (or switches tabs) as before once you've clicked into it. |
 | [CustusX#46](https://gitlab.sintef.no/custusx/custusx/-/issues/46) | "Load existing patient" opened the wrong folder | The "Load existing patient" list now correctly shows patients from the current `~/Fraxinus/Patients` folder for anyone using an old Fraxinus_settings, instead of getting stuck on the old `~/Patients` location (which this dialog has no way to browse away from). |
 | [CustusX#46](https://gitlab.sintef.no/custusx/custusx/-/issues/46) | Installing TotalSegmentator failed on Ubuntu 22.04 | The Ubuntu install script (and the TotalSegmentator setup when a lung segmentation is first run) could fail on Ubuntu 22.04, because a newer version of one of TotalSegmentator's dependencies (dipy) had to be built from source there. That dependency is now pinned to a version that installs without building. The Windows installer gets the same pin when Windows has Python 3.10. |
+| [CustusX#58](https://gitlab.sintef.no/custusx/custusx/-/issues/58) | Freeze after a segmentation finished | Fraxinus could freeze ("not responding") right after a segmentation finished, and had to be closed. Also fixed: stopping a segmentation just after it started could be ignored, and the last line of a segmentation script's output could be missing from the log. |
 
 ## Known Issues
 
@@ -47,6 +48,8 @@ Nothing is moved or deleted automatically. Your old folders are left as they wer
 |---|---|---|
 | [CustusX#30](https://gitlab.sintef.no/custusx/custusx/-/issues/30) | Tracking on Ubuntu 24.04 | Tracking hardware support is not available in the open-source Fraxinus build on Ubuntu 24.04. |
 | [CustusX#42](https://gitlab.sintef.no/custusx/custusx/-/issues/42) | Windows testing coverage | The Windows build has not been as thoroughly tested and verified as the Ubuntu builds. Ubuntu remains the primary, best-tested platform. |
+| [Fraxinus#47](https://gitlab.sintef.no/custusx/fraxinus/-/issues/47) | Lung lobes missing for later patients | If Lung Lobes is selected for more than one patient in the same session, lung lobes are only created for the first one. Restart Fraxinus before working with a new patient. |
+| [Fraxinus#46](https://gitlab.sintef.no/custusx/fraxinus/-/issues/46) | "Select all" out of sync | After switching patient, "Select all" can be ticked while the structures are not, so it needs two clicks. Restarting Fraxinus avoids this too. |
 
 <details>
 <summary>Internal changes not included above (CI/build/tooling)</summary>

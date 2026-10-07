@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxStructuresSelectionWidget.h"
+#include <memory>
 #include <QGroupBox>
 #include <QVBoxLayout>
 #include <QPushButton>
@@ -206,7 +207,7 @@ void StructuresSelectionWidget::addObject(LUNG_STRUCTURES name, DataPtr object)
 	mSelectableStructuresMap.insert(name, structure);
 
 	if(name == lsPET_REGISTERED)
-		this->setPETImage(boost::dynamic_pointer_cast<Image>(object));
+		this->setPETImage(std::dynamic_pointer_cast<Image>(object));
 }
 
 void StructuresSelectionWidget::setPETImage(ImagePtr image)

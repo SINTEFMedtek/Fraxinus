@@ -88,8 +88,8 @@ sudo apt-get -y install python3-venv
 # Find or download the Fraxinus release tarball
 # ---------------------------------------------------------------------------
 if [ -n "$FRAXINUS_VERSION" ]; then
-    TARBALL="Fraxinus-${OS}.tar.gz"
-    DOWNLOAD_URL="${GITLAB_PROJECT_URL}/packages/generic/Fraxinus/${FRAXINUS_VERSION}/${OS}/${TARBALL}"
+    TARBALL="Fraxinus-${OS}-${FRAXINUS_VERSION}.tar.gz"
+    DOWNLOAD_URL="${GITLAB_PROJECT_URL}/packages/generic/Fraxinus/${FRAXINUS_VERSION}/${TARBALL}"
 
     echo "Downloading Fraxinus ${FRAXINUS_VERSION} for Ubuntu ${UBUNTU_VERSION}..."
     WGET_ARGS=()
@@ -108,31 +108,21 @@ if [ -n "$FRAXINUS_VERSION" ]; then
         exit 1
     fi
 else
-    # -t: if more than one matching tarball is sitting here (e.g. an old one
-    # left over from before an OS upgrade, or from a previous manual
-    # download), prefer the most recently modified one over an arbitrary
-    # alphabetical pick.
-    TARBALL=$(ls -t Fraxinus*.tar.gz 2>/dev/null | head -1)
+    # Local dev/CI builds encode the OS as e.g. "_Ubuntu22.04"; pick the newest
+    # one built for this Ubuntu version, since a build for another version
+    # installs fine but fails at runtime with missing .so errors.
+    TARBALL=$(ls -t Fraxinus*.tar.gz 2>/dev/null | grep -F -e "$OS" -e "Ubuntu${UBUNTU_VERSION}" | head -1)
     if [ -z "$TARBALL" ]; then
-        echo "ERROR: No Fraxinus*.tar.gz found in the current directory."
-        echo "Download the versioned installer from the releases page:"
-        echo "  https://gitlab.sintef.no/custusx/fraxinus/-/releases"
+        if ls Fraxinus*.tar.gz >/dev/null 2>&1; then
+            echo "ERROR: No Fraxinus*.tar.gz here was built for Ubuntu $UBUNTU_VERSION."
+            echo "Remove it and place a Fraxinus*${OS}*.tar.gz build here instead, then re-run."
+        else
+            echo "ERROR: No Fraxinus*.tar.gz found in the current directory."
+            echo "Download the versioned installer from the releases page:"
+            echo "  https://gitlab.sintef.no/custusx/fraxinus/-/releases"
+        fi
         exit 1
     fi
-    # Local dev/CI builds encode the OS as e.g. "_Ubuntu22.04" (with a dot);
-    # tagged releases encode it as "-Ubuntu2204" (no dot, matching $OS above).
-    # Refuse a tarball built for a different Ubuntu version outright -- used
-    # silently, it installs fine but fails at runtime with a confusing
-    # missing-.so error (e.g. a 20.04 build's libGLEW.so.2.1 vs 22.04's
-    # libGLEW.so.2.2), long after a clear error here would have helped.
-    case "$TARBALL" in
-        *"$OS"*|*"Ubuntu${UBUNTU_VERSION}"*) ;;
-        *)
-            echo "ERROR: $TARBALL does not look like it was built for Ubuntu $UBUNTU_VERSION."
-            echo "Remove it and place a Fraxinus*${OS}*.tar.gz build here instead, then re-run."
-            exit 1
-            ;;
-    esac
     echo "Using local tarball: $TARBALL"
 fi
 

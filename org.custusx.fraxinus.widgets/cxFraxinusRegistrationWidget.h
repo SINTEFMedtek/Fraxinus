@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
+#include <memory>
 #include "cxStructuresSelectionWidget.h"
 #include "cxFraxinusPatientOrientationWidget.h"
 #include "cxBaseWidget.h"
@@ -50,8 +51,8 @@ class QComboBox;
 namespace cx {
 class RecordTrackingWidget;
 class WidgetObscuredListener;
-typedef boost::shared_ptr<class StringPropertySelectMesh> StringPropertySelectMeshPtr;
-typedef boost::shared_ptr<class BronchoscopyRegistration> BronchoscopyRegistrationPtr;
+typedef std::shared_ptr<class StringPropertySelectMesh> StringPropertySelectMeshPtr;
+typedef std::shared_ptr<class BronchoscopyRegistration> BronchoscopyRegistrationPtr;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusRegistrationWidget : public BaseWidget
 {

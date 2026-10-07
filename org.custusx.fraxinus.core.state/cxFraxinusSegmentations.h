@@ -13,6 +13,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #define CXFRAXINUSSEGMENTATIONS_H
 
 #include "org_custusx_fraxinus_core_state_Export.h"
+#include <memory>
 
 #include <QDialog>
 #include <QCheckBox>
@@ -27,9 +28,9 @@ class QProgressBar;
 
 namespace cx
 {
-typedef boost::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
-typedef boost::shared_ptr<class BinaryThinningImageFilter3DFilter> BinaryThinningImageFilter3DFilterPtr;
-typedef boost::shared_ptr<class GenericScriptFilter> GenericScriptFilterPtr;
+typedef std::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
+typedef std::shared_ptr<class BinaryThinningImageFilter3DFilter> BinaryThinningImageFilter3DFilterPtr;
+typedef std::shared_ptr<class GenericScriptFilter> GenericScriptFilterPtr;
 class DisplayTimerWidget;
 
 class org_custusx_fraxinus_core_state_EXPORT FraxinusSegmentations : public QObject
@@ -74,9 +75,19 @@ protected:
 	bool mSegmentLungLobes = false;
 	//bool mSegmentNodules = false;
 	bool mRegisterPET = false;
+	bool mAirwaysProcessed = false;
+	bool mLungVesselsProcessed = false;
+	bool mLungLobesProcessed = false;
+	bool mNodulesProcessed = false;
+	bool mTumorsProcessed = false;
+	bool mLymphNodesProcessed = false;
+	bool mHeartProcessed = false;
+	bool mMediumOrgansProcessed = false;
+	bool mSmallOrgansProcessed = false;
 
 	QStringList getRaidionicsOutputClasses(bool startTimers = true);
 	void setElastixParameters();
+	void resetProcessedFlags();
 
 public slots:
 	void updateSelectSegmentationBox();
@@ -129,15 +140,6 @@ private:
 	DisplayTimerWidget* mActiveTimerWidget = nullptr;
 	QMap<LUNG_STRUCTURES, QCheckBox*> mCheckBoxes;
 	QCheckBox* mCheckBoxSelectAll = nullptr;
-	bool mAirwaysProcessed = false;
-	bool mLungVesselsProcessed = false;
-	bool mLungLobesProcessed = false;
-	bool mNodulesProcessed = false;
-	bool mTumorsProcessed = false;
-	bool mLymphNodesProcessed = false;
-	bool mHeartProcessed = false;
-	bool mMediumOrgansProcessed = false;
-	bool mSmallOrgansProcessed = false;
 	LUNG_STRUCTURES mCurrentSegmentationType;
 	BranchListPtr mBranchList;
 	ElastixManagerPtr mElastixManager;

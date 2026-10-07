@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CXFRAXINUSWIDGETSGUIEXTENDERSERVICE_H_
 
 #include "cxGUIExtenderService.h"
+#include <memory>
 #include "org_custusx_fraxinus_widgets_Export.h"
 class ctkPluginContext;
 
@@ -61,7 +62,7 @@ private:
 	ctkPluginContext* mContext;
 
 };
-typedef boost::shared_ptr<FraxinusWidgetsGUIExtenderService> FraxinusWidgetsGUIExtenderServicePtr;
+typedef std::shared_ptr<FraxinusWidgetsGUIExtenderService> FraxinusWidgetsGUIExtenderServicePtr;
 
 } /* namespace cx */
 

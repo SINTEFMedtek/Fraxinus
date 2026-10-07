@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "cxFraxinusWorkflowStates.h"
+#include <memory>
 #include <QApplication>
 #include <QMainWindow>
 #include <vtkPolyData.h>
@@ -68,7 +69,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxBranchList.h"
 #include "cxRouteToTarget.h"
 #include "cxAirwaysFromCenterline.h"
-#include "cxMetricManager.h"
 #include "cxNewLoadPatientWidget.h"
 #include "cxImageAlgorithms.h"
 #include <QGroupBox>
@@ -85,7 +85,7 @@ FraxinusWorkflowState::FraxinusWorkflowState(QState* parent, QString uid, QStrin
 
 ViewServicePtr FraxinusWorkflowState::viewService()
 {
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 	if(services)
 		return services->view();
 	else
@@ -638,7 +638,7 @@ void FraxinusWorkflowState::setupProcedurePlanningWidget(std::vector<unsigned in
 
 void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 {
-	VisServicesPtr services = boost::static_pointer_cast<VisServices>(mServices);
+	VisServicesPtr services = std::static_pointer_cast<VisServices>(mServices);
 	RouteToTargetFilterPtr routeToTargetFilter = RouteToTargetFilterPtr(new RouteToTargetFilter(services, makeRouteInformationFile));
 	std::vector<SelectDataStringPropertyBasePtr> input = routeToTargetFilter->getInputTypes();
 	routeToTargetFilter->getOutputTypes();
@@ -1213,15 +1213,11 @@ void PinpointWorkflowState::showTargetPoint(bool show)
 
 void PinpointWorkflowState::showViaPoints(bool show)
 {
-	PinpointWidget* pinPointWidget = this->getPinpointWidget();
-	if(!pinPointWidget)
-		return;
-	MetricManagerPtr metricManager = pinPointWidget->getMetricManager();
-	if(!metricManager)
-		return;
-	std::map<QString, PointMetricPtr> airwayMetrics = metricManager->getPointMetrics(pinPointWidget->getExtraAirwayMetricUid());
+	std::map<QString, PointMetricPtr> airwayMetrics = mServices->patient()->getDataOfTypeWithUidContaining<PointMetric>(RouteToTargetFilter::getExtraAirwayPointUidPrefix());
 	for (const std::map<QString, PointMetricPtr>::value_type& item : airwayMetrics)
+	{
 		this->showPointMetric(item.second, show);
+	}
 }
 
 void PinpointWorkflowState::showPointMetric(PointMetricPtr point, bool show)

@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "org_custusx_fraxinus_widgets_Export.h"
+#include <memory>
 #include "cxBaseWidget.h"
 #include "cxForwardDeclarations.h"
 #include "cxDefinitions.h"
@@ -43,7 +44,7 @@ class QPushButton;
 
 namespace cx {
 
-typedef boost::shared_ptr<class DoublePropertyImageTFSlider2DAnd3D> DoublePropertyImageTFSlider2DAnd3DPtr;
+typedef std::shared_ptr<class DoublePropertyImageTFSlider2DAnd3D> DoublePropertyImageTFSlider2DAnd3DPtr;
 
 struct org_custusx_fraxinus_widgets_EXPORT SelectableStructure
 {
