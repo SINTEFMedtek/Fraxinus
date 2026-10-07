@@ -303,6 +303,23 @@
 		color: #ffffff;
 	}
 
+	.step-title {
+		margin-bottom: 4px !important;
+	}
+
+	.step-icon {
+		width: 28px;
+		height: 28px;
+		vertical-align: middle;
+		margin-left: 6px;
+	}
+
+	.inline-icon {
+		width: 18px;
+		height: 18px;
+		vertical-align: text-bottom;
+	}
+
 	.tip {
 		background: #eef1f8;
 		border-left: 4px solid #4a6ea8;
@@ -453,14 +470,15 @@
 			step can be revisited at any time.
 		</p>
 		<p>
-			The toolbar also has an <em>Import</em> icon (folder), placed between Patient and Set
+			The toolbar also has an <em>Import</em> icon <img class="inline-icon" src="img/icons/import.svg" alt="Import icon">, placed between Patient and Set
 			Target. It opens a general data import panel. You normally do not need it, because CT
 			and PET data are imported from the Patient step.
 		</p>
 
 		<h3>Workflow</h3>
 
-		<p><strong>1. Patient</strong><br>
+		<p class="step-title"><strong>1. Patient</strong> <img class="step-icon" src="img/icons/patient.svg" alt="Patient icon"></p>
+		<p>
 			The starting point for every session. Three options are available:
 		</p>
 		<ul>
@@ -533,7 +551,8 @@
 			<em>OK</em> and Fraxinus advances automatically to the Set Target step. To add more
 			structures later, select them and press <em>Run Segmentation</em>.
 		</p>
-		<p><strong>2. Set Target</strong><br>
+		<p class="step-title"><strong>2. Set Target</strong> <img class="step-icon" src="img/icons/pinpoint.svg" alt="Set Target icon"></p>
+		<p>
 			Place the crosshair on the target, either by clicking in the 2D CT views or by selecting
 			a tumor in the <em>Tumors</em> list. Then press <em>Set target point</em>. The route
 			from the trachea to the target is computed automatically and shown as a red line. The
@@ -560,7 +579,8 @@
 			<figcaption class="workflow-caption">Set Target: the target tumour (yellow) is selected from the CT. The planned route through the airways is shown in the 3D view.</figcaption>
 		</figure>
 
-		<p><strong>3. Virtual Bronchoscopy</strong><br>
+		<p class="step-title"><strong>3. Virtual Bronchoscopy</strong> <img class="step-icon" src="img/icons/vb_1.svg" alt="Virtual Bronchoscopy icon"></p>
+		<p>
 			A virtual camera navigates the segmented airway tree from the trachea to the target,
 			providing an endoscopic fly-through view synchronized with orthogonal CT cross-sections and
 			a 3D overview. All segmented structures can be shown or hidden individually.
@@ -596,7 +616,8 @@
 			<figcaption class="workflow-caption">EBUS Simulator: a virtual endobronchial ultrasound probe sweeps along the airway wall. Lymph nodes (green) and PET activity (yellow/red) are shown alongside the simulated ultrasound sector.</figcaption>
 		</figure>
 
-		<p><strong>4. Procedure Planning</strong><br>
+		<p class="step-title"><strong>4. Procedure Planning</strong> <img class="step-icon" src="img/icons/lungs.svg" alt="Procedure Planning icon"></p>
+		<p>
 			A general-purpose planning view displaying all segmented structures simultaneously in both
 			2D cross-sections and a 3D scene. Useful for reviewing anatomy and discussing the procedure
 			approach before entering the bronchoscopy suite.
