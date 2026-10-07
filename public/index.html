@@ -117,6 +117,13 @@
 		margin-bottom: 10px;
 	}
 
+	.tab-panel h4 {
+		font-size: 15px;
+		color: #1a3560;
+		margin-top: 18px;
+		margin-bottom: 8px;
+	}
+
 	.tab-panel p {
 		margin-bottom: 14px;
 		color: #444;
@@ -267,6 +274,33 @@
 	pre {
 		white-space: pre-wrap;
 		overflow-wrap: anywhere;
+	}
+
+	.code-block {
+		position: relative;
+	}
+
+	.code-block pre {
+		padding-right: 72px !important; /* room for the copy button */
+	}
+
+	.copy-btn {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		background: #ffffff;
+		color: #1a3560;
+		border: 1px solid #c8d4e8;
+		border-radius: 3px;
+		padding: 3px 10px;
+		font-size: 12px;
+		cursor: pointer;
+	}
+
+	.copy-btn:hover {
+		background: #4a6ea8;
+		border-color: #4a6ea8;
+		color: #ffffff;
 	}
 
 	.tip {
@@ -599,15 +633,24 @@
 	<div id="tab-installation" class="tab-panel">
 		<h2>Installation</h2>
 		<p>
-			Fraxinus releases are published on GitLab for Ubuntu 22.04 and 24.04.
-			Each release includes <code>installFraxinus.sh</code> — a single installer script
-			that downloads Fraxinus and automatically sets up all required AI inference engines
-			(Raidionics, TotalSegmentator, Elastix) and models. Ubuntu is the primary, most
-			thoroughly tested platform. A Windows installer, built with IGSTK tracking, is
-			also available on the releases page, but it has not been as extensively tested
-			and verified as the Ubuntu builds.
+			Installers for <strong>Ubuntu 22.04, Ubuntu 24.04 and Windows</strong> are published on the
+			<a href="https://gitlab.sintef.no/custusx/Fraxinus/-/releases" target="_blank">GitLab
+			releases page</a>.
 		</p>
-		<p>There are two ways to install on Ubuntu. Choose one of them.</p>
+		<p>
+			Fraxinus is developed on Ubuntu, and the Ubuntu builds are built and tested
+			continuously. Ubuntu is therefore the recommended platform and the one where Fraxinus
+			has been tested most. The Windows installer is also available, but it has not been
+			tested and verified as thoroughly as the Ubuntu builds.
+		</p>
+
+		<h3>Ubuntu (22.04 and 24.04)</h3>
+		<p>
+			On Ubuntu, Fraxinus is installed with <code>installFraxinus.sh</code>, a single installer
+			script. It downloads Fraxinus and automatically sets up all required AI inference engines
+			(Raidionics, TotalSegmentator, Elastix) and models. There are two ways to run it. Choose
+			one of them.
+		</p>
 		<p class="tip">
 			<strong>Note:</strong> With both options, the installer installs system packages with
 			<code>sudo</code>, so you will be asked for your password while it runs. Your user must
@@ -615,12 +658,12 @@
 			just type it and press Enter.
 		</p>
 
-		<h3>Option 1: Install directly with <code>curl</code> (recommended)</h3>
+		<h4>Option 1: Install directly with <code>curl</code> (recommended)</h4>
 		<p>Run these commands in a terminal. They always install the latest release:</p>
 		<pre style="background:#eef1f8;border:1px solid #c8d4e8;padding:12px 16px;margin:12px 0;font-size:13px;">sudo apt install curl -y  # optional, if curl is not already installed
 curl -fsSL https://gitlab.sintef.no/custusx/fraxinus/-/releases/permalink/latest/downloads/installFraxinus.sh | bash</pre>
 
-		<h3>Option 2: Download the installer script and run it</h3>
+		<h4>Option 2: Download the installer script and run it</h4>
 		<p>
 			Download <code>installFraxinus.sh</code> and run it yourself (e.g. if you'd like to
 			inspect the script first):
@@ -645,6 +688,32 @@ curl -fsSL https://gitlab.sintef.no/custusx/fraxinus/-/releases/permalink/latest
 			(<code>installFraxinus (1).sh</code>) instead of overwriting the old file. Then
 			<code>./installFraxinus.sh</code> would run the old version, or fail if the old file is
 			gone. Delete the old file before downloading, or run the new file by its actual name.
+		</p>
+
+		<h3>Windows</h3>
+		<ol>
+			<li>Open the <a href="https://gitlab.sintef.no/custusx/Fraxinus/-/releases" target="_blank">Fraxinus
+				releases page</a> on GitLab. The newest release is at the top.</li>
+			<li>In that release, find the <strong>Assets</strong> section and, under
+				<strong>Packages</strong>, click <strong>Fraxinus Windows installer, vYY.MM</strong>
+				(where vYY.MM is the release version). The browser downloads
+				<code>FraxinusWindows-vYY.MM.exe</code>.</li>
+			<li>Run the downloaded file and follow the steps in the installer. On the components page,
+				keep <strong>Raidionics setup</strong>, <strong>TotalSegmentator setup</strong> and
+				<strong>Elastix setup</strong> selected. These set up the AI inference engines and
+				models, in the same way as the Ubuntu installer. Components that are already installed
+				in the right version are unchecked automatically.</li>
+		</ol>
+		<p class="tip">
+			<strong>Note:</strong> Python 3 (version 3.10–3.12) must be installed before you run the
+			Windows installer. The setup steps use it to create the Python virtual environments.
+			Each setup step opens a console window, and the Raidionics and TotalSegmentator steps
+			can take a long time. If a step fails, the installer reports it at the end. The log
+			files are in <code>%USERPROFILE%\Fraxinus\install_logs</code>.
+		</p>
+		<p>
+			See the <a href="https://custusx.pages.sintef.no/Fraxinus/user_doc/" target="_blank">user
+			documentation</a> for supported platforms and known issues on Windows.
 		</p>
 
 		<div class="disclaimer">
@@ -676,6 +745,43 @@ curl -fsSL https://gitlab.sintef.no/custusx/fraxinus/-/releases/permalink/latest
 		document.getElementById('tab-' + name).classList.add('active');
 		link.classList.add('active');
 	}
+
+	function copyText(text) {
+		if (navigator.clipboard && window.isSecureContext)
+			return navigator.clipboard.writeText(text);
+		// Fallback for pages opened as a local file or in older browsers
+		var area = document.createElement('textarea');
+		area.value = text;
+		area.style.position = 'fixed';
+		area.style.opacity = '0';
+		document.body.appendChild(area);
+		area.select();
+		var ok = document.execCommand('copy');
+		document.body.removeChild(area);
+		return ok ? Promise.resolve() : Promise.reject();
+	}
+
+	// Add a copy button to every code box
+	document.querySelectorAll('pre').forEach(function(pre) {
+		var wrapper = document.createElement('div');
+		wrapper.className = 'code-block';
+		pre.parentNode.insertBefore(wrapper, pre);
+		wrapper.appendChild(pre);
+
+		var button = document.createElement('button');
+		button.className = 'copy-btn';
+		button.type = 'button';
+		button.textContent = 'Copy';
+		button.addEventListener('click', function() {
+			copyText(pre.textContent).then(function() {
+				button.textContent = 'Copied!';
+			}, function() {
+				button.textContent = 'Failed';
+			});
+			setTimeout(function() { button.textContent = 'Copy'; }, 1500);
+		});
+		wrapper.appendChild(button);
+	});
 </script>
 
 </BODY>
