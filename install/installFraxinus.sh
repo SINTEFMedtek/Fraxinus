@@ -85,6 +85,13 @@ sudo apt-get -y install libglew-dev libpcre2-16-0 libdouble-conversion3 git wget
 sudo apt-get -y install python3-venv
 
 # ---------------------------------------------------------------------------
+# Give the current user access to the NDI tracking system's USB serial port
+# (no driver is needed on Ubuntu, only the group membership). Takes effect
+# after logging out and back in.
+# ---------------------------------------------------------------------------
+sudo usermod -a --groups uucp,dialout "$(whoami)"
+
+# ---------------------------------------------------------------------------
 # Find or download the Fraxinus release tarball
 # ---------------------------------------------------------------------------
 if [ -n "$FRAXINUS_VERSION" ]; then
