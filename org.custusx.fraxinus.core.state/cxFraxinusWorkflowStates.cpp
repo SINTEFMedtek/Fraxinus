@@ -725,8 +725,9 @@ void FraxinusWorkflowState::addRadiusToAirwayCenterlineIfMissing()
 
 	if(AirwaysFromCenterline::addRadiusToCenterline(airwaysCenterline, airwaysVolume))
 	{
+		// Session save only writes the patient file, not data files. Save mesh directly (insertData() would trigger route recalculation).
+		airwaysCenterline->save(mServices->patient()->getActivePatientFolder(), mServices->file());
 		CX_LOG_INFO() << "Added airway radius to centerline: " << airwaysCenterline->getName();
-		mServices->patient()->autoSave();
 	}
 }
 
