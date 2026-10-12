@@ -94,6 +94,7 @@ protected:
 	PointMetricPtr	getEndoscopePoint() const;
 	DistanceMetricPtr getDistanceToTargetMetric() const;
 	void createRouteToTarget(bool makeRouteInformationFile);
+	void addRadiusToAirwayCenterlineIfMissing();
 	void setMeshOpacity(MeshPtr mesh, double opacity);
 
 	BranchListPtr mBranchList;

@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QApplication>
 #include <QMainWindow>
 #include <vtkPolyData.h>
+#include <vtkPointData.h>
 #include <vtkImageData.h>
 #include "cxStateService.h"
 #include "cxSettings.h"
@@ -688,6 +689,8 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	if(!mBranchList->isRadiusAvailable())
 		mBranchList->setRadius(mServices->patient()->getData<Image>(otAIRWAYS));
 
+	this->addRadiusToAirwayCenterlineIfMissing();
+
 	std::vector<Vector3D> positionVector;
 	positionVector.push_back(targetPoint->getCoordinate());
 	std::vector<QString> lobeNameVector = FraxinusSegmentations::getLobeNameFromPositions(positionVector, mServices);
@@ -706,6 +709,25 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 		emit routeToTargetCreated();
 	}
 	mBranchList = routeToTargetFilter->getBranchList();
+}
+
+// Patients processed before the airway radius was stored in the smoothed centerline: Calculate and store it.
+void FraxinusWorkflowState::addRadiusToAirwayCenterlineIfMissing()
+{
+	MeshPtr airwaysCenterline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
+	ImagePtr airwaysVolume = mServices->patient()->getData<Image>(otAIRWAYS);
+	if(!airwaysCenterline || !airwaysVolume)
+		return;
+
+	QString radiusArrayName = AirwaysFromCenterline::getRadiusArrayName();
+	if(airwaysCenterline->getVtkPolyData()->GetPointData()->HasArray(radiusArrayName.toStdString().c_str()))
+		return;
+
+	if(AirwaysFromCenterline::addRadiusToCenterline(airwaysCenterline, airwaysVolume))
+	{
+		CX_LOG_INFO() << "Added airway radius to centerline: " << airwaysCenterline->getName();
+		mServices->patient()->autoSave();
+	}
 }
 
 void FraxinusWorkflowState::setMeshOpacity(MeshPtr mesh, double opacity)
