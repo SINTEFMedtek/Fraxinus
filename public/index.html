@@ -117,6 +117,13 @@
 		margin-bottom: 10px;
 	}
 
+	.tab-panel h4 {
+		font-size: 15px;
+		color: #1a3560;
+		margin-top: 18px;
+		margin-bottom: 8px;
+	}
+
 	.tab-panel p {
 		margin-bottom: 14px;
 		color: #444;
@@ -264,6 +271,63 @@
 		font-style: italic;
 	}
 
+	pre {
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+	}
+
+	.code-block {
+		position: relative;
+	}
+
+	.code-block pre {
+		padding-right: 72px !important; /* room for the copy button */
+	}
+
+	.copy-btn {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		background: #ffffff;
+		color: #1a3560;
+		border: 1px solid #c8d4e8;
+		border-radius: 3px;
+		padding: 3px 10px;
+		font-size: 12px;
+		cursor: pointer;
+	}
+
+	.copy-btn:hover {
+		background: #4a6ea8;
+		border-color: #4a6ea8;
+		color: #ffffff;
+	}
+
+	.step-title {
+		margin-bottom: 4px !important;
+	}
+
+	.step-icon {
+		width: 28px;
+		height: 28px;
+		vertical-align: middle;
+		margin-left: 6px;
+	}
+
+	.inline-icon {
+		width: 18px;
+		height: 18px;
+		vertical-align: text-bottom;
+	}
+
+	.tip {
+		background: #eef1f8;
+		border-left: 4px solid #4a6ea8;
+		border-radius: 3px;
+		padding: 8px 12px;
+		margin: 12px 0;
+	}
+
 	/* Footer */
 	#footer {
 		background: #1a3560;
@@ -293,7 +357,7 @@
 		<li><a href="#" onclick="showTab('about', this); return false;">About</a></li>
 		<li><a href="#" onclick="showTab('userguide', this); return false;">User Guide</a></li>
 		<li><a href="#" onclick="showTab('documentation', this); return false;">Documentation</a></li>
-		<li><a href="#" onclick="showTab('downloads', this); return false;">Downloads</a></li>
+		<li><a href="#" onclick="showTab('installation', this); return false;">Installation</a></li>
 	</ul>
 </div>
 
@@ -313,6 +377,10 @@
 			automatically, a route to the target lesion is planned, and the procedure is rehearsed
 			via virtual bronchoscopy and EBUS simulation — all in four steps.
 		</p>
+		<figure class="workflow-figure">
+			<img class="workflow-img" src="img/fraxinus_overview.jpg" alt="Fraxinus virtual bronchoscopy: endoscopic view, CT cross-sections and 3D airway tree with the route to a PET-positive tumor">
+			<figcaption class="workflow-caption">Virtual bronchoscopy in Fraxinus: the endoscopic view of the airways (top left), synchronized CT cross-sections, and a 3D view of the segmented airway tree with the planned route to a tumor with PET uptake (right).</figcaption>
+		</figure>
 
 		<div class="disclaimer">
 			Fraxinus is a research tool. It is not intended for routine clinical use and is neither FDA nor CE approved.
@@ -349,6 +417,13 @@
 			Trondheim University Hospital, Norway. It is built on top of
 			<a href="https://custusx.pages.sintef.no/CustusX/" target="_blank">CustusX</a> and is free
 			to use under a <a href="https://opensource.org/licenses/BSD-3-Clause" target="_blank">BSD-3 license</a>.
+		</p>
+		<p>
+			Fraxinus is available for <strong>Ubuntu</strong> (22.04 and 24.04) and
+			<strong>Windows</strong>. It is developed on Ubuntu, which is the recommended and most
+			thoroughly tested platform. See
+			<a href="#" onclick="showTab('installation', document.querySelector('#nav a[onclick*=installation]')); return false;">Installation</a>
+			for how to install it.
 		</p>
 		<p>
 			The source code is available on
@@ -396,29 +471,52 @@
 		</p>
 		<p>
 			The application is organized into four steps, accessed via the workflow icons in the top
-			toolbar. Fraxinus advances automatically to the next step when a task is completed, but
-			any previous step can be revisited at any time.
+			toolbar: Patient, Set Target, Virtual Bronchoscopy and Procedure Planning. When
+			segmentation is finished, Fraxinus moves from the Patient step to the Set Target step
+			automatically. From Set Target you continue to Virtual Bronchoscopy with a button. Any
+			step can be revisited at any time.
+		</p>
+		<p>
+			The toolbar also has an <em>Import</em> icon <img class="inline-icon" src="img/icons/import.svg" alt="Import icon">, placed between Patient and Set
+			Target. It opens a general data import panel. You normally do not need it, because CT
+			and PET data are imported from the Patient step.
 		</p>
 
 		<h3>Workflow</h3>
 
-		<p><strong>1. Patient</strong><br>
+		<p class="step-title"><strong>1. Patient</strong> <img class="step-icon" src="img/icons/patient.svg" alt="Patient icon"></p>
+		<p>
 			The starting point for every session. Three options are available:
 		</p>
 		<ul>
-			<li><strong>Create new patient from USB</strong> — enter a patient name and Fraxinus
-				opens the file dialog with the USB drive pre-selected. After import, segmentation
-				starts automatically for the selected structures.</li>
-			<li><strong>Create new patient</strong> — enter a patient name and manually select the
-				CT data from disk. Select which anatomical structures to segment (see below), then
-				press <em>Run Segmentation</em>. Segmentation progress is shown inline in the same
+			<li><strong>Create new patient from USB</strong> — first select which anatomical
+				structures to segment (see below). Then press the button and enter a patient name.
+				Fraxinus reads all CT and PET series from the connected USB drive automatically, without
+				opening a file dialog. Only one USB drive should be connected. If the drive contains a
+				single CT series, or one CT together with a PET and its matching PET CT, the data is
+				assigned automatically and segmentation starts right away. If more series are found, a
+				dialog appears where you mark which series to use as CT (and, optionally, PET and PET CT).
+				Segmentation starts as soon as you press <em>Import</em>.</li>
+			<li><strong>Create new patient</strong> — first select which anatomical structures to
+				segment (see below). Then press the button and enter a patient name. A dialog then asks
+				whether to load the CT data from a <em>USB drive</em> or from the <em>Computer</em>
+				(the second option opens a file dialog). The data is assigned the same way as for
+				<em>Create new patient from USB</em>. Unless CT, PET and PET CT were all loaded, Fraxinus
+				then asks if you want to load more data. Answer <em>Yes</em> to add more series, or
+				<em>No</em> to start segmentation. Segmentation progress is shown inline in the same
 				panel.</li>
 			<li><strong>Load existing patient</strong> — reload a previously saved patient. If
 				airway centerlines already exist, Fraxinus skips directly to the Set Target step.</li>
 		</ul>
+		<p class="tip">
+			<strong>Tip:</strong> To import from USB with no extra steps, put only one Thorax CT
+			series on the USB drive. To add PET, also include the PET series and its matching PET CT
+			(nothing else). Fraxinus then assigns the data and starts segmentation by itself, without
+			asking you to select series.
+		</p>
 		<figure class="workflow-figure">
 			<img class="workflow-img" src="img/new_patient_loadCT_segmentation.png" alt="Patient step showing the three entry buttons and inline segmentation structure selection">
-			<figcaption class="workflow-caption">The Patient step: create a new patient from USB, from disk, or load an existing one. Segmentation structures are selected inline before running.</figcaption>
+			<figcaption class="workflow-caption">The Patient step: select the structures to segment at the top, then create a new patient or load an existing one.</figcaption>
 		</figure>
 		<p>
 			CT data is imported as a standard high-resolution Thorax CT in DICOM format. A PET series
@@ -427,39 +525,89 @@
 			automatically as part of segmentation.
 		</p>
 		<p>
-			The following anatomical structures can be segmented from the CT. Airways and lungs are
-			always included; the remaining structures are optional:
+			The anatomical structures to segment are selected with the checkboxes in the
+			<em>Segmentation</em> panel. Airways and lungs are always included; the remaining
+			structures are optional. <em>Select all</em> checks every optional structure. The
+			approximate processing time for each structure is shown next to its checkbox. The
+			available structures are:
 		</p>
 		<ul>
-			<li>Airways and lungs (mandatory)</li>
+			<li>Airways, lungs (always included) — includes the airway centerlines used for
+				route planning</li>
 			<li>Lymph nodes</li>
-			<li>Pulmonary system: heart, pulmonary veins, pulmonary trunk</li>
-			<li>Vena cava, aorta, spine</li>
-			<li>Small mediastinal organs: subcostal artery, esophagus, brachiocephalic veins, azygos</li>
-			<li>Tumors</li>
-			<li>Small vessels</li>
-			<li>Lung lobes</li>
+			<li>Heart</li>
+			<li>Vena cava, aorta, spine — the aorta is divided into ascending aorta, aortic
+				arch and descending aorta</li>
+			<li>Small mediastinal organs: subcarinal artery, esophagus, brachiocephalic
+				veins, azygos</li>
+			<li>Tumors — both small and large tumors</li>
+			<li>Pulmonary arteries and veins</li>
+			<li>Lung lobes — the five lobes: left upper, left lower, right upper, right
+				middle and right lower</li>
 		</ul>
 		<p>
-			When segmentation completes, Fraxinus advances automatically to the Set Target step.
+			While segmentation runs, the selection panel is replaced by a <em>Segmentation status</em>
+			panel. It shows a progress bar and a timer for each selected structure, and an estimated
+			total time. If PET data was imported, PET-to-CT registration is listed as well. A running
+			timer is shown in the normal text color, turns green when the structure has been
+			segmented successfully, and turns red if the segmentation failed. Structures that have
+			already been segmented are marked <em>Done</em> and cannot be selected again.
 		</p>
-		<p><strong>2. Set Target</strong><br>
-			Click in the CT to place a bronchoscopy target. The planned route from the trachea to the
-			target is computed automatically and shown as a red line in the 3D view. A list of detected
-			tumors and nodules (sorted by size) is available for quick target selection. If the target
-			lies beyond the automatically segmented airways, manual airway points can be added to
-			extend the route.
+		<p>
+			When segmentation is finished, a <em>Segmentation completed</em> message appears. Press
+			<em>OK</em> and Fraxinus advances automatically to the Set Target step. To add more
+			structures later, select them and press <em>Run Segmentation</em>.
 		</p>
+		<p class="step-title"><strong>2. Set Target</strong> <img class="step-icon" src="img/icons/pinpoint.svg" alt="Set Target icon"></p>
+		<p>
+			Place the crosshair on the target, either by clicking in the 2D CT views or by selecting
+			a tumor in the <em>Tumors</em> list. Then press <em>Set target point</em>. The route
+			from the trachea to the target is computed automatically and shown as a red line. The
+			last part, from the end of the airways to the target, is shown in blue. The target can
+			be renamed in the text field at the top of the panel. When the target is set, press
+			<em>Continue to virtual bronchoscopy</em>.
+		</p>
+		<ul>
+			<li><strong>Tumors</strong> — segmented tumors are listed by size, largest first, with
+				their lung lobe and volume in ml. Selecting a tumor highlights it and moves the
+				crosshair to its center. A falsely detected tumor can be removed with <em>Delete this
+				tumor</em>.</li>
+			<li><strong>Manual airway</strong> — if the target lies beyond the automatically
+				segmented airways, check <em>Add manual airway</em>. Place the crosshair in the airway
+				and press <em>Add airway point</em> to extend the route. <em>Delete last point</em>
+				removes the most recent point.</li>
+			<li><strong>CT Window Type</strong> — switch the 2D views between <em>Lung</em> and
+				<em>Abdomen</em> window settings.</li>
+			<li><strong>Select structures</strong> — show or hide the segmented structures.</li>
+			<li><strong>Center Image</strong> — recenters the views on the CT.</li>
+		</ul>
 		<figure class="workflow-figure">
 			<img class="workflow-img" src="img/set_target.jpg" alt="Set target: CT views with airway tree and tumour highlighted">
 			<figcaption class="workflow-caption">Set Target: the target tumour (yellow) is selected from the CT. The planned route through the airways is shown in the 3D view.</figcaption>
 		</figure>
 
-		<p><strong>3. Virtual Bronchoscopy</strong><br>
+		<p class="step-title"><strong>3. Virtual Bronchoscopy</strong> <img class="step-icon" src="img/icons/vb_1.svg" alt="Virtual Bronchoscopy icon"></p>
+		<p>
 			A virtual camera navigates the segmented airway tree from the trachea to the target,
 			providing an endoscopic fly-through view synchronized with orthogonal CT cross-sections and
 			a 3D overview. All segmented structures can be shown or hidden individually.
 		</p>
+		<p>
+			The <em>Route length</em> panel gives information about the planned route:
+		</p>
+		<ul>
+			<li><strong>Total route inside airways</strong> — the length of the route through the
+				segmented airways.</li>
+			<li><strong>Distance from route end to target</strong> — the straight-line distance
+				from the end of the route to the target. If it is 20 mm or more, the value is shown
+				in red with the warning <em>There are no segmented airways close to target!</em> In
+				that case, consider adding manual airway points in the Set Target step.</li>
+			<li><strong>Remaining route length</strong>, <strong>Distance to target</strong>,
+				<strong>Airway diameter</strong> and <strong>Current generation</strong> — updated
+				as the virtual camera moves along the route, giving the remaining distance along the
+				route, the straight-line distance to the target, and the airway diameter and
+				generation number at the current camera position.</li>
+		</ul>
 		<p>
 			An <strong>EBUS simulator</strong> is also available within this step. A virtual
 			endobronchial ultrasound probe (depth, 4 cm) is swept along the airway wall following the planned route,
@@ -475,7 +623,8 @@
 			<figcaption class="workflow-caption">EBUS Simulator: a virtual endobronchial ultrasound probe sweeps along the airway wall. Lymph nodes (green) and PET activity (yellow/red) are shown alongside the simulated ultrasound sector.</figcaption>
 		</figure>
 
-		<p><strong>4. Procedure Planning</strong><br>
+		<p class="step-title"><strong>4. Procedure Planning</strong> <img class="step-icon" src="img/icons/lungs.svg" alt="Procedure Planning icon"></p>
+		<p>
 			A general-purpose planning view displaying all segmented structures simultaneously in both
 			2D cross-sections and a 3D scene. Useful for reviewing anatomy and discussing the procedure
 			approach before entering the bronchoscopy suite.
@@ -508,31 +657,92 @@
 		</div>
 	</div>
 
-	<!-- DOWNLOADS TAB -->
-	<div id="tab-downloads" class="tab-panel">
-		<h2>Downloads</h2>
+	<!-- INSTALLATION TAB -->
+	<div id="tab-installation" class="tab-panel">
+		<h2>Installation</h2>
 		<p>
-			Fraxinus releases are published on GitLab for Ubuntu 22.04 and 24.04.
-			Each release includes <code>installFraxinus.sh</code> — a single installer script
-			that downloads Fraxinus and automatically sets up all required AI inference engines
-			(Raidionics, TotalSegmentator, Elastix) and models. Ubuntu is the primary, most
-			thoroughly tested platform. A Windows installer, built with IGSTK tracking, is
-			also available on the releases page, but it has not been as extensively tested
-			and verified as the Ubuntu builds.
+			Installers for <strong>Ubuntu 22.04, Ubuntu 24.04 and Windows</strong> are published on the
+			<a href="https://gitlab.sintef.no/custusx/Fraxinus/-/releases" target="_blank">GitLab
+			releases page</a>.
 		</p>
-		<p>Install directly via <code>curl</code>:</p>
+		<p>
+			Fraxinus is developed on Ubuntu, and the Ubuntu builds are built and tested
+			continuously. Ubuntu is therefore the recommended platform and the one where Fraxinus
+			has been tested most. The Windows installer is also available, but it has not been
+			tested and verified as thoroughly as the Ubuntu builds.
+		</p>
+
+		<h3>Ubuntu (22.04 and 24.04)</h3>
+		<p>
+			On Ubuntu, Fraxinus is installed with <code>installFraxinus.sh</code>, a single installer
+			script. It downloads Fraxinus and automatically sets up all required AI inference engines
+			(Raidionics, TotalSegmentator, Elastix) and models. There are two ways to run it. Choose
+			one of them.
+		</p>
+		<p class="tip">
+			<strong>Note:</strong> With both options, the installer installs system packages with
+			<code>sudo</code>, so you will be asked for your password while it runs. Your user must
+			have administrator (sudo) rights. Nothing is shown on screen while you type the password;
+			just type it and press Enter.
+		</p>
+
+		<h4>Option 1: Install directly with <code>curl</code> (recommended)</h4>
+		<p>Run these commands in a terminal. They always install the latest release:</p>
 		<pre style="background:#eef1f8;border:1px solid #c8d4e8;padding:12px 16px;margin:12px 0;font-size:13px;">sudo apt install curl -y  # optional, if curl is not already installed
 curl -fsSL https://gitlab.sintef.no/custusx/fraxinus/-/releases/permalink/latest/downloads/installFraxinus.sh | bash</pre>
 
+		<h4>Option 2: Download the installer script and run it</h4>
 		<p>
-			Alternatively, download <code>installFraxinus.sh</code> and run it yourself (e.g. if you'd
-			like to inspect the script first). If you already have an older copy, re-download it rather
-			than running the old one — some browsers save a repeat download as a numbered duplicate
-			(<code>installFraxinus (1).sh</code>) instead of overwriting it, which would leave
-			<code>./installFraxinus.sh</code> below pointing at a stale or missing file:
+			Download <code>installFraxinus.sh</code> and run it yourself (e.g. if you'd like to
+			inspect the script first):
 		</p>
+		<ol>
+			<li>Open the <a href="https://gitlab.sintef.no/custusx/Fraxinus/-/releases" target="_blank">Fraxinus
+				releases page</a> on GitLab. The newest release is at the top.</li>
+			<li>In that release, find the <strong>Assets</strong> section and, under
+				<strong>Packages</strong>, click <strong>Fraxinus installer script (all Ubuntu
+				versions)</strong>. The browser downloads <code>installFraxinus.sh</code>, usually to
+				your <code>Downloads</code> folder. (The link that has the version number in its name
+				downloads the same script as <code>installFraxinus-vYY.MM.sh</code>. If you use that
+				one, change the file name in the commands below.)</li>
+			<li>Open a terminal in the folder where the file was saved (e.g. <code>cd ~/Downloads</code>)
+				and run:</li>
+		</ol>
 		<pre style="background:#eef1f8;border:1px solid #c8d4e8;padding:12px 16px;margin:12px 0;font-size:13px;">chmod +x installFraxinus.sh
 ./installFraxinus.sh</pre>
+		<p>
+			If you already have an older copy, download the script again instead of running the old
+			one. Some browsers save a repeat download as a numbered copy
+			(<code>installFraxinus (1).sh</code>) instead of overwriting the old file. Then
+			<code>./installFraxinus.sh</code> would run the old version, or fail if the old file is
+			gone. Delete the old file before downloading, or run the new file by its actual name.
+		</p>
+
+		<h3>Windows</h3>
+		<ol>
+			<li>Open the <a href="https://gitlab.sintef.no/custusx/Fraxinus/-/releases" target="_blank">Fraxinus
+				releases page</a> on GitLab. The newest release is at the top.</li>
+			<li>In that release, find the <strong>Assets</strong> section and, under
+				<strong>Packages</strong>, click <strong>Fraxinus Windows installer, vYY.MM</strong>
+				(where vYY.MM is the release version). The browser downloads
+				<code>FraxinusWindows-vYY.MM.exe</code>.</li>
+			<li>Run the downloaded file and follow the steps in the installer. On the components page,
+				keep <strong>Raidionics setup</strong>, <strong>TotalSegmentator setup</strong> and
+				<strong>Elastix setup</strong> selected. These set up the AI inference engines and
+				models, in the same way as the Ubuntu installer. Components that are already installed
+				in the right version are unchecked automatically.</li>
+		</ol>
+		<p class="tip">
+			<strong>Note:</strong> Python 3 (version 3.10–3.12) must be installed before you run the
+			Windows installer. The setup steps use it to create the Python virtual environments.
+			Each setup step opens a console window, and the Raidionics and TotalSegmentator steps
+			can take a long time. If a step fails, the installer reports it at the end. The log
+			files are in <code>%USERPROFILE%\Fraxinus\install_logs</code>.
+		</p>
+		<p>
+			See the <a href="https://custusx.pages.sintef.no/Fraxinus/user_doc/" target="_blank">user
+			documentation</a> for supported platforms and known issues on Windows.
+		</p>
 
 		<div class="disclaimer">
 			Fraxinus is a research tool: It is not intended for normal clinical use, and is not FDA nor CE approved.
@@ -563,6 +773,43 @@ curl -fsSL https://gitlab.sintef.no/custusx/fraxinus/-/releases/permalink/latest
 		document.getElementById('tab-' + name).classList.add('active');
 		link.classList.add('active');
 	}
+
+	function copyText(text) {
+		if (navigator.clipboard && window.isSecureContext)
+			return navigator.clipboard.writeText(text);
+		// Fallback for pages opened as a local file or in older browsers
+		var area = document.createElement('textarea');
+		area.value = text;
+		area.style.position = 'fixed';
+		area.style.opacity = '0';
+		document.body.appendChild(area);
+		area.select();
+		var ok = document.execCommand('copy');
+		document.body.removeChild(area);
+		return ok ? Promise.resolve() : Promise.reject();
+	}
+
+	// Add a copy button to every code box
+	document.querySelectorAll('pre').forEach(function(pre) {
+		var wrapper = document.createElement('div');
+		wrapper.className = 'code-block';
+		pre.parentNode.insertBefore(wrapper, pre);
+		wrapper.appendChild(pre);
+
+		var button = document.createElement('button');
+		button.className = 'copy-btn';
+		button.type = 'button';
+		button.textContent = 'Copy';
+		button.addEventListener('click', function() {
+			copyText(pre.textContent).then(function() {
+				button.textContent = 'Copied!';
+			}, function() {
+				button.textContent = 'Failed';
+			});
+			setTimeout(function() { button.textContent = 'Copy'; }, 1500);
+		});
+		wrapper.appendChild(button);
+	});
 </script>
 
 </BODY>
