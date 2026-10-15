@@ -63,7 +63,6 @@ public:
 	void stopTracking();
 	void startUltrasoundSimulation();
 	void stopUltrasoundSimulation();
-	TrackingSystemServicePtr getIGSTKTrackingSystemService();
 	TrackingServicePtr getTrackingService();
 
 signals:
