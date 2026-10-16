@@ -239,17 +239,6 @@ void FraxinusTrackingWidget::startUltrasoundSimulation()
 
 }
 
-TrackingSystemServicePtr FraxinusTrackingWidget::getIGSTKTrackingSystemService()
-{
-	std::vector<TrackingSystemServicePtr> trackingSystems = mTrackingService->getTrackingSystems();
-	for (unsigned i = 0; i < trackingSystems.size(); ++i)
-	{
-		if(trackingSystems[i]->getUid() == "org.custusx.core.tracking.system.igstk")
-			return trackingSystems[i];
-	}
-	return TrackingSystemServicePtr();
-}
-
 void FraxinusTrackingWidget::setUpEBUSToolAndStartTracking()
 {
 	disconnect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::setUpEBUSToolAndStartTracking);

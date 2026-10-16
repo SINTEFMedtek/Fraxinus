@@ -5,20 +5,29 @@
 # bug for a while during the v26.09 release -- warn (without blocking the
 # pipeline, since some divergence between the two copies predates this
 # check and may be intentional) whenever the copies stop matching CX's
-# develop branch.
+# branch or tag of the same name (or develop, if CX has none).
 check-cxRepoHandler-drift:
   stage: test-python
   allow_failure: true
   script:
     - |
       set -e
-      CANONICAL_URL="https://gitlab.sintef.no/custusx/CustusX/-/raw/develop/install/cx/utils/cxRepoHandler.py"
-      curl -fsSL "$CANONICAL_URL" -o /tmp/canonical_cxRepoHandler.py
+      CANONICAL_BASE="https://gitlab.sintef.no/custusx/CustusX/-/raw"
+      CANONICAL_FILE="install/cx/utils/cxRepoHandler.py"
+      # Compare with CX's branch or tag of the same name when it exists, so a change
+      # made in both repos on the same branch doesn't warn; otherwise develop.
+      # CI_COMMIT_REF_NAME is the branch, the MR source branch or the tag.
+      CX_REF="${CI_COMMIT_REF_NAME:-develop}"
+      if ! curl -fsSL "$CANONICAL_BASE/$CX_REF/$CANONICAL_FILE" -o /tmp/canonical_cxRepoHandler.py 2>/dev/null; then
+        CX_REF="develop"
+        curl -fsSL "$CANONICAL_BASE/$CX_REF/$CANONICAL_FILE" -o /tmp/canonical_cxRepoHandler.py
+      fi
+      echo "Comparing with CX's $CX_REF branch."
       if ! diff -u /tmp/canonical_cxRepoHandler.py script/cxsetup/cxRepoHandler.py; then
         echo ""
         echo "*** script/cxsetup/cxRepoHandler.py has drifted from CX's canonical"
-        echo "*** install/cx/utils/cxRepoHandler.py (develop branch, diff above)."
+        echo "*** install/cx/utils/cxRepoHandler.py ($CX_REF branch, diff above)."
         echo "*** If CX has a fix this copy is missing, port it here too."
         exit 1
       fi
-      echo "script/cxsetup/cxRepoHandler.py matches CX's develop branch."
+      echo "script/cxsetup/cxRepoHandler.py matches CX's $CX_REF branch."
