@@ -225,51 +225,69 @@ void FraxinusTrackingWidget::startUltrasoundSimulation()
 
 	int USProbeIndex = mToolFilesComboBoxes[3]->findText(mEBUSProbeUid);
 	if(USProbeIndex < 0)
+	{
+		CX_LOG_WARNING() << "In FraxinusTrackingWidget::startUltrasoundSimulation(): Did not find the tool " << mEBUSProbeUid;
 		return;
+	}
 
 	mToolFilesComboBoxes[3]->setCurrentIndex(USProbeIndex);
 
-	if(mToolState <= Tool::tsCONFIGURED)
+	if(this->getEBUSTool())
 	{
-		mTrackingService->setState(Tool::tsCONFIGURED);
-		connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::setUpEBUSToolAndStartTracking);
+		this->setUpEBUSToolAndStartTracking();
+		return;
 	}
-	else
-		setUpEBUSToolAndStartTracking();
 
+	// The simulated tool is only in the tracking system after configuring with it, and a configured
+	// tracking system doesn't read the changed tool configuration again: configure again.
+	connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::configuredForUltrasoundSimulationSlot, Qt::UniqueConnection);
+	if(mTrackingService->getState() >= Tool::tsCONFIGURED)
+		mTrackingService->setState(Tool::tsNONE);
+	mTrackingService->setState(Tool::tsCONFIGURED);
 }
 
+ToolPtr FraxinusTrackingWidget::getEBUSTool() const
+{
+	ToolMap toolMap = mTrackingService->getTools();
+	ToolMap::iterator iter = toolMap.find(mEBUSProbeName);
+	if(iter == toolMap.end())
+		return ToolPtr();
+	return iter->second;
+}
+
+void FraxinusTrackingWidget::configuredForUltrasoundSimulationSlot()
+{
+	if(mTrackingService->getState() < Tool::tsCONFIGURED)
+		return; // still configuring
+	disconnect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::configuredForUltrasoundSimulationSlot);
+
+	if(!this->getEBUSTool())
+	{
+		CX_LOG_WARNING() << "In FraxinusTrackingWidget::configuredForUltrasoundSimulationSlot(): The tracking system was configured without the tool " << mEBUSProbeName;
+		return;
+	}
+	this->setUpEBUSToolAndStartTracking();
+}
+
+/** The simulation follows the manual tool, so it doesn't wait for a tracking system to start tracking:
+ *  the simulator is normally run without one connected. */
 void FraxinusTrackingWidget::setUpEBUSToolAndStartTracking()
 {
-	disconnect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::setUpEBUSToolAndStartTracking);
-
+	ToolPtr tool = this->getEBUSTool();
 	ManualToolAdapterPtr manualToolAdapterPtr = std::static_pointer_cast<ManualToolAdapter>(mTrackingService->getManualTool());
-	ToolMap toolMap = mTrackingService->getTools();
-	ToolPtr tool;
-	for (ToolMap::iterator iter = toolMap.begin(); iter != toolMap.end(); ++iter)
+	manualToolAdapterPtr->setBase(tool);
+	manualToolAdapterPtr->startEmittingContinuousPositions(100);
+	report("Manual tool imbued with properties from " + mEBUSProbeName);
+
+	ProbePtr probe = tool->getProbe();
+	if(probe)
 	{
-		if (iter->first == mEBUSProbeName)
-		{
-		tool = iter->second;
-		manualToolAdapterPtr->setBase(tool);
-		manualToolAdapterPtr->startEmittingContinuousPositions(100);
-		report("Manual tool imbued with properties from " + iter->first);
-		break;
-		}
+		probe->applyNewConfigurationWithId(mEBUSProbeConfigurationName);
+		ProbeDefinition probeDefinition = probe->getProbeDefinition(mEBUSProbeConfigurationName);
+		probe->setActiveStream(probeDefinition.getUid());
 	}
 
-	if(tool)
-	{
-		ProbePtr probe = tool->getProbe();
-		if(probe)
-		{
-			probe->applyNewConfigurationWithId(mEBUSProbeConfigurationName);
-			ProbeDefinition probeDefinition = probe->getProbeDefinition(mEBUSProbeConfigurationName);
-			probe->setActiveStream(probeDefinition.getUid());
-		}
-	}
-
-	connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::trackingStarted);
+	emit trackingReady();
 	startTracking();
 }
 
@@ -290,12 +308,6 @@ void FraxinusTrackingWidget::stopUltrasoundSimulation()
 TrackingServicePtr FraxinusTrackingWidget::getTrackingService()
 {
 	return mTrackingService;
-}
-
-void FraxinusTrackingWidget::trackingStarted()
-{
-	disconnect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::trackingStarted);
-	emit trackingReady();
 }
 
 void FraxinusTrackingWidget::printTrackerConfiguration() //debug

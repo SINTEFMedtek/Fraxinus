@@ -73,8 +73,7 @@ private slots:
 	void updateTrackerConfigurationTools();
 	void startTrackingClickedSlot(bool);
 	void stopTrackingClickedSlot(bool);
-	void setUpEBUSToolAndStartTracking();
-	void trackingStarted();
+	void configuredForUltrasoundSimulationSlot();
 
 private:
 	TrackingServicePtr mTrackingService;
@@ -95,6 +94,8 @@ private:
 	void copyToolConfigFile(QString filename);
 	void addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr configuration, QStringList applicationsFilter, QStringList trackingsystemsFilter);
 	void printTrackerConfiguration(); //debug
+	ToolPtr getEBUSTool() const;
+	void setUpEBUSToolAndStartTracking();
 };
 
 
