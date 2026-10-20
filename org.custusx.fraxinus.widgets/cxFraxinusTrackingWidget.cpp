@@ -26,6 +26,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxToolConfigureWidget.h"
 #include "cxProfile.h"
 #include "cxManualToolAdapter.h"
+#include "cxTrackingToolConfigurer.h"
 #include "cxTool.h"
 
 
@@ -88,6 +89,9 @@ FraxinusTrackingWidget::FraxinusTrackingWidget(VisServicesPtr services, Fraxinus
 
 	connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::updateButtonStatusSlot);
 	this->updateButtonStatusSlot();
+
+	mEBUSToolConfigurer = new TrackingToolConfigurer(mTrackingService, mEBUSProbeName, this);
+	connect(mEBUSToolConfigurer, &TrackingToolConfigurer::toolConfigured, this, &FraxinusTrackingWidget::setUpEBUSToolAndStartTracking);
 }
 
 FraxinusTrackingWidget::~FraxinusTrackingWidget()
@@ -231,49 +235,14 @@ void FraxinusTrackingWidget::startUltrasoundSimulation()
 	}
 
 	mToolFilesComboBoxes[3]->setCurrentIndex(USProbeIndex);
-
-	if(this->getEBUSTool())
-	{
-		this->setUpEBUSToolAndStartTracking();
-		return;
-	}
-
-	// The simulated tool is only in the tracking system after configuring with it, and a configured
-	// tracking system doesn't read the changed tool configuration again: configure again.
-	connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::configuredForUltrasoundSimulationSlot, Qt::UniqueConnection);
-	if(mTrackingService->getState() >= Tool::tsCONFIGURED)
-		mTrackingService->setState(Tool::tsNONE);
-	mTrackingService->setState(Tool::tsCONFIGURED);
-}
-
-ToolPtr FraxinusTrackingWidget::getEBUSTool() const
-{
-	ToolMap toolMap = mTrackingService->getTools();
-	ToolMap::iterator iter = toolMap.find(mEBUSProbeName);
-	if(iter == toolMap.end())
-		return ToolPtr();
-	return iter->second;
-}
-
-void FraxinusTrackingWidget::configuredForUltrasoundSimulationSlot()
-{
-	if(mTrackingService->getState() < Tool::tsCONFIGURED)
-		return; // still configuring
-	disconnect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::configuredForUltrasoundSimulationSlot);
-
-	if(!this->getEBUSTool())
-	{
-		CX_LOG_WARNING() << "In FraxinusTrackingWidget::configuredForUltrasoundSimulationSlot(): The tracking system was configured without the tool " << mEBUSProbeName;
-		return;
-	}
-	this->setUpEBUSToolAndStartTracking();
+	mEBUSToolConfigurer->start();
 }
 
 /** The simulation follows the manual tool, so it doesn't wait for a tracking system to start tracking:
  *  the simulator is normally run without one connected. */
 void FraxinusTrackingWidget::setUpEBUSToolAndStartTracking()
 {
-	ToolPtr tool = this->getEBUSTool();
+	ToolPtr tool = mEBUSToolConfigurer->getTool();
 	ManualToolAdapterPtr manualToolAdapterPtr = std::static_pointer_cast<ManualToolAdapter>(mTrackingService->getManualTool());
 	manualToolAdapterPtr->setBase(tool);
 	manualToolAdapterPtr->startEmittingContinuousPositions(100);
@@ -296,6 +265,7 @@ void FraxinusTrackingWidget::stopUltrasoundSimulation()
 	if(!mTrackingService)
 		return;
 
+	mEBUSToolConfigurer->stop();
 	stopTracking();
 	mToolFilesComboBoxes[3]->setCurrentIndex(-1);
 	ManualToolAdapterPtr manualToolAdapterPtr = std::static_pointer_cast<ManualToolAdapter>(mTrackingService->getManualTool());
