@@ -26,6 +26,7 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include "cxToolConfigureWidget.h"
 #include "cxProfile.h"
 #include "cxManualToolAdapter.h"
+#include "cxTrackingToolConfigurer.h"
 #include "cxTool.h"
 
 
@@ -88,6 +89,9 @@ FraxinusTrackingWidget::FraxinusTrackingWidget(VisServicesPtr services, Fraxinus
 
 	connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::updateButtonStatusSlot);
 	this->updateButtonStatusSlot();
+
+	mEBUSToolConfigurer = new TrackingToolConfigurer(mTrackingService, mEBUSProbeName, this);
+	connect(mEBUSToolConfigurer, &TrackingToolConfigurer::toolConfigured, this, &FraxinusTrackingWidget::setUpEBUSToolAndStartTracking);
 }
 
 FraxinusTrackingWidget::~FraxinusTrackingWidget()
@@ -225,51 +229,34 @@ void FraxinusTrackingWidget::startUltrasoundSimulation()
 
 	int USProbeIndex = mToolFilesComboBoxes[3]->findText(mEBUSProbeUid);
 	if(USProbeIndex < 0)
+	{
+		CX_LOG_WARNING() << "In FraxinusTrackingWidget::startUltrasoundSimulation(): Did not find the tool " << mEBUSProbeUid;
 		return;
+	}
 
 	mToolFilesComboBoxes[3]->setCurrentIndex(USProbeIndex);
-
-	if(mToolState <= Tool::tsCONFIGURED)
-	{
-		mTrackingService->setState(Tool::tsCONFIGURED);
-		connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::setUpEBUSToolAndStartTracking);
-	}
-	else
-		setUpEBUSToolAndStartTracking();
-
+	mEBUSToolConfigurer->start();
 }
 
+/** The simulation follows the manual tool, so it doesn't wait for a tracking system to start tracking:
+ *  the simulator is normally run without one connected. */
 void FraxinusTrackingWidget::setUpEBUSToolAndStartTracking()
 {
-	disconnect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::setUpEBUSToolAndStartTracking);
-
+	ToolPtr tool = mEBUSToolConfigurer->getTool();
 	ManualToolAdapterPtr manualToolAdapterPtr = std::static_pointer_cast<ManualToolAdapter>(mTrackingService->getManualTool());
-	ToolMap toolMap = mTrackingService->getTools();
-	ToolPtr tool;
-	for (ToolMap::iterator iter = toolMap.begin(); iter != toolMap.end(); ++iter)
+	manualToolAdapterPtr->setBase(tool);
+	manualToolAdapterPtr->startEmittingContinuousPositions(100);
+	report("Manual tool imbued with properties from " + mEBUSProbeName);
+
+	ProbePtr probe = tool->getProbe();
+	if(probe)
 	{
-		if (iter->first == mEBUSProbeName)
-		{
-		tool = iter->second;
-		manualToolAdapterPtr->setBase(tool);
-		manualToolAdapterPtr->startEmittingContinuousPositions(100);
-		report("Manual tool imbued with properties from " + iter->first);
-		break;
-		}
+		probe->applyNewConfigurationWithId(mEBUSProbeConfigurationName);
+		ProbeDefinition probeDefinition = probe->getProbeDefinition(mEBUSProbeConfigurationName);
+		probe->setActiveStream(probeDefinition.getUid());
 	}
 
-	if(tool)
-	{
-		ProbePtr probe = tool->getProbe();
-		if(probe)
-		{
-			probe->applyNewConfigurationWithId(mEBUSProbeConfigurationName);
-			ProbeDefinition probeDefinition = probe->getProbeDefinition(mEBUSProbeConfigurationName);
-			probe->setActiveStream(probeDefinition.getUid());
-		}
-	}
-
-	connect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::trackingStarted);
+	emit trackingReady();
 	startTracking();
 }
 
@@ -278,6 +265,7 @@ void FraxinusTrackingWidget::stopUltrasoundSimulation()
 	if(!mTrackingService)
 		return;
 
+	mEBUSToolConfigurer->stop();
 	stopTracking();
 	mToolFilesComboBoxes[3]->setCurrentIndex(-1);
 	ManualToolAdapterPtr manualToolAdapterPtr = std::static_pointer_cast<ManualToolAdapter>(mTrackingService->getManualTool());
@@ -290,12 +278,6 @@ void FraxinusTrackingWidget::stopUltrasoundSimulation()
 TrackingServicePtr FraxinusTrackingWidget::getTrackingService()
 {
 	return mTrackingService;
-}
-
-void FraxinusTrackingWidget::trackingStarted()
-{
-	disconnect(mTrackingService.get(), &TrackingService::stateChanged, this, &FraxinusTrackingWidget::trackingStarted);
-	emit trackingReady();
 }
 
 void FraxinusTrackingWidget::printTrackerConfiguration() //debug

@@ -50,6 +50,7 @@ class QComboBox;
 namespace cx {
 
 class ToolConfigureGroupBox;
+class TrackingToolConfigurer;
 
 class org_custusx_fraxinus_widgets_EXPORT FraxinusTrackingWidget : public BaseWidget
 {
@@ -74,7 +75,6 @@ private slots:
 	void startTrackingClickedSlot(bool);
 	void stopTrackingClickedSlot(bool);
 	void setUpEBUSToolAndStartTracking();
-	void trackingStarted();
 
 private:
 	TrackingServicePtr mTrackingService;
@@ -91,6 +91,7 @@ private:
 	QPushButton* mStopTrackingButton;
 	FraxinusNavigationWidget* mFraxinusNavigationWidget;
 	Tool::State mToolState;
+	TrackingToolConfigurer* mEBUSToolConfigurer;
 
 	void copyToolConfigFile(QString filename);
 	void addToolsToComboBoxes(int numberOfTools, TrackerConfigurationPtr configuration, QStringList applicationsFilter, QStringList trackingsystemsFilter);

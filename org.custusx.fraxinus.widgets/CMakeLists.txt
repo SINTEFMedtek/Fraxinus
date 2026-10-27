@@ -31,6 +31,7 @@ set(PLUGIN_SRCS
     cxFraxinusEBUSSimulatorImplWidget.h
     cxFraxinusEBUSSimulatorImplWidget.cpp
     cxFraxinusTrackingWidget.cpp
+    cxTrackingToolConfigurer.cpp
 )
 
 #if(CX_LINUX)
@@ -63,6 +64,7 @@ set(PLUGIN_MOC_SRCS
     cxStructuresSelectionWidget.h
     cxFraxinusPatientOrientationWidget.h
     cxFraxinusTrackingWidget.h
+    cxTrackingToolConfigurer.h
     cxFraxinusRegistrationWidget.h
     cxFraxinusNavigationWidget.h
     cxFraxinusSimulatorWidget.h

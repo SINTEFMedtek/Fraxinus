@@ -15,6 +15,7 @@ if(BUILD_TESTING)
     )
     set(CXTEST_PLUGINWIDGETS_SOURCES
         cxtestNewLoadPatientWidget.cpp
+        cxtestTrackingToolConfigurer.cpp
         cxtestExportDummyClassForLinkingOnWindowsInLibWithoutExportedClass.cpp
     )
 
