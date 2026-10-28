@@ -180,6 +180,24 @@ void FraxinusWorkflowState::setDefaultCameraStyle()
 	}
 }
 
+/**
+ * Camera following the tool, with a wide view angle similar to a real bronchoscope.
+ */
+void FraxinusWorkflowState::setFlyThroughCameraStyleInGroup(int groupIdx)
+{
+	this->setCameraStyleInGroup(cstTOOL_STYLE, groupIdx);
+
+	if(!viewService())
+		return;
+	ViewGroupDataPtr viewGroup = viewService()->getGroup(groupIdx);
+	if(!viewGroup)
+		return;
+	double flyThroughViewAngle = 110.0/180.0*M_PI;
+	ViewGroupData::Options options = viewGroup->getOptions();
+	options.mCameraStyle.mCameraViewAngle = flyThroughViewAngle;
+	viewGroup->setOptions(options);
+}
+
 void FraxinusWorkflowState::setVBFlythroughCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
 	this->setCamera(surfaceModel3DViewGroupNumber);
@@ -187,7 +205,7 @@ void FraxinusWorkflowState::setVBFlythroughCameraStyle(int flyThrough3DViewGroup
 	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 
 	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, surfaceModel3DViewGroupNumber);
-	this->setCameraStyleInGroup(cstTOOL_STYLE, flyThrough3DViewGroupNumber);
+	this->setFlyThroughCameraStyleInGroup(flyThrough3DViewGroupNumber);
 }
 
 void FraxinusWorkflowState::setVBCutplanesCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
@@ -197,7 +215,7 @@ void FraxinusWorkflowState::setVBCutplanesCameraStyle(int flyThrough3DViewGroupN
 	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 
 	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, surfaceModel3DViewGroupNumber);
-	this->setCameraStyleInGroup(cstTOOL_STYLE, flyThrough3DViewGroupNumber);
+	this->setFlyThroughCameraStyleInGroup(flyThrough3DViewGroupNumber);
 }
 
 void FraxinusWorkflowState::setAnyplaneCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
@@ -207,7 +225,7 @@ void FraxinusWorkflowState::setAnyplaneCameraStyle(int flyThrough3DViewGroupNumb
 	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 
 	this->setCameraStyleInGroup(cstDEFAULT_STYLE, surfaceModel3DViewGroupNumber);
-	this->setCameraStyleInGroup(cstTOOL_STYLE, flyThrough3DViewGroupNumber);
+	this->setFlyThroughCameraStyleInGroup(flyThrough3DViewGroupNumber);
 }
 
 void FraxinusWorkflowState::setCamera(int viewGroupNr)
