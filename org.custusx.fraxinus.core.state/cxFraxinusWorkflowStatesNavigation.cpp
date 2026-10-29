@@ -243,7 +243,8 @@ FraxinusNavigationWidget* NavigationWorkflowState::getFraxinusNavigationWidget()
 
 void NavigationWorkflowState::onEntry(QEvent * event)
 {
-	FraxinusWorkflowState::onEntry(event);
+	//Camera styles are set below. The default camera styles would replace the fly-through camera style.
+	FraxinusWorkflowState::onEntry(event, false);
 	this->setupFraxinusNavigationWidget(mFlyThrough3DViewGroupNumber, mSurfaceModel3DViewGroupNumber);
 	this->addDataToView();
 
@@ -270,7 +271,13 @@ void NavigationWorkflowState::onEntry(QEvent * event)
 		}
 	}
 
-	QTimer::singleShot(0, this, SLOT(setAnyplaneCameraStyle()));
+	QTimer::singleShot(0, this, [=](){this->setNavigationCameraStyle();});
+}
+
+void NavigationWorkflowState::setNavigationCameraStyle()
+{
+	this->setCameraStyleInGroup(cstDEFAULT_STYLE, mSurfaceModel3DViewGroupNumber);
+	this->setFlyThroughCameraStyleInGroup(mFlyThrough3DViewGroupNumber);
 }
 
 void NavigationWorkflowState::setupFraxinusNavigationWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
