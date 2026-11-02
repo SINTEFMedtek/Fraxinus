@@ -98,7 +98,9 @@ The software is available at [https://github.com/SINTEFMedTek/Fraxinus](https://
 
 # AI Usage Disclosure
 
-Claude Sonnet 4.6 (Anthropic) was used to assist with drafting of manuscript text and compilation of the reference list. All AI-assisted content has been reviewed, edited, and validated by the human authors, who take full responsibility for the accuracy and completeness of the paper.
+Claude Sonnet 4.6 (Anthropic) was used to assist with drafting of manuscript text and compilation of the reference list. All AI-assisted manuscript content has been reviewed, edited, and validated by the human authors, who take full responsibility for the paper.
+
+The software was developed without generative AI tools until April 2026. Since then, the developers have used Anthropic's Claude Code with Claude models as a coding assistant, primarily for continuous-integration and installer scripts, documentation, and a limited number of bug fixes and incremental features. AI-assisted commits are identified by a `Co-Authored-By` trailer in the version history, which also records the specific model used. AI-assisted code changes are reviewed and tested by a developer before being merged, following the same process as other code contributions.
 
 # Acknowledgements
 
