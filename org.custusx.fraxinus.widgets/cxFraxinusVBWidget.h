@@ -105,6 +105,7 @@ private:
 	double mCameraPositionInPercentAdjusted;
 	std::vector<int> mGenerationNumbersAlongRoute;
 	std::vector<double> mRadiusAlongRoute;
+	bool mInitialized;
 
 };
 

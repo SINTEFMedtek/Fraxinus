@@ -59,9 +59,13 @@ namespace cx {
 
 FraxinusVBWidget::FraxinusVBWidget(VisServicesPtr services, QWidget* parent):
 	VBWidget(services, parent),
+	mViewSelectionWidget(nullptr),
+	mStructuresSelectionWidget(nullptr),
+	mEBUSSimulatorWidget(nullptr),
 	mServices(services),
 	mRouteLength(0),
-	mDistanceFromPathEndToTarget(0)
+	mDistanceFromPathEndToTarget(0),
+	mInitialized(false)
 {
 	this->setObjectName(this->getWidgetName());
 
@@ -75,6 +79,10 @@ FraxinusVBWidget::~FraxinusVBWidget()
 
 void FraxinusVBWidget::init()
 {
+	if(mInitialized)
+		return;
+	mInitialized = true;
+
 	//Disable the select RTT box, as it is only confusing.
 	//To use it you still need to manually change many objects in the graphics.
 	mRouteToTarget->setEnabled(false);
