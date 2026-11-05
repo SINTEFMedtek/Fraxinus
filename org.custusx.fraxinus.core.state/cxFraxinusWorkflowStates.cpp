@@ -71,6 +71,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxAirwaysFromCenterline.h"
 #include "cxNewLoadPatientWidget.h"
 #include "cxImageAlgorithms.h"
+#include "cxRouteGuidanceRep.h"
+#include "cxView.h"
 #include <QGroupBox>
 #include <QTimer>
 
@@ -597,6 +599,7 @@ void FraxinusWorkflowState::setupTumorInformationWidget(TumorInformationWidget* 
 void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
 	this->setRTTInVBWidget();
+	this->showRouteGuidance(flyThrough3DViewGroupNumber);
 	this->setupViewOptionsInVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 	if(viewService())
 		viewService()->zoomCamera3D(flyThrough3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
@@ -724,8 +727,33 @@ void FraxinusWorkflowState::deleteBranchList()
 void FraxinusWorkflowState::cleanupVBWidget()
 {
 	this->mUpdateFocus = false;
+	this->hideRouteGuidance();
 	//this->getVBWidget()->releaseKeyboard();
 	//this->getVBWidget()->clearFocus();
+}
+
+void FraxinusWorkflowState::showRouteGuidance(int flyThrough3DViewGroupNumber)
+{
+	this->hideRouteGuidance();
+	if(!this->active() || !viewService()) // May be called from a timer after the state is exited
+		return;
+	ViewPtr view = viewService()->get3DView(flyThrough3DViewGroupNumber);
+	if(!view)
+		return;
+
+	mRouteGuidanceRep = RouteGuidanceRep::New(mServices->tracking(), mServices->spaceProvider());
+	mRouteGuidanceRep->setRoute(mRouteToTargetPositions, mRouteToTargetGenerationNumbers, mRouteToTargetRadius);
+	view->addRep(mRouteGuidanceRep);
+	mRouteGuidanceView = view;
+}
+
+void FraxinusWorkflowState::hideRouteGuidance()
+{
+	ViewPtr view = mRouteGuidanceView.lock();
+	if(view && mRouteGuidanceRep)
+		view->removeRep(mRouteGuidanceRep);
+	mRouteGuidanceRep.reset();
+	mRouteGuidanceView.reset();
 }
 
 // --------------------------------------------------------
@@ -1428,6 +1456,8 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 		viewGroup0_3D->addData(targetPoint->getUid());
 	if(extendedRouteToTarget)
 		viewGroup0_3D->addData(extendedRouteToTarget->getUid());
+	if(routeToTarget)
+		viewGroup0_3D->addData(routeToTarget->getUid());
 	//if(distanceToTargetMetric)
 	//	viewGroup0_3D->addData(distanceToTargetMetric->getUid());
 	
@@ -1448,10 +1478,6 @@ void VirtualBronchoscopyFlyThroughWorkflowState::addDataToView()
 		viewGroup2_3D->addData(targetPoint->getUid());
 	if(airwaysTubes)
 		viewGroup2_3D->addData(airwaysTubes->getUid());
-	if(extendedRouteToTarget)
-		viewGroup2_3D->addData(extendedRouteToTarget->getUid());
-	if(routeToTarget)
-		viewGroup2_3D->addData(routeToTarget->getUid());
 }
 
 bool VirtualBronchoscopyFlyThroughWorkflowState::canEnter() const
@@ -1546,7 +1572,9 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 		viewGroup0_3D->addData(targetPoint->getUid());
 	if(extendedRouteToTarget)
 		viewGroup0_3D->addData(extendedRouteToTarget->getUid());
-	
+	if(routeToTarget)
+		viewGroup0_3D->addData(routeToTarget->getUid());
+
 	ViewGroupDataPtr viewGroup1_2D = viewService()->getGroup(1);
 	this->setTransferfunction2D("2D CT Lung", ctImage);
 	viewGroup1_2D->getGroup2DZoom()->set(0.4);
@@ -1564,10 +1592,6 @@ void VirtualBronchoscopyCutPlanesWorkflowState::addDataToView()
 	this->setTransferfunction3D("3D CT Virtual Bronchoscopy", ctImage_copied);
 	if(airwaysTubes)
 		viewGroup2_3D->addData(airwaysTubes->getUid());
-	if(extendedRouteToTarget)
-		viewGroup2_3D->addData(extendedRouteToTarget->getUid());
-	if(routeToTarget)
-		viewGroup2_3D->addData(routeToTarget->getUid());
 	if(targetPoint)
 		viewGroup2_3D->addData(targetPoint->getUid());
 }
@@ -1685,10 +1709,6 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 		viewGroup2_3D->addData(targetPoint->getUid());
 	if(airwaysTubes)
 		viewGroup2_3D->addData(airwaysTubes->getUid());
-	if(extendedRouteToTarget)
-		viewGroup2_3D->addData(extendedRouteToTarget->getUid());
-	if(routeToTarget)
-		viewGroup2_3D->addData(routeToTarget->getUid());
 	if(nodules)
 		viewGroup1_2D->addData(nodules->getUid());
 
