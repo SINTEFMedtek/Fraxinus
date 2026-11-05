@@ -1641,7 +1641,6 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 {
 	ImagePtr ctImage = this->getCTImage();
 	ImagePtr ctImage_copied = this->getCTImageCopied();
-	MeshPtr centerline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
 	MeshPtr routeToTarget = this->getRouteToTarget();
 	MeshPtr extendedRouteToTarget = this->getExtendedRouteToTarget();
 	MeshPtr airways = mServices->patient()->getData<Mesh>(otAIRWAYS_ENHANCED_COPY);
@@ -1686,8 +1685,6 @@ void VirtualBronchoscopyAnyplaneWorkflowState::addDataToView()
 		viewGroup2_3D->addData(targetPoint->getUid());
 	if(airwaysTubes)
 		viewGroup2_3D->addData(airwaysTubes->getUid());
-	if(centerline)
-		viewGroup2_3D->addData(centerline->getUid());
 	if(extendedRouteToTarget)
 		viewGroup2_3D->addData(extendedRouteToTarget->getUid());
 	if(routeToTarget)
