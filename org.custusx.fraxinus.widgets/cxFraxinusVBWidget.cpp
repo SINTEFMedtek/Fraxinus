@@ -80,7 +80,9 @@ FraxinusVBWidget::~FraxinusVBWidget()
 void FraxinusVBWidget::init()
 {
 	if(mInitialized)
+	{
 		return;
+	}
 	mInitialized = true;
 
 	//Disable the select RTT box, as it is only confusing.
