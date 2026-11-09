@@ -102,9 +102,18 @@ If you use Fraxinus in your research, please cite:
 
 ## Contributing
 
-The source code is mirrored on [GitHub](https://github.com/SINTEFMedTek/Fraxinus).
-External users are welcome to submit bug reports and feature requests on
-[GitHub Issues](https://github.com/SINTEFMedTek/Fraxinus/issues).
+Development takes place on [SINTEF's GitLab](https://gitlab.sintef.no/custusx/fraxinus),
+which is publicly readable but does not offer accounts to external users. The
+repository is mirrored on [GitHub](https://github.com/SINTEFMedTek/Fraxinus),
+which is where external contributors should engage:
+
+- Submit bug reports and feature requests on
+  [GitHub Issues](https://github.com/SINTEFMedTek/Fraxinus/issues).
+- Submit code contributions as
+  [GitHub pull requests](https://github.com/SINTEFMedTek/Fraxinus/pulls).
+  The maintainers review each contribution and consider it for inclusion in
+  the main branch. Accepted changes are merged on GitLab and reach GitHub
+  through the mirror.
 
 ## Contributors
 
