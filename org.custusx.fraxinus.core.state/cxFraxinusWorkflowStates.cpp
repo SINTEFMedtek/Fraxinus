@@ -363,8 +363,13 @@ FraxinusVBWidget* FraxinusWorkflowState::getVBWidget()
 {
 	QMainWindow* mainWindow = this->getMainWindow();
 	
-	QString widgetName(FraxinusVBWidget::getWidgetName());
-	return mainWindow->findChild<FraxinusVBWidget*>(widgetName);
+	FraxinusVBWidget* widget = nullptr;
+	if(mainWindow)
+	{
+		QString widgetName(FraxinusVBWidget::getWidgetName());
+		widget = mainWindow->findChild<FraxinusVBWidget*>(widgetName);
+	}
+	return widget;
 }
 
 ProcedurePlanningWidget* FraxinusWorkflowState::getProcedurePlanningWidget()
@@ -455,6 +460,10 @@ void FraxinusWorkflowState::setupViewOptionsInVBWidget(int flyThrough3DViewGroup
 
 void FraxinusWorkflowState::setupViewOptionsForStructuresSelection(StructuresSelectionWidget* widget, std::vector<unsigned int> viewGroupNumbers)
 {
+	if(!widget)
+	{
+		return;
+	}
 	widget->resetButtons();
 
 	std::vector<DataPtr> lungObjects;
@@ -616,7 +625,11 @@ void FraxinusWorkflowState::updateFocus()
 {
 	if(mUpdateFocus)
 	{
-		this->getVBWidget()->setFocus(Qt::ActiveWindowFocusReason);
+		FraxinusVBWidget* VBWidget = this->getVBWidget();
+		if(VBWidget)
+		{
+			VBWidget->setFocus(Qt::ActiveWindowFocusReason);
+		}
 		QTimer::singleShot(500, this, SLOT(updateFocus()));
 	}
 }
@@ -1407,7 +1420,7 @@ void VirtualBronchoscopyFlyThroughWorkflowState::onEntry(QEvent * event)
 			structureSelectionWidget->onEntry();
 	}
 
-	FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr->getEBUSSimulatorWidget();
+	FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr ? FraxinusVBWidgetPtr->getEBUSSimulatorWidget() : nullptr;
 	if(EBUSSimulatorWidget)
 	{
 		ImagePtr ctImage_copied = this->getCTImageCopied();
@@ -1522,7 +1535,7 @@ void VirtualBronchoscopyCutPlanesWorkflowState::onEntry(QEvent * event)
 			structureSelectionWidget->onEntry();
 	}
 
-	FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr->getEBUSSimulatorWidget();
+	FraxinusEBUSSimulatorWidget* EBUSSimulatorWidget = FraxinusVBWidgetPtr ? FraxinusVBWidgetPtr->getEBUSSimulatorWidget() : nullptr;
 	if(EBUSSimulatorWidget)
 	{
 		ImagePtr ctImage_copied = this->getCTImageCopied();
