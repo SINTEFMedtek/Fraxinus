@@ -108,6 +108,7 @@ protected:
 	bool mUpdateFocus = false;
 	RouteGuidanceRepPtr mRouteGuidanceRep;
 	ViewWeakPtr mRouteGuidanceView;
+	std::shared_ptr<class ScopeExposureController> mScopeExposureController;
 
 
 	void setTransferfunction3D(QString transferfunction, ImagePtr image);
@@ -122,6 +123,8 @@ protected:
 	void cleanupVBWidget();
 	void showRouteGuidance(int flyThrough3DViewGroupNumber);
 	void hideRouteGuidance();
+	void startScopeExposure(int flyThrough3DViewGroupNumber);
+	void stopScopeExposure();
 	void setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers);
 	void setupProcedurePlanningWidget(std::vector<unsigned int> viewGroupNumbers);
 

@@ -72,6 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxNewLoadPatientWidget.h"
 #include "cxImageAlgorithms.h"
 #include "cxRouteGuidanceRep.h"
+#include "cxScopeExposure.h"
 #include "cxView.h"
 #include <QGroupBox>
 #include <QTimer>
@@ -627,6 +628,7 @@ void FraxinusWorkflowState::setupVBWidget(int flyThrough3DViewGroupNumber, int s
 {
 	this->setRTTInVBWidget();
 	this->showRouteGuidance(flyThrough3DViewGroupNumber);
+	this->startScopeExposure(flyThrough3DViewGroupNumber);
 	this->setupViewOptionsInVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 	if(viewService())
 		viewService()->zoomCamera3D(flyThrough3DViewGroupNumber, VB3DCameraZoomSetting::getZoomFactor());
@@ -759,6 +761,7 @@ void FraxinusWorkflowState::cleanupVBWidget()
 {
 	this->mUpdateFocus = false;
 	this->hideRouteGuidance();
+	this->stopScopeExposure();
 	//this->getVBWidget()->releaseKeyboard();
 	//this->getVBWidget()->clearFocus();
 }
@@ -785,6 +788,25 @@ void FraxinusWorkflowState::hideRouteGuidance()
 		view->removeRep(mRouteGuidanceRep);
 	mRouteGuidanceRep.reset();
 	mRouteGuidanceView.reset();
+}
+
+void FraxinusWorkflowState::startScopeExposure(int flyThrough3DViewGroupNumber)
+{
+	this->stopScopeExposure();
+	if(!this->active() || !viewService()) // May be called from a timer after the state is exited
+		return;
+	ViewGroupDataPtr viewGroup = viewService()->getGroup(flyThrough3DViewGroupNumber);
+	if(!viewGroup)
+		return;
+
+	ScopeExposure exposure;
+	exposure.setAirways(mBranchList);
+	mScopeExposureController.reset(new ScopeExposureController(mServices->tracking(), mServices->spaceProvider(), viewGroup, exposure));
+}
+
+void FraxinusWorkflowState::stopScopeExposure()
+{
+	mScopeExposureController.reset();
 }
 
 // --------------------------------------------------------
