@@ -56,6 +56,8 @@ namespace cx
 typedef std::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 typedef std::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
 typedef std::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
+typedef std::shared_ptr<class RouteGuidanceRep> RouteGuidanceRepPtr;
+typedef std::weak_ptr<class View> ViewWeakPtr;
 class NewLoadPatientWidget;
 class FraxinusVBWidget;
 class PinpointWidget;
@@ -104,6 +106,8 @@ protected:
 	std::vector< double > mRouteToTargetRadius;
 
 	bool mUpdateFocus = false;
+	RouteGuidanceRepPtr mRouteGuidanceRep;
+	ViewWeakPtr mRouteGuidanceView;
 
 
 	void setTransferfunction3D(QString transferfunction, ImagePtr image);
@@ -116,6 +120,8 @@ protected:
 	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
 	void deleteBranchList();
 	void cleanupVBWidget();
+	void showRouteGuidance(int flyThrough3DViewGroupNumber);
+	void hideRouteGuidance();
 	void setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers);
 	void setupProcedurePlanningWidget(std::vector<unsigned int> viewGroupNumbers);
 

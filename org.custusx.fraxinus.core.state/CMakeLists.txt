@@ -27,6 +27,9 @@ set(PLUGIN_SRCS
     cxVBCameraZoomSetting3D.cpp
     cxVBCameraZoomSetting3D.h
     cxFraxinusSegmentations.cpp
+    cxRouteGuidance.cpp
+    cxRouteGuidance.h
+    cxRouteGuidanceRep.cpp
 )
 
 
@@ -59,6 +62,7 @@ set(PLUGIN_MOC_SRCS
     cxStateServiceImpl.h
     cxStatePluginActivator.h
     cxFraxinusSegmentations.h
+    cxRouteGuidanceRep.h
 )
 
 # Qt Designer files which should be processed by Qts uic
