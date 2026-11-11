@@ -24,6 +24,13 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 namespace cx
 {
 
+// Definitions needed before C++17 when the constants are passed by reference, e.g. to std::max
+constexpr double ScopeExposure::referenceRadius;
+constexpr double ScopeExposure::radiusExponent;
+constexpr double ScopeExposure::minExposure;
+constexpr double ScopeExposure::maxExposure;
+constexpr double ScopeExposure::averagingDistance;
+
 double ScopeExposure::exposureFromRadius(double radius)
 {
 	double exposure = 1.0;
