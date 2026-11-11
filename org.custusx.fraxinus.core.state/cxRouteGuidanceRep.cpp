@@ -18,6 +18,8 @@ See Lisence.txt (https://github.com/SINTEFMedtek/CustusX/blob/master/License.txt
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkPolyDataNormals.h>
+#include <vtkSphereSource.h>
 #include <vtkTubeFilter.h>
 #include <vtkProperty.h>
 #include <vtkRenderer.h>
@@ -132,7 +134,14 @@ void RouteGuidanceRep::updateArrowGeometry(const RouteGuidanceArrow& arrow)
 	shaft->SetInputData(curve);
 	shaft->SetRadius(shaftRadius);
 	shaft->SetNumberOfSides(16);
-	shaft->CappingOn();
+	shaft->CappingOff(); // Rounded tail below; the other end is inside the arrow head
+
+	// Rounded tail: a flat cap faces the camera and the scope light head-on, and is too bright up close.
+	vtkSmartPointer<vtkSphereSource> tailCap = vtkSmartPointer<vtkSphereSource>::New();
+	tailCap->SetCenter(arrow.tail.data());
+	tailCap->SetRadius(shaftRadius);
+	tailCap->SetThetaResolution(16);
+	tailCap->SetPhiResolution(16);
 
 	vtkSmartPointer<vtkConeSource> head = vtkSmartPointer<vtkConeSource>::New();
 	head->SetResolution(24);
@@ -145,8 +154,16 @@ void RouteGuidanceRep::updateArrowGeometry(const RouteGuidanceArrow& arrow)
 	vtkSmartPointer<vtkAppendPolyData> append = vtkSmartPointer<vtkAppendPolyData>::New();
 	append->AddInputConnection(shaft->GetOutputPort());
 	append->AddInputConnection(head->GetOutputPort());
-	append->Update();
-	mMapper->SetInputData(append->GetOutput());
+	append->AddInputConnection(tailCap->GetOutputPort());
+
+	// The cone has no normals, so the appended arrow has none and would be shaded flat.
+	// Smooth normals, but keep the sharp edge at the base of the arrow head.
+	vtkSmartPointer<vtkPolyDataNormals> normals = vtkSmartPointer<vtkPolyDataNormals>::New();
+	normals->SetInputConnection(append->GetOutputPort());
+	normals->SetFeatureAngle(60);
+	normals->SplittingOn();
+	normals->Update();
+	mMapper->SetInputData(normals->GetOutput());
 }
 
 } // namespace cx
