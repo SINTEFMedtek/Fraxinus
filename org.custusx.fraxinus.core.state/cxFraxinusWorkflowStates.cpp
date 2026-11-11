@@ -183,24 +183,6 @@ void FraxinusWorkflowState::setDefaultCameraStyle()
 	}
 }
 
-/**
- * Camera following the tool, with a wide view angle similar to a real bronchoscope.
- */
-void FraxinusWorkflowState::setFlyThroughCameraStyleInGroup(int groupIdx)
-{
-	this->setCameraStyleInGroup(cstTOOL_STYLE, groupIdx);
-
-	if(!viewService())
-		return;
-	ViewGroupDataPtr viewGroup = viewService()->getGroup(groupIdx);
-	if(!viewGroup)
-		return;
-	double flyThroughViewAngle = 110.0/180.0*M_PI;
-	ViewGroupData::Options options = viewGroup->getOptions();
-	options.mCameraStyle.mCameraViewAngle = flyThroughViewAngle;
-	viewGroup->setOptions(options);
-}
-
 void FraxinusWorkflowState::setVBFlythroughCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
 {
 	this->setCamera(surfaceModel3DViewGroupNumber);
@@ -208,7 +190,7 @@ void FraxinusWorkflowState::setVBFlythroughCameraStyle(int flyThrough3DViewGroup
 	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 
 	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, surfaceModel3DViewGroupNumber);
-	this->setFlyThroughCameraStyleInGroup(flyThrough3DViewGroupNumber);
+	this->setCameraStyleInGroup(cstENDOSCOPE_STYLE, flyThrough3DViewGroupNumber);
 }
 
 void FraxinusWorkflowState::setVBCutplanesCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
@@ -218,7 +200,7 @@ void FraxinusWorkflowState::setVBCutplanesCameraStyle(int flyThrough3DViewGroupN
 	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 
 	this->setCameraStyleInGroup(cstANGLED_TOOL_STYLE, surfaceModel3DViewGroupNumber);
-	this->setFlyThroughCameraStyleInGroup(flyThrough3DViewGroupNumber);
+	this->setCameraStyleInGroup(cstENDOSCOPE_STYLE, flyThrough3DViewGroupNumber);
 }
 
 void FraxinusWorkflowState::setAnyplaneCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber)
@@ -228,7 +210,7 @@ void FraxinusWorkflowState::setAnyplaneCameraStyle(int flyThrough3DViewGroupNumb
 	this->setupVBWidget(flyThrough3DViewGroupNumber, surfaceModel3DViewGroupNumber, m2DViewGroupNumber);
 
 	this->setCameraStyleInGroup(cstDEFAULT_STYLE, surfaceModel3DViewGroupNumber);
-	this->setFlyThroughCameraStyleInGroup(flyThrough3DViewGroupNumber);
+	this->setCameraStyleInGroup(cstENDOSCOPE_STYLE, flyThrough3DViewGroupNumber);
 }
 
 void FraxinusWorkflowState::setCamera(int viewGroupNr)
@@ -696,13 +678,7 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 		return;
 	}
 
-	if(!mBranchList) // In case of restart of Fraxinus, BranchList is deleted on shut down
-	{
-		AirwaysFromCenterlinePtr airwaysFromCLPtr = AirwaysFromCenterlinePtr(new AirwaysFromCenterline());
-		airwaysFromCLPtr->processCenterline(centerline);
-		mBranchList = airwaysFromCLPtr->getBranchList();
-		mBranchList->setBranchCode();
-	}
+	this->createBranchList();
 
 	if(mBranchList)
 	{ //avoid reprocessing same centerline multiple times for every new target point set
@@ -720,9 +696,6 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 	}
 
 	routeToTargetFilter->setMaxGenerationForCameraRotation(MAX_GENERATION_FOR_AUTOMATIC_CAMERA_ROTATION);
-	
-	if(!mBranchList->isRadiusAvailable())
-		mBranchList->setRadius(mServices->patient()->getData<Image>(otAIRWAYS));
 
 	std::vector<Vector3D> positionVector;
 	positionVector.push_back(targetPoint->getCoordinate());
@@ -753,6 +726,27 @@ void FraxinusWorkflowState::setMeshOpacity(MeshPtr mesh, double opacity)
 		mesh->setColor(color);
 	}
 }
+
+/**
+ * Create the branch list from the airway centerline, with the airway radius, if not done already.
+ * Is also needed on restart of Fraxinus, as the branch list is deleted on shut down.
+ */
+void FraxinusWorkflowState::createBranchList()
+{
+	MeshPtr centerline = mServices->patient()->getData<Mesh>(otCENTERLINES);
+	if(!mBranchList && centerline)
+	{
+		AirwaysFromCenterlinePtr airwaysFromCLPtr = AirwaysFromCenterlinePtr(new AirwaysFromCenterline());
+		airwaysFromCLPtr->processCenterline(centerline);
+		mBranchList = airwaysFromCLPtr->getBranchList();
+		mBranchList->setBranchCode();
+	}
+	if(mBranchList && !mBranchList->isRadiusAvailable())
+	{
+		mBranchList->setRadius(mServices->patient()->getData<Image>(otAIRWAYS));
+	}
+}
+
 void FraxinusWorkflowState::deleteBranchList()
 {
 	mBranchList.reset();
@@ -793,15 +787,19 @@ void FraxinusWorkflowState::hideRouteGuidance()
 void FraxinusWorkflowState::startScopeExposure(int flyThrough3DViewGroupNumber)
 {
 	this->stopScopeExposure();
-	if(!this->active() || !viewService()) // May be called from a timer after the state is exited
-		return;
-	ViewGroupDataPtr viewGroup = viewService()->getGroup(flyThrough3DViewGroupNumber);
-	if(!viewGroup)
-		return;
-
-	ScopeExposure exposure;
-	exposure.setAirways(mBranchList);
-	mScopeExposureController.reset(new ScopeExposureController(mServices->tracking(), mServices->spaceProvider(), viewGroup, exposure));
+	// May be called from a timer after the state is exited
+	ViewGroupDataPtr viewGroup = (this->active() && viewService()) ? viewService()->getGroup(flyThrough3DViewGroupNumber) : ViewGroupDataPtr();
+	if(viewGroup)
+	{
+		this->createBranchList();
+		ScopeExposure exposure;
+		exposure.setAirways(mBranchList);
+		if(!exposure.hasAirways())
+		{
+			CX_LOG_WARNING() << "No airway centerline with radius found. The light in the fly-through view will not adjust to the airway size.";
+		}
+		mScopeExposureController.reset(new ScopeExposureController(mServices->tracking(), mServices->spaceProvider(), viewGroup, exposure));
+	}
 }
 
 void FraxinusWorkflowState::stopScopeExposure()

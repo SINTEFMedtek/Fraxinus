@@ -41,7 +41,8 @@ typedef std::shared_ptr<class ViewGroupData> ViewGroupDataPtr;
  * when passing a bifurcation.
  *
  * The radius at the tip is the interquartile mean of the centerline points close to
- * it, so that it changes gradually from one branch to the next.
+ * it, so that it changes gradually from one branch to the next. When the tip is outside
+ * the airways, e.g. before registration, the exposure is 1.
  * All positions in r space.
  */
 class org_custusx_fraxinus_core_state_EXPORT ScopeExposure
@@ -61,7 +62,8 @@ public:
 	/** Centerline positions with their airway radius. Positions without a radius (<=0) are ignored. */
 	void setAirways(const std::vector<Vector3D>& positions, const std::vector<double>& radius);
 	void setAirways(BranchListPtr branches); ///< One radius per branch, see branchRadius()
-	double getRadius(const Vector3D& position) const; ///< 0 when there are no airways
+	bool hasAirways() const;
+	double getRadius(const Vector3D& position) const; ///< 0 when there are no airways, or the position is outside them
 	double getExposure(const Vector3D& position) const; ///< 1 when there are no airways
 
 private:

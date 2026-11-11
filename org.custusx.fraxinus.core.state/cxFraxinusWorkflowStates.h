@@ -57,6 +57,7 @@ typedef std::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 typedef std::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
 typedef std::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
 typedef std::shared_ptr<class RouteGuidanceRep> RouteGuidanceRepPtr;
+typedef std::shared_ptr<class ScopeExposureController> ScopeExposureControllerPtr;
 typedef std::weak_ptr<class View> ViewWeakPtr;
 class NewLoadPatientWidget;
 class FraxinusVBWidget;
@@ -75,7 +76,6 @@ class org_custusx_fraxinus_core_state_EXPORT FraxinusWorkflowState : public Work
 public:
 	FraxinusWorkflowState(QState* parent, QString uid, QString name, RegServicesPtr services, bool enableAction = true);
 	virtual void setCameraStyleInGroup(CAMERA_STYLE_TYPE style, int groupIdx);
-	void setFlyThroughCameraStyleInGroup(int groupIdx);
 	virtual void onEntry(QEvent* event, bool setCamera = true);
 
 	ImagePtr getCTImage() const;
@@ -108,7 +108,7 @@ protected:
 	bool mUpdateFocus = false;
 	RouteGuidanceRepPtr mRouteGuidanceRep;
 	ViewWeakPtr mRouteGuidanceView;
-	std::shared_ptr<class ScopeExposureController> mScopeExposureController;
+	ScopeExposureControllerPtr mScopeExposureController;
 
 
 	void setTransferfunction3D(QString transferfunction, ImagePtr image);
@@ -119,6 +119,7 @@ protected:
 	void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
 	void setupTumorInformationWidget(TumorInformationWidget *widget, std::vector<unsigned int> viewGroupNumbers);
 	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
+	void createBranchList();
 	void deleteBranchList();
 	void cleanupVBWidget();
 	void showRouteGuidance(int flyThrough3DViewGroupNumber);

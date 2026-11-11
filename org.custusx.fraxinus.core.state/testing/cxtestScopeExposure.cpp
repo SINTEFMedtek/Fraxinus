@@ -58,8 +58,18 @@ TEST_CASE("ScopeExposure: Exposure is kept within limits", "[fraxinus][unit]")
 TEST_CASE("ScopeExposure: Exposure is 1 without airways", "[fraxinus][unit]")
 {
 	ScopeExposure exposure;
+	CHECK_FALSE(exposure.hasAirways());
 	CHECK(exposure.getExposure(Vector3D(0, 0, 0)) == Approx(1.0));
 	CHECK(ScopeExposure::exposureFromRadius(0) == Approx(1.0));
+}
+
+TEST_CASE("ScopeExposure: Has no airways when no position has a radius", "[fraxinus][unit]")
+{
+	ScopeExposure exposure;
+	exposure.setAirways({Vector3D(0, 0, 0)}, {0.0});
+	CHECK_FALSE(exposure.hasAirways());
+	exposure.setAirways({Vector3D(0, 0, 0)}, {6.0});
+	CHECK(exposure.hasAirways());
 }
 
 TEST_CASE("ScopeExposure: Radius is found from the closest airway", "[fraxinus][unit]")
@@ -68,7 +78,15 @@ TEST_CASE("ScopeExposure: Radius is found from the closest airway", "[fraxinus][
 	CHECK(exposure.getRadius(Vector3D(0, 0, 10)) == Approx(9.0));
 	CHECK(exposure.getRadius(Vector3D(30, 0, 50)) == Approx(1.5));
 	CHECK(exposure.getRadius(Vector3D(2, 3, 10)) == Approx(9.0)); // off the centerline
-	CHECK(exposure.getRadius(Vector3D(30, 20, 50)) == Approx(1.5)); // far from all points: the closest one
+	CHECK(exposure.getRadius(Vector3D(8, 0, 10)) == Approx(9.0)); // inside the wide airway, away from the centerline
+}
+
+TEST_CASE("ScopeExposure: Exposure is 1 outside the airways", "[fraxinus][unit]")
+{
+	ScopeExposure exposure = createTestAirways();
+	CHECK(exposure.getRadius(Vector3D(30, 20, 50)) == Approx(0.0));
+	CHECK(exposure.getExposure(Vector3D(30, 20, 50)) == Approx(1.0));
+	CHECK(exposure.getRadius(Vector3D(0, 0, -100)) == Approx(0.0));
 }
 
 TEST_CASE("ScopeExposure: Radius changes gradually at a branching point", "[fraxinus][unit]")

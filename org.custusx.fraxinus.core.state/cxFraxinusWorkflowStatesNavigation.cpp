@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cxVideoService.h"
 #include "cxPatientModelService.h"
 #include "cxLogger.h"
+#include "cxSessionStorageService.h"
 #include "cxVisServices.h"
 #include "cxClippers.h"
 #include "cxInteractiveClipper.h"
@@ -223,6 +224,7 @@ NavigationWorkflowState::NavigationWorkflowState(QState* parent, RegServicesPtr 
 	mFlyThrough3DViewGroupNumber(2),
 	mSurfaceModel3DViewGroupNumber(0)
 {
+	connect(mServices->session().get(), &SessionStorageService::sessionChanged, this, &NavigationWorkflowState::deleteBranchList, Qt::UniqueConnection);
 }
 
 NavigationWorkflowState::~NavigationWorkflowState()
@@ -277,7 +279,8 @@ void NavigationWorkflowState::onEntry(QEvent * event)
 void NavigationWorkflowState::setNavigationCameraStyle()
 {
 	this->setCameraStyleInGroup(cstDEFAULT_STYLE, mSurfaceModel3DViewGroupNumber);
-	this->setFlyThroughCameraStyleInGroup(mFlyThrough3DViewGroupNumber);
+	this->setCameraStyleInGroup(cstENDOSCOPE_STYLE, mFlyThrough3DViewGroupNumber);
+	this->startScopeExposure(mFlyThrough3DViewGroupNumber);
 }
 
 void NavigationWorkflowState::setupFraxinusNavigationWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber)
@@ -375,6 +378,7 @@ void NavigationWorkflowState::addDataToView()
 
 void NavigationWorkflowState::onExit(QEvent * event)
 {
+	this->stopScopeExposure();
 	WorkflowState::onExit(event);
 }
 
