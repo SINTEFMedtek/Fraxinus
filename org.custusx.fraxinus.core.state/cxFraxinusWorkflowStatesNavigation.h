@@ -111,6 +111,7 @@ public:
 
 private:
 	virtual void addDataToView();
+	void setNavigationCameraStyle();
 	int mFlyThrough3DViewGroupNumber;
 	int mSurfaceModel3DViewGroupNumber;
 };

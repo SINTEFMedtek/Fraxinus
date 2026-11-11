@@ -57,6 +57,7 @@ typedef std::shared_ptr<class StateServiceBackend> StateServiceBackendPtr;
 typedef std::shared_ptr<class TransferFunctions3DPresets> TransferFunctions3DPresetsPtr;
 typedef std::shared_ptr<class FraxinusSegmentations> FraxinusSegmentationsPtr;
 typedef std::shared_ptr<class RouteGuidanceRep> RouteGuidanceRepPtr;
+typedef std::shared_ptr<class ScopeExposureController> ScopeExposureControllerPtr;
 typedef std::weak_ptr<class View> ViewWeakPtr;
 class NewLoadPatientWidget;
 class FraxinusVBWidget;
@@ -107,6 +108,7 @@ protected:
 	bool mUpdateFocus = false;
 	RouteGuidanceRepPtr mRouteGuidanceRep;
 	ViewWeakPtr mRouteGuidanceView;
+	ScopeExposureControllerPtr mScopeExposureController;
 
 
 	void setTransferfunction3D(QString transferfunction, ImagePtr image);
@@ -117,10 +119,13 @@ protected:
 	void setupViewOptionsForStructuresSelection(StructuresSelectionWidget *widget, std::vector<unsigned int> viewGroupNumbers);
 	void setupTumorInformationWidget(TumorInformationWidget *widget, std::vector<unsigned int> viewGroupNumbers);
 	void setupVBWidget(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
+	void createBranchList();
 	void deleteBranchList();
 	void cleanupVBWidget();
 	void showRouteGuidance(int flyThrough3DViewGroupNumber);
 	void hideRouteGuidance();
+	void startScopeExposure(int flyThrough3DViewGroupNumber);
+	void stopScopeExposure();
 	void setupPinPointWidget(std::vector<unsigned int> viewGroupNumbers);
 	void setupProcedurePlanningWidget(std::vector<unsigned int> viewGroupNumbers);
 

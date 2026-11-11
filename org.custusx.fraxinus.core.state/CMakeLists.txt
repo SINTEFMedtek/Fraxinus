@@ -30,6 +30,8 @@ set(PLUGIN_SRCS
     cxRouteGuidance.cpp
     cxRouteGuidance.h
     cxRouteGuidanceRep.cpp
+    cxScopeExposure.cpp
+    cxScopeExposure.h
 )
 
 
@@ -63,6 +65,7 @@ set(PLUGIN_MOC_SRCS
     cxStatePluginActivator.h
     cxFraxinusSegmentations.h
     cxRouteGuidanceRep.h
+    cxScopeExposure.h
 )
 
 # Qt Designer files which should be processed by Qts uic
