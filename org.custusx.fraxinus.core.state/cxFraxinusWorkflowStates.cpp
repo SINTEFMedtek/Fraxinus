@@ -782,25 +782,51 @@ void FraxinusWorkflowState::cleanupVBWidget()
 void FraxinusWorkflowState::showRouteGuidance(int flyThrough3DViewGroupNumber)
 {
 	this->hideRouteGuidance();
-	if(!this->active() || !viewService()) // May be called from a timer after the state is exited
-		return;
-	ViewPtr view = viewService()->get3DView(flyThrough3DViewGroupNumber);
-	if(!view)
-		return;
+	ViewServicePtr views = viewService();
+	if(this->active() && views) // May be called from a timer after the state is exited
+	{
+		mRouteGuidanceRep = RouteGuidanceRep::New(mServices->tracking(), mServices->spaceProvider());
+		mRouteGuidanceRep->setRoute(mRouteToTargetPositions, mRouteToTargetGenerationNumbers, mRouteToTargetRadius);
+		mRouteGuidanceViewGroupNumber = flyThrough3DViewGroupNumber;
+		this->addRouteGuidanceToView();
+		// A layout change replaces the views in the group
+		connect(views.get(), &ViewService::activeLayoutChanged, this, &FraxinusWorkflowState::addRouteGuidanceToView, Qt::UniqueConnection);
+	}
+}
 
-	mRouteGuidanceRep = RouteGuidanceRep::New(mServices->tracking(), mServices->spaceProvider());
-	mRouteGuidanceRep->setRoute(mRouteToTargetPositions, mRouteToTargetGenerationNumbers, mRouteToTargetRadius);
-	view->addRep(mRouteGuidanceRep);
-	mRouteGuidanceView = view;
+void FraxinusWorkflowState::addRouteGuidanceToView()
+{
+	ViewPtr oldView = mRouteGuidanceView.lock();
+	ViewPtr newView = (mRouteGuidanceRep && viewService()) ? viewService()->get3DView(mRouteGuidanceViewGroupNumber) : ViewPtr();
+	if(oldView != newView)
+	{
+		if(oldView)
+		{
+			oldView->removeRep(mRouteGuidanceRep);
+		}
+		if(newView)
+		{
+			newView->addRep(mRouteGuidanceRep);
+		}
+		mRouteGuidanceView = newView;
+	}
 }
 
 void FraxinusWorkflowState::hideRouteGuidance()
 {
+	ViewServicePtr views = viewService();
+	if(views)
+	{
+		disconnect(views.get(), &ViewService::activeLayoutChanged, this, &FraxinusWorkflowState::addRouteGuidanceToView);
+	}
 	ViewPtr view = mRouteGuidanceView.lock();
 	if(view && mRouteGuidanceRep)
+	{
 		view->removeRep(mRouteGuidanceRep);
+	}
 	mRouteGuidanceRep.reset();
 	mRouteGuidanceView.reset();
+	mRouteGuidanceViewGroupNumber = -1;
 }
 
 void FraxinusWorkflowState::startScopeExposure(int flyThrough3DViewGroupNumber)

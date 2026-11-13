@@ -109,6 +109,7 @@ protected:
 	bool mUpdateFocus = false;
 	RouteGuidanceRepPtr mRouteGuidanceRep;
 	ViewWeakPtr mRouteGuidanceView;
+	int mRouteGuidanceViewGroupNumber = -1;
 	ScopeExposureControllerPtr mScopeExposureController;
 
 
@@ -137,6 +138,7 @@ protected:
 	virtual void addDataToView() = 0;
 
 protected slots:
+	void addRouteGuidanceToView();
 	virtual void setDefaultCameraStyle();
 	virtual void setVBFlythroughCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
 	virtual void setVBCutplanesCameraStyle(int flyThrough3DViewGroupNumber, int surfaceModel3DViewGroupNumber, int m2DViewGroupNumber);
