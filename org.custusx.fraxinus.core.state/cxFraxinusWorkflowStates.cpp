@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QApplication>
 #include <QMainWindow>
 #include <vtkPolyData.h>
+#include <vtkPointData.h>
 #include <vtkImageData.h>
 #include "cxStateService.h"
 #include "cxSettings.h"
@@ -628,7 +629,8 @@ void FraxinusWorkflowState::updateFocus()
 	if(mUpdateFocus)
 	{
 		FraxinusVBWidget* VBWidget = this->getVBWidget();
-		if(VBWidget)
+		// Moving focus while a mouse button is pressed cancels a click on a button
+		if(VBWidget && QApplication::mouseButtons() == Qt::NoButton)
 		{
 			VBWidget->setFocus(Qt::ActiveWindowFocusReason);
 		}
@@ -697,6 +699,8 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 
 	routeToTargetFilter->setMaxGenerationForCameraRotation(MAX_GENERATION_FOR_AUTOMATIC_CAMERA_ROTATION);
 
+	this->addRadiusToAirwayCenterlineIfMissing();
+
 	std::vector<Vector3D> positionVector;
 	positionVector.push_back(targetPoint->getCoordinate());
 	std::vector<QString> lobeNameVector = FraxinusSegmentations::getLobeNameFromPositions(positionVector, mServices);
@@ -715,6 +719,22 @@ void FraxinusWorkflowState::createRouteToTarget(bool makeRouteInformationFile)
 		emit routeToTargetCreated();
 	}
 	mBranchList = routeToTargetFilter->getBranchList();
+}
+
+// Patients processed before the airway radius was stored in the smoothed centerline: Calculate and store it.
+void FraxinusWorkflowState::addRadiusToAirwayCenterlineIfMissing()
+{
+	MeshPtr airwaysCenterline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
+	ImagePtr airwaysVolume = mServices->patient()->getData<Image>(otAIRWAYS);
+	QString radiusArrayName = AirwaysFromCenterline::getRadiusArrayName();
+	bool radiusMissing = airwaysCenterline && !airwaysCenterline->getVtkPolyData()->GetPointData()->HasArray(radiusArrayName.toStdString().c_str());
+
+	if(radiusMissing && AirwaysFromCenterline::addRadiusToCenterline(airwaysCenterline, airwaysVolume))
+	{
+		// Session save only writes the patient file, not data files. Save mesh directly (insertData() would trigger route recalculation).
+		airwaysCenterline->save(mServices->patient()->getActivePatientFolder(), mServices->file());
+		CX_LOG_INFO() << "Added airway radius to centerline: " << airwaysCenterline->getName();
+	}
 }
 
 void FraxinusWorkflowState::setMeshOpacity(MeshPtr mesh, double opacity)
@@ -763,25 +783,51 @@ void FraxinusWorkflowState::cleanupVBWidget()
 void FraxinusWorkflowState::showRouteGuidance(int flyThrough3DViewGroupNumber)
 {
 	this->hideRouteGuidance();
-	if(!this->active() || !viewService()) // May be called from a timer after the state is exited
-		return;
-	ViewPtr view = viewService()->get3DView(flyThrough3DViewGroupNumber);
-	if(!view)
-		return;
+	ViewServicePtr views = viewService();
+	if(this->active() && views) // May be called from a timer after the state is exited
+	{
+		mRouteGuidanceRep = RouteGuidanceRep::New(mServices->tracking(), mServices->spaceProvider());
+		mRouteGuidanceRep->setRoute(mRouteToTargetPositions, mRouteToTargetGenerationNumbers, mRouteToTargetRadius);
+		mRouteGuidanceViewGroupNumber = flyThrough3DViewGroupNumber;
+		this->addRouteGuidanceToView();
+		// A layout change replaces the views in the group
+		connect(views.get(), &ViewService::activeLayoutChanged, this, &FraxinusWorkflowState::addRouteGuidanceToView, Qt::UniqueConnection);
+	}
+}
 
-	mRouteGuidanceRep = RouteGuidanceRep::New(mServices->tracking(), mServices->spaceProvider());
-	mRouteGuidanceRep->setRoute(mRouteToTargetPositions, mRouteToTargetGenerationNumbers, mRouteToTargetRadius);
-	view->addRep(mRouteGuidanceRep);
-	mRouteGuidanceView = view;
+void FraxinusWorkflowState::addRouteGuidanceToView()
+{
+	ViewPtr oldView = mRouteGuidanceView.lock();
+	ViewPtr newView = (mRouteGuidanceRep && viewService()) ? viewService()->get3DView(mRouteGuidanceViewGroupNumber) : ViewPtr();
+	if(oldView != newView)
+	{
+		if(oldView)
+		{
+			oldView->removeRep(mRouteGuidanceRep);
+		}
+		if(newView)
+		{
+			newView->addRep(mRouteGuidanceRep);
+		}
+		mRouteGuidanceView = newView;
+	}
 }
 
 void FraxinusWorkflowState::hideRouteGuidance()
 {
+	ViewServicePtr views = viewService();
+	if(views)
+	{
+		disconnect(views.get(), &ViewService::activeLayoutChanged, this, &FraxinusWorkflowState::addRouteGuidanceToView);
+	}
 	ViewPtr view = mRouteGuidanceView.lock();
 	if(view && mRouteGuidanceRep)
+	{
 		view->removeRep(mRouteGuidanceRep);
+	}
 	mRouteGuidanceRep.reset();
 	mRouteGuidanceView.reset();
+	mRouteGuidanceViewGroupNumber = -1;
 }
 
 void FraxinusWorkflowState::startScopeExposure(int flyThrough3DViewGroupNumber)
