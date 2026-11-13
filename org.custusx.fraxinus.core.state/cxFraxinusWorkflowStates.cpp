@@ -732,14 +732,10 @@ void FraxinusWorkflowState::addRadiusToAirwayCenterlineIfMissing()
 {
 	MeshPtr airwaysCenterline = mServices->patient()->getData<Mesh>(otAIRWAYS_CENTERLINES);
 	ImagePtr airwaysVolume = mServices->patient()->getData<Image>(otAIRWAYS);
-	if(!airwaysCenterline || !airwaysVolume)
-		return;
-
 	QString radiusArrayName = AirwaysFromCenterline::getRadiusArrayName();
-	if(airwaysCenterline->getVtkPolyData()->GetPointData()->HasArray(radiusArrayName.toStdString().c_str()))
-		return;
+	bool radiusMissing = airwaysCenterline && !airwaysCenterline->getVtkPolyData()->GetPointData()->HasArray(radiusArrayName.toStdString().c_str());
 
-	if(AirwaysFromCenterline::addRadiusToCenterline(airwaysCenterline, airwaysVolume))
+	if(radiusMissing && AirwaysFromCenterline::addRadiusToCenterline(airwaysCenterline, airwaysVolume))
 	{
 		// Session save only writes the patient file, not data files. Save mesh directly (insertData() would trigger route recalculation).
 		airwaysCenterline->save(mServices->patient()->getActivePatientFolder(), mServices->file());
