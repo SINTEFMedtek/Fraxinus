@@ -16,6 +16,7 @@ if(BUILD_TESTING)
     set(CXTEST_PLUGINALGORITHM_SOURCES
         cxtestFraxinusSegmentation.cpp
         cxtestRouteGuidance.cpp
+        cxtestScopeExposure.cpp
         cxtestExportDummyClassForLinkingOnWindowsInLibWithoutExportedClass.cpp
     )
 
