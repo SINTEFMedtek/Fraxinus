@@ -629,7 +629,8 @@ void FraxinusWorkflowState::updateFocus()
 	if(mUpdateFocus)
 	{
 		FraxinusVBWidget* VBWidget = this->getVBWidget();
-		if(VBWidget)
+		// Moving focus while a mouse button is pressed cancels a click on a button
+		if(VBWidget && QApplication::mouseButtons() == Qt::NoButton)
 		{
 			VBWidget->setFocus(Qt::ActiveWindowFocusReason);
 		}
